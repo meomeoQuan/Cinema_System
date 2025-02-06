@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Cinema_System</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Cinema_System.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <header>
+       
+            <title>Caligo Cinema</title>
+        
+        <a href="homepage.html"><img src="images/logo2.png" class="logo" alt="" /></a>
+        <ul class="nav">
+            <li>
+                <a href="homepage.html"><i class="fa fa-home" aria-hidden="true"></i></a>
+            </li>
+            <li><a href="#">Products</a></li>
+            <li><a href="#">Discount</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Policy</a></li>
+            <li><a href="#"><i class="fa-solid fa-cart-shopping"></i></a></li>
+        </ul>
+        <div class="nav_menu">
+            <div class="dropdown" id="dropdown">
+                <div class="dropdown_profile">
+                    <div class="dropdown_names">
+                        <h3>Name User</h3>
+                    </div>
+                    <div class="dropdown_image">
+                        <img src="images/ava1.jpg" alt="image">
+                    </div>
+                </div>
+
+                <div class="dropdown_list">
+                    <a href="profile.html" class="dropdown_link">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="#" class="dropdown_link">
+                        <i class="fa-solid fa-gift"></i>
+                        <span>Points</span>
+                    </a>
+                    <a href="#" class="dropdown_link">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                        <span>Transaction History</span>
+                    </a>
+                    <a href="login.html" class="dropdown_link">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span id="form-open">Log In</span>
+                    </a>
+                    <a href="#" class="dropdown_link">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Log Out</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    @* <footer class="border-top footer text-muted"> *@
+    @*     <div class="container"> *@
+    @*         &copy; 2025 - Cinema_System - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+    @*     </div> *@
+    @* </footer> *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
