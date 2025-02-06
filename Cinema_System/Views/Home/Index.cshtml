@@ -19,58 +19,45 @@
         </div>
 
         <div class="banner">
-            <div class="content active" id="content1">
-                <img src="images/banner1.png" alt="" class="movie-title" />
-                <h4>
-                    <span>2025</span><span><i>10+</i></span>
-                    <span>2h 9min</span>Romance<span></span>
-                </h4>
-                <p>
-                    A brave, beautiful, and brilliant young woman is imprisoned by a beast in his castle. Despite her fears, she learns to see beyond the beast's hideous exterior and realize the gentle heart of the true prince within him.
-                </p>
-                <div class="button">
-                    <a href="#"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>More Detail</a>
-                    <a href="#"><i class="fa fa-ticket-alt" aria-hidden="true"></i>Book Ticket</a>
-                </div>
-            </div>
-            <div class="content" id="content2">
-                <img src="images/banner2.png" alt="" class="movie-title" />
-                <h4>
-                    <span>2025</span><span><i>18+</i></span>
-                    <span>1h 32min</span>Horror<span></span>
-                </h4>
-                <p>
-                    When a group of friends recklessly violates the sacred rule of Tarot readings, they unknowingly unleash an unspeakable evil trapped within the cursed cards. One by one, they come face to face with fate and end up in a race against death.
-                </p>
-                <div class="button">
-                    <a href="#"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>More Detail</a>
-                    <a href="#"><i class="fa fa-ticket-alt" aria-hidden="true"></i>Book Ticket</a>
-                </div>
-            </div>
-            <div class="content" id="content3">
-                <img src="images/banner3.png" alt="" class="movie-title" />
-                <h4>
-                    <span>2025</span><span><i>6+</i></span>
-                    <span>1h 43min</span>Comedy<span></span>
-                </h4>
-                <p>
-                    An eight-year-old troublemaker, mistakenly left home alone, must defend his home against a pair of burglars on Christmas Eve.
-                </p>
-                <div class="button">
-                    <a href="#"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>More Detail</a>
-                    <a href="#"><i class="fa fa-ticket-alt" aria-hidden="true"></i>Book Ticket</a>
-                </div>
-            </div>
-            <!--<a href="#" class="play">
-                <i class="fa-regular fa-circle-play" aria-hidden="true">Watch Trailer</i>
-            </a>-->
-        </div>
+          
+                <div class="content active" id="content1">
+                @foreach (var obj in Model)
+                {
+                    <img src="images/banner1.png" alt="" class="movie-title" />
 
-        <div class="slider-navigation">
-            <div class="nav-btn" data-target="1"></div>
-            <div class="nav-btn" data-target="2"></div>
-            <div class="nav-btn" data-target="3"></div>
-        </div>
+                    <div>
+                        <h4>@obj.releaseDate</h4>
+                        <h4>@obj.ageLimit</h4>
+                        <h4>@obj.duration</h4>
+                        <h4>@obj.genre</h4>
+                    </div>
+                    <h4>
+                        <span>2025</span><span><i>10+</i></span>
+                        <span>2h 9min</span>Romance<span></span>
+                    </h4>
+                    <p asp-for="@obj.description">
+                        A brave, beautiful, and brilliant young woman is imprisoned by a beast in his castle. Despite her fears, she learns to see beyond the beast's hideous exterior and realize the gentle heart of the true prince within him.
+                    </p>
+                    <div class="button">
+                        <a href="#"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>More Detail</a>
+                        <a href="#"><i class="fa fa-ticket-alt" aria-hidden="true"></i>Book Ticket</a>
+                    </div>
+
+                    }
+
+                </div>
+           
+          
+
+        <!--<a href="#" class="play">
+               <i class="fa-regular fa-circle-play" aria-hidden="true">Watch Trailer</i>
+           </a>-->
+            <div class="slider-navigation">
+                <div class="nav-btn" data-target="1"></div>
+                <div class="nav-btn" data-target="2"></div>
+                <div class="nav-btn" data-target="3"></div>
+            </div>
+        
     </section>
 
 
@@ -81,5 +68,5 @@
 	<script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    
+    <partial name="_ValidationScriptsPartial" />
 }

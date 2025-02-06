@@ -11,25 +11,27 @@ namespace Cinema.Models
     public class Movie
     {
         [Key]
-        public int MovieID { get; set; }
+        public int movieID { get; set; }
         [Required]
-        public string Title { get; set; }
+        public string title { get; set; }
         [Required]
-        public string Genre { get; set; }
+        public string genre { get; set; }
 
         //public string Director { get; set; }
-        public string Description { get; set; }
+        public string description { get; set; }
     
-        public string TrailerLink { get; set; }
-        public string Duration { get; set; }
-        public string ReleaseDate { get; set; }
+        public string trailerLink { get; set; }
+        public string duration { get; set; }
+        public string releaseDate { get; set; }
+
+        public string ageLimit { get; set; }
         //public string Actor { get; set; }
 
-        public DateTime ? CreatedAt { get; set; }  // Auto-assign date when added
-        public DateTime ? UpdatedAt { get; set; } 
+        public DateTime ? createdAt { get; set; }  // Auto-assign date when added
+        public DateTime ? updatedAt { get; set; } 
 
         [ValidateNever]
-        public string MovieImage { get; set; } // validate never as it does not treat as normal input property
+        public string movieImage { get; set; } // validate never as it does not treat as normal input property
 
 
 
