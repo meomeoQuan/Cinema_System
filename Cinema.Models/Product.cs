@@ -25,7 +25,7 @@ namespace Cinema.Models
       
 
         [ValidateNever]
-        public string productImage { get; set; }
+        public string ?productImage { get; set; }
     }
 
 }

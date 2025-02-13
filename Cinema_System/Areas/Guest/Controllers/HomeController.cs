@@ -5,8 +5,9 @@ using Cinema.Models;
 using Cinema_System.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cinema_System.Controllers
+namespace Cinema_System.Areas.Guest.Controllers
 {
+    [Area("Guest")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -19,7 +20,7 @@ namespace Cinema_System.Controllers
 
         public IActionResult Index()
         {
-            List<Movie> movieList = _unitOfWork.Movie.GetAll().ToList();    
+            List<Movie> movieList = _unitOfWork.Movie.GetAll().ToList();
             return View(movieList);
         }
 
@@ -33,6 +34,6 @@ namespace Cinema_System.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-       
+
     }
 }
