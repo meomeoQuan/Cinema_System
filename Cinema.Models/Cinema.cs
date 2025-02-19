@@ -14,9 +14,10 @@ namespace Cinema.Models
         [Required]
         public string CinemaName { get; set; }
         [Required]
-        public string CinemaAddress { get; set; }
+        public string Address { get; set; } = string.Empty;
         [Required]
-        public int NumberOfCinemaRooms { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Number of rooms must be at least 1.")]
+        public int NumberOfRooms { get; set; } = 1;
 
         public int ? CinemaStatus { get; set; }
         [Required]
