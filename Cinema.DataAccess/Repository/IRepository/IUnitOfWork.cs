@@ -9,7 +9,8 @@ namespace Cinema.DataAccess.Repository.IRepository
     public interface IUnitOfWork
     {
         public IMovieRepository Movie { get; }
+        public ICouponRepository Coupon { get; }
         public IProductRepository Product { get; }
-        void Save();
+         Task SaveAsync();
     }
 }

@@ -12,10 +12,10 @@ namespace Cinema.Models
     public class ApplicationUser : IdentityUser
     {
         [Required]
-        public string fullName { get; set; }
+        public string FullName { get; set; }
         [NotMapped] 
-        public string role { get; set; }
+        public string Role { get; set; }
 
-        public string ? userImage { get; set; }
+        public string ? UserImage { get; set; }
     }
 }

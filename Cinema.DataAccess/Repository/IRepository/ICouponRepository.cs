@@ -7,9 +7,10 @@ using Cinema.Models;
 
 namespace Cinema.DataAccess.Repository.IRepository
 {
-    public interface IMovieRepository : IRepository<Movie>
+    public interface ICouponRepository : IRepository<Coupon>
+        
     {
-      
-        void Update(Movie movie);
+       
+        void Update(Coupon coupon);
     }
 }

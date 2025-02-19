@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
+using Cinema.Models.ViewModels;
 using Cinema_System.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,15 +21,64 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         public IActionResult Index()
         {
-            List<Movie> movieList = _unitOfWork.Movie.GetAll().ToList();
-            return View(movieList);
-        }
-
-        public IActionResult Privacy()
-        {
             return View();
         }
 
+        #region API
+        [HttpGet]
+        public async Task<IActionResult> GetMovies(int Showingpage = 1,int Upcommingpage = 1 , int CouponPage = 1)
+        {
+            // Ensure page numbers are always 1 or greater
+            Showingpage = Math.Max(1, Showingpage);
+            Upcommingpage = Math.Max(1, Upcommingpage);
+            CouponPage = Math.Max(1, CouponPage);
+            // hien thi moi trang 1 cai 
+            int pageSize = 1;
+            var showingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Showingpage, pageSize, u => !u.IsUpcommingMovie);
+            var upcommingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Upcommingpage, pageSize, u => u.IsUpcommingMovie);
+            var couponMovies = await _unitOfWork.Coupon.GetAllPagedAsync(CouponPage, pageSize);
+
+            var movieVM = new MovieVM()
+            {
+                ShowingMovies = showingMovies,
+                UpcommingMovies = upcommingMovies,
+                CouponMovies = couponMovies,
+
+                ShowingMoviesCount = await _unitOfWork.Movie.CountAsync(u => !u.IsUpcommingMovie),
+                UpcommingMoviesCount = await _unitOfWork.Movie.CountAsync(u => u.IsUpcommingMovie),
+                CouponCount = await _unitOfWork.Coupon.CountAsync(),
+                PageSize = pageSize
+            };
+
+            //ViewBag.CurrentPage = Showingpage; // Pass current page to view
+            //ViewBag.CurrentPage = Upcommingpage; // Pass current page to view
+            //ViewBag.CurrentPage = CouponPage; // Pass current page to view
+
+            return Ok(new { data = movieVM, message = "Success" });
+        }
+
+        #endregion
+
+
+
+        public async Task<IActionResult> Showing()
+        {
+            IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => !u.IsUpcommingMovie);
+
+
+            return View(movies);
+        }
+
+
+      
+        public async Task<IActionResult> Upcomming()
+        {
+            IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => u.IsUpcommingMovie);
+
+
+            return View(movies);
+        }
+     
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

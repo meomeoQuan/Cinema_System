@@ -17,17 +17,18 @@ namespace Cinema.DataAccess.Repository
             _db = db;
             Product = new ProductRepository(_db);
             Movie = new MovieRepository(_db);
+            Coupon = new CouponRepository(_db);
 
         }
         public IMovieRepository Movie { get; private set; }
 
         public IProductRepository Product { get; private set; }
 
-      
+        public ICouponRepository Coupon { get; private set; }
 
-        public void Save()
+        public async Task SaveAsync()
         {
-           _db.SaveChanges();
+            await _db.SaveChangesAsync();
         }
     }
 }

@@ -11,14 +11,17 @@ namespace Cinema.DataAccess.Repository.IRepository
     public interface IRepository <T> where T : class
     {
 
-       
-        T Get(Expression<Func<T, bool>> filter, string? includeProperties = null);
+        Task<T?> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null);
 
-        IEnumerable<T> GetAll(Expression<Func<T,bool>> ? filter = null, string ? includeProperties = null);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
 
+        Task<IEnumerable<T>> GetAllPagedAsync(int pageIndex,int pageSize,Expression<Func<T, bool>>? filter = null,string? includeProperties = null);
+
+        //Func<object, object> value
+        Task<int> CountAsync(Expression<Func<T,bool>>? filter = null);
 
         void Add(T entity);
         void Remove(T entity);
-        void RemoveRange(IEnumerable<T> entity);
+        void RemoveRange(IEnumerable<T> entities);
     }
 }
