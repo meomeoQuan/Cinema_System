@@ -15,9 +15,11 @@ namespace Cinema.Models
         public int ShowTimeID { get; set; }
 
         [Required]
-        public string ShowDates { get; set; }
+        public DateTime ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
+        //public string ShowDates { get; set; }
         [Required]
-        public string ShowTimes { get; set; }
+        public TimeSpan ShowTimes { get; set; } // SQL `TIME` maps to `TimeSpan`
+        //public string ShowTimes { get; set; }
 
 
         public int CinemaID { get; set; }
