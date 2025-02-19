@@ -1,72 +1,173 @@
 ﻿
-@model List<Movie>
-
-
-<div>
-
-    <!--BANNER-->
-    <section>
-        <div class="video-background">
-            <video id="video1" class="active" autoplay muted loop>
-                <source src="videos/headervi1.mp4" type="video/mp4">
-            </video>
-            <video id="video2" autoplay muted loop>
-                <source src="videos/headervi2.mp4" type="video/mp4">
-            </video>
-            <video id="video3" autoplay muted loop>
-                <source src="videos/headervi3.mp4" type="video/mp4">
-            </video>
+<body>
+    <div class="container mt-4">
+        <!-- Advertisement Banner -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <img src="https://placehold.co/1200x300/png" class="img-fluid w-100" alt="Advertisement Banner">
+            </div>
         </div>
 
-        <div class="banner">
-          
-                <div class="content active" id="content1">
-                @foreach (var obj in Model)
-                {
-                    <img src="images/banner1.png" alt="" class="movie-title" />
-
-                    <div>
-                        <h4>@obj.releaseDate</h4>
-                        <h4>@obj.ageLimit</h4>
-                        <h4>@obj.duration</h4>
-                        <h4>@obj.genre</h4>
+        <!-- Now Showing Movies -->
+        <div class="row pb-3">
+            <h5 class="text-center">Now Showing</h5>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card  rounded">
+                            <img src="https://placehold.co/500x700/png" class="card-img-top rounded" />
+                        </div>
                     </div>
-                    <h4>
-                        <span>2025</span><span><i>10+</i></span>
-                        <span>2h 9min</span>Romance<span></span>
-                    </h4>
-                    <p asp-for="@obj.description">
-                        A brave, beautiful, and brilliant young woman is imprisoned by a beast in his castle. Despite her fears, she learns to see beyond the beast's hideous exterior and realize the gentle heart of the true prince within him.
-                    </p>
-                    <div class="button">
-                        <a href="#"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>More Detail</a>
-                        <a href="#"><i class="fa fa-ticket-alt" aria-hidden="true"></i>Book Ticket</a>
-                    </div>
-
-                    }
-
                 </div>
-           
-          
-
-        <!--<a href="#" class="play">
-               <i class="fa-regular fa-circle-play" aria-hidden="true">Watch Trailer</i>
-           </a>-->
-            <div class="slider-navigation">
-                <div class="nav-btn" data-target="1"></div>
-                <div class="nav-btn" data-target="2"></div>
-                <div class="nav-btn" data-target="3"></div>
             </div>
-        
-    </section>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card   rounded">
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                            <div class="card-body pb-0">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">Movie Title</p>
+                                <p class="card-title text-warning text-center">by <b>Director Name</b></p>
+                                <p class="text-dark text-opacity-75 text-center mb-0">List Price: <span class="text-decoration-line-through">$XX.XX</span></p>
+                                <p class="text-dark text-opacity-75 text-center">As low as: <span>$XX.XX</span></p>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-primary bg-gradient border-0 form-control">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card   rounded">
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                            <div class="card-body pb-0">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">Movie Title</p>
+                                <p class="card-title text-warning text-center">by <b>Director Name</b></p>
+                                <p class="text-dark text-opacity-75 text-center mb-0">List Price: <span class="text-decoration-line-through">$XX.XX</span></p>
+                                <p class="text-dark text-opacity-75 text-center">As low as: <span>$XX.XX</span></p>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-primary bg-gradient border-0 form-control">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card   rounded">
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                            <div class="card-body pb-0">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">Movie Title</p>
+                                <p class="card-title text-warning text-center">by <b>Director Name</b></p>
+                                <p class="text-dark text-opacity-75 text-center mb-0">List Price: <span class="text-decoration-line-through">$XX.XX</span></p>
+                                <p class="text-dark text-opacity-75 text-center">As low as: <span>$XX.XX</span></p>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-primary bg-gradient border-0 form-control">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
+        <!-- Upcoming Movies -->
+        <div class="row pb-3">
+            <h5 class="text-center">Now Showing</h5>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card  rounded">
+                            <img src="https://placehold.co/500x700/png" class="card-img-top rounded" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card   rounded">
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                            <div class="card-body pb-0">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">Movie Title</p>
+                                <p class="card-title text-warning text-center">by <b>Director Name</b></p>
+                                <p class="text-dark text-opacity-75 text-center mb-0">List Price: <span class="text-decoration-line-through">$XX.XX</span></p>
+                                <p class="text-dark text-opacity-75 text-center">As low as: <span>$XX.XX</span></p>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-primary bg-gradient border-0 form-control">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card   rounded">
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                            <div class="card-body pb-0">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">Movie Title</p>
+                                <p class="card-title text-warning text-center">by <b>Director Name</b></p>
+                                <p class="text-dark text-opacity-75 text-center mb-0">List Price: <span class="text-decoration-line-through">$XX.XX</span></p>
+                                <p class="text-dark text-opacity-75 text-center">As low as: <span>$XX.XX</span></p>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-primary bg-gradient border-0 form-control">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card   rounded">
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                            <div class="card-body pb-0">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">Movie Title</p>
+                                <p class="card-title text-warning text-center">by <b>Director Name</b></p>
+                                <p class="text-dark text-opacity-75 text-center mb-0">List Price: <span class="text-decoration-line-through">$XX.XX</span></p>
+                                <p class="text-dark text-opacity-75 text-center">As low as: <span>$XX.XX</span></p>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-primary bg-gradient border-0 form-control">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Coupons -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <img src="https://placehold.co/1200x300/png" class="img-fluid w-100" alt="Advertisement Banner">
+            </div>
+        </div>
 
-  
-</div>
-@section Scripts {
-	<script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <partial name="_ValidationScriptsPartial" />
-}
+    <style>
+        .dot {
+            height: 10px;
+            width: 10px;
+            margin: 5px;
+            background-color: gray;
+            border-radius: 50%;
+            display: inline-block;
+        }
+    </style>
+</body>

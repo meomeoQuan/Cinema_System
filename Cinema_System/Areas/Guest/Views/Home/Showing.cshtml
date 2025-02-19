@@ -1,0 +1,14 @@
+﻿@model IEnumerable<Movie>
+
+	<!--Showing movies here-->
+<h3>Showing movies here</h3>
+
+<div class="movies-container">
+    @foreach (var obj in Model)
+    {
+
+        <h3>@obj.Genre</h3>
+        <p>@obj.Title</p>
+
+    }
+</div>

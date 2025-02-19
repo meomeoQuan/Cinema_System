@@ -11,21 +11,21 @@ namespace Cinema.Models
     public class Product
     {
         [Key]
-        public int productID { get; set; }
+        public int ProductID { get; set; }
 
         [Required]
-        public string nameProduct { get; set; }
+        public string NameProduct { get; set; }
         [Required]
-        public string description { get; set; }
+        public string Description { get; set; }
         [Required]
-        public string productType { get; set; }
+        public string ProductType { get; set; }
         [Required]
-        public double price { get; set; }
+        public double Price { get; set; }
 
       
 
         [ValidateNever]
-        public string ?productImage { get; set; }
+        public string ? ProductImage { get; set; }
     }
 
 }

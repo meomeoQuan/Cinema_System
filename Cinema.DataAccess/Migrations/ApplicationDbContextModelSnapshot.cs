@@ -22,132 +22,202 @@ namespace Cinema.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Cinema.Models.Movie", b =>
+            modelBuilder.Entity("Cinema.Models.Coupon", b =>
                 {
-                    b.Property<int>("movieID")
+                    b.Property<int>("CouponID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("movieID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CouponID"));
 
-                    b.Property<string>("ageLimit")
+                    b.Property<string>("CouponCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("createdAt")
+                    b.Property<string>("DiscountPercentage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExpireDay")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("description")
+                    b.Property<int?>("UsageLimit")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UsedCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("CouponID");
+
+                    b.ToTable("Coupon");
+
+                    b.HasData(
+                        new
+                        {
+                            CouponID = 1,
+                            CouponCode = "Test",
+                            DiscountPercentage = "10%",
+                            UsageLimit = 10,
+                            UsedCount = 1
+                        });
+                });
+
+            modelBuilder.Entity("Cinema.Models.Movie", b =>
+                {
+                    b.Property<int>("MovieID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MovieID"));
+
+                    b.Property<string>("AgeLimit")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("duration")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("genre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("movieImage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("releaseDate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("trailerLink")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("updatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("movieID");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Genre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsUpcommingMovie")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MovieImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReleaseDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrailerLink")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("MovieID");
 
                     b.ToTable("Movies");
 
                     b.HasData(
                         new
                         {
-                            movieID = 1,
-                            ageLimit = "10+",
-                            description = "A thief who enters the dreams of others to steal secrets.",
-                            duration = "148 min",
-                            genre = "Sci-Fi",
-                            movieImage = "",
-                            releaseDate = "2010-07-16",
-                            title = "Inception",
-                            trailerLink = "https://example.com/inception"
+                            MovieID = 1,
+                            AgeLimit = "10+",
+                            Description = "A thief who enters the dreams of others to steal secrets.",
+                            Duration = "148 min",
+                            Genre = "Sci-Fi",
+                            IsUpcommingMovie = false,
+                            MovieImage = "",
+                            ReleaseDate = "2010-07-16",
+                            Title = "Inception",
+                            TrailerLink = "https://example.com/inception"
                         },
                         new
                         {
-                            movieID = 2,
-                            ageLimit = "18+",
-                            description = "Batman faces the Joker, a criminal mastermind.",
-                            duration = "152 min",
-                            genre = "Action",
-                            movieImage = "",
-                            releaseDate = "2008-07-18",
-                            title = "The Dark Knight",
-                            trailerLink = "https://example.com/darkknight"
+                            MovieID = 2,
+                            AgeLimit = "18+",
+                            Description = "Batman faces the Joker, a criminal mastermind.",
+                            Duration = "152 min",
+                            Genre = "Action",
+                            IsUpcommingMovie = false,
+                            MovieImage = "",
+                            ReleaseDate = "2008-07-18",
+                            Title = "The Dark Knight",
+                            TrailerLink = "https://example.com/darkknight"
+                        },
+                        new
+                        {
+                            MovieID = 3,
+                            AgeLimit = "10+",
+                            Description = "A thief who enters the dreams of others to steal secrets.",
+                            Duration = "148 min",
+                            Genre = "Sci-Fi",
+                            IsUpcommingMovie = true,
+                            MovieImage = "",
+                            ReleaseDate = "2010-07-16",
+                            Title = "Inception",
+                            TrailerLink = "https://example.com/inception"
+                        },
+                        new
+                        {
+                            MovieID = 4,
+                            AgeLimit = "18+",
+                            Description = "Batman faces the Joker, a criminal mastermind.",
+                            Duration = "152 min",
+                            Genre = "Action",
+                            IsUpcommingMovie = true,
+                            MovieImage = "",
+                            ReleaseDate = "2008-07-18",
+                            Title = "The Dark Knight",
+                            TrailerLink = "https://example.com/darkknight"
                         });
                 });
 
             modelBuilder.Entity("Cinema.Models.Product", b =>
                 {
-                    b.Property<int>("productID")
+                    b.Property<int>("ProductID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("productID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductID"));
 
-                    b.Property<string>("description")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("nameProduct")
+                    b.Property<string>("NameProduct")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("price")
+                    b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<string>("productImage")
+                    b.Property<string>("ProductImage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("productType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("productID");
+                    b.HasKey("ProductID");
 
                     b.ToTable("Products");
 
                     b.HasData(
                         new
                         {
-                            productID = 1,
-                            description = "A large bucket of buttered popcorn.",
-                            nameProduct = "Popcorn",
-                            price = 5.9900000000000002,
-                            productImage = "",
-                            productType = "Snack"
+                            ProductID = 1,
+                            Description = "A large bucket of buttered popcorn.",
+                            NameProduct = "Popcorn",
+                            Price = 5.9900000000000002,
+                            ProductImage = "",
+                            ProductType = "Snack"
                         },
                         new
                         {
-                            productID = 2,
-                            description = "Refreshing cold soda, 500ml.",
-                            nameProduct = "Soda",
-                            price = 2.9900000000000002,
-                            productImage = "",
-                            productType = "Drink"
+                            ProductID = 2,
+                            Description = "Refreshing cold soda, 500ml.",
+                            NameProduct = "Soda",
+                            Price = 2.9900000000000002,
+                            ProductImage = "",
+                            ProductType = "Drink"
                         });
                 });
 
@@ -296,12 +366,10 @@ namespace Cinema.DataAccess.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -338,12 +406,10 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");

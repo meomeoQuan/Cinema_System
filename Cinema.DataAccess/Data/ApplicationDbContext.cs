@@ -24,48 +24,92 @@ namespace Cinema.DataAccess.Data
             modelBuilder.Entity<Movie>().HasData(
                 new Movie
                 {
-                    movieID = 1,
-                    title = "Inception",
-                    genre = "Sci-Fi",
-                    ageLimit = "10+",
-                    description = "A thief who enters the dreams of others to steal secrets.",
-                    trailerLink = "https://example.com/inception",
-                    duration = "148 min",
-                    releaseDate = "2010-07-16",
-                    movieImage = ""
+                    MovieID = 1,
+                    Title = "Inception",
+                    Genre = "Sci-Fi",
+                    AgeLimit = "10+",
+                    Description = "A thief who enters the dreams of others to steal secrets.",
+                    TrailerLink = "https://example.com/inception",
+                    Duration = "148 min",
+                    ReleaseDate = "2010-07-16",
+                    MovieImage = "",
+                    IsUpcommingMovie = false
                 },
                 new Movie
                 {
-                    movieID = 2,
-                    title = "The Dark Knight",
-                    ageLimit= "18+",
-                    genre = "Action",
-                    description = "Batman faces the Joker, a criminal mastermind.",
-                    trailerLink = "https://example.com/darkknight",
-                    duration = "152 min",
-                    releaseDate = "2008-07-18",
-                    movieImage = ""
+                    MovieID = 2,
+                    Title = "The Dark Knight",
+                    AgeLimit = "18+",
+                    Genre = "Action",
+                    Description = "Batman faces the Joker, a criminal mastermind.",
+                    TrailerLink = "https://example.com/darkknight",
+                    Duration = "152 min",
+                    ReleaseDate = "2008-07-18",
+                    MovieImage = "",
+                    IsUpcommingMovie = false
                 }
             );
+            modelBuilder.Entity<Movie>().HasData(
+                new Movie
+                {
+                    MovieID = 3,
+                    Title = "Inception",
+                    Genre = "Sci-Fi",
+                    AgeLimit = "10+",
+                    Description = "A thief who enters the dreams of others to steal secrets.",
+                    TrailerLink = "https://example.com/inception",
+                    Duration = "148 min",
+                    ReleaseDate = "2010-07-16",
+                    MovieImage = "",
+                    IsUpcommingMovie = true
+                },
+                new Movie
+                {
+                    MovieID = 4,
+                    Title = "The Dark Knight",
+                    AgeLimit = "18+",
+                    Genre = "Action",
+                    Description = "Batman faces the Joker, a criminal mastermind.",
+                    TrailerLink = "https://example.com/darkknight",
+                    Duration = "152 min",
+                    ReleaseDate = "2008-07-18",
+                    MovieImage = "",
+                    IsUpcommingMovie = true
+                }
+            );
+            modelBuilder.Entity<Coupon>().HasData(
+                new Coupon
+                {
+                    CouponID = 1,
+                    CouponCode = "Test",
+                    DiscountPercentage = "10%",
+                    UsageLimit = 10,
+                    UsedCount = 1,
+
+
+
+                }
+                
+                );
 
             modelBuilder.Entity<Product>().HasData(
                 new Product
                 {
-                    productID = 1,
-                    nameProduct = "Popcorn",
-                    description = "A large bucket of buttered popcorn.",
-                    productType = "Snack",
-                    price = 5.99,
-                    productImage = ""
+                    ProductID = 1,
+                    NameProduct = "Popcorn",
+                    Description = "A large bucket of buttered popcorn.",
+                    ProductType = "Snack",
+                    Price = 5.99,
+                    ProductImage = ""
                 },
                 new Product
                 {
-                    productID = 2,
-                    nameProduct = "Soda",
-                    description = "Refreshing cold soda, 500ml.",
-                    productType = "Drink",
-                    price = 2.99,
-                    productImage = ""
+                    ProductID = 2,
+                    NameProduct = "Soda",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = "Drink",
+                    Price = 2.99,
+                    ProductImage = ""
                 }
             );
         }
