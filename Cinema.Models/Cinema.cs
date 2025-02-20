@@ -18,7 +18,7 @@ namespace Cinema.Models
         [Required]
         public int NumberOfCinemaRooms { get; set; }
 
-        public int ? CinemaStatus { get; set; }
+        public int? CinemaStatus { get; set; }
         [Required]
         public string OpenningTime { get; set; }
         [Required]

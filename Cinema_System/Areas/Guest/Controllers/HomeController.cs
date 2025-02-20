@@ -59,7 +59,10 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-
+        public async Task<IActionResult> Details()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Showing()
         {
