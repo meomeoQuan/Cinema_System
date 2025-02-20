@@ -68,7 +68,7 @@ namespace Cinema.DataAccess.DbInitializer
                 }, "Admin123").GetAwaiter().GetResult();
 
 
-                ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@dotnet.com");
+                ApplicationUser user = _db.Users.FirstOrDefault(u => u.Email == "admin@dotnet.com");
                 _userManager.AddToRoleAsync(user, SD.Role_Admin).GetAwaiter().GetResult();
 
             }

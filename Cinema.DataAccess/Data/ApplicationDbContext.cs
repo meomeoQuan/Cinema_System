@@ -13,16 +13,40 @@ namespace Cinema.DataAccess.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-
         }
-
+        public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Product> Products { get; set; }
-
-        public DbSet<ApplicationUser> ApplicationUsers  { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>().HasData(
+                new ApplicationUser
+                {
+                    FullName = "Huỳnh Lê Đức Thọ",
+                    Email = "tho@gmail.com",
+                    PhoneNumber = "0935358701",
+                    UserImage = "",
+                    Role = "Admin",
+                    PasswordHash = "AQAAAAEAACcQAAAAEJ9Z",
+                    Points = 1375427
+                }
+             );
+            modelBuilder.Entity<ApplicationUser>().HasData(
+                new ApplicationUser
+                {
+                    FullName = "Đố Biết Ai",
+                    Email = "nonamefegbeu@gmail.com",
+                    PhoneNumber = "0323688701",
+                    UserImage = "",
+                    Role = "Admin",
+                    PasswordHash = "AQAVVKDHJBIGRBHG",
+                    Points = 7
+                }
+             );
+
             modelBuilder.Entity<Movie>().HasData(
                 new Movie
                 {
@@ -30,25 +54,25 @@ namespace Cinema.DataAccess.Data
                     Title = "Inception",
                     Genre = "Sci-Fi",
                     AgeLimit = "10+",
-                    Description = "A thief who enters the dreams of others to steal secrets.",
+                    Synopsis = "A thief who enters the dreams of others to steal secrets.",
                     TrailerLink = "https://example.com/inception",
-                    Duration = "148 min",
-                    ReleaseDate = "2010-07-16",
+                    Duration = 148,
+                    ReleaseDate = new DateTime(2010, 7, 16),
                     MovieImage = "",
-                    IsUpcommingMovie = false
+                    IsUpcomingMovie = false
                 },
                 new Movie
                 {
                     MovieID = 2,
                     Title = "The Dark Knight",
-                    AgeLimit = "18+",
                     Genre = "Action",
-                    Description = "Batman faces the Joker, a criminal mastermind.",
+                    AgeLimit = "18+",
+                    Synopsis = "Batman faces the Joker, a criminal mastermind.",
                     TrailerLink = "https://example.com/darkknight",
-                    Duration = "152 min",
-                    ReleaseDate = "2008-07-18",
+                    Duration = 152,
+                    ReleaseDate = new DateTime(2008, 7, 18),
                     MovieImage = "",
-                    IsUpcommingMovie = false
+                    IsUpcomingMovie = false
                 }
             );
             modelBuilder.Entity<Movie>().HasData(
@@ -58,12 +82,12 @@ namespace Cinema.DataAccess.Data
                     Title = "Inception",
                     Genre = "Sci-Fi",
                     AgeLimit = "10+",
-                    Description = "A thief who enters the dreams of others to steal secrets.",
+                    Synopsis = "A thief who enters the dreams of others to steal secrets.",
                     TrailerLink = "https://example.com/inception",
-                    Duration = "148 min",
-                    ReleaseDate = "2010-07-16",
+                    Duration = 148,
+                    ReleaseDate = new DateTime(2010, 7, 16),
                     MovieImage = "",
-                    IsUpcommingMovie = true
+                    IsUpcomingMovie = true
                 },
                 new Movie
                 {
@@ -71,46 +95,45 @@ namespace Cinema.DataAccess.Data
                     Title = "The Dark Knight",
                     AgeLimit = "18+",
                     Genre = "Action",
-                    Description = "Batman faces the Joker, a criminal mastermind.",
+                    Synopsis = "Batman faces the Joker, a criminal mastermind.",
                     TrailerLink = "https://example.com/darkknight",
-                    Duration = "152 min",
-                    ReleaseDate = "2008-07-18",
+                    Duration = 152,
+                    ReleaseDate = new DateTime(2008, 7, 18),
                     MovieImage = "",
-                    IsUpcommingMovie = true
+                    IsUpcomingMovie = true
                 }
             );
             modelBuilder.Entity<Coupon>().HasData(
                 new Coupon
                 {
                     CouponID = 1,
-                    CouponCode = "Test",
-                    DiscountPercentage = "10%",
+                    Code = "TEST10",
+                    DiscountPercentage = 10.00m, // Changed from string to decimal
                     UsageLimit = 10,
                     UsedCount = 1,
-
-
-
+                    ExpireDate = new DateTime(2025, 12, 31)
                 }
-                
-                );
+             );
 
             modelBuilder.Entity<Product>().HasData(
                 new Product
                 {
                     ProductID = 1,
-                    NameProduct = "Popcorn",
+                    Name = "Popcorn",
                     Description = "A large bucket of buttered popcorn.",
-                    ProductType = "Snack",
-                    Price = 5.99,
+                    ProductType = ProductType.Snack,
+                    Price = 5.99m,
+                    Quantity = 50,
                     ProductImage = ""
                 },
                 new Product
                 {
                     ProductID = 2,
-                    NameProduct = "Soda",
+                    Name = "Soda",
                     Description = "Refreshing cold soda, 500ml.",
-                    ProductType = "Drink",
-                    Price = 2.99,
+                    ProductType = ProductType.Drink,
+                    Price = 2.99m,
+                    Quantity = 100,
                     ProductImage = ""
                 }
             );

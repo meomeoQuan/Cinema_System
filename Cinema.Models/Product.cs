@@ -14,19 +14,29 @@ namespace Cinema.Models
         public int ProductID { get; set; }
 
         [Required]
-        public string NameProduct { get; set; }
+        public string Name { get; set; } = string.Empty;
+        //public string NameProduct { get; set; }
+        public string? Description { get; set; }
         [Required]
-        public string Description { get; set; }
+        [EnumDataType(typeof(ProductType))]
+        public ProductType ProductType { get; set; }
+        //public string ProductType { get; set; }
         [Required]
-        public string ProductType { get; set; }
+        [Range(0.00, 9999999.99, ErrorMessage = "Price must be a positive value.")]
+        public decimal Price { get; set; } = 0.00m;
+        //public double Price { get; set; }
         [Required]
-        public double Price { get; set; }
+        [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative.")]
+        public int Quantity { get; set; } = 0;
 
-      
 
         [ValidateNever]
-        public string ? ProductImage { get; set; }
+        public string? ProductImage { get; set; }
     }
-
+    public enum ProductType
+    {
+        Snack,
+        Drink,
+        Gift
+    }
 }
-
