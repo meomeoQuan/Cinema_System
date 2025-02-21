@@ -2,5 +2,245 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title></title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link rel="stylesheet" href="~/css/detail.css">
+    </head>
+    <body class=body_detail>
+    <!--MOVIE DETAILS-->
+    <section>
+        <div class="container movie-container">
+            <div class="row">
+                <!-- Cột bên trái: Ảnh poster -->
+                <div class="col-md-6 movie-poster">
+                    <img src="image.png" alt="Nhà Gia Tiên Poster" class="img-fluid poster-img">
+                </div>
+                <!-- Cột bên phim: Thông tin phim -->
+                <div class="col-md-6 movie-info">
+                    <h1>NHÀ GIA TIÊN (T18)</h1>
+                    <ul class="movie-details">
+                        <li>🎭 Thể loại: Hài, Gia đình</li>
+                        <li>⏳ Thời lượng: 117 phút</li>
+                        <li>🇻🇳 Quốc gia: Việt Nam</li>
+                        <li>📅 Ngày chiếu: 21/02/2025</li>
+                        <li class="rating">🔞 T18: Phim dành cho khán giả từ 18 tuổi trở lên</li>
+                    </ul>
+                    <h3>MÔ TẢ</h3>
+                    <p><strong>Đạo diễn:</strong> Huỳnh Lập</p>
+                    <p><strong>Diễn viên:</strong> Huỳnh Lập, Phương Mỹ Chi, NSUT Hạnh Thúy, NSUT Huỳnh Đông, Puka...</p>
+
+                    <h3>NỘI DUNG PHIM</h3>
+                    <p>
+                        Nhà Gia Tiên xoay quanh câu chuyện về các thế hệ trong gia đình, với nhân vật chính là Gia Minh (Huỳnh Lập) và Mỹ Tiên (Phương Mỹ Chi).
+                        Trở về căn nhà gia tiên để quay clip "triệu view", họ phát hiện ra một bí mật tâm linh bất ngờ...
+                    </p>
+
+                    <a href="#" class="btn btn-danger trailer-btn">🎬 Xem Trailer</a>
+                </div>
+            </div>
+        </div>
+        </section>
+        <!-- Thanh đặt vé-->
+
+        <section>
+        <div class="container d-flex justify-content-center align-items-center vh-100">
+            <div class="booking-container p-4 rounded shadow">
+                <h2 class="text-center text-white mb-3">Lịch Chiếu</h2>
+
+                <!-- Hàng ngang chứa tất cả các lựa chọn -->
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <label class="text-white fw-bold">Chọn Rạp</label>
+                        <select class="form-select" id="cinema">
+                            <option value="">Rạp 1</option>
+                            <option value="rap2">Rạp 2</option>
+                        </select>
+                    </div>
+
+                    <div class="col">
+                        <label class="text-white fw-bold">Chọn Ngày</label>
+                        <select class="form-select" id="date">
+                            <option value="">20/02/2025</option>
+                            <option value="ngay2">21/02/2025</option>
+                        </select>
+                    </div>
+
+                    <div class="col">
+                        <label class="text-white fw-bold">Chọn Thời Gian</label>
+                        <select class="form-select" id="movie">
+                            <option value="">7:30</option>
+                            <option value="phim2">9:00</option>
+                        </select>
+                    </div>
+
+                    <div class="col">
+                        <label class="text-white fw-bold">Chọn Suất</label>
+                        <select class="form-select" id="showtime">
+                            <option value="">10:00</option>
+                            <option value="suat2">14:00</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Nút đặt vé nằm giữa -->
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary px-4" onclick="bookTicket()">ĐẶT NGAY</button>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!--ĐẶT GHẾ-->
+        <section>
+        <div class="container text-center mt-5">
+            <h2 class="text-light fw-bold title">CHỌN GHẾ</h2>
+            <div class="screen bg-light mb-3 p-2">Màn Hình</div>
+
+            <div class="seat-layout">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center">
+                        <div class="seat selected"></div>
+                        <div class="seat"></div>
+                        <div class="seat"></div>
+                        <div class="seat occupied"></div>
+                        <div class="seat"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center">
+                        <div class="seat"></div>
+                        <div class="seat occupied"></div>
+                        <div class="seat"></div>
+                        <div class="seat"></div>
+                        <div class="seat selected"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center">
+                        <div class="seat"></div>
+                        <div class="seat"></div>
+                        <div class="seat selected"></div>
+                        <div class="seat"></div>
+                        <div class="seat occupied"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!--ĐẶT BẮP NƯỚC-->
+        <section>
+        <div class="container text-center mt-5">
+            <h2 class="text-light fw-bold title">CHỌN BẮP NƯỚC</h2>
+
+            <!-- COMBO 2 NGĂN -->
+            <h3 class="category-title">COMBO 2 NGĂN</h3>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="product-card d-flex align-items-center">
+                        <img src="combo1.png" alt="Combo Gấu" class="product-img">
+                        <div class="product-info">
+                            <h4>COMBO GẤU</h4>
+                            <p>1 Coke 32oz + 1 Bắp 2 Ngăn 640oz Phô Mai + Caramel</p>
+                            <span class="price">119,000 VNĐ</span>
+                            <div class="quantity">
+                                <button class="btn minus">-</button>
+                                <span class="count">0</span>
+                                <button class="btn plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="product-card d-flex align-items-center">
+                        <img src="combo2.png" alt="Combo Có Gấu" class="product-img">
+                        <div class="product-info">
+                            <h4>COMBO CÓ GẤU</h4>
+                            <p>2 Coke 32oz + 1 Bắp 2 Ngăn 640oz Phô Mai + Caramel</p>
+                            <span class="price">129,000 VNĐ</span>
+                            <div class="quantity">
+                                <button class="btn minus">-</button>
+                                <span class="count">0</span>
+                                <button class="btn plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NƯỚC NGỌT -->
+            <h3 class="category-title">NƯỚC NGỌT</h3>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="product-card d-flex align-items-center">
+                        <img src="sprite.png" alt="Sprite" class="product-img">
+                        <div class="product-info">
+                            <h4>SPRITE 32OZ</h4>
+                            <span class="price">37,000 VNĐ</span>
+                            <div class="quantity">
+                                <button class="btn minus">-</button>
+                                <span class="count">0</span>
+                                <button class="btn plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="product-card d-flex align-items-center">
+                        <img src="coke.png" alt="Coke" class="product-img">
+                        <div class="product-info">
+                            <h4>COKE 32OZ</h4>
+                            <span class="price">37,000 VNĐ</span>
+                            <div class="quantity">
+                                <button class="btn minus">-</button>
+                                <span class="count">0</span>
+                                <button class="btn plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+
+
+        <!-- THANH GIỮ VÉ-->
+        <section>
+        <div class="container">
+            <div class="ticket-bar d-flex align-items-center justify-content-between">
+                <div class="ticket-info">
+                    <span class="label">Phim:</span>
+                    <span class="value">Avengers: Endgame</span>
+                </div>
+
+                <div class="ticket-info">
+                    <span class="label">Rạp:</span>
+                    <span class="value">CGV Vincom Bà Triệu</span>
+                </div>
+
+                <div class="ticket-info">
+                    <span class="label"> Giữ vé:</span>
+                    <span class="value countdown" id="countdown">05:00</span>
+                </div>
+
+                <div class="ticket-info">
+                    <span class="label">Tổng tiền:</span>
+                    <span class="value">200,000 VNĐ</span>
+                </div>
+
+                <button class="btn btn-warning btn-book">Đặt Vé</button>
+            </div>
+        </div>
+        </section>
+    </body>
+    </html>
 
 }
