@@ -53,11 +53,20 @@ SeedDatabase();
 app.MapRazorPages();
 app.MapStaticAssets();
 
+
+// ------------------- ROUTING CHO AREAS ------------------- //
+
+// 1) Route cho Admin
+//    Khi URL bắt đầu bằng "/Admin/...",
+//    MVC sẽ tìm controller trong Area = "Admin".
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "{area=Admin}/{controller=Users}/{action=Index}/{id?}")
+    .WithStaticAssets();
 
 app.Run();
 

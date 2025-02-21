@@ -29,7 +29,7 @@ namespace Cinema.Models
 
         [Required]
         public TimeSpan ClosingTime { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } 
         public DateTime UpdatedAt { get; set; }
 
         public string AdminID { get; set; } // Foreign key

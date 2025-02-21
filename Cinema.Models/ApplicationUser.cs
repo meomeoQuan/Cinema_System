@@ -13,10 +13,10 @@ namespace Cinema.Models
     {
         [Required]
         public string FullName { get; set; } = string.Empty;
-        [NotMapped]
+        [NotMapped] 
         public string Role { get; set; } = "Guest";
 
-        public string? UserImage { get; set; }
+        public string ? UserImage { get; set; }
         public int Points { get; set; } = 0;
     }
 }
