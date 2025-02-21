@@ -4,6 +4,11 @@ using Cinema.DataAccess.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Cinema.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Cinema.Utility;
+using Cinema.DbInitializer;
+using Cinema.DataAccess.DbInitializer;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +21,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(u => u.UseSqlServer(builder.
 //        b => b.MigrationsAssembly("Cinema.DataAccess") // ✅ Chỉ định dự án chứa Migration
 //    ));
 
+builder.Services.AddDbContext<ApplicationDbContext>(u => u.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddRazorPages();
 builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 //options => options.SignIn.RequireConfirmedAccount = true
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = $"/Identity/Account/Login";
@@ -41,25 +51,18 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
 //app.UseAuthentication();
 //app.UseAuthorization();
+
+SeedDatabase();
+
 app.MapRazorPages();
 app.MapStaticAssets();
 
 
 
-
-// ✅ Seed dữ liệu khi ứng dụng khởi động
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>(); // 🛠 Được đăng ký đúng
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-    await DbInitializer.SeedUsers(userManager, roleManager); // Gọi SeedUsers
-}
 // ------------------- ROUTING CHO AREAS ------------------- //
-
 // 1) Route cho Admin
 //    Khi URL bắt đầu bằng "/Admin/...",
 //    MVC sẽ tìm controller trong Area = "Admin".
@@ -73,25 +76,12 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
-//app.Use(async (context, next) =>
-//{
-//    if (context.Request.Path.StartsWithSegments("/Admin"))
-//    {
-//        var user = new System.Security.Claims.ClaimsPrincipal(
-//            new System.Security.Claims.ClaimsIdentity(
-//                new[]
-//                {
-//                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "AdminTest"),
-//                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "Admin"),
-//                }, "TestAuth"
-//            )
-//        );
-//        context.User = user;
-//    }
-//    await next();
-//});
-//builder.Services.ConfigureApplicationCookie(options =>
-//{
-//    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Lưu đăng nhập 30 ngày
-//    options.SlidingExpiration = true;
-//});
+
+void SeedDatabase()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var DbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        DbInitializer.Initialize();
+    }
+}
