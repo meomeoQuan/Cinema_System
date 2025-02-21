@@ -4,6 +4,7 @@ using Cinema.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250221041030_AddLatestTodb")]
+    partial class AddLatestTodb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,18 +38,14 @@ namespace Cinema.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-
                     b.Property<double>("DiscountPercentage")
                         .HasColumnType("float");
-
 
                     b.Property<DateTime?>("ExpireDate")
                         .HasColumnType("datetime2");
 
-
                     b.Property<int>("UsageLimit")
                         .HasColumnType("int");
-
 
                     b.Property<int>("UsedCount")
                         .HasColumnType("int");
@@ -60,11 +59,9 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CouponID = 1,
                             Code = "TEST10",
-
                             DiscountPercentage = 0.10000000000000001,
                             ExpireDate = new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UsageLimit = 10,
-
                             UsedCount = 1
                         });
                 });
@@ -122,7 +119,6 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             MovieID = 1,
-
                             AgeLimit = "10+",
                             Duration = 148,
                             Genre = "Sci-Fi",
@@ -132,12 +128,10 @@ namespace Cinema.DataAccess.Migrations
                             Synopsis = "A thief who enters the dreams of others to steal secrets.",
                             Title = "Inception",
                             TrailerLink = "https://example.com/inception"
-
                         },
                         new
                         {
                             MovieID = 2,
-
                             AgeLimit = "18+",
                             Duration = 152,
                             Genre = "Action",
@@ -147,7 +141,6 @@ namespace Cinema.DataAccess.Migrations
                             Synopsis = "Batman faces the Joker, a criminal mastermind.",
                             Title = "The Dark Knight",
                             TrailerLink = "https://example.com/darkknight"
-
                         },
                         new
                         {
@@ -161,12 +154,10 @@ namespace Cinema.DataAccess.Migrations
                             Synopsis = "A thief who enters the dreams of others to steal secrets.",
                             Title = "Inception",
                             TrailerLink = "https://example.com/inception"
-
                         },
                         new
                         {
                             MovieID = 4,
-
                             AgeLimit = "18+",
                             Duration = 152,
                             Genre = "Action",
@@ -176,7 +167,6 @@ namespace Cinema.DataAccess.Migrations
                             Synopsis = "Batman faces the Joker, a criminal mastermind.",
                             Title = "The Dark Knight",
                             TrailerLink = "https://example.com/darkknight"
-
                         });
                 });
 
@@ -195,10 +185,8 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-
                     b.Property<double>("Price")
                         .HasColumnType("float");
-
 
                     b.Property<string>("ProductImage")
                         .HasColumnType("nvarchar(max)");
@@ -219,9 +207,7 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 1,
                             Description = "A large bucket of buttered popcorn.",
                             Name = "Popcorn",
-
                             Price = 2.9900000000000002,
-
                             ProductImage = "",
                             ProductType = 0,
                             Quantity = 50
@@ -231,9 +217,7 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 2,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Soda",
-
                             Price = 2.9900000000000002,
-
                             ProductImage = "",
                             ProductType = 1,
                             Quantity = 100
