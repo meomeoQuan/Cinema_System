@@ -20,6 +20,7 @@ namespace Cinema.Models
         public int SeatID { get; set; } // Foreign key
 
         [Required]
+        [Column(TypeName = "decimal(10,2)")]
         [Range(0.00, 9999.99, ErrorMessage = "Price must be a positive value.")]
         public decimal Price { get; set; } = 0.00m; // Default price
 
