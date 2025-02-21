@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace Cinema.Models
         public ProductType ProductType { get; set; }
         //public string ProductType { get; set; }
         [Required]
+        [Column(TypeName = "decimal(10,2)")]
         [Range(0.00, 9999999.99, ErrorMessage = "Price must be a positive value.")]
         public decimal Price { get; set; } = 0.00m;
         //public double Price { get; set; }

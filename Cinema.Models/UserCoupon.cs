@@ -15,7 +15,7 @@ namespace Cinema.Models
         [Required]
         public int CouponID { get; set; }
 
-        public DateTime UsedAt { get; set; } = DateTime.UtcNow; // Default value like SQL
+        public DateTime UsedAt { get; set; }
 
         // Navigation properties
         [ForeignKey("UserID")]
