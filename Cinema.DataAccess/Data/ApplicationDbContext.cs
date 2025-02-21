@@ -15,7 +15,7 @@ namespace Cinema.DataAccess.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-        //public DbSet<ApplicationUser> Users { get; set; } không cần vì identity của asp đã có sẵn
+        public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Coupon> Coupons { get; set; }

@@ -26,7 +26,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(u => u.UseSqlServer(builder.
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddRazorPages();
-builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 //options => options.SignIn.RequireConfirmedAccount = true
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
@@ -66,14 +66,14 @@ app.MapStaticAssets();
 // 1) Route cho Admin
 //    Khi URL bắt đầu bằng "/Admin/...",
 //    MVC sẽ tìm controller trong Area = "Admin".
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
-//    .WithStaticAssets();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{area=Admin}/{controller=Users}/{action=Index}/{id?}")
+    pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{area=Admin}/{controller=Users}/{action=Index}/{id?}")
+//    .WithStaticAssets();
 
 app.Run();
 
@@ -85,3 +85,5 @@ void SeedDatabase()
         DbInitializer.Initialize();
     }
 }
+
+
