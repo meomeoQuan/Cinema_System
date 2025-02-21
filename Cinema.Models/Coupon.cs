@@ -8,7 +8,7 @@ namespace Cinema.Models
 {
     public class Coupon
     {
-        [Key] 
+        [Key]
         public int CouponID { get; set; }
         [Required]
         [StringLength(50)]

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cinema.Models\Cinema.Models.csproj" />
+    <ProjectReference Include="..\Cinema.Utility\Cinema.Utility.csproj" />
   </ItemGroup>
 
 </Project>
