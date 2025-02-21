@@ -39,7 +39,7 @@ namespace Cinema.Models
         [ForeignKey("CinemaID")]
         [ValidateNever]
         public Cinema Cinema { get; set; }
-        public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
+        //public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
 
     }
     public enum RoomStatus
