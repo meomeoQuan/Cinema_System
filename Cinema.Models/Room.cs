@@ -16,12 +16,19 @@ namespace Cinema.Models
         [Key]
         public int RoomID { get; set; }
         [Required]
-        public string RoomName { get; set; }
+        public string RoomNumber { get; set; } = string.Empty;
+        //public string RoomName { get; set; }
+
 
         [Required]
-        public int RoomCapacity { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Capacity must be at least 1.")]
+        public int Capacity { get; set; }
+        //public int RoomCapacity { get; set; }
 
-        public int? RoomStatus { get; set; }
+        [Required]
+        [EnumDataType(typeof(RoomStatus))]
+        public RoomStatus Status { get; set; } = RoomStatus.Available;
+        //public int? RoomStatus { get; set; }
 
 
         public DateTime? CreatedAt { get; set; }
@@ -31,7 +38,23 @@ namespace Cinema.Models
         public int CinemaID { get; set; }
         [ForeignKey("CinemaID")]
         [ValidateNever]
-        public Cinema Cinema { get; set; } 
+        public Cinema Cinema { get; set; }
+<<<<<<< HEAD
+        //public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
+=======
+        public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
+>>>>>>> f34928681dab277d0974c98c5e24465a36fface0
 
     }
+    public enum RoomStatus
+    {
+        Available,
+        Maintenance
+    }
 }
+
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> f34928681dab277d0974c98c5e24465a36fface0

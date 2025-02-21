@@ -34,8 +34,8 @@ namespace Cinema_System.Areas.Guest.Controllers
             CouponPage = Math.Max(1, CouponPage);
             // hien thi moi trang 1 cai 
             int pageSize = 1;
-            var showingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Showingpage, pageSize, u => !u.IsUpcommingMovie);
-            var upcommingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Upcommingpage, pageSize, u => u.IsUpcommingMovie);
+            var showingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Showingpage, pageSize, u => !u.IsUpcomingMovie);
+            var upcommingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Upcommingpage, pageSize, u => u.IsUpcomingMovie);
             var couponMovies = await _unitOfWork.Coupon.GetAllPagedAsync(CouponPage, pageSize);
 
             var movieVM = new MovieVM()
@@ -44,8 +44,8 @@ namespace Cinema_System.Areas.Guest.Controllers
                 UpcommingMovies = upcommingMovies,
                 CouponMovies = couponMovies,
 
-                ShowingMoviesCount = await _unitOfWork.Movie.CountAsync(u => !u.IsUpcommingMovie),
-                UpcommingMoviesCount = await _unitOfWork.Movie.CountAsync(u => u.IsUpcommingMovie),
+                ShowingMoviesCount = await _unitOfWork.Movie.CountAsync(u => !u.IsUpcomingMovie),
+                UpcommingMoviesCount = await _unitOfWork.Movie.CountAsync(u => u.IsUpcomingMovie),
                 CouponCount = await _unitOfWork.Coupon.CountAsync(),
                 PageSize = pageSize
             };
@@ -59,11 +59,14 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-
+        public async Task<IActionResult> Details()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Showing()
         {
-            IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => !u.IsUpcommingMovie);
+            IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => !u.IsUpcomingMovie);
 
 
             return View(movies);
@@ -73,7 +76,7 @@ namespace Cinema_System.Areas.Guest.Controllers
       
         public async Task<IActionResult> Upcomming()
         {
-            IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => u.IsUpcommingMovie);
+            IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => u.IsUpcomingMovie);
 
 
             return View(movies);

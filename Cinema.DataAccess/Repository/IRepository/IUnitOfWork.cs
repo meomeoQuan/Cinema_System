@@ -11,6 +11,7 @@ namespace Cinema.DataAccess.Repository.IRepository
         public IMovieRepository Movie { get; }
         public ICouponRepository Coupon { get; }
         public IProductRepository Product { get; }
-         Task SaveAsync();
+        public IApplicationUserRepository ApplicationUser { get; }
+        Task SaveAsync();
     }
 }
