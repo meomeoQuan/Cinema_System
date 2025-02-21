@@ -1,0 +1,270 @@
+﻿section {
+    margin-bottom: 20px; /* Giảm khoảng cách giữa các section */
+    padding-bottom: 10px; /* Nếu cần, có thể giảm padding */
+}
+
+.body_detail {
+    background-color: #121212;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.movie-container {
+    margin-top: 10px;
+    padding: 30px;
+    background-color: #1f1f1f;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    color: white; /* Đảm bảo chữ trong container là trắng */
+}
+
+.movie-info h1 {
+    color: white; /* Chỉnh màu chữ tiêu đề thành trắng */
+    font-weight: bold;
+}
+
+.movie-details {
+    list-style: none;
+    padding: 0;
+    color: white; /* Màu trắng cho danh sách thông tin */
+}
+
+.movie-details li {
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: white; /* Đảm bảo chữ trong list là trắng */
+    }
+
+.rating {
+    background-color: #ff4444;
+    padding: 5px 10px;
+    display: inline-block;
+    border-radius: 5px;
+    font-weight: bold;
+    color: white; /* Chữ trong phần rating cũng là trắng */
+}
+
+.movie-poster {
+    text-align: center;
+}
+
+.poster-img {
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.trailer-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: 0.3s;
+    background-color: red;
+    color: white; /* Màu trắng cho chữ trên nút */
+}
+
+    .trailer-btn:hover {
+        background-color: #d32f2f;
+    }
+
+
+/*thanh đặt vé*/
+.booking-container {
+    background: linear-gradient(to right, #6b2cc3, #5022a5);
+    color: white;
+    max-width: 900px;
+    width: 100%;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.form-select {
+    border-radius: 8px;
+    font-size: 16px;
+    padding: 10px;
+}
+
+.btn-primary {
+    background-color: #ff4444;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+    .btn-primary:hover {
+        background-color: #d32f2f;
+    }
+
+/*SEAT BOOK*/
+.screen {
+    width: 50%;
+    margin: 10px auto;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.seat-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.seat {
+    width: 30px;
+    height: 30px;
+    background-color: #444;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.selected {
+    background-color: blue;
+}
+
+.occupied {
+    background-color: white;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+}
+
+/* THANH ĐẶT ĐỒ ĂN*/
+.title {
+    font-size: 28px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.category-title {
+    color: #f4c10f;
+    font-weight: bold;
+    font-size: 22px;
+    margin-top: 30px;
+    text-transform: uppercase;
+}
+
+.product-card {
+    /*     background: #1b2238; */
+    border-radius: 10px;
+    padding: 15px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+    .product-card:hover {
+        transform: scale(1.05);
+    }
+
+.product-img {
+    width: 120px;
+    height: auto;
+    margin-right: 15px;
+    border-radius: 8px;
+}
+
+.product-info {
+    flex: 1;
+    text-align: left;
+    color: white;
+}
+
+    .product-info h4 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .product-info p {
+        font-size: 14px;
+        opacity: 0.8;
+        margin-bottom: 10px;
+    }
+
+.price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #f4c10f;
+    display: block;
+}
+
+.quantity {
+    margin-top: 10px;
+}
+
+    .quantity button {
+        font-size: 18px;
+        width: 30px;
+        height: 30px;
+        border: none;
+        background: #f4c10f;
+        color: black;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+
+    .quantity span {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0 10px;
+        color: white;
+    }
+
+/*THANH GIỮ VÉ*/
+.ticket-bar {
+    background-color: #222;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.ticket-info {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.label {
+    font-weight: bold;
+    margin-right: 5px;
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.value {
+    font-size: 16px;
+}
+
+.countdown {
+    font-weight: bold;
+    color: #ff4444;
+}
+
+.btn-book {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+    .btn-book:hover {
+        background-color: #ff8800;
+    }

@@ -16,9 +16,11 @@ namespace Cinema.Models
         public string Code { get; set; } = string.Empty;
         //public string CouponCode { get; set; }
         [Required]
+        [Column(TypeName = "decimal(10,2)")]
         [Range(0, 100, ErrorMessage = "Discount percentage must be between 0 and 100.")]
         public decimal DiscountPercentage { get; set; }
         [Required]
+        [Column(TypeName = "decimal(10,2)")]
         [Range(0, 1000, ErrorMessage = "Max discount amount must be between 0 and 1000.")]
         public decimal? UsageLimit { get; set; }
         //public int ? UsageLimit { get; set; }
