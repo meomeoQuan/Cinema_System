@@ -1,0 +1,116 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+	<!DOCTYPE html>
+	<html lang="vi">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title></title>
+		<link rel="stylesheet"
+			  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+		<link rel="stylesheet"
+			  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+		<link rel="stylesheet" href="~/css/cart.css" />
+	</head>
+	<body>
+		<!--CART-->
+		<section class="cart-title">
+			<h2 class="font-weight-bold pt-5">Cinema Cart</h2>
+			<hr>
+		</section>
+
+		<section id="cart-container" class="container my-5">
+			<table width="100%">
+				<thead>
+					<tr>
+						<td>Remove</td>
+						<td>Image</td>
+						<td>Product</td>
+						<td>Price</td>
+						<td>Quantity</td>
+						<td>Total</td>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr>
+						<td>
+							<a href="#"><i class="fas fa-trash-alt"></i></a>
+						</td>
+						<td><img src="~/css/images/ticket1.jpg" alt="ticket" /></td>
+						<td>
+							<h5>Nhà Gia Tiên</h5>
+						</td>
+						<td>
+							<h5>50k</h5>
+						</td>
+						<td class="w-25 pl-1 text-center align-middle">
+							<input type="number" class="form-control text-center" value="1">
+						</td>
+						<td>
+							<h5>50k</h5>
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							<a href="#"><i class="fas fa-trash-alt"></i></a>
+						</td>
+						<td><img src="~/css/images/popcorn1.png" alt="popcorn" /></td>
+						<td>
+							<h5>Combo bắp ngon</h5>
+						</td>
+						<td>
+							<h5>50k</h5>
+						</td>
+						<td class="w-25 pl-1 text-center align-middle">
+							<input type="number" class="form-control text-center" value="1">
+						</td>
+						<td>
+							<h5>50k</h5>
+						</td>
+					</tr>
+				</tbody>
+
+			</table>
+		</section>
+
+		<section id="cart-bottom" class="container">
+			<div class="row">
+				<div class="coupon col-lg-6 col-md-6 col-12 mb-4">
+					<div>
+						<h5>COUPON</h5>
+						<p>Enter your discout coupon</p>
+						<input type="text" placeholder="Coupon Code">
+						<button class="btn-hover">Apply Coupon</button>
+					</div>
+				</div>
+				<div class="total col-lg-6 col-md-6 col-12">
+					<div>
+						<h5>CART TOTAL</h5>
+						<div class="d-flex justify-content-between">
+							<h6>Subtotal</h6>
+							<p>100k</p>
+						</div>
+						<div class="d-flex justify-content-between">
+							<h6>Discount</h6>
+							<p>20k</p>
+						</div>
+						<hr class="second-hr">
+						<div class="d-flex justify-content-between">
+							<h6>Total</h6>
+							<p>80k</p>
+						</div>
+						<div class="d-flex justify-content-end">
+							<button class="btn-hover">PROCEED TO CHECKOUT</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</body>
+	</html>
+
+}
