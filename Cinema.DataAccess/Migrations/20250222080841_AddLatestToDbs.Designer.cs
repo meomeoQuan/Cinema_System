@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250221041030_AddLatestTodb")]
-    partial class AddLatestTodb
+    [Migration("20250222080841_AddLatestToDbs")]
+    partial class AddLatestToDbs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,14 +38,14 @@ namespace Cinema.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<double>("DiscountPercentage")
-                        .HasColumnType("float");
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime?>("ExpireDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UsageLimit")
-                        .HasColumnType("int");
+                    b.Property<decimal>("UsageLimit")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("UsedCount")
                         .HasColumnType("int");
@@ -59,9 +59,8 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CouponID = 1,
                             Code = "TEST10",
-                            DiscountPercentage = 0.10000000000000001,
-                            ExpireDate = new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UsageLimit = 10,
+                            DiscountPercentage = 10.00m,
+                            UsageLimit = 10m,
                             UsedCount = 1
                         });
                 });
@@ -119,54 +118,54 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             MovieID = 1,
-                            AgeLimit = "10+",
+                            AgeLimit = "13+",
                             Duration = 148,
                             Genre = "Sci-Fi",
                             IsUpcomingMovie = false,
-                            MovieImage = "",
-                            ReleaseDate = new DateTime(2010, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            MovieImage = "https://m.media-amazon.com/images/I/51oBxmV-dML._AC_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Synopsis = "A thief who enters the dreams of others to steal secrets.",
                             Title = "Inception",
-                            TrailerLink = "https://example.com/inception"
+                            TrailerLink = "https://www.youtube.com/watch?v=YoHD9XEInc0"
                         },
                         new
                         {
                             MovieID = 2,
-                            AgeLimit = "18+",
+                            AgeLimit = "16+",
                             Duration = 152,
                             Genre = "Action",
                             IsUpcomingMovie = false,
-                            MovieImage = "",
-                            ReleaseDate = new DateTime(2008, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Synopsis = "Batman faces the Joker, a criminal mastermind.",
+                            MovieImage = "https://m.media-amazon.com/images/I/81AJdOIEI2L._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Batman faces the Joker, a criminal mastermind who brings chaos to Gotham.",
                             Title = "The Dark Knight",
-                            TrailerLink = "https://example.com/darkknight"
+                            TrailerLink = "https://www.youtube.com/watch?v=EXeTwQWrcwY"
                         },
                         new
                         {
                             MovieID = 3,
                             AgeLimit = "10+",
-                            Duration = 148,
+                            Duration = 169,
                             Genre = "Sci-Fi",
-                            IsUpcomingMovie = true,
-                            MovieImage = "",
-                            ReleaseDate = new DateTime(2010, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Synopsis = "A thief who enters the dreams of others to steal secrets.",
-                            Title = "Inception",
-                            TrailerLink = "https://example.com/inception"
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/91kFYg4fX3L._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "A team of explorers travel through a wormhole in space in an attempt to save humanity.",
+                            Title = "Interstellar",
+                            TrailerLink = "https://www.youtube.com/watch?v=zSWdZVtXT7E"
                         },
                         new
                         {
                             MovieID = 4,
-                            AgeLimit = "18+",
-                            Duration = 152,
-                            Genre = "Action",
-                            IsUpcomingMovie = true,
-                            MovieImage = "",
-                            ReleaseDate = new DateTime(2008, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Synopsis = "Batman faces the Joker, a criminal mastermind.",
-                            Title = "The Dark Knight",
-                            TrailerLink = "https://example.com/darkknight"
+                            AgeLimit = "12+",
+                            Duration = 192,
+                            Genre = "Adventure",
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/81+V9U8UcPL._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Jake Sully and Neytiri must protect their family from an old enemy on Pandora.",
+                            Title = "Avatar: The Way of Water",
+                            TrailerLink = "https://www.youtube.com/watch?v=d9MyW72ELq0"
                         });
                 });
 
@@ -185,8 +184,8 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("ProductImage")
                         .HasColumnType("nvarchar(max)");
@@ -207,7 +206,7 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 1,
                             Description = "A large bucket of buttered popcorn.",
                             Name = "Popcorn",
-                            Price = 2.9900000000000002,
+                            Price = 5.99m,
                             ProductImage = "",
                             ProductType = 0,
                             Quantity = 50
@@ -217,7 +216,7 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 2,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Soda",
-                            Price = 2.9900000000000002,
+                            Price = 2.99m,
                             ProductImage = "",
                             ProductType = 1,
                             Quantity = 100
