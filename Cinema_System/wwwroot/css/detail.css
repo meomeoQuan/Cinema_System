@@ -165,9 +165,9 @@
     margin-bottom: 15px;
 }
 
-    .product-card:hover {
+.product-card:hover {
         transform: scale(1.05);
-    }
+}
 
 .product-img {
     width: 120px;
@@ -265,6 +265,6 @@
     transition: background 0.3s ease;
 }
 
-    .btn-book:hover {
+.btn-book:hover {
         background-color: #ff8800;
-    }
+}
