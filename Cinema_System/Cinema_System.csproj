@@ -27,7 +27,6 @@
     <Folder Include="Areas\Admin\Views\Home\" />
     <Folder Include="Areas\Admin\Views\Cinemas\" />
     <Folder Include="Areas\Staff\Controllers\" />
-    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>

@@ -67,6 +67,11 @@ namespace Cinema_System.Areas.Guest.Controllers
             return View(movie);
         }
 
+        public async Task<IActionResult> Cart()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> Showing()
         {
             IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => !u.IsUpcomingMovie);
