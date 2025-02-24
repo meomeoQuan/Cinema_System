@@ -35,18 +35,18 @@ namespace Cinema.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("CouponImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("DiscountPercentage")
-                        .HasColumnType("float");
-
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime?>("ExpireDate")
                         .HasColumnType("datetime2");
 
-
-                    b.Property<int>("UsageLimit")
-                        .HasColumnType("int");
-
+                    b.Property<decimal>("UsageLimit")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("UsedCount")
                         .HasColumnType("int");
@@ -60,11 +60,9 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CouponID = 1,
                             Code = "TEST10",
-
-                            DiscountPercentage = 0.10000000000000001,
-                            ExpireDate = new DateTime(2025, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UsageLimit = 10,
-
+                            CouponImage = "",
+                            DiscountPercentage = 0.1m,
+                            UsageLimit = 10m,
                             UsedCount = 1
                         });
                 });
@@ -122,61 +120,184 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             MovieID = 1,
-
-                            AgeLimit = "10+",
+                            AgeLimit = "13+",
                             Duration = 148,
                             Genre = "Sci-Fi",
                             IsUpcomingMovie = false,
-                            MovieImage = "",
-                            ReleaseDate = new DateTime(2010, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            MovieImage = "https://m.media-amazon.com/images/I/51oBxmV-dML._AC_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Synopsis = "A thief who enters the dreams of others to steal secrets.",
                             Title = "Inception",
-                            TrailerLink = "https://example.com/inception"
-
+                            TrailerLink = "https://www.youtube.com/watch?v=YoHD9XEInc0"
                         },
                         new
                         {
                             MovieID = 2,
-
-                            AgeLimit = "18+",
+                            AgeLimit = "16+",
                             Duration = 152,
                             Genre = "Action",
                             IsUpcomingMovie = false,
-                            MovieImage = "",
-                            ReleaseDate = new DateTime(2008, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Synopsis = "Batman faces the Joker, a criminal mastermind.",
+                            MovieImage = "https://m.media-amazon.com/images/I/81AJdOIEI2L._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Batman faces the Joker, a criminal mastermind who brings chaos to Gotham.",
                             Title = "The Dark Knight",
-                            TrailerLink = "https://example.com/darkknight"
-
+                            TrailerLink = "https://www.youtube.com/watch?v=EXeTwQWrcwY"
                         },
                         new
                         {
                             MovieID = 3,
                             AgeLimit = "10+",
-                            Duration = 148,
+                            Duration = 169,
                             Genre = "Sci-Fi",
-                            IsUpcomingMovie = true,
-                            MovieImage = "",
-                            ReleaseDate = new DateTime(2010, 7, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Synopsis = "A thief who enters the dreams of others to steal secrets.",
-                            Title = "Inception",
-                            TrailerLink = "https://example.com/inception"
-
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/91kFYg4fX3L._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "A team of explorers travel through a wormhole in space in an attempt to save humanity.",
+                            Title = "Interstellar",
+                            TrailerLink = "https://www.youtube.com/watch?v=zSWdZVtXT7E"
                         },
                         new
                         {
                             MovieID = 4,
-
+                            AgeLimit = "12+",
+                            Duration = 192,
+                            Genre = "Adventure",
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/81+V9U8UcPL._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Jake Sully and Neytiri must protect their family from an old enemy on Pandora.",
+                            Title = "Avatar: The Way of Water",
+                            TrailerLink = "https://www.youtube.com/watch?v=d9MyW72ELq0"
+                        },
+                        new
+                        {
+                            MovieID = 5,
+                            AgeLimit = "13+",
+                            Duration = 155,
+                            Genre = "Sci-Fi",
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/71upx5sO1pL._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "A noble family's son leads a rebellion on a desert planet.",
+                            Title = "Dune",
+                            TrailerLink = "https://www.youtube.com/watch?v=n9xhJrPXop4"
+                        },
+                        new
+                        {
+                            MovieID = 6,
                             AgeLimit = "18+",
-                            Duration = 152,
+                            Duration = 169,
+                            Genre = "Action",
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/81A9g7hxvQL._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "John Wick takes on the High Table in his most dangerous fight.",
+                            Title = "John Wick 4",
+                            TrailerLink = "https://www.youtube.com/watch?v=qEVUtrk8_B4"
+                        },
+                        new
+                        {
+                            MovieID = 7,
+                            AgeLimit = "16+",
+                            Duration = 180,
+                            Genre = "Biography",
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/91hgLsC-e7L._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "The story of J. Robert Oppenheimer and the atomic bomb.",
+                            Title = "Oppenheimer",
+                            TrailerLink = "https://www.youtube.com/watch?v=bK6ldnjE3Y0"
+                        },
+                        new
+                        {
+                            MovieID = 8,
+                            AgeLimit = "13+",
+                            Duration = 148,
+                            Genre = "Superhero",
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Spider-Man fights villains from multiple universes.",
+                            Title = "Spider-Man: No Way Home",
+                            TrailerLink = "https://www.youtube.com/watch?v=JfVOs4VSpmA"
+                        },
+                        new
+                        {
+                            MovieID = 9,
+                            AgeLimit = "16+",
+                            Duration = 148,
+                            Genre = "Sci-Fi",
+                            IsUpcomingMovie = false,
+                            MovieImage = "https://m.media-amazon.com/images/I/91tXswGBnPL._AC_SL1500_.jpg",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Neo returns to the Matrix for a new journey.",
+                            Title = "The Matrix Resurrections",
+                            TrailerLink = "https://www.youtube.com/watch?v=9ix7TUGVYIo"
+                        },
+                        new
+                        {
+                            MovieID = 10,
+                            AgeLimit = "18+",
+                            Duration = 120,
+                            Genre = "Action/Comedy",
+                            IsUpcomingMovie = true,
+                            MovieImage = "",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Deadpool returns with more fourth-wall-breaking humor.",
+                            Title = "Deadpool 3",
+                            TrailerLink = ""
+                        },
+                        new
+                        {
+                            MovieID = 11,
+                            AgeLimit = "16+",
+                            Duration = 150,
                             Genre = "Action",
                             IsUpcomingMovie = true,
                             MovieImage = "",
-                            ReleaseDate = new DateTime(2008, 7, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Synopsis = "Batman faces the Joker, a criminal mastermind.",
-                            Title = "The Dark Knight",
-                            TrailerLink = "https://example.com/darkknight"
-
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "The Dark Knight faces a new enemy in Gotham.",
+                            Title = "The Batman 2",
+                            TrailerLink = ""
+                        },
+                        new
+                        {
+                            MovieID = 12,
+                            AgeLimit = "12+",
+                            Duration = 180,
+                            Genre = "Adventure",
+                            IsUpcomingMovie = true,
+                            MovieImage = "",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "The Na'vi continue their fight against human invaders.",
+                            Title = "Avatar 3",
+                            TrailerLink = ""
+                        },
+                        new
+                        {
+                            MovieID = 13,
+                            AgeLimit = "13+",
+                            Duration = 140,
+                            Genre = "Superhero",
+                            IsUpcomingMovie = true,
+                            MovieImage = "",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Marvel's First Family joins the MCU.",
+                            Title = "Fantastic Four",
+                            TrailerLink = ""
+                        },
+                        new
+                        {
+                            MovieID = 14,
+                            AgeLimit = "All Ages",
+                            Duration = 100,
+                            Genre = "Animation/Comedy",
+                            IsUpcomingMovie = true,
+                            MovieImage = "",
+                            ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Synopsis = "Shrek and friends return for a new adventure.",
+                            Title = "Shrek 5",
+                            TrailerLink = ""
                         });
                 });
 
@@ -195,10 +316,8 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("ProductImage")
                         .HasColumnType("nvarchar(max)");
@@ -219,9 +338,7 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 1,
                             Description = "A large bucket of buttered popcorn.",
                             Name = "Popcorn",
-
-                            Price = 2.9900000000000002,
-
+                            Price = 5.99m,
                             ProductImage = "",
                             ProductType = 0,
                             Quantity = 50
@@ -231,9 +348,7 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 2,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Soda",
-
-                            Price = 2.9900000000000002,
-
+                            Price = 2.99m,
                             ProductImage = "",
                             ProductType = 1,
                             Quantity = 100
