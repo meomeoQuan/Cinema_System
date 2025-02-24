@@ -1,4 +1,4 @@
-﻿相手の知らない言葉は、自分がどういういみで使用しているかを説明する
+﻿
 
 $(document).ready(function () {
     // Load movies for all categories on page load.
