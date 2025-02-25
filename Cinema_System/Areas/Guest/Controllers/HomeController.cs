@@ -5,6 +5,7 @@ using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Cinema_System.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -59,17 +60,39 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-        public async Task<IActionResult> Details(int  MovieID)
+        public async Task<IActionResult> Details(int MovieID)
         {
-            MovieDetailVM detailVM = new MovieDetailVM() {
+            var showTimes = await _unitOfWork.showTime.GetAllAsync(u => u.MovieID == MovieID);
 
-                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
+            MovieDetailVM detailVM = new MovieDetailVM()
+            {
+                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID),
 
+                // Populate Cinemas
+                CinemaListItem = showTimes.Select(u => new SelectListItem
+                {
+                    Value = u.CinemaID.ToString(),
+                    Text = u.Cinema.Name
+                }).Distinct().ToList(),
+
+                // Populate Dates
+                DateListItem = showTimes.Select(u => new SelectListItem
+                {
+                    Value = u.ShowDate.ToString("yyyy-MM-dd"),
+                    Text = u.ShowDate.ToString("dd/MM/yyyy")
+                }).Distinct().ToList(),
+
+                // Populate ShowTimes
+                ShowTimeListItem = showTimes.Select(u => new SelectListItem
+                {
+                    Value = u.ShowTimeID.ToString(),
+                    Text = u.ShowTimes.ToString("hh:mm tt")
+                }).Distinct().ToList()
             };
-           
 
             return View(detailVM);
         }
+
 
         public async Task<IActionResult> Cart()
         {

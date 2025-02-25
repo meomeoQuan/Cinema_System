@@ -41,6 +41,8 @@ namespace Cinema.Models
         public Cinema Cinema { get; set; }
 
         public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
+        // Navigation property: One Room has many ShowTimes
+        public virtual ICollection<ShowTime> ShowTimes { get; set; } = new List<ShowTime>();
 
 
     }

@@ -12,12 +12,21 @@ namespace Cinema.Models.ViewModels
     {
 
         public Movie Movie { get; set; }
+
         [ValidateNever]
-        public IEnumerable<SelectListItem> ShowTimes { get; set; }
-        public List<ShowtimeSeat> ShowtimeSeats { get; set; }
-        public List<Seat> Seats { get; set; }
-        public List<Product> Products { get; set; }
-        public List<Cinema> Cinemas { get; set; }
-        public IEnumerable<OrderDetail> orderDetails { get; set; } // this is shopping cart 
+        public IEnumerable<SelectListItem> CinemaListItem { get; set; } // Dropdown for Cinemas
+
+        //public Cinema Cinema { get; set; }
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> DateListItem { get; set; } // Dropdown for Dates
+
+        public  ShowTime ShowTime { get; set; }
+
+        [ValidateNever]
+        public IEnumerable<SelectListItem> ShowTimeListItem  { get; set; } // Dropdown for Showtimes
+
+      
+        public IEnumerable<OrderDetail> OrderDetails { get; set; } // Shopping cart
     }
 }
