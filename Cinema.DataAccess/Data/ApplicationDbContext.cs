@@ -123,6 +123,8 @@ namespace Cinema.DataAccess.Data
                     ProductImage = ""
                 }
             );
+
+
         }
     }
 }
