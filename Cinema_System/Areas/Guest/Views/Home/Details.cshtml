@@ -33,9 +33,9 @@
 				<div class="row">
 					<div class="col-md-4">
 						<label for="cinema">Choose cinema</label>
-						<select id="cinema" class="form-control">
-							<option>Cinema 1</option>
-							<option>Cinema 2</option>
+						<select id="cinema" class="form-control" asp-for="@Model.ShowTime.Cinema.CinemaID" asp-items="Model.CinemaListItem">
+							<option disabled selected> -- Cinema options -- </option>
+							
 						</select>
 					</div>
 					<div class="col-md-4">

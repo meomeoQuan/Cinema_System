@@ -19,6 +19,7 @@ namespace Cinema.DataAccess.Repository
         {
             _context = context;
             dbSet = _context.Set<T>();
+
         }
 
         public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)

@@ -16,6 +16,8 @@ namespace Cinema.DataAccess.Data
         {
         }
 
+        
+        public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -24,6 +26,27 @@ namespace Cinema.DataAccess.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Room → ShowTime (Disable Cascade Delete)
+            modelBuilder.Entity<ShowTime>()
+                .HasOne(s => s.Room)
+                .WithMany(r => r.ShowTimes)
+                .HasForeignKey(s => s.RoomID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Movie → ShowTime (Disable Cascade Delete)
+            modelBuilder.Entity<ShowTime>()
+                .HasOne(s => s.Movie)
+                .WithMany(m => m.ShowTimes)
+                .HasForeignKey(s => s.MovieID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Cinema → Room (Disable Cascade Delete)
+            modelBuilder.Entity<Room>()
+                .HasOne(r => r.Cinema)
+                .WithMany(c => c.Rooms)
+                .HasForeignKey(r => r.CinemaID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
 
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
@@ -123,6 +146,7 @@ namespace Cinema.DataAccess.Data
                     ProductImage = ""
                 }
             );
+
         }
     }
 }
