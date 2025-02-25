@@ -62,7 +62,7 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         public async Task<IActionResult> Details(int MovieID)
         {
-            var showTimes = await _unitOfWork.showTime.GetAllAsync(u => u.MovieID == MovieID);
+            var showTimes = await _unitOfWork.showTime.GetAllAsync(u => u.MovieID == MovieID, includeProperties: "Cinema");
 
             MovieDetailVM detailVM = new MovieDetailVM()
             {
@@ -73,21 +73,22 @@ namespace Cinema_System.Areas.Guest.Controllers
                 {
                     Value = u.CinemaID.ToString(),
                     Text = u.Cinema.Name
-                }).Distinct().ToList(),
+                }),
 
                 // Populate Dates
                 DateListItem = showTimes.Select(u => new SelectListItem
                 {
-                    Value = u.ShowDate.ToString("yyyy-MM-dd"),
-                    Text = u.ShowDate.ToString("dd/MM/yyyy")
-                }).Distinct().ToList(),
+                    Value = u.ShowTimeID.ToString(),
+                    Text = u.ShowDates
+
+                }),
 
                 // Populate ShowTimes
                 ShowTimeListItem = showTimes.Select(u => new SelectListItem
                 {
                     Value = u.ShowTimeID.ToString(),
-                    Text = u.ShowTimes.ToString("hh:mm tt")
-                }).Distinct().ToList()
+                    Text = u.ShowTimes
+                })
             };
 
             return View(detailVM);
