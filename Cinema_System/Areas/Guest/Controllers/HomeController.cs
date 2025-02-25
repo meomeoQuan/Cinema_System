@@ -59,12 +59,16 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-        public async Task<IActionResult> Details(int MovieID)
+        public async Task<IActionResult> Details(int  MovieID)
         {
+            MovieDetailVM detailVM = new MovieDetailVM() {
 
-            var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID);
+                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
 
-            return View(movie);
+            };
+           
+
+            return View(detailVM);
         }
 
         public async Task<IActionResult> Cart()

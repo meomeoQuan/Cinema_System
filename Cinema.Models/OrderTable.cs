@@ -19,9 +19,9 @@ namespace Cinema.Models
         public int? CouponID { get; set; } // Nullable (if no coupon is used)
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
+      
         [Range(0.00, 999999.99, ErrorMessage = "Total amount must be a positive value.")]
-        public decimal TotalAmount { get; set; }
+        public double TotalAmount { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
