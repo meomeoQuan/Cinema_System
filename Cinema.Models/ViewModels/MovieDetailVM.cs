@@ -16,7 +16,7 @@ namespace Cinema.Models.ViewModels
         [ValidateNever]
         public IEnumerable<SelectListItem> CinemaListItem { get; set; } // Dropdown for Cinemas
 
-        //public Cinema Cinema { get; set; }
+        public Theater Cinema { get; set; }
 
         [ValidateNever]
         public IEnumerable<SelectListItem> DateListItem { get; set; } // Dropdown for Dates

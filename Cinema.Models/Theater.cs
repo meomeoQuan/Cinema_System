@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Cinema.Models
 {
-    public class Cinema
+    public class Theater
     {
         [Key]
         public int CinemaID { get; set; }
@@ -30,14 +30,16 @@ namespace Cinema.Models
         public CinemaStatus Status { get; set; } = CinemaStatus.Open;
 
         [Required]
-        public TimeSpan OpeningTime { get; set; }
+        //public TimeSpan OpeningTime { get; set; }
+        public string OpeningTime { get; set; }
 
         [Required]
-        public TimeSpan ClosingTime { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        //public TimeSpan ClosingTime { get; set; }
+        public string ClosingTime { get; set; }
+        public DateTime ? CreatedAt { get; set; }
+        public DateTime ? UpdatedAt { get; set; }
 
-        public string AdminID { get; set; } // Foreign key
+        public string ? AdminID { get; set; } // Foreign key
 
         // Navigation property
         [ForeignKey("AdminID")]
