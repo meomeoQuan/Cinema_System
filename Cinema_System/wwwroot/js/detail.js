@@ -12,7 +12,7 @@ $(document).ready(function () {
         seatsContainer.append($('<br>'));
     }
 
-    // HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
+// HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
     $('#showtime').change(function () {
         const selectedShowtime = $('#showtime').val();
         if (selectedShowtime) {
@@ -22,7 +22,7 @@ $(document).ready(function () {
         }
     });
 
-    //HIÊN THANH BOOKING SUMMARY KHI CHỌN XONG GHẾ
+ //HIÊN THANH BOOKING SUMMARY KHI CHỌN XONG GHẾ
     $('.seat').click(function () {
         if (!$(this).hasClass('booked') && !$(this).hasClass('maintenance')) {
             $(this).toggleClass('selected');
@@ -34,7 +34,7 @@ $(document).ready(function () {
         }
     });
 
-    // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
+ // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
     let timeLeft = 300;
     const countdown = setInterval(function () {
         timeLeft--;

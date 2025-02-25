@@ -1,10 +1,10 @@
 ﻿body {
     font-family: Arial, sans-serif;
-    /*     background-color: #f8f9fa; */
-    background-color: black;
+/*     background-color: #f8f9fa; */
+background-color: black;
 }
 
-#movie-info h1, p {
+#movie-info h1,p{
     color: white;
 }
 
@@ -18,7 +18,7 @@
     font-family: Impact, fantasy;
 }
 
-#booking-options label {
+#booking-options label{
     color: white;
 }
 
@@ -27,7 +27,7 @@
     text-transform: uppercase;
 }
 
-#seat-selection h2 {
+#seat-selection h2{
     font-family: Impact, fantasy;
     text-transform: uppercase;
 }
@@ -36,22 +36,22 @@
     padding: 20px;
 }
 
-.text-center {
+.text-center{
     margin-bottom: 12px;
 }
 
 .screen {
-    background-color: white;
-    color: white;
-    padding: 10px 20px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 18px;
-    text-transform: uppercase;
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
+    background-color: white; 
+    color: white; 
+    padding: 10px 20px; 
+    margin-bottom: 20px; 
+    border-radius: 10px; 
+    font-weight: bold; 
+    font-size: 18px; 
+    text-transform: uppercase; 
+    width: 60%; 
+    margin-left: auto; 
+    margin-right: auto; 
     box-shadow: 0 10px 20px rgba(173, 216, 230, 0.6), /* Hiệu ứng phát sáng ở cạnh dưới */
     -10px 0 20px rgba(173, 216, 230, 0.4), /* Hiệu ứng phát sáng ở cạnh trái */
     10px 0 20px rgba(173, 216, 230, 0.4); /* Hiệu ứng phát sáng ở cạnh phải */
@@ -75,20 +75,18 @@
     border: 1px solid black;
     border-radius: 5px;
 }
+.seat.selected {
+    background-color: #ccccff; /* Ghế đã chọn màu tím */
+}
+.seat.booked {
+    background-color: #dc3545;
+    cursor: not-allowed;
+}
 
-    .seat.selected {
-        background-color: #ccccff; /* Ghế đã chọn màu tím */
-    }
-
-    .seat.booked {
-        background-color: #dc3545;
-        cursor: not-allowed;
-    }
-
-    .seat.maintenance {
-        background-color: grey;
-        cursor: not-allowed;
-    }
+.seat.maintenance {
+    background-color: grey;
+    cursor: not-allowed;
+}
 
 /* Chú thích các loại ghế */
 .seat-legend {
@@ -104,34 +102,34 @@
     gap: 10px;
 }
 
-    .legend-item .seat {
-        width: 20px;
-        height: 20px;
-        margin: 0;
-        cursor: default;
-    }
+.legend-item .seat {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: default;
+}
 
-    .legend-item .available {
-        background-color: white; /* Ghế chưa chọn */
-        border: 1px solid black;
-    }
+.legend-item .available {
+    background-color: white; /* Ghế chưa chọn */
+    border: 1px solid black;
+}
 
-    .legend-item .selected {
-        background-color: #ccccff; /* Ghế chọn */
-    }
+.legend-item .selected {
+    background-color: #ccccff; /* Ghế chọn */
+}
 
-    .legend-item .maintenance {
-        background-color: grey; /* Ghế bảo trì */
-    }
+.legend-item .maintenance {
+    background-color: grey; /* Ghế bảo trì */
+}
 
-    .legend-item .reserved {
-        background-color: #dc3545; /* Ghế bảo trì */
-    }
+.legend-item .reserved {
+    background-color: #dc3545; /* Ghế bảo trì */
+}
 
-    .legend-item span {
-        font-size: 14px;
-        color: white;
-    }
+.legend-item span {
+    font-size: 14px;
+    color: white;
+}
 
 #countdown {
     color: #dc3545;
@@ -227,41 +225,41 @@
     margin: 0;
 }
 
-    #booking-summary p {
-        color: black;
-        margin: 0;
-    }
+#booking-summary p {
+    color: black;
+    margin: 0;
+}
 
-    #booking-summary .row {
-        margin: 0;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
+#booking-summary .row {
+    margin: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-    #booking-summary .col-md-3,
-    #booking-summary .col-md-2,
-    #booking-summary .col-md-1 {
-        padding: 10px;
-        border-right: 1px solid #ddd;
-    }
+#booking-summary .col-md-3,
+#booking-summary .col-md-2,
+#booking-summary .col-md-1 {
+    padding: 10px;
+    border-right: 1px solid #ddd;
+}
 
-    #booking-summary .col-md-1 {
-        border-right: none;
-    }
+#booking-summary .col-md-1 {
+    border-right: none;
+}
 
-    #booking-summary .btn-success {
-        width: 100%;
-        background-color: white;
-        color: black;
-    }
+#booking-summary .btn-success {
+    width: 100%;
+    background-color: white;
+    color: black;
+}
 
-        #booking-summary .btn-success:hover {
-            background-color: black;
-            color: white;
-        }
+#booking-summary .btn-success:hover{
+    background-color: black;
+    color: white;
+}
 
 #food-selection {
-    /*     background-color: #1f1f1f; */
+/*     background-color: #1f1f1f; */
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -295,9 +293,9 @@
     margin-bottom: 15px;
 }
 
-    .product-card:hover {
-        transform: scale(1.05);
-    }
+.product-card:hover {
+    transform: scale(1.05);
+}
 
 .product-img {
     width: 120px;
@@ -312,19 +310,19 @@
     color: white;
 }
 
-    .product-info h4 {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: black;
-    }
+.product-info h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: black;
+}
 
-    .product-info p {
-        font-size: 14px;
-        opacity: 0.8;
-        margin-bottom: 10px;
-        color: black;
-    }
+.product-info p {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 10px;
+    color: black;
+}
 
 .price {
     font-size: 16px;
@@ -337,20 +335,20 @@
     margin-top: 10px;
 }
 
-    .quantity button {
-        font-size: 18px;
-        width: 30px;
-        height: 30px;
-        border: none;
-        background: #e1d4fa;
-        color: black;
-        font-weight: bold;
-        border-radius: 5px;
-    }
+.quantity button {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #e1d4fa;
+    color: black;
+    font-weight: bold;
+    border-radius: 5px;
+}
 
-    .quantity span {
-        font-size: 16px;
-        font-weight: bold;
-        margin: 0 10px;
-        color: black;
-    }
+.quantity span {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 10px;
+    color: black;
+}

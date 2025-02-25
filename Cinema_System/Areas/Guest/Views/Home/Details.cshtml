@@ -1,38 +1,27 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-	<!DOCTYPE html>
-	<html lang="vi">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Movie Details</title>
-		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-			  rel="stylesheet" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+﻿@model MovieDetailVM
 
-		<link rel="stylesheet" href="~/css/detail.css" />
-	</head>
+	
 	<body>
+		<input asp-for="Movie.MovieID" hidden/>
 		<div class="container">
 			<!-- Section 1: Movie Information -->
 			<section id="movie-info" class="row mb-5">
+
 				<div class="col-md-4">
-					<img src="~/css/images/ticket1.jpg" alt="Movie Poster" class="img-fluid" />
+					<img src="@Model.Movie.MovieImage" alt="Movie Poster" class="img-fluid" />
 				</div>
 				<div class="col-md-8">
-					<h1>Nhà Gia Tiên</h1>
+					<h1>@Model.Movie.Title</h1>
 					<!--<p><strong>Director:</strong> Director Name</p> -->
 					<!--<p><strong>Cast:</strong> Actor 1, Actor 2, Actor 3</p> -->
-					<p><strong>Genre:</strong> Comedy, Family</p>
-					<p><strong>Duration:</strong> 120 minutes</p>
-					<p><strong>Release Date:</strong> 21-02-2025</p>
+					<p><strong>Genre:</strong>  @Model.Movie.Genre</p>
+					<p><strong>Duration:</strong>  @Model.Movie.Duration</p>
+					<p><strong>Release Date:</strong>  @Model.Movie.ReleaseDate</p>
 					<p>
-						<strong>Synopsis:</strong> The ancestor's house revolves around the multi -angle story about different generations in a family, there are two main characters, Gia Minh (Huynh Lap) and My Tien (Phuong My Chi). Returning to the ancestor's house to record "million views" videos on social networks, My Tien - a content creator of the Z generation that does not believe in spiritual affairs, completely lost connection with the family, any real Suddenly seeing Gia Minh - the older brother has long been. In order for Gia Minh's ghost to escape and not continue to bother herself, My Tien shook hands with Gia Minh to plan to hold the house of Gia Tien being disputed, demanding his grandfather dividing the property. Facing a series of heavenly secrets in the family house, will My Tien overcome everything to complete the will of Gia Minh?
+						<strong>Synopsis:</strong> @Model.Movie.Synopsis
 					</p>
 					<p>
-						<a href="#"><i class="fa-solid fa-circle-play" style="color: white;"></i></a> Watch Trailer
+						<a href="@Model.Movie.TrailerLink"><i class="fa-solid fa-circle-play" style="color: white;"></i></a> Watch Trailer
 					</p>
 
 				</div>
@@ -194,11 +183,15 @@
 				</div>
 			</section>
 
-			<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-			<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-			<script src="~/js/detail.js"></script>
-		</div>
+			
+			
+			</div>
 	</body>
-	</html>
 
-}
+
+	@section Scripts{
+	<script src="~/js/detail.js"></script>
+	<link rel="stylesheet" href="~/css/detail.css" />
+	}
+
+
