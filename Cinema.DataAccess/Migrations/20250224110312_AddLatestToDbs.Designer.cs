@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250222082337_AddToLatestDbs")]
-    partial class AddToLatestDbs
+    [Migration("20250224110312_AddLatestToDbs")]
+    partial class AddLatestToDbs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
