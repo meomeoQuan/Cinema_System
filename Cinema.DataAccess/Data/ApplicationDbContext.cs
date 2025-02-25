@@ -48,7 +48,7 @@ namespace Cinema.DataAccess.Data
                     Synopsis = "Batman faces the Joker, a criminal mastermind who brings chaos to Gotham.",
                     TrailerLink = "https://www.youtube.com/watch?v=EXeTwQWrcwY",
                     Duration = 152,
-                    MovieImage = "https://m.media-amazon.com/images/I/81AJdOIEI2L._AC_SL1500_.jpg",
+                    MovieImage = "https://m.media-amazon.com/images/I/A1exRxgHRRL.jpg",
                     IsUpcomingMovie = false
                 },
                 new Movie
@@ -72,21 +72,21 @@ namespace Cinema.DataAccess.Data
                     Synopsis = "Jake Sully and Neytiri must protect their family from an old enemy on Pandora.",
                     TrailerLink = "https://www.youtube.com/watch?v=d9MyW72ELq0",
                     Duration = 192,
-                    MovieImage = "https://m.media-amazon.com/images/I/81+V9U8UcPL._AC_SL1500_.jpg",
+                    MovieImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfTiEWQYqVZHQuVHy6G9PQIUfa5ujUpy0e7fZ-t6TwN19glQiAuhNS3PkWt-v48Lr9pIE&usqp=CAU",
                     IsUpcomingMovie = false
                 },
-                new Movie { MovieID = 5, Title = "Dune", Genre = "Sci-Fi", AgeLimit = "13+", Synopsis = "A noble family's son leads a rebellion on a desert planet.", TrailerLink = "https://www.youtube.com/watch?v=n9xhJrPXop4", Duration = 155, MovieImage = "https://m.media-amazon.com/images/I/71upx5sO1pL._AC_SL1500_.jpg", IsUpcomingMovie = false },
-                new Movie { MovieID = 6, Title = "John Wick 4", Genre = "Action", AgeLimit = "18+", Synopsis = "John Wick takes on the High Table in his most dangerous fight.", TrailerLink = "https://www.youtube.com/watch?v=qEVUtrk8_B4", Duration = 169, MovieImage = "https://m.media-amazon.com/images/I/81A9g7hxvQL._AC_SL1500_.jpg", IsUpcomingMovie = false },
-                new Movie { MovieID = 7, Title = "Oppenheimer", Genre = "Biography", AgeLimit = "16+", Synopsis = "The story of J. Robert Oppenheimer and the atomic bomb.", TrailerLink = "https://www.youtube.com/watch?v=bK6ldnjE3Y0", Duration = 180, MovieImage = "https://m.media-amazon.com/images/I/91hgLsC-e7L._AC_SL1500_.jpg", IsUpcomingMovie = false },
+                new Movie { MovieID = 5, Title = "Dune", Genre = "Sci-Fi", AgeLimit = "13+", Synopsis = "A noble family's son leads a rebellion on a desert planet.", TrailerLink = "https://www.youtube.com/watch?v=n9xhJrPXop4", Duration = 155, MovieImage = "https://m.media-amazon.com/images/I/81MUHYLUf6L._AC_UF894,1000_QL80_.jpg", IsUpcomingMovie = false },
+                new Movie { MovieID = 6, Title = "John Wick 4", Genre = "Action", AgeLimit = "18+", Synopsis = "John Wick takes on the High Table in his most dangerous fight.", TrailerLink = "https://www.youtube.com/watch?v=qEVUtrk8_B4", Duration = 169, MovieImage = "https://m.media-amazon.com/images/I/71tIm0Xxr2L._AC_UF894,1000_QL80_.jpg", IsUpcomingMovie = false },
+                new Movie { MovieID = 7, Title = "Oppenheimer", Genre = "Biography", AgeLimit = "16+", Synopsis = "The story of J. Robert Oppenheimer and the atomic bomb.", TrailerLink = "https://www.youtube.com/watch?v=bK6ldnjE3Y0", Duration = 180, MovieImage = "https://m.media-amazon.com/images/I/71qu4p5bnDL._AC_UF894,1000_QL80_.jpg", IsUpcomingMovie = false },
                 new Movie { MovieID = 8, Title = "Spider-Man: No Way Home", Genre = "Superhero", AgeLimit = "13+", Synopsis = "Spider-Man fights villains from multiple universes.", TrailerLink = "https://www.youtube.com/watch?v=JfVOs4VSpmA", Duration = 148, MovieImage = "https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SL1500_.jpg", IsUpcomingMovie = false },
-                new Movie { MovieID = 9, Title = "The Matrix Resurrections", Genre = "Sci-Fi", AgeLimit = "16+", Synopsis = "Neo returns to the Matrix for a new journey.", TrailerLink = "https://www.youtube.com/watch?v=9ix7TUGVYIo", Duration = 148, MovieImage = "https://m.media-amazon.com/images/I/91tXswGBnPL._AC_SL1500_.jpg", IsUpcomingMovie = false },
+                new Movie { MovieID = 9, Title = "The Matrix Resurrections", Genre = "Sci-Fi", AgeLimit = "16+", Synopsis = "Neo returns to the Matrix for a new journey.", TrailerLink = "https://www.youtube.com/watch?v=9ix7TUGVYIo", Duration = 148, MovieImage = "https://m.media-amazon.com/images/I/71PQje4I99L.jpg", IsUpcomingMovie = false },
 
                 // Upcoming Movies (5 New)
-                new Movie { MovieID = 10, Title = "Deadpool 3", Genre = "Action/Comedy", AgeLimit = "18+", Synopsis = "Deadpool returns with more fourth-wall-breaking humor.", TrailerLink = "", Duration = 120, MovieImage = "", IsUpcomingMovie = true },
-                new Movie { MovieID = 11, Title = "The Batman 2", Genre = "Action", AgeLimit = "16+", Synopsis = "The Dark Knight faces a new enemy in Gotham.", TrailerLink = "", Duration = 150, MovieImage = "", IsUpcomingMovie = true },
-                new Movie { MovieID = 12, Title = "Avatar 3", Genre = "Adventure", AgeLimit = "12+", Synopsis = "The Na'vi continue their fight against human invaders.", TrailerLink = "", Duration = 180, MovieImage = "", IsUpcomingMovie = true },
-                new Movie { MovieID = 13, Title = "Fantastic Four", Genre = "Superhero", AgeLimit = "13+", Synopsis = "Marvel's First Family joins the MCU.", TrailerLink = "", Duration = 140, MovieImage = "", IsUpcomingMovie = true },
-                new Movie { MovieID = 14, Title = "Shrek 5", Genre = "Animation/Comedy", AgeLimit = "All Ages", Synopsis = "Shrek and friends return for a new adventure.", TrailerLink = "", Duration = 100, MovieImage = "", IsUpcomingMovie = true }
+                new Movie { MovieID = 10, Title = "Deadpool 3", Genre = "Action/Comedy", AgeLimit = "18+", Synopsis = "Deadpool returns with more fourth-wall-breaking humor.", TrailerLink = "", Duration = 120, MovieImage = "https://m.media-amazon.com/images/I/71wNKMs+CvL._AC_UF894,1000_QL80_.jpg", IsUpcomingMovie = true },
+                new Movie { MovieID = 11, Title = "The Batman 2", Genre = "Action", AgeLimit = "16+", Synopsis = "The Dark Knight faces a new enemy in Gotham.", TrailerLink = "", Duration = 150, MovieImage = "https://m.media-amazon.com/images/I/61NCZ4VQ8EL._AC_UF894,1000_QL80_.jpg", IsUpcomingMovie = true },
+                new Movie { MovieID = 12, Title = "Avatar 3", Genre = "Adventure", AgeLimit = "12+", Synopsis = "The Na'vi continue their fight against human invaders.", TrailerLink = "", Duration = 180, MovieImage = "https://m.media-amazon.com/images/I/61SNSxk3RNL._AC_UF894,1000_QL80_.jpg", IsUpcomingMovie = true },
+                new Movie { MovieID = 13, Title = "Fantastic Four", Genre = "Superhero", AgeLimit = "13+", Synopsis = "Marvel's First Family joins the MCU.", TrailerLink = "", Duration = 140, MovieImage = "https://m.media-amazon.com/images/I/81TBhA6kgBL.jpg", IsUpcomingMovie = true },
+                new Movie { MovieID = 14, Title = "Shrek 5", Genre = "Animation/Comedy", AgeLimit = "All Ages", Synopsis = "Shrek and friends return for a new adventure.", TrailerLink = "", Duration = 100, MovieImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJgULr6iPFNLydknD-UKqWcCsfyUZVmJrjuw&s", IsUpcomingMovie = true }
             );
 
             modelBuilder.Entity<Coupon>().HasData(
