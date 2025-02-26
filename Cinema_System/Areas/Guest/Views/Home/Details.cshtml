@@ -51,6 +51,7 @@
 					<div class="col-md-4">
 						<label for="showtime">Choose time</label>
 						<select id="showtime" class="form-control">
+							<option>- Chọn giờ -</option>
 							<option>10:00 AM</option>
 							<option>02:00 PM</option>
 							<option>06:00 PM</option>
@@ -166,19 +167,32 @@
 				<!--<h2>Booking Summary</h2>-->
 				<div class="row align-items-center">
 					<div class="col-md-3">
-						<p><strong>Movie:</strong> Nha Gia Tien</p>
+					<p><strong>Movie:</strong> @Model.Movie.Title</p>
 					</div>
 					<div class="col-md-3">
-						<p><strong>Food:</strong> 1 Combo Couple</p>
+						<p><strong>Food:</strong> <span id="selected-foods">No food selected</span></p>
 					</div>
 					<div class="col-md-3">
 						<p><strong>Time expired:</strong> <span id="countdown">05:00</span></p>
-					</div>
+					</div>	
 					<div class="col-md-2">
-						<p><strong>Total:</strong> 80.000 VND</p>
+					<p><strong>Total:</strong> <span id="total-price">0 VND</span></p>
 					</div>
 					<div class="col-md-1">
-						<button class="btn btn-success">Book</button>
+					<form id="booking-form" action="@Url.Action("CreatePayment", "Payment", new { area = "Guest" })" method="post">
+						<input type="hidden" id="totalAmountInput" name="totalAmount" value="0" />
+
+						<!-- Input hidden để chứa danh sách ghế -->
+						<div id="seat-inputs"></div>
+
+						<!-- Input hidden để chứa danh sách món ăn -->
+						<div id="food-inputs"></div>
+
+						<button type="submit" class="btn btn-success">Book</button>
+					</form>
+
+
+
 					</div>
 				</div>
 			</section>
