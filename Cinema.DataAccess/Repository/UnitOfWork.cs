@@ -19,6 +19,7 @@ namespace Cinema.DataAccess.Repository
             Movie = new MovieRepository(_db);
             Coupon = new CouponRepository(_db);
             ApplicationUser = new ApplicationUserRepository(_db);
+            showTime = new ShowTimeRepository(_db);
 
         }
         public IMovieRepository Movie { get; private set; }
@@ -28,6 +29,8 @@ namespace Cinema.DataAccess.Repository
         public ICouponRepository Coupon { get; private set; }
 
         public IApplicationUserRepository ApplicationUser { get; private set; }
+
+        public IShowTimeRepository showTime { get; private set; }
 
         public async Task SaveAsync()
         {
