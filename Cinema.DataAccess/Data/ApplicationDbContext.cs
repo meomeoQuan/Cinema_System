@@ -16,6 +16,8 @@ namespace Cinema.DataAccess.Data
         {
         }
 
+        public DbSet<Theater> Cinemas { get; set; }
+        public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -24,6 +26,32 @@ namespace Cinema.DataAccess.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Room → ShowTime (Disable Cascade Delete)
+            modelBuilder.Entity<ShowTime>()
+                .HasOne(s => s.Room)
+                .WithMany(r => r.ShowTimes)
+                .HasForeignKey(s => s.RoomID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Movie → ShowTime (Disable Cascade Delete)
+            modelBuilder.Entity<ShowTime>()
+                .HasOne(s => s.Movie)
+                .WithMany(m => m.ShowTimes)
+                .HasForeignKey(s => s.MovieID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Cinema → Room (Disable Cascade Delete)
+            modelBuilder.Entity<Room>()
+                .HasOne(r => r.Cinema)
+                .WithMany(c => c.Rooms)
+                .HasForeignKey(r => r.CinemaID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Configure Theater Table
+            modelBuilder.Entity<Theater>()
+                .Property(t => t.Status)
+                .HasConversion<string>(); // Store enum as string
 
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
@@ -123,7 +151,74 @@ namespace Cinema.DataAccess.Data
                     ProductImage = ""
                 }
             );
+            // Seed Sample Theaters
+            modelBuilder.Entity<Theater>().HasData(
+                new Theater
+                {
+                    CinemaID = 1,
+                    Name = "Grand Cinema",
+                    Address = "123 Main St, City",
+                    NumberOfRooms = 5,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = "09:00",  // Changed from TimeSpan to string
+                    ClosingTime = "23:00",  // Changed from TimeSpan to string
+               
+                 
+                },
+                new Theater
+                {
+                    CinemaID = 2,
+                    Name = "Skyline Theater",
+                    Address = "456 Broadway Ave, City",
+                    NumberOfRooms = 7,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = "10:00",  // Changed from TimeSpan to string
+                    ClosingTime = "22:30",  // Changed from TimeSpan to string
+                  
+                   
+                }
+            );
+            modelBuilder.Entity<Room>().HasData(
+    new Room
+    {
+        RoomID = 1,
+        RoomNumber = "A1",
+        Capacity = 100,
+        Status = RoomStatus.Available,
+        CinemaID = 1 // Matches existing Theater
+    },
+    new Room
+    {
+        RoomID = 2,
+        RoomNumber = "B1",
+        Capacity = 150,
+        Status = RoomStatus.Available,
+        CinemaID = 2 // Matches existing Theater
+    }
+);
 
+
+            // Seed Sample ShowTimes
+            modelBuilder.Entity<ShowTime>().HasData(
+                new ShowTime
+                {
+                    ShowTimeID = 1,
+                    ShowDates = "01/03/2025", // Ensure a valid date is assigned
+                    ShowTimes = "18:30", // Changed from TimeSpan to string
+                    CinemaID = 1,
+                    RoomID = 1,
+                    MovieID = 1
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 2,
+                    ShowDates = "01/03/2025", // Ensure a valid date is assigned
+                    ShowTimes = "20:15", // Changed from TimeSpan to string
+                    CinemaID = 2,
+                    RoomID = 2,
+                    MovieID = 2
+                }
+            );
 
         }
     }
