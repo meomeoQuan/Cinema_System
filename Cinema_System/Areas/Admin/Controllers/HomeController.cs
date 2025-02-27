@@ -1,4 +1,5 @@
-﻿//using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Mvc;
+//using Microsoft.AspNetCore.Http;
 //using Microsoft.AspNetCore.Mvc;
 
 //namespace Cinema_System.Areas.Admin.Controllers
@@ -81,3 +82,13 @@
 //        }
 //    }
 //}
+namespace Cinema_System.Areas.Admin.Controllers
+{
+    public class HomeController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+}

@@ -25,7 +25,7 @@ namespace Cinema.Models
         public int CinemaID { get; set; }
         [ForeignKey(nameof(CinemaID))]
         [ValidateNever]
-        public Cinema Cinema{ get; set; }
+        public Cinema Cinema { get; set; }
 
 
         public int RoomID { get; set; }
