@@ -54,7 +54,7 @@ namespace Cinema.DataAccess.DbInitializer
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Staff)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin)).GetAwaiter().GetResult();
-               
+
 
 
                 //if roles are created, then we will create admin user as well
@@ -64,7 +64,7 @@ namespace Cinema.DataAccess.DbInitializer
                     Email = "admin@dotnet.com",
                     FullName = "Neko",
                     PhoneNumber = "1112223333",
-          
+
                 }, "Admin123").GetAwaiter().GetResult();
 
 

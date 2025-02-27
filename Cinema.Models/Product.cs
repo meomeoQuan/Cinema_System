@@ -23,9 +23,9 @@ namespace Cinema.Models
         public ProductType ProductType { get; set; }
         //public string ProductType { get; set; }
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
+        
         [Range(0.00, 9999999.99, ErrorMessage = "Price must be a positive value.")]
-        public decimal Price { get; set; } = 0.00m;
+        public double Price { get; set; } 
         //public double Price { get; set; }
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative.")]

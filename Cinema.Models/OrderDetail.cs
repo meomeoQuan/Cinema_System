@@ -20,9 +20,9 @@ namespace Cinema.Models
         public int Quantity { get; set; } = 1;
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
+
         [Range(0.00, 999999.99, ErrorMessage = "Price must be a positive value.")]
-        public decimal Price { get; set; } = 0.00m;
+        public double Price { get; set; }
 
         // Navigation properties
         [ForeignKey("OrderID")]

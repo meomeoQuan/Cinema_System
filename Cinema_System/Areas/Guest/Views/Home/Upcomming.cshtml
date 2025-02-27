@@ -1,16 +1,31 @@
 ﻿@model IEnumerable<Movie>
 
-
-<!--Upcomming movie here-->
-<h3>Upcomming movies here</h3>
-<h3>Showing movies here</h3>
-
-<div class="movies-container">
-    @foreach (var obj in Model)
-    {
-
-        <h3>@obj.Genre</h3>
-        <p>@obj.Title</p>
-
-    }
+<!-- Upcoming Movies Here -->
+<h3 class="fw-bold text-center mt-3">Upcoming Movies</h3>
+<div class="container">
+	<div class="movies-container row justify-content-center">
+		@foreach (var obj in Model)
+		{
+			<div class="col-lg-3 col-sm-6">
+				<div class="row p-2">
+					<div class="col-12 p-1">
+						<div class="card rounded">
+							<img src="@(obj.MovieImage ?? "https://placehold.co/500x700/png")"
+								 class="card-img-top rounded"
+								 alt="@obj.Title" />
+						</div>
+					</div>
+					<div class="col-12">
+						<p class="pt-2 h5 text-dark opacity-75 text-uppercase text-center mb-3">@obj.Title</p>
+					</div>
+					<div class="col-6">
+						<a href="@obj.TrailerLink" class="text-dark" target="_blank" style="font-size:20px">See Trailer</a>
+					</div>
+					<div class="col-6">
+						<a asp-action="Details" asp-route-MovieID="@obj.MovieID" class="btn btn-outline-warning">Detail</a>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
 </div>

@@ -5,6 +5,7 @@ using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Cinema_System.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -26,14 +27,14 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #region API
         [HttpGet]
-        public async Task<IActionResult> GetMovies(int Showingpage = 1,int Upcommingpage = 1 , int CouponPage = 1)
+        public async Task<IActionResult> GetMovies(int Showingpage = 1, int Upcommingpage = 1, int CouponPage = 1)
         {
             // Ensure page numbers are always 1 or greater
             Showingpage = Math.Max(1, Showingpage);
             Upcommingpage = Math.Max(1, Upcommingpage);
             CouponPage = Math.Max(1, CouponPage);
-            // hien thi moi trang 1 cai 
-            int pageSize = 1;
+            // hien thi moi trang 4 cai 
+            int pageSize = 4;
             var showingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Showingpage, pageSize, u => !u.IsUpcomingMovie);
             var upcommingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Upcommingpage, pageSize, u => u.IsUpcomingMovie);
             var couponMovies = await _unitOfWork.Coupon.GetAllPagedAsync(CouponPage, pageSize);
@@ -59,7 +60,42 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-        public async Task<IActionResult> Details()
+        public async Task<IActionResult> Details(int MovieID)
+        {
+            var showTimes = await _unitOfWork.showTime.GetAllAsync(u => u.MovieID == MovieID, includeProperties: "Cinema");
+
+            MovieDetailVM detailVM = new MovieDetailVM()
+            {
+                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID),
+
+                // Populate Cinemas
+                CinemaListItem = showTimes.Select(u => new SelectListItem
+                {
+                    Value = u.CinemaID.ToString(),
+                    Text = u.Cinema.Name
+                }),
+
+                // Populate Dates
+                DateListItem = showTimes.Select(u => new SelectListItem
+                {
+                    Value = u.ShowTimeID.ToString(),
+                    Text = u.ShowDates
+
+                }),
+
+                // Populate ShowTimes
+                ShowTimeListItem = showTimes.Select(u => new SelectListItem
+                {
+                    Value = u.ShowTimeID.ToString(),
+                    Text = u.ShowTimes
+                })
+            };
+
+            return View(detailVM);
+        }
+
+
+        public async Task<IActionResult> Cart()
         {
             return View();
         }
@@ -73,7 +109,6 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
 
-      
         public async Task<IActionResult> Upcomming()
         {
             IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => u.IsUpcomingMovie);
@@ -81,7 +116,7 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return View(movies);
         }
-     
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
