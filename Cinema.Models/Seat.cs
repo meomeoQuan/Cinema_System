@@ -20,18 +20,10 @@ namespace Cinema.Models
         public int RoomID { get; set; } // Foreign key
 
         [Required]
-        [EnumDataType(typeof(SeatStatus))]
-        public SeatStatus Status { get; set; } = SeatStatus.Available;
+        public Boolean Status { get; set; } = true;
 
         // Navigation property
         [ForeignKey("RoomID")]
         public virtual Room Room { get; set; }
-    }
-
-    public enum SeatStatus
-    {
-        Available,
-        Reserved,
-        Blocked
     }
 }
