@@ -10,15 +10,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.DataAccess.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
+      
         public DbSet<Theater> Cinemas { get; set; }
         public DbSet<ShowTime> showTimes { get; set; }
-        public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
@@ -26,6 +28,8 @@ namespace Cinema.DataAccess.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
 
             // Room → ShowTime (Disable Cascade Delete)
             modelBuilder.Entity<ShowTime>()
