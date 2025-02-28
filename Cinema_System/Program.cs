@@ -9,28 +9,42 @@ using Cinema.Utility;
 using Cinema.DbInitializer;
 using Cinema.DataAccess.DbInitializer;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<ApplicationDbContext>(u => u.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
+
+
+//builder.Services.AddDbContext<ApplicationDbContext>(u => u.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
 //builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //    options.UseSqlServer(
 //        builder.Configuration.GetConnectionString("DefaultConnection"),
 //        b => b.MigrationsAssembly("Cinema.DataAccess") // ✅ Chỉ định dự án chứa Migration
 //    ));
 
-builder.Services.AddDbContext<ApplicationDbContext>(u => u.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+//---------------------------------------------------------------------------------------
+// Configure database context
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+// Configure Identity with ApplicationUser (fixing UserManager<IdentityUser> issue)
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// Configure Identity lockout policy
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+    options.Lockout.MaxFailedAccessAttempts = 3;
+    options.Lockout.AllowedForNewUsers = true;
+});
 
 builder.Services.AddRazorPages();
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-//options => options.SignIn.RequireConfirmedAccount = true
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IEmailSender, EmailSender>();
-builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
+// Configure authentication cookies
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = $"/Identity/Account/Login";
@@ -38,29 +52,62 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+// Add Facebook authentication
+builder.Services.AddAuthentication().AddFacebook(options =>
+{
+    options.AppId = "572726168935390";
+    options.AppSecret = "ef269c0c3efbd79bfae81afdcba26300";
+});
 
+// Add Google authentication
+builder.Services.AddAuthentication().AddGoogle(options =>
+{
+    options.ClientId = "1090292520927-n8hcmp4v0f4u1peg91j9mdadadjdl72u.apps.googleusercontent.com";
+    options.ClientSecret = "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";
+});
+
+//---------------------------------------------------------------------------------------
+// Add session services
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Configure token lifespan
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromSeconds(30);
+});
+
+//---------------------------------------------------------------------------------------
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
+//----------------------------------------------------------------------------------------
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseSession();
 
-//app.UseAuthentication();
-//app.UseAuthorization();
-
+// Seed database
 SeedDatabase();
 
 app.MapRazorPages();
 app.MapStaticAssets();
-
-
 
 // ------------------- ROUTING CHO AREAS ------------------- //
 // 1) Route cho Admin
@@ -85,5 +132,3 @@ void SeedDatabase()
         DbInitializer.Initialize();
     }
 }
-
-

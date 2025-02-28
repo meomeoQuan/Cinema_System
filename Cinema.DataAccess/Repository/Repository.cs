@@ -116,7 +116,12 @@ namespace Cinema.DataAccess.Repository
 
             return await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
         }
+        // offset    movies = 10 -> page 1 -> offset 0 , movies 3 
+        // page 2 -> offset 3 , movies 3
+        // page 3 -> offset 6 , movies 3
+        // page 4 -> offset 9 , movies 1
 
+        // 
         public async Task<int> CountAsync(Expression<Func<T, bool>> ? filter = null)
         {
            if(filter != null)
@@ -125,6 +130,47 @@ namespace Cinema.DataAccess.Repository
             }
            return await dbSet.CountAsync();
         }
+
+   
+        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet.Where(filter);
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+            // Category,CategoryID ->    {"Category","CategoryID"}
+            return query.FirstOrDefault();
+        }
+
+
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+            if (filter != null)
+            {
+                query.Where(filter);
+
+            }
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.
+                   Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+
+            return query.ToList();
+        }
+
+     
+
     }
 
 }
