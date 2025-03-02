@@ -25,6 +25,14 @@ builder.Services.AddControllersWithViews();
 
 //---------------------------------------------------------------------------------------
 // Configure database context
+
+//-------------------------------------- SIGNAL IR   -------------------------------------------------
+
+
+builder.Services.AddSignalR();
+
+//---------------------------------------------------------------------------------------
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
@@ -52,12 +60,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
-// Add Facebook authentication
-builder.Services.AddAuthentication().AddFacebook(options =>
-{
-    options.AppId = "572726168935390";
-    options.AppSecret = "ef269c0c3efbd79bfae81afdcba26300";
-});
+//// Add Facebook authentication
+//builder.Services.AddAuthentication().AddFacebook(options =>
+//{
+//    options.AppId = "572726168935390";
+//    options.AppSecret = "ef269c0c3efbd79bfae81afdcba26300";
+//});
 
 // Add Google authentication
 builder.Services.AddAuthentication().AddGoogle(options =>
@@ -98,6 +106,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();  // Ensure static files are served
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -109,6 +118,7 @@ SeedDatabase();
 app.MapRazorPages();
 app.MapStaticAssets();
 
+app.MapHub<ChatHub>("/chatHub");
 // ------------------- ROUTING CHO AREAS ------------------- //
 // 1) Route cho Admin
 //    Khi URL bắt đầu bằng "/Admin/...",
