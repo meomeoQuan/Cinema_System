@@ -25,6 +25,10 @@ namespace Cinema_System.Areas.Guest.Controllers
             return View();
         }
 
+        public IActionResult Chat()
+        {
+            return View();
+        }
         #region API
         [HttpGet]
         public async Task<IActionResult> GetMovies(int Showingpage = 1, int Upcommingpage = 1, int CouponPage = 1)
