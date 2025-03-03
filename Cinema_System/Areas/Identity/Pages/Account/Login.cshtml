@@ -1,80 +1,190 @@
 ﻿@page
 @model LoginModel
-
 @{
     ViewData["Title"] = "Log in";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <h2>Use a local account to log in.</h2>
-                <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="checkbox mb-3">
-                    <label asp-for="Input.RememberMe" class="form-label">
-                        <input class="form-check-input" asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
-                    <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
-                </div>
-            </form>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
+<style>
+    /* Sci-Fi Background */
+    body {
+        background: radial-gradient(circle at center, #001f3f, #000);
+        color: white;
+        font-family: 'Orbitron', sans-serif;
+       
+    }
+
+        /* Animated Stars */
+     
+
+    /* Neon Glow Card */
+    .card {
+        border: none;
+        border-radius: 15px;
+        background: rgba(0, 0, 0, 0.85);
+        box-shadow: 0 0 15px rgba(0, 153, 255, 0.8);
+        color: white;
+    }
+
+
+    /* Sci-Fi Buttons */
+    .btn-primary {
+        background: linear-gradient(45deg, #00d4ff, #007bff);
+        color: white;
+        border: none;
+        box-shadow: 0px 0px 10px #00d4ff;
+        transition: 0.3s ease-in-out;
+    }
+
+        .btn-primary:hover {
+            background: #007bff;
+            box-shadow: 0px 0px 20px #00d4ff;
+        }
+
+    /* Neon Outline for Inputs */
+    .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid #00d4ff;
+        }
+    /* Links */
+
+    /* Facebook Button - Blue Outline */
+    .btn-facebook {
+        background: transparent;
+        color: #007bff;
+        border: 2px solid #007bff;
+        box-shadow: 0px 0px 10px rgba(0, 212, 255, 0.8);
+        transition: 0.3s ease-in-out;
+    }
+
+        .btn-facebook:hover {
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            color: white;
+            box-shadow: 0px 0px 20px #00d4ff;
+        }
+
+    /* Google Button - Red Outline */
+    .btn-google {
+        background: transparent;
+        color: #ff4d4d;
+        border: 2px solid #ff4d4d;
+        box-shadow: 0px 0px 10px rgba(255, 77, 77, 0.8);
+        transition: 0.3s ease-in-out;
+    }
+
+        .btn-google:hover {
+            background: linear-gradient(45deg, #ff4d4d, #ff0000);
+            color: white;
+            box-shadow: 0px 0px 20px #ff4d4d;
+        }
+
+    /* Neon Glow Divider */
+    .login-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        color : darkgray;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 30px 0;
+        position: relative;
+    }
+
+        /* Neon Effect for Lines */
+        .login-divider::before,
+        .login-divider::after {
+            content: "";
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.8), transparent);
+            box-shadow: 0px 0px 10px rgba(0, 212, 255, 0.8);
+            margin: 0 15px;
+        }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center mt-3 pb-4 mb-2">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-body p-5">
+                    <h2 class="mb-4 fw-bold ">Log in</h2>
+
+                    <form id="account" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+                            <label asp-for="Input.Email">Email</label>
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" placeholder="password" />
+                            <label asp-for="Input.Password">Password</label>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="Input.RememberMe" />
+                                <label asp-for="Input.RememberMe" class="form-check-label">@Html.DisplayNameFor(m => m.Input.RememberMe)</label>
+                            </div>
+                            <a id="forgot-password" asp-page="./ForgotPassword">Forgot password?</a>
+                        </div>
+
+                        <button id="login-submit" type="submit" class="btn btn-primary w-100 py-2">Log in</button>
+
+                        <div class="text-center mt-3 d-flex justify-content-between">
+                            <p class="mb-0">
+                                <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+                            </p>
+
+                            <p class="mb-0">
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-bold">Sign up now</a>
+                            </p>
+                            
+                        </div>
+
+
+                        
+
+                     
+                            <div class="text-center mt-3">
+                                <div class="login-divider">
+                                    <span>Or log in with</span>
+                                </div>
+
+                            <div class="d-flex flex-column gap-3 mt-2">
+                                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                                {
+                                    @foreach (var provider in Model.ExternalLogins!)
+                                    {
+                                        var providerClass = provider.Name.ToLower() == "google" ? "btn-google" :
+                                        provider.Name.ToLower() == "facebook" ? "btn-facebook" : "btn-outline-primary";
+
+                                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                            <button type="submit" class="btn @providerClass w-100" name="provider" value="@provider.Name">
+                                                <i class="bi bi-@(provider.Name.ToLower())"></i> Log in with @provider.DisplayName
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted">No external login providers available</p>
+                                }
+                            </div>
+                        </div>
+
                     </form>
-                }
-            }
-        </section>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

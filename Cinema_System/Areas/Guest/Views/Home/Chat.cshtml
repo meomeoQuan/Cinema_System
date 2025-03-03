@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Chat";
+}
+
+<div class="container">
+    <h2>SignalR Chat</h2>
+
+    <div class="row p-1">
+        <div class="col-1">User</div>
+        <div class="col-5"><input type="text" id="userInput" class="form-control" /></div>
+    </div>
+
+    <div class="row p-1">
+        <div class="col-1">Message</div>
+        <div class="col-5"><input type="text" id="messageInput" class="form-control" /></div>
+    </div>
+
+    <div class="row p-1">
+        <div class="col-6 text-end">
+            <button id="sendButton" class="btn btn-primary">Send Message</button>
+        </div>
+    </div>
+
+    <div class="row p-1">
+        <div class="col-6">
+            <hr />
+            <ul id="messagesList"></ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/aspnet/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/chat.js"></script>
+}
