@@ -45,7 +45,6 @@ namespace Cinema.Models
         public virtual ICollection<ShowTime> ShowTimes { get; set; } = new List<ShowTime>();
 
 
-
     }
     public enum RoomStatus
     {
