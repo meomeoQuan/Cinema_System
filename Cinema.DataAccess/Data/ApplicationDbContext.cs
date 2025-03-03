@@ -179,23 +179,23 @@ namespace Cinema.DataAccess.Data
                 }
             );
             modelBuilder.Entity<Room>().HasData(
-    new Room
-    {
-        RoomID = 1,
-        RoomNumber = "A1",
-        Capacity = 100,
-        Status = RoomStatus.Available,
-        CinemaID = 1 // Matches existing Theater
-    },
-    new Room
-    {
-        RoomID = 2,
-        RoomNumber = "B1",
-        Capacity = 150,
-        Status = RoomStatus.Available,
-        CinemaID = 2 // Matches existing Theater
-    }
-);
+                new Room
+                {
+                    RoomID = 1,
+                    RoomNumber = "A1",
+                    Capacity = 100,
+                    Status = RoomStatus.Available,
+                    CinemaID = 1 // Matches existing Theater
+                },
+                new Room
+                {
+                    RoomID = 2,
+                    RoomNumber = "B1",
+                    Capacity = 150,
+                    Status = RoomStatus.Available,
+                    CinemaID = 2 // Matches existing Theater
+                }
+            );
 
 
             // Seed Sample ShowTimes
