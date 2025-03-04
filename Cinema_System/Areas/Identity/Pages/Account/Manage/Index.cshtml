@@ -7,49 +7,51 @@
 
 <partial name="_StatusMessage" for="StatusMessage" />
 
-
 <div class="container">
     <div class="row justify-content-center align-items-center">
         <form id="profile-form" method="post" class="w-100" enctype="multipart/form-data">
             <input asp-for="Input.userImage" type="hidden" />  <!-- Hidden input for existing image -->
             <input asp-for="Input.UserId" type="hidden" />
 
-           
             <div class="row">
-                <!-- Left Side: Profile Image -->
+                <!-- Left Side: Profile Image & Points -->
                 <div class="col-md-5 d-flex flex-column align-items-center">
                     <img id="profileImage"
-                         src="@Model.Input.userImage"  
+                         src="@Model.Input.userImage"
                          class="profile-image"
                          onclick="document.getElementById('ProfilePicture').click();" />
-                    <!-- Hidden File Upload Input -->
                     <input type="file" name="file" id="ProfilePicture" class="d-none" accept="image/*"
                            onchange="previewImage(event)">
+                    <div class="point-display">Points: @Model.Input.Point</div>
                 </div>
 
                 <!-- Right Side: Profile Form -->
-                <div class="col-md-7">
+                <div class="col-md-7 position-relative">
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-                    <div class="form-floating mb-3">
-                        <input asp-for="Username" class="form-control" placeholder="Enter your username."  />
-                        <label asp-for="Username" class="form-label"></label>
+                    <div class="custom-input mb-3">
+                        <label asp-for="Input.Fullname" class="form-label">Fullname:</label>
+                        <input asp-for="Input.Fullname" class="input-line form-control" />
                     </div>
 
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Enter your phone number." />
-                        <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    <div class="custom-input mb-3">
+                        <label asp-for="Username" class="form-label">Username:</label>
+                        <input asp-for="Username" class="input-line form-control" />
                     </div>
 
-                    <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+                    <div class="custom-input mb-3">
+                        <label asp-for="Input.PhoneNumber" class="form-label">Phone Number:</label>
+                        <input asp-for="Input.PhoneNumber" class="input-line form-control" />
+                    </div>
+
+                    <button id="update-profile-button" type="submit" class="btn btn-sm btn-primary position-absolute end-0">Save</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-@section Scripts{
 
+@section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         function previewImage(event) {
@@ -61,6 +63,7 @@
         }
     </script>
 }
+
 <style>
     .profile-image {
         width: 180px;
@@ -71,22 +74,35 @@
         box-shadow: 0px 0px 15px #00d4ff;
     }
 
-    /* Center content properly using Bootstrap flex utilities */
-    .col-md-5, .col-md-7 {
+    .point-display {
+        margin-top: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .custom-input {
         display: flex;
         align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    }
-
-    /* Ensure form inputs are well-aligned */
-    .form-floating {
         width: 100%;
     }
 
-    /* Adjust button width */
+        .custom-input label {
+            min-width: 120px;
+            font-weight: bold;
+        }
+
+    .input-line {
+        flex-grow: 1;
+        border: none;
+        border-bottom: 2px solid #333;
+        width: 100%;
+        height: 24px;
+        background: none;
+        outline: none;
+    }
+
     .btn-primary {
-        width: 100%;
+        width: auto;
     }
 </style>
-

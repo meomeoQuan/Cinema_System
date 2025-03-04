@@ -2,9 +2,72 @@
 @model LockoutModel
 @{
     ViewData["Title"] = "Locked out";
+    var lockoutEndString = Model.LockoutEnd?.UtcDateTime.ToString("O") ?? "";
 }
+
+<style>
+    /* Sci-Fi Background */
+    body {
+        background: radial-gradient(circle at center, #001f3f, #000);
+        color: white;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Header */
+    h1 {
+        color: red;
+        text-shadow: 0px 0px 10px red;
+    }
+
+    /* Lockout Message */
+    p {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 20px;
+    }
+
+    /* Countdown Timer */
+    .countdown {
+        font-size: 1rem;
+        color: darkred;
+    }
+</style>
 
 <header>
     <h1 class="text-danger">@ViewData["Title"]</h1>
     <p class="text-danger">This account has been locked out, please try again later.</p>
+    <p id="countdown" class="countdown">
+        Time remaining: <span id="time-left"></span>
+    </p>
 </header>
+
+@section Scripts {
+    <script>
+        function getCookie(name) {
+            let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        }
+
+        let lockoutEnd = getCookie("LockoutEnd");
+        if (lockoutEnd) {
+            let lockoutTime = new Date(lockoutEnd).getTime();
+            let now = new Date().getTime();
+            let timeLeft = Math.max(0, (lockoutTime - now) / 1000);
+
+            function updateTimer() {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = Math.floor(timeLeft % 60);
+                document.getElementById("time-left").innerText = minutes + "m " + seconds + "s";
+
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    window.location.href = "/Identity/Account/Login";
+                }
+            }
+
+            updateTimer();
+        }
+    </script>
+}

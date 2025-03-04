@@ -71,6 +71,11 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
             public string PhoneNumber { get; set; }
             public string? userImage { get; set; }
             public string UserId { get; set; }
+
+            public int ? Point { get; set; }
+
+
+            public string ? Fullname { get; set; }
         }
 
         private async Task LoadAsync(IdentityUser user)
@@ -79,13 +84,19 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             var applicationUser = await _unitOfWork.ApplicationUser.GetAsync(u => u.Email == user.Email);
             var userImage = applicationUser?.UserImage;
+            var point = applicationUser?.Points;
+            var fullname = applicationUser?.FullName;
+
             Username = userName;
 
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
                 UserId = user.Id,
-                userImage = userImage
+                userImage = userImage,
+                Point = point,
+                Fullname = fullname
+                
             };
         }
 
