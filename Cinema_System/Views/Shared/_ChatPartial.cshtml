@@ -1,0 +1,84 @@
+﻿<div class="chat-container position-fixed bottom-0 end-0 mb-3 me-5 shadow-lg" style="width: 350px; height: 500px;">
+    <div class="chat-header bg-primary text-white rounded-top-3 p-3 d-flex justify-content-between align-items-center">
+        <div class="fw-bold fs-5">Messenger</div>
+        <div class="d-flex gap-2">
+            <button id="minimizeButton" class="btn btn-link text-white p-0 opacity-75 hover-opacity-100">−</button>
+            <button id="closeButton" class="btn btn-link text-white p-0 opacity-75 hover-opacity-100">×</button>
+        </div>
+    </div>
+
+    <div class="chat-messages flex-grow-1 overflow-auto bg-body-tertiary p-3">
+        <ul id="messagesList" class="list-unstyled d-flex flex-column gap-2 m-0"></ul>
+    </div>
+
+    <div class="chat-input p-3 border-top d-flex gap-2">
+        <input type="text" id="messageInput" class="form-control rounded-pill border" placeholder="Type a message...">
+        <button id="sendButton" class="btn btn-primary rounded-pill px-3">
+            <i class="bi bi-send"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        right: 40px !important; /* Adjust this value */
+       
+    }
+
+    .chat-header {
+        background: linear-gradient(to right, #0084ff, #00c3ff);
+        cursor: pointer;
+    }
+
+    .hover-opacity-100:hover {
+        opacity: 1 !important;
+    }
+
+    #messagesList li {
+        max-width: 80%;
+        padding: 0.5rem 1rem;
+        border-radius: 1.25rem;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        word-break: break-word;
+    }
+
+        #messagesList li.sent {
+            align-self: flex-end;
+            background: #0084ff;
+            color: white;
+            border-radius: 1.25rem 1.25rem 0 1.25rem;
+        }
+
+        #messagesList li.received {
+            align-self: flex-start;
+            background: white;
+            color: #1c1e21;
+            border-radius: 1.25rem 1.25rem 1.25rem 0;
+        }
+</style>
+
+<script>
+    // Toggle functionality using Bootstrap classes
+    const chatContainer = document.querySelector('.chat-container');
+    const minimizeButton = document.getElementById('minimizeButton');
+    const closeButton = document.getElementById('closeButton');
+
+    let isMinimized = false;
+
+    minimizeButton.addEventListener('click', () => {
+        isMinimized = !isMinimized;
+        chatContainer.style.height = isMinimized ? '40px' : '500px';
+        chatContainer.style.transform = isMinimized ? 'translateY(460px)' : 'translateY(0)';
+    });
+
+    closeButton.addEventListener('click', () => {
+        chatContainer.classList.add('d-none');
+    });
+</script>

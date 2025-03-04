@@ -1,11 +1,16 @@
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Security.Claims;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Cinema_System.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using QRCoder;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -14,14 +19,16 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
+      
         public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
+          
         }
-
         public IActionResult Index()
         {
+      
             return View();
         }
 
@@ -120,6 +127,58 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return View(movies);
         }
+
+        [HttpPost]
+        public IActionResult GenerateTicket(string ticketId)
+        {
+            string validationUrl = Url.Action("ValidAuthentication", "Home", new { ticketId = ticketId }, Request.Scheme);
+            //string validationUrl = "https://localhost:7251/Home/ValidAuthentication";
+
+            //string validationUrl = "https://www.facebook.com";
+            //string validationUrl = "https://httpbin.org/anything";
+            using (MemoryStream ms = new MemoryStream())
+            {
+                QRCodeGenerator codeGenerator = new QRCodeGenerator();
+                QRCodeData qRCodeData = codeGenerator.CreateQrCode(validationUrl, QRCodeGenerator.ECCLevel.Q);
+                QRCode qRCoder = new QRCode(qRCodeData);
+
+                using (Bitmap bitMap = qRCoder.GetGraphic(20))
+                {
+                    bitMap.Save(ms, ImageFormat.Png);
+                    ViewBag.QRCode = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
+                }
+            }
+
+            ViewBag.TicketId = ticketId;
+            return View("TestQR");
+        }
+
+        public IActionResult TestQR()
+        {
+            return View();
+        }
+        public IActionResult ValidAuthentication(string ticketId)
+        {
+            if (ValidateTicket(ticketId))
+            {
+                ViewBag.Message = "Ticket is valid!";
+            }
+            else
+            {
+                ViewBag.Message = "Invalid or expired ticket.";
+            }
+
+            ViewBag.TicketId = ticketId;
+            return View();
+        }
+
+        private bool ValidateTicket(string ticketId)
+        {
+            // Mock validation logic; replace with actual validation (e.g., check database)
+            return !string.IsNullOrEmpty(ticketId) && ticketId.StartsWith("TICKET");
+        }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
