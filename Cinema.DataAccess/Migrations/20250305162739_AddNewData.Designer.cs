@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250304013058_AddLatestTodbs")]
-    partial class AddLatestTodbs
+    [Migration("20250305162739_AddNewData")]
+    partial class AddNewData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -304,6 +304,76 @@ namespace Cinema.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Cinema.Models.OrderDetail", b =>
+                {
+                    b.Property<int>("OrderDetailID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
+
+                    b.Property<int>("OrderID")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ShowtimeSeatID")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderDetailID");
+
+                    b.HasIndex("OrderID");
+
+                    b.HasIndex("ProductID");
+
+                    b.HasIndex("ShowtimeSeatID");
+
+                    b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("Cinema.Models.OrderTable", b =>
+                {
+                    b.Property<int>("OrderID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderID"));
+
+                    b.Property<int?>("CouponID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalAmount")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("OrderID");
+
+                    b.HasIndex("CouponID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("OrderTables");
+                });
+
             modelBuilder.Entity("Cinema.Models.Product", b =>
                 {
                     b.Property<int>("ProductID")
@@ -389,7 +459,7 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasIndex("CinemaID");
 
-                    b.ToTable("Room");
+                    b.ToTable("Rooms");
 
                     b.HasData(
                         new
@@ -436,7 +506,409 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasIndex("RoomID");
 
-                    b.ToTable("Seat");
+                    b.ToTable("Seats");
+
+                    b.HasData(
+                        new
+                        {
+                            SeatID = 1,
+                            ColumnNumber = 1,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 2,
+                            ColumnNumber = 2,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 3,
+                            ColumnNumber = 3,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 4,
+                            ColumnNumber = 4,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 5,
+                            ColumnNumber = 5,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 6,
+                            ColumnNumber = 6,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 7,
+                            ColumnNumber = 7,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 8,
+                            ColumnNumber = 8,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 9,
+                            ColumnNumber = 9,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 10,
+                            ColumnNumber = 10,
+                            RoomID = 1,
+                            Row = "A",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 11,
+                            ColumnNumber = 1,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 12,
+                            ColumnNumber = 2,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 13,
+                            ColumnNumber = 3,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 14,
+                            ColumnNumber = 4,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 15,
+                            ColumnNumber = 5,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 16,
+                            ColumnNumber = 6,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 17,
+                            ColumnNumber = 7,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 18,
+                            ColumnNumber = 8,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 19,
+                            ColumnNumber = 9,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 20,
+                            ColumnNumber = 10,
+                            RoomID = 1,
+                            Row = "B",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 21,
+                            ColumnNumber = 1,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 22,
+                            ColumnNumber = 2,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 23,
+                            ColumnNumber = 3,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 24,
+                            ColumnNumber = 4,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 25,
+                            ColumnNumber = 5,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 26,
+                            ColumnNumber = 6,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 27,
+                            ColumnNumber = 7,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 28,
+                            ColumnNumber = 8,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 29,
+                            ColumnNumber = 9,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 30,
+                            ColumnNumber = 10,
+                            RoomID = 1,
+                            Row = "C",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 31,
+                            ColumnNumber = 1,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 32,
+                            ColumnNumber = 2,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 33,
+                            ColumnNumber = 3,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 34,
+                            ColumnNumber = 4,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 35,
+                            ColumnNumber = 5,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 36,
+                            ColumnNumber = 6,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 37,
+                            ColumnNumber = 7,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 38,
+                            ColumnNumber = 8,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 39,
+                            ColumnNumber = 9,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 40,
+                            ColumnNumber = 10,
+                            RoomID = 1,
+                            Row = "D",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 41,
+                            ColumnNumber = 1,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 42,
+                            ColumnNumber = 2,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 43,
+                            ColumnNumber = 3,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 44,
+                            ColumnNumber = 4,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 45,
+                            ColumnNumber = 5,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 46,
+                            ColumnNumber = 6,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 47,
+                            ColumnNumber = 7,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 48,
+                            ColumnNumber = 8,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 49,
+                            ColumnNumber = 9,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        },
+                        new
+                        {
+                            SeatID = 50,
+                            ColumnNumber = 10,
+                            RoomID = 1,
+                            Row = "E",
+                            Status = 0
+                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.ShowTime", b =>
@@ -492,7 +964,63 @@ namespace Cinema.DataAccess.Migrations
                             RoomID = 2,
                             ShowDates = "01/03/2025",
                             ShowTimes = "20:15"
+                        },
+                        new
+                        {
+                            ShowTimeID = 3,
+                            CinemaID = 1,
+                            MovieID = 1,
+                            RoomID = 1,
+                            ShowDates = "01/03/2025",
+                            ShowTimes = "23:00"
+                        },
+                        new
+                        {
+                            ShowTimeID = 4,
+                            CinemaID = 3,
+                            MovieID = 1,
+                            RoomID = 1,
+                            ShowDates = "08/03/2025",
+                            ShowTimes = "21:00"
+                        },
+                        new
+                        {
+                            ShowTimeID = 5,
+                            CinemaID = 3,
+                            MovieID = 1,
+                            RoomID = 1,
+                            ShowDates = "10/03/2025",
+                            ShowTimes = "23:00"
                         });
+                });
+
+            modelBuilder.Entity("Cinema.Models.ShowtimeSeat", b =>
+                {
+                    b.Property<int>("ShowtimeSeatID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShowtimeSeatID"));
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SeatID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShowtimeID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("ShowtimeSeatID");
+
+                    b.HasIndex("SeatID");
+
+                    b.HasIndex("ShowtimeID");
+
+                    b.ToTable("showTimeSeats");
                 });
 
             modelBuilder.Entity("Cinema.Models.Theater", b =>
@@ -560,6 +1088,16 @@ namespace Cinema.DataAccess.Migrations
                             Name = "Skyline Theater",
                             NumberOfRooms = 7,
                             OpeningTime = "10:00",
+                            Status = "Open"
+                        },
+                        new
+                        {
+                            CinemaID = 3,
+                            Address = "124 Main St, City",
+                            ClosingTime = "23:00",
+                            Name = "CGV Cinema",
+                            NumberOfRooms = 5,
+                            OpeningTime = "09:00",
                             Status = "Open"
                         });
                 });
@@ -817,6 +1355,46 @@ namespace Cinema.DataAccess.Migrations
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
 
+            modelBuilder.Entity("Cinema.Models.OrderDetail", b =>
+                {
+                    b.HasOne("Cinema.Models.OrderTable", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cinema.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID");
+
+                    b.HasOne("Cinema.Models.ShowtimeSeat", "ShowtimeSeat")
+                        .WithMany()
+                        .HasForeignKey("ShowtimeSeatID");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ShowtimeSeat");
+                });
+
+            modelBuilder.Entity("Cinema.Models.OrderTable", b =>
+                {
+                    b.HasOne("Cinema.Models.Coupon", "Coupon")
+                        .WithMany()
+                        .HasForeignKey("CouponID");
+
+                    b.HasOne("Cinema.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Coupon");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Cinema.Models.Room", b =>
                 {
                     b.HasOne("Cinema.Models.Theater", "Cinema")
@@ -864,6 +1442,25 @@ namespace Cinema.DataAccess.Migrations
                     b.Navigation("Movie");
 
                     b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Cinema.Models.ShowtimeSeat", b =>
+                {
+                    b.HasOne("Cinema.Models.Seat", "Seat")
+                        .WithMany()
+                        .HasForeignKey("SeatID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cinema.Models.ShowTime", "Showtime")
+                        .WithMany()
+                        .HasForeignKey("ShowtimeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Seat");
+
+                    b.Navigation("Showtime");
                 });
 
             modelBuilder.Entity("Cinema.Models.Theater", b =>
@@ -953,6 +1550,11 @@ namespace Cinema.DataAccess.Migrations
             modelBuilder.Entity("Cinema.Models.Movie", b =>
                 {
                     b.Navigation("ShowTimes");
+                });
+
+            modelBuilder.Entity("Cinema.Models.OrderTable", b =>
+                {
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Cinema.Models.Room", b =>

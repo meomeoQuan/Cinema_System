@@ -13,20 +13,12 @@ namespace Cinema.Models.ViewModels
 
         public Movie Movie { get; set; }
 
-        [ValidateNever]
-        public IEnumerable<SelectListItem> CinemaListItem { get; set; } // Dropdown for Cinemas
+        // List of Cinemas, each containing dates and showtimes
+        public List<CinemaScheduleVM> Cinemas { get; set; } = new List<CinemaScheduleVM>();
 
-        public Theater Cinema { get; set; }
+        // Shopping Cart
+        public List<OrderDetail> OrderDetails { get; set; } // từ đây có thể lấy ra thông tin user id
 
-        [ValidateNever]
-        public IEnumerable<SelectListItem> DateListItem { get; set; } // Dropdown for Dates
-
-        public  ShowTime ShowTime { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<SelectListItem> ShowTimeListItem  { get; set; } // Dropdown for Showtimes
-
-      
-        public IEnumerable<OrderDetail> OrderDetails { get; set; } // Shopping cart
+        // trang này sẽ dc làm như là 1 cái shopping cart 
     }
 }

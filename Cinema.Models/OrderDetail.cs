@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Cinema.Models
 {
-    public class OrderDetail
+    public class OrderDetail // shopping cart
     {
         [Key]
         public int OrderDetailID { get; set; }
