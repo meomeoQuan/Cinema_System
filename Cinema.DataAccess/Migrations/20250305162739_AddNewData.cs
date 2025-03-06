@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Cinema.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddLatestTodbs : Migration
+    public partial class AddNewData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -248,6 +248,35 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OrderTables",
+                columns: table => new
+                {
+                    OrderID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CouponID = table.Column<int>(type: "int", nullable: true),
+                    TotalAmount = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderTables", x => x.OrderID);
+                    table.ForeignKey(
+                        name: "FK_OrderTables_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderTables_Coupons_CouponID",
+                        column: x => x.CouponID,
+                        principalTable: "Coupons",
+                        principalColumn: "CouponID");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserCoupon",
                 columns: table => new
                 {
@@ -275,7 +304,7 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Room",
+                name: "Rooms",
                 columns: table => new
                 {
                     RoomID = table.Column<int>(type: "int", nullable: false)
@@ -289,9 +318,9 @@ namespace Cinema.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Room", x => x.RoomID);
+                    table.PrimaryKey("PK_Rooms", x => x.RoomID);
                     table.ForeignKey(
-                        name: "FK_Room_Cinemas_CinemaID",
+                        name: "FK_Rooms_Cinemas_CinemaID",
                         column: x => x.CinemaID,
                         principalTable: "Cinemas",
                         principalColumn: "CinemaID",
@@ -299,7 +328,7 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Seat",
+                name: "Seats",
                 columns: table => new
                 {
                     SeatID = table.Column<int>(type: "int", nullable: false)
@@ -311,11 +340,11 @@ namespace Cinema.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Seat", x => x.SeatID);
+                    table.PrimaryKey("PK_Seats", x => x.SeatID);
                     table.ForeignKey(
-                        name: "FK_Seat_Room_RoomID",
+                        name: "FK_Seats_Rooms_RoomID",
                         column: x => x.RoomID,
-                        principalTable: "Room",
+                        principalTable: "Rooms",
                         principalColumn: "RoomID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -348,11 +377,72 @@ namespace Cinema.DataAccess.Migrations
                         principalColumn: "MovieID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_showTimes_Room_RoomID",
+                        name: "FK_showTimes_Rooms_RoomID",
                         column: x => x.RoomID,
-                        principalTable: "Room",
+                        principalTable: "Rooms",
                         principalColumn: "RoomID",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "showTimeSeats",
+                columns: table => new
+                {
+                    ShowtimeSeatID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ShowtimeID = table.Column<int>(type: "int", nullable: false),
+                    SeatID = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_showTimeSeats", x => x.ShowtimeSeatID);
+                    table.ForeignKey(
+                        name: "FK_showTimeSeats_Seats_SeatID",
+                        column: x => x.SeatID,
+                        principalTable: "Seats",
+                        principalColumn: "SeatID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_showTimeSeats_showTimes_ShowtimeID",
+                        column: x => x.ShowtimeID,
+                        principalTable: "showTimes",
+                        principalColumn: "ShowTimeID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderDetails",
+                columns: table => new
+                {
+                    OrderDetailID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderID = table.Column<int>(type: "int", nullable: false),
+                    ProductID = table.Column<int>(type: "int", nullable: true),
+                    ShowtimeSeatID = table.Column<int>(type: "int", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailID);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_OrderTables_OrderID",
+                        column: x => x.OrderID,
+                        principalTable: "OrderTables",
+                        principalColumn: "OrderID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_Products_ProductID",
+                        column: x => x.ProductID,
+                        principalTable: "Products",
+                        principalColumn: "ProductID");
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_showTimeSeats_ShowtimeSeatID",
+                        column: x => x.ShowtimeSeatID,
+                        principalTable: "showTimeSeats",
+                        principalColumn: "ShowtimeSeatID");
                 });
 
             migrationBuilder.InsertData(
@@ -361,7 +451,8 @@ namespace Cinema.DataAccess.Migrations
                 values: new object[,]
                 {
                     { 1, "123 Main St, City", null, "23:00", null, "Grand Cinema", 5, "09:00", "Open", null },
-                    { 2, "456 Broadway Ave, City", null, "22:30", null, "Skyline Theater", 7, "10:00", "Open", null }
+                    { 2, "456 Broadway Ave, City", null, "22:30", null, "Skyline Theater", 7, "10:00", "Open", null },
+                    { 3, "124 Main St, City", null, "23:00", null, "CGV Cinema", 5, "09:00", "Open", null }
                 });
 
             migrationBuilder.InsertData(
@@ -400,7 +491,7 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Room",
+                table: "Rooms",
                 columns: new[] { "RoomID", "Capacity", "CinemaID", "CreatedAt", "RoomNumber", "Status", "UpdatedAt" },
                 values: new object[,]
                 {
@@ -409,12 +500,72 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Seats",
+                columns: new[] { "SeatID", "ColumnNumber", "RoomID", "Row", "Status" },
+                values: new object[,]
+                {
+                    { 1, 1, 1, "A", 0 },
+                    { 2, 2, 1, "A", 0 },
+                    { 3, 3, 1, "A", 0 },
+                    { 4, 4, 1, "A", 0 },
+                    { 5, 5, 1, "A", 0 },
+                    { 6, 6, 1, "A", 0 },
+                    { 7, 7, 1, "A", 0 },
+                    { 8, 8, 1, "A", 0 },
+                    { 9, 9, 1, "A", 0 },
+                    { 10, 10, 1, "A", 0 },
+                    { 11, 1, 1, "B", 0 },
+                    { 12, 2, 1, "B", 0 },
+                    { 13, 3, 1, "B", 0 },
+                    { 14, 4, 1, "B", 0 },
+                    { 15, 5, 1, "B", 0 },
+                    { 16, 6, 1, "B", 0 },
+                    { 17, 7, 1, "B", 0 },
+                    { 18, 8, 1, "B", 0 },
+                    { 19, 9, 1, "B", 0 },
+                    { 20, 10, 1, "B", 0 },
+                    { 21, 1, 1, "C", 0 },
+                    { 22, 2, 1, "C", 0 },
+                    { 23, 3, 1, "C", 0 },
+                    { 24, 4, 1, "C", 0 },
+                    { 25, 5, 1, "C", 0 },
+                    { 26, 6, 1, "C", 0 },
+                    { 27, 7, 1, "C", 0 },
+                    { 28, 8, 1, "C", 0 },
+                    { 29, 9, 1, "C", 0 },
+                    { 30, 10, 1, "C", 0 },
+                    { 31, 1, 1, "D", 0 },
+                    { 32, 2, 1, "D", 0 },
+                    { 33, 3, 1, "D", 0 },
+                    { 34, 4, 1, "D", 0 },
+                    { 35, 5, 1, "D", 0 },
+                    { 36, 6, 1, "D", 0 },
+                    { 37, 7, 1, "D", 0 },
+                    { 38, 8, 1, "D", 0 },
+                    { 39, 9, 1, "D", 0 },
+                    { 40, 10, 1, "D", 0 },
+                    { 41, 1, 1, "E", 0 },
+                    { 42, 2, 1, "E", 0 },
+                    { 43, 3, 1, "E", 0 },
+                    { 44, 4, 1, "E", 0 },
+                    { 45, 5, 1, "E", 0 },
+                    { 46, 6, 1, "E", 0 },
+                    { 47, 7, 1, "E", 0 },
+                    { 48, 8, 1, "E", 0 },
+                    { 49, 9, 1, "E", 0 },
+                    { 50, 10, 1, "E", 0 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "showTimes",
                 columns: new[] { "ShowTimeID", "CinemaID", "MovieID", "RoomID", "ShowDates", "ShowTimes" },
                 values: new object[,]
                 {
                     { 1, 1, 1, 1, "01/03/2025", "18:30" },
-                    { 2, 2, 2, 2, "01/03/2025", "20:15" }
+                    { 2, 2, 2, 2, "01/03/2025", "20:15" },
+                    { 3, 1, 1, 1, "01/03/2025", "23:00" },
+                    { 4, 3, 1, 1, "08/03/2025", "21:00" },
+                    { 5, 3, 1, 1, "10/03/2025", "23:00" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -462,13 +613,38 @@ namespace Cinema.DataAccess.Migrations
                 column: "AdminID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Room_CinemaID",
-                table: "Room",
+                name: "IX_OrderDetails_OrderID",
+                table: "OrderDetails",
+                column: "OrderID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_ProductID",
+                table: "OrderDetails",
+                column: "ProductID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_ShowtimeSeatID",
+                table: "OrderDetails",
+                column: "ShowtimeSeatID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderTables_CouponID",
+                table: "OrderTables",
+                column: "CouponID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderTables_UserID",
+                table: "OrderTables",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_CinemaID",
+                table: "Rooms",
                 column: "CinemaID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Seat_RoomID",
-                table: "Seat",
+                name: "IX_Seats_RoomID",
+                table: "Seats",
                 column: "RoomID");
 
             migrationBuilder.CreateIndex(
@@ -485,6 +661,16 @@ namespace Cinema.DataAccess.Migrations
                 name: "IX_showTimes_RoomID",
                 table: "showTimes",
                 column: "RoomID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_showTimeSeats_SeatID",
+                table: "showTimeSeats",
+                column: "SeatID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_showTimeSeats_ShowtimeID",
+                table: "showTimeSeats",
+                column: "ShowtimeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserCoupon_CouponID",
@@ -516,13 +702,7 @@ namespace Cinema.DataAccess.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Products");
-
-            migrationBuilder.DropTable(
-                name: "Seat");
-
-            migrationBuilder.DropTable(
-                name: "showTimes");
+                name: "OrderDetails");
 
             migrationBuilder.DropTable(
                 name: "UserCoupon");
@@ -531,13 +711,28 @@ namespace Cinema.DataAccess.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Movies");
+                name: "OrderTables");
 
             migrationBuilder.DropTable(
-                name: "Room");
+                name: "Products");
+
+            migrationBuilder.DropTable(
+                name: "showTimeSeats");
 
             migrationBuilder.DropTable(
                 name: "Coupons");
+
+            migrationBuilder.DropTable(
+                name: "Seats");
+
+            migrationBuilder.DropTable(
+                name: "showTimes");
+
+            migrationBuilder.DropTable(
+                name: "Movies");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "Cinemas");

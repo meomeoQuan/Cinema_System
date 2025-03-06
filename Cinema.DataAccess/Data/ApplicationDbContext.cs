@@ -17,8 +17,13 @@ namespace Cinema.DataAccess.Data
         {
         }
 
-      
-        public DbSet<Theater> Cinemas { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<OrderTable> OrderTables { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Seat> Seats { get; set; }
+
+        public DbSet<ShowtimeSeat> showTimeSeats { get; set; }
+        public DbSet<Theater> Cinemas { get; set; } 
         public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
@@ -180,7 +185,19 @@ namespace Cinema.DataAccess.Data
                     ClosingTime = "22:30",  // Changed from TimeSpan to string
                   
                    
-                }
+                },
+                   new Theater
+                   {
+                       CinemaID = 3,
+                       Name = "CGV Cinema",
+                       Address = "124 Main St, City",
+                       NumberOfRooms = 5,
+                       Status = CinemaStatus.Open,
+                       OpeningTime = "09:00",  // Changed from TimeSpan to string
+                       ClosingTime = "23:00",  // Changed from TimeSpan to string
+
+
+                   }
             );
             modelBuilder.Entity<Room>().HasData(
     new Room
@@ -200,6 +217,68 @@ namespace Cinema.DataAccess.Data
         CinemaID = 2 // Matches existing Theater
     }
 );
+            // Seed Seats for RoomID = 1 (5 rows x 10 columns = 50 seats)
+            modelBuilder.Entity<Seat>().HasData(
+                // Row A
+                new Seat { SeatID = 1, Row = "A", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 2, Row = "A", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 3, Row = "A", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 4, Row = "A", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 5, Row = "A", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 6, Row = "A", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 7, Row = "A", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 8, Row = "A", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 9, Row = "A", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 10, Row = "A", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row B
+                new Seat { SeatID = 11, Row = "B", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 12, Row = "B", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 13, Row = "B", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 14, Row = "B", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 15, Row = "B", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 16, Row = "B", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 17, Row = "B", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 18, Row = "B", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 19, Row = "B", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 20, Row = "B", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row C
+                new Seat { SeatID = 21, Row = "C", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 22, Row = "C", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 23, Row = "C", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 24, Row = "C", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 25, Row = "C", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 26, Row = "C", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 27, Row = "C", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 28, Row = "C", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 29, Row = "C", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 30, Row = "C", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row D
+                new Seat { SeatID = 31, Row = "D", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 32, Row = "D", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 33, Row = "D", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 34, Row = "D", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 35, Row = "D", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 36, Row = "D", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 37, Row = "D", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 38, Row = "D", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 39, Row = "D", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 40, Row = "D", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row E
+                new Seat { SeatID = 41, Row = "E", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 42, Row = "E", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 43, Row = "E", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 44, Row = "E", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 45, Row = "E", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 46, Row = "E", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 47, Row = "E", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 48, Row = "E", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 49, Row = "E", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 50, Row = "E", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available }
+            );
 
 
             // Seed Sample ShowTimes
@@ -222,6 +301,34 @@ namespace Cinema.DataAccess.Data
                     RoomID = 2,
                     MovieID = 2
                 }
+                ,
+                  new ShowTime
+                  {
+                      ShowTimeID = 3,
+                      ShowDates = "01/03/2025", // Ensure a valid date is assigned
+                      ShowTimes = "23:00", // Changed from TimeSpan to string
+                      CinemaID = 1,
+                      RoomID = 1,
+                      MovieID = 1
+                  },
+                       new ShowTime
+                       {
+                           ShowTimeID = 4,
+                           ShowDates = "08/03/2025", // Ensure a valid date is assigned
+                           ShowTimes = "21:00", // Changed from TimeSpan to string
+                           CinemaID = 3,
+                           RoomID = 1,
+                           MovieID = 1
+                       },
+                          new ShowTime
+                          {
+                              ShowTimeID = 5,
+                              ShowDates = "10/03/2025", // Ensure a valid date is assigned
+                              ShowTimes = "23:00", // Changed from TimeSpan to string
+                              CinemaID = 3,
+                              RoomID = 1,
+                              MovieID = 1
+                          }
             );
 
         }

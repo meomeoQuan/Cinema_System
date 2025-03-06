@@ -17,7 +17,8 @@
                 <!-- Left Side: Profile Image & Points -->
                 <div class="col-md-5 d-flex flex-column align-items-center">
                     <img id="profileImage"
-                         src="@Model.Input.userImage"
+                         src="@(Model.Input.userImage ?? "/images/user/clonePerson.jpg")"
+                        
                          class="profile-image"
                          onclick="document.getElementById('ProfilePicture').click();" />
                     <input type="file" name="file" id="ProfilePicture" class="d-none" accept="image/*"
