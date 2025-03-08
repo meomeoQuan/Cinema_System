@@ -12,9 +12,7 @@ namespace Cinema.Models.ViewModels
     {
 
         public Movie Movie { get; set; }
-
-        // List of Cinemas, each containing dates and showtimes
-        public List<CinemaScheduleVM> Cinemas { get; set; } = new List<CinemaScheduleVM>();
+        public List<ShowDateVM> ShowDates { get; set; }
 
         // Shopping Cart
         public List<OrderDetail> OrderDetails { get; set; } // từ đây có thể lấy ra thông tin user id

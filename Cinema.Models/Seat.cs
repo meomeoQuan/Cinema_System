@@ -26,6 +26,10 @@ namespace Cinema.Models
         // Navigation property
         [ForeignKey("RoomID")]
         public virtual Room Room { get; set; }
+
+        // Computed property
+        [NotMapped]
+        public string SeatName => $"{Row}{ColumnNumber}";
     }
 
     public enum SeatStatus

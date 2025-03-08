@@ -166,7 +166,8 @@ namespace Cinema.DataAccess.Data
                 {
                     CinemaID = 1,
                     Name = "Grand Cinema",
-                    Address = "123 Main St, City",
+                    Address = "123 Main St, Da Nang City",
+                    CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
                     OpeningTime = "09:00",  // Changed from TimeSpan to string
@@ -178,7 +179,8 @@ namespace Cinema.DataAccess.Data
                 {
                     CinemaID = 2,
                     Name = "Skyline Theater",
-                    Address = "456 Broadway Ave, City",
+                    Address = "456 Broadway Ave, HCM City",
+                    CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 7,
                     Status = CinemaStatus.Open,
                     OpeningTime = "10:00",  // Changed from TimeSpan to string
@@ -190,14 +192,28 @@ namespace Cinema.DataAccess.Data
                    {
                        CinemaID = 3,
                        Name = "CGV Cinema",
-                       Address = "124 Main St, City",
+                       Address = "124 Main St, Danang City",
+                       CinemaCity = "Danang",
                        NumberOfRooms = 5,
                        Status = CinemaStatus.Open,
                        OpeningTime = "09:00",  // Changed from TimeSpan to string
                        ClosingTime = "23:00",  // Changed from TimeSpan to string
 
 
-                   }
+                   },
+                    new Theater
+                    {
+                        CinemaID = 4,
+                        Name = "HCM Cinestar Cinema",
+                        Address = "124 Main St, HCM City",
+                        CinemaCity = "Ho Chi Minh",
+                        NumberOfRooms = 5,
+                        Status = CinemaStatus.Open,
+                        OpeningTime = "09:00",  // Changed from TimeSpan to string
+                        ClosingTime = "23:00",  // Changed from TimeSpan to string
+
+
+                    }
             );
             modelBuilder.Entity<Room>().HasData(
     new Room
@@ -328,8 +344,48 @@ namespace Cinema.DataAccess.Data
                               CinemaID = 3,
                               RoomID = 1,
                               MovieID = 1
-                          }
+                          },
+                           new ShowTime
+                           {
+                               ShowTimeID = 6,
+                               ShowDates = "19/03/2025", // Ensure a valid date is assigned
+                               ShowTimes = "17:00", // Changed from TimeSpan to string
+                               CinemaID = 4,
+                               RoomID = 2,
+                               MovieID = 1
+                           },
+                            new ShowTime
+                            {
+                                ShowTimeID = 7,
+                                ShowDates = "01/03/2025", // Ensure a valid date is assigned
+                                ShowTimes = "17:00", // Changed from TimeSpan to string
+                                CinemaID = 3,
+                                RoomID = 2,
+                                MovieID = 1
+                            },
+                             new ShowTime
+                             {
+                                 ShowTimeID = 8,
+                                 ShowDates = "01/03/2025", // Ensure a valid date is assigned
+                                 ShowTimes = "19:00", // Changed from TimeSpan to string
+                                 CinemaID = 4,
+                                 RoomID = 1,
+                                 MovieID = 1
+                             }
+
             );
+            // Seed ShowtimeSeats for RoomID = 1 and ShowTimeID = 1
+            modelBuilder.Entity<ShowtimeSeat>().HasData(
+                Enumerable.Range(1, 50).Select(seatId => new ShowtimeSeat
+                {
+                    ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
+                    ShowtimeID = 1,           // Link to ShowTimeID = 1
+                    SeatID = seatId,          // Each seat (1-50)
+                    Price = 10.00,            // Default price
+                    Status = ShowtimeSeatStatus.Available
+                }).ToArray()
+            );
+
 
         }
     }

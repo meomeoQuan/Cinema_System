@@ -2,41 +2,41 @@
 
 <style>
 	.date-container, .showtime-container {
-		margin-top: 15px;
+	margin-top: 15px;
 	}
 
 	.date-list {
-		display: flex;
-		gap: 10px;
-		overflow-x: auto;
-		white-space: nowrap;
+	display: flex;
+	gap: 10px;
+	overflow-x: auto;
+	white-space: nowrap;
 	}
 
 	.date-item, .showtime-item {
-		padding: 10px 15px;
-		background-color: #f8f9fa;
-		border-radius: 8px;
-		cursor: pointer;
-		text-align: center;
-		min-width: 100px;
-		border: 1px solid #ccc;
+	padding: 10px 15px;
+	background-color: #f8f9fa;
+	border-radius: 8px;
+	cursor: pointer;
+	text-align: center;
+	min-width: 100px;
+	border: 1px solid #ccc;
 	}
 
-		.date-item.active {
-			background-color: #007bff;
-			color: white;
-		}
+	.date-item.active {
+	background-color: #007bff;
+	color: white;
+	}
 
 	.showtime-list {
-		display: flex;
-		gap: 10px;
-		flex-wrap: wrap;
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
 	}
 
 	.showtime-item {
-		background-color: #28a745;
-		color: white;
-		border: 1px solid #28a745;
+	background-color: #28a745;
+	color: white;
+	border: 1px solid #28a745;
 	}
 </style>
 <body>
@@ -64,53 +64,36 @@
 
 			</div>
 		</section>
-		<!-- Cinema Selection Dropdown -->
-		<select id="cinemaSelect" class="form-select">
-			@foreach (var cinema in Model.Cinemas)
+
+		<div class="container">
+			@foreach (var date in Model.ShowDates)
 			{
-				<option value="@cinema.CinemaID">@cinema.CinemaName</option>
-			}
-		</select>
-
-		<!-- Cinema Sections -->
-		@foreach (var cinema in Model.Cinemas)
-		{
-			<div id="cinema-@cinema.CinemaID" class="cinema-section" style="display: @(cinema == Model.Cinemas.First() ? "block" : "none")">
-				@if (cinema.AvailableDates.Any())
+				<h2>Date: @date.ShowDate</h2>
+				@foreach (var city in date.Cities)
 				{
-					<div class="date-list mt-3">
-						<h5>Select a Date:</h5>
-						@foreach (var dateInfo in cinema.AvailableDates)
-						{
-							<button class="date-button" data-date="@dateInfo.ShowDate">
-								@dateInfo.ShowDate
-							</button>
-						}
-					</div>
-
-					<div class="showtime-list mt-3">
-						<h5>Available Showtimes:</h5>
-						@foreach (var dateInfo in cinema.AvailableDates)
-						{
-							foreach (var time in dateInfo.ShowTimes)
+					<p>City: @city.CityName</p>
+					@foreach (var cinema in city.Cinemas)
+					{
+						<h4>Cinema: @cinema.CinemaName</h4>
+						<p>Times: @string.Join(", ", cinema.ShowTimes)</p> <!-- Show all times in a line -->
+						<!-- Display Seats -->
+						<h5>Seat Layout</h5>
+						<div class="seat-container">
+							@foreach (var row in cinema.Seats)
 							{
-								<form method="post" asp-controller="Detail" asp-action="Create" class="showtime-form">
-									<input type="hidden" name="MovieID" value="@Model.Movie.MovieID" />
-									<input type="hidden" name="CinemaID" value="@cinema.CinemaID" />
-									<input type="hidden" name="ShowDate" value="@dateInfo.ShowDate" />
-									<input type="hidden" name="ShowTime" value="@time" />
-									<button type="submit" class="showtime-button">@time</button>
-								</form>
+								<div class="seat-row">
+									<strong>Row @row.Row:</strong>
+									@foreach (var seat in row.listSeatGrid)
+									{
+										<span class="seat @(seat.Contains("Available") ? "available" : "booked")">@seat</span>
+									}
+								</div>
 							}
-						}
-					</div>
+						</div>
+					}
 				}
-				else
-				{
-					<p class="mt-3">No showtimes available.</p>
-				}
-			</div>
-		}
+			}
+		</div>
 
 
 		<!-- 🎭 Seat Booking Section -->
@@ -281,4 +264,41 @@
 		.showtime-button:hover {
 			background: #0056b3;
 		}
+
+
+
+	
+	.seat-container {
+		margin-top: 20px;
+	}
+
+	.seat-row {
+		display: flex;
+		gap: 15px; /* Increased gap for better spacing */
+		margin-bottom: 10px;
+	}
+
+	.seat {
+		padding: 15px 20px; /* Increased padding for larger size */
+		font-size: 18px; /* Increased font size */
+		font-weight: bold; /* Make text clearer */
+		border-radius: 8px; /* Slightly larger rounded corners */
+		border: 2px solid black; /* Thicker border for visibility */
+		text-align: center;
+		min-width: 60px; /* Ensures uniform width */
+		min-height: 60px; /* Ensures uniform height */
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.available {
+		background-color: lightgreen;
+	}
+
+	.booked {
+		background-color: lightcoral;
+	}
+
+
 </style>  
