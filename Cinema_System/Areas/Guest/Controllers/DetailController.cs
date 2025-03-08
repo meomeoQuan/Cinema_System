@@ -19,56 +19,77 @@ namespace Cinema_System.Areas.Guest.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-    
 
-    
-        public async Task<IActionResult> Details(int MovieID)
+
+        public async Task<IActionResult> Details(int MovieID, string? targetDate = "01/03/2025", string? targetCity = "Danang", string? targetTime = "18:30")
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            // Fetch showtimes including Cinema details
+
             var showTimes = await _unitOfWork.showTime.GetAllAsync(
                 u => u.MovieID == MovieID, includeProperties: "Cinema"
             );
 
-            // Create the ViewModel with a structured hierarchy
+            var showtimeSeats = await _unitOfWork.ShowTimeSeat.GetAllAsync(
+                includeProperties: "Seat"
+            ); // Fetch all seats related to showtimes
+
             MovieDetailVM detailVM = new MovieDetailVM()
             {
-                OrderDetails = (List<OrderDetail>)await _unitOfWork.OrderDetail.GetAllAsync(u => u.Order.UserID == userId, includeProperties: "Product"),
                 Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID),
-                Cinemas = showTimes
-                    .GroupBy(u => new { u.CinemaID, u.Cinema.Name }) // Group by Cinema
-                    .Select(cinemaGroup => new CinemaScheduleVM
+                ShowDates = showTimes
+                    .Where(show =>
+                        (string.IsNullOrEmpty(targetDate) || show.ShowDates == targetDate) &&  // ✅ Date filter
+                        (string.IsNullOrEmpty(targetCity) || string.Equals(show?.Cinema?.CinemaCity?.ToLower().Trim(), targetCity.ToLower().Trim(), StringComparison.OrdinalIgnoreCase)) && // ✅ City filter
+                        (string.IsNullOrEmpty(targetTime) || show.ShowTimes == targetTime) // ✅ Time filter
+                    )
+                    .GroupBy(show => show.ShowDates) // Group by Date
+                    .OrderBy(g => g.Key) // Sort Dates
+                    .Select(dateGroup => new ShowDateVM
                     {
-                        CinemaID = cinemaGroup.Key.CinemaID,
-                        CinemaName = cinemaGroup.Key.Name,
-                        AvailableDates = cinemaGroup
-                            .Select(show => show.ShowDates) // Extract ShowDate from ShowTime
-                            .Distinct()
-                            .OrderBy(date => date) // Ensure chronological order
-                            .Select(date => new ShowTimeInfoVM
+                        ShowDate = dateGroup.Key,
+                        Cities = dateGroup.GroupBy(show => show.Cinema.CinemaCity) // Group by City
+                            .Select(cityGroup => new CityVM
                             {
-                                ShowDate = date, // Assign ShowDate
-                                ShowTimes = cinemaGroup
-                                    .Where(show => show.ShowDates == date) // Filter by ShowDate
-                                    .Select(show => show.ShowTimes) // Get show times
-                                    .Distinct()
+                                CityName = cityGroup.Key,
+                                Cinemas = cityGroup.GroupBy(show => new { show.CinemaID, show.Cinema.Name })
+                                    .Select(cinemaGroup => new TimeScheduleVM
+                                    {
+                                        CinemaID = cinemaGroup.Key.CinemaID,
+                                        CinemaName = cinemaGroup.Key.Name,
+                                        ShowTimes = cinemaGroup
+                                            .Where(show => string.IsNullOrEmpty(targetTime) || show.ShowTimes == targetTime) // ✅ Apply Time Filter here
+                                            .Select(show => show.ShowTimes)
+                                            .Distinct()
+                                            .OrderBy(time => time) // Sort ShowTimes
+                                            .ToList(),
+                                        Seats = cinemaGroup
+                                            .SelectMany(show => showtimeSeats
+                                                .Where(seat => seat.ShowtimeID == show.ShowTimeID)
+                                                .GroupBy(seat => seat.Seat.Row)
+                                                .OrderBy(group => group.Key) // Order rows alphabetically
+                                                .Select(rowGroup => new CinemaSeatVM
+                                                {
+                                                    Row = rowGroup.Key,
+                                                    listSeatGrid = rowGroup
+                                                        .OrderBy(seat => seat.Seat.ColumnNumber)
+                                                        .Select(seat => seat.Seat.SeatName + " (" + seat.Status + ")")
+                                                        .ToList()
+                                                })
+                                            )
+                                            .ToList()
+                                    })
                                     .ToList()
                             })
                             .ToList()
                     })
-                    .ToList(),
-
-
+                    .ToList()
             };
-            // Debugging: Log fetched showtimes
-            foreach (var cart in detailVM.OrderDetails)
-            {
-              cart.Price += cart.Product.Price;
-            }
 
             return View(detailVM);
         }
+
+
 
 
         [HttpPost]
