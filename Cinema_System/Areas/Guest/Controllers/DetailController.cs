@@ -427,7 +427,8 @@ namespace Cinema_System.Areas.Guest.Controllers
             ViewBag.TicketId = ticketId;
             return View("TestQR");
         }
-
+        //https://localhost:7115/Guest/Detail/GenerateTicket to test QRcode
+        // enter staff login to use scan camera Staff account in DBInitializer username is account,,Staff@123 password
         public IActionResult TestQR()
         {
             return View();
