@@ -19,7 +19,7 @@ namespace Cinema.Models
         [Required]
         public int RoomID { get; set; } // Foreign key
 
-        [Required]
+                [Required]
         [EnumDataType(typeof(SeatStatus))]
         public SeatStatus Status { get; set; } = SeatStatus.Available;
 
@@ -31,7 +31,7 @@ namespace Cinema.Models
     public enum SeatStatus
     {
         Available,
-        Reserved,
         Blocked
     }
 }
+
