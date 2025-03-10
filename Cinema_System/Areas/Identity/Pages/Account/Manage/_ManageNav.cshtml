@@ -2,43 +2,108 @@
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
-<div class="profile-container">
-    <div class="box">
-        <div class="c1">
-         
-                <i class="fa-regular fa-user" style="color: #ffffff;"></i>
-                <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a>
-         
+<ul class="nav nav-pills flex-column neon-nav">
+    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
+    @* <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li> *@
+    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
+    @if (hasExternalLogins)
+    {
+        <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External Logins</a></li>
+    }
+</ul>
+<style>
+    body {
+        background: radial-gradient(circle at center, #001f3f, #000);
+        color: white;
+        font-family: 'Orbitron', sans-serif;
+        overflow: hidden;
+    }
 
-            <i class="fa-regular fa-bell" style="color: #ffffff;"></i>
-            <a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a>
-            <i class="fa-regular fa-newspaper" style="color: #ffffff;"></i>
-            <a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a>
-            @if (hasExternalLogins)
-            {
-                <a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a>
-            }
-            <i class="fa-solid fa-gear" style="color: #ffffff;"></i>
-            <a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a>
-            <a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a>
-        </div>
-    </div>
-  
-</div>
+        /* Animated Stars */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.1;
+            z-index: -1;
+        }
 
+    /* Neon Glow Card */
+    .neon-card {
+        border: none;
+        border-radius: 15px;
+        background: rgba(0, 0, 0, 0.85);
+        box-shadow: 0 0 15px rgba(0, 153, 255, 0.8);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
 
-@* <ul class="nav nav-pills flex-column"> *@
-@*     <li class="nav-item"> *@
-@*         <i class="fa-regular fa-user" style="color: #ffffff;"></i> *@
-@*         <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a> *@
-@*     </li> *@
+    /* Sci-Fi Buttons */
+    .btn-primary {
+        background: linear-gradient(45deg, #00d4ff, #007bff);
+        color: white;
+        border: none;
+        box-shadow: 0px 0px 10px #00d4ff;
+        transition: 0.3s ease-in-out;
+    }
 
-@*     <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li> *@
-@*     <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li> *@
-@*     @if (hasExternalLogins) *@
-@*     { *@
-@*         <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a></li> *@
-@*     } *@
-@*     <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li> *@
-@*     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personal data</a></li> *@
-@* </ul> *@
+        .btn-primary:hover {
+            background: #007bff;
+            box-shadow: 0px 0px 20px #00d4ff;
+        }
+
+    /* Neon Outline for Inputs */
+    .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        box-shadow: 0px 0px 5px #00d4ff;
+    }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid #00d4ff;
+            box-shadow: 0px 0px 15px #00d4ff;
+        }
+
+    /* Navigation Sidebar */
+    .neon-nav .nav-link {
+        color: white;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+        .neon-nav .nav-link:hover {
+            background: rgba(0, 153, 255, 0.4);
+            box-shadow: 0px 0px 10px #00d4ff;
+        }
+
+    /* Neon Titles */
+    .neon-text {
+        text-align: center;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #00d4ff;
+        text-shadow: 0px 0px 15px #00d4ff;
+    }
+
+    .neon-subtitle {
+        text-align: center;
+        font-weight: bold;
+        letter-spacing: 1px;
+        color: #00d4ff;
+        text-shadow: 0px 0px 10px #00d4ff;
+    }
+
+    /* Profile Container */
+    .profile-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+    }
+
+</style>

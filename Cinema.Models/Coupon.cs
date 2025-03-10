@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.Models
 {
     public class Coupon
     {
-        [Key] 
+        [Key]
         public int CouponID { get; set; }
         [Required]
         [StringLength(50)]
@@ -16,13 +17,13 @@ namespace Cinema.Models
         public string Code { get; set; } = string.Empty;
         //public string CouponCode { get; set; }
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
+        
         [Range(0, 100, ErrorMessage = "Discount percentage must be between 0 and 100.")]
-        public decimal DiscountPercentage { get; set; }
+        public double DiscountPercentage { get; set; }
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
+        
         [Range(0, 1000, ErrorMessage = "Max discount amount must be between 0 and 1000.")]
-        public decimal? UsageLimit { get; set; }
+        public double? UsageLimit { get; set; }
         //public int ? UsageLimit { get; set; }
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Used count cannot be negative.")]
@@ -33,5 +34,7 @@ namespace Cinema.Models
 
         // Navigation property for many-to-many relationship
         public virtual ICollection<UserCoupon> UserCoupons { get; set; } = new List<UserCoupon>();
+        [ValidateNever]
+        public string CouponImage { get; set; }
     }
 }

@@ -1,10 +1,16 @@
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Security.Claims;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Cinema_System.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using QRCoder;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -13,27 +19,33 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
+      
         public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
+          
         }
-
         public IActionResult Index()
         {
+            
             return View();
         }
 
+        public IActionResult Chat()
+        {
+            return View();
+        }
         #region API
         [HttpGet]
-        public async Task<IActionResult> GetMovies(int Showingpage = 1,int Upcommingpage = 1 , int CouponPage = 1)
+        public async Task<IActionResult> GetMovies(int Showingpage = 1, int Upcommingpage = 1, int CouponPage = 1)
         {
             // Ensure page numbers are always 1 or greater
             Showingpage = Math.Max(1, Showingpage);
             Upcommingpage = Math.Max(1, Upcommingpage);
             CouponPage = Math.Max(1, CouponPage);
-            // hien thi moi trang 1 cai 
-            int pageSize = 1;
+            // hien thi moi trang 4 cai 
+            int pageSize = 4;
             var showingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Showingpage, pageSize, u => !u.IsUpcomingMovie);
             var upcommingMovies = await _unitOfWork.Movie.GetAllPagedAsync(Upcommingpage, pageSize, u => u.IsUpcomingMovie);
             var couponMovies = await _unitOfWork.Coupon.GetAllPagedAsync(CouponPage, pageSize);
@@ -59,7 +71,12 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
+   
 
+
+
+
+      
 
         public async Task<IActionResult> Showing()
         {
@@ -70,7 +87,6 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
 
-      
         public async Task<IActionResult> Upcomming()
         {
             IEnumerable<Movie> movies = await _unitOfWork.Movie.GetAllAsync(u => u.IsUpcomingMovie);
@@ -78,7 +94,9 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return View(movies);
         }
+
      
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

@@ -1,23 +1,182 @@
 ﻿@page
 @model RegisterConfirmationModel
 @{
-    ViewData["Title"] = "Register confirmation";
+    ViewData["Title"] = "Register Confirmation";
 }
+
+<style>
+    /* Sci-Fi Background */
+    body {
+        background: radial-gradient(circle at center, #001f3f, #000);
+        color: white;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+
+    /* Confirmation Message */
+    p {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 20px;
+    }
+
+    /* Sci-Fi Button */
+    .btn-primary {
+        background: linear-gradient(45deg, #00d4ff, #007bff);
+        color: white;
+        border: none;
+        box-shadow: 0px 0px 10px #00d4ff;
+        transition: 0.3s ease-in-out;
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+        .btn-primary:hover {
+            background: #007bff;
+            box-shadow: 0px 0px 20px #00d4ff;
+        }
+
+    
+
+    /* Countdown Timer */
+    .countdown {
+        font-size: 1rem;
+        margin-left: 10px;
+        color: darkred;
+    }
+
+    /* Form Styling */
+    form {
+        margin-top: 30px;
+    }
+</style>
 
 <h1>@ViewData["Title"]</h1>
-@{
-    if (@Model.DisplayConfirmAccountLink)
-    {
-<p>
-    This app does not currently have a real email sender registered, see <a href="https://aka.ms/aspaccountconf">these docs</a> for how to configure a real email sender.
-    Normally this would be emailed: <a id="confirm-link" href="@Model.EmailConfirmationUrl">Click here to confirm your account</a>
-</p>
-    }
-    else
-    {
-<p>
-        Please check your email to confirm your account.
-</p>
-    }
+
+@if (Model.DisplayConfirmAccountLink)
+{
+    <p>Please check your email to confirm your account.</p>
 }
 
+<form method="post" id="resendForm">
+    <input type="hidden" name="emailHolder" value="@Model.Email" />
+    <button type="submit" class="btn btn-primary" id="resendButton">Resend Email Confirmation</button>
+    <span id="countdown" class="countdown"></span>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const resendButton = document.getElementById("resendButton");
+            const countDownSpan = document.getElementById("countdown");
+            const resendForm = document.getElementById("resendForm");
+
+            const cooldownTime = 30; // Cooldown in seconds
+            let timer;
+
+            // Function to set a cookie
+            function setCookie(name, value, seconds) {
+                const date = new Date();
+                date.setTime(date.getTime() + (seconds * 1000));
+                document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+            }
+
+            // Function to get a cookie value
+            function getCookie(name) {
+                const cookies = document.cookie.split("; ");
+                for (let i = 0; i < cookies.length; i++) {
+                    const parts = cookies[i].split("=");
+                    if (parts[0] === name) {
+                        return parts[1];
+                    }
+                }
+                return null;
+            }
+
+            function startCountdown(timeLeft) {
+                resendButton.disabled = true;
+                countDownSpan.textContent = `(${timeLeft}s)`;
+
+                timer = setInterval(function () {
+                    timeLeft--;
+                    countDownSpan.textContent = `(${timeLeft}s)`;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        resendButton.disabled = false;
+                        countDownSpan.textContent = "";
+                        document.cookie = "resendCooldown=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"; // Delete cookie
+                    }
+                }, 1000);
+            }
+
+            // Check if a cooldown is active
+            const storedTime = getCookie("resendCooldown");
+            if (storedTime) {
+                const remainingTime = Math.ceil((storedTime - Date.now()) / 1000);
+                if (remainingTime > 0) {
+                    startCountdown(remainingTime);
+                }
+            }
+
+            // Handle form submission
+            resendForm.addEventListener("submit", function (event) {
+                event.preventDefault(); // Prevent actual form submission
+
+                // Set cookie with expiration time
+                const expiryTime = Date.now() + (cooldownTime * 1000);
+                setCookie("resendCooldown", expiryTime, cooldownTime);
+
+                // Restart countdown
+                clearInterval(timer);
+                startCountdown(cooldownTime);
+
+                // Uncomment this line if you want the form to submit after cooldown
+                // this.submit();
+            });
+        });
+    </script>
+}
+
+
+
+
+@* <script> *@
+@*     document.addEventListener("DOMContentLoaded", function () { *@
+@*         const resendButton = document.getElementById("resendButton"); *@
+@*         const countDownSpan = document.getElementById("countdown"); *@
+@*         const resendForm = document.getElementById("resendForm"); *@
+
+@*         let timer; *@
+
+@*         function startCountdown() { *@
+@*             let timeLeft = 30; *@
+@*             resendButton.disabled = true; *@
+@*             countDownSpan.textContent = `(${timeLeft}s)`; *@
+
+@*             timer = setInterval(function () { *@
+@*                 timeLeft--; *@
+@*                 countDownSpan.textContent = `(${timeLeft}s)`; *@
+
+@*                 if (timeLeft <= 0) { *@
+@*                     clearInterval(timer); *@
+@*                     resendButton.disabled = false; *@
+@*                     countDownSpan.textContent = ""; *@
+@*                 } *@
+@*             }, 1000); *@
+@*         } *@
+
+@*         // Start countdown when the page loads *@
+@*         startCountdown(); *@
+
+@*         // Start countdown when the button is clicked *@
+@*         resendForm.addEventListener("submit", function (event) { *@
+@*             event.preventDefault(); // Prevent actual form submission *@
+@*             clearInterval(timer); // Reset any existing timer *@
+@*             startCountdown(); // Restart countdown *@
+
+@*             // You can submit the form via AJAX if needed *@
+@*             // this.submit(); // Uncomment if you want the form to submit normally *@
+@*         }); *@
+@*     }); *@
+@* </script> *@
