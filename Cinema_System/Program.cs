@@ -117,8 +117,17 @@ SeedDatabase();
 
 app.MapRazorPages();
 app.MapStaticAssets();
+//----------------------------------------- Class using SIGNAL IR( IN Utility) ---------------------------------------------
 
 app.MapHub<ChatHub>("/chatHub");
+app.MapHub<SeatBookingHub>("/seatBookingHub"); // Mapping for SeatBookingHub
+
+//---------------------------------------------------------------------------------------
+
+
+
+
+
 // ------------------- ROUTING CHO AREAS ------------------- //
 // 1) Route cho Admin
 //    Khi URL bắt đầu bằng "/Admin/...",

@@ -1,5 +1,7 @@
 ﻿
 
+  
+
 $(document).ready(function () {
     // Load movies for all categories on page load.
     loadMovies(1, 1, 1);
@@ -111,9 +113,9 @@ function updateMovieSection(category, movies, totalPages, currentPage) {
                             <a href="${movie.trailerLink}" class="text-dark" target="_blank" style="font-size:20px">See Trailer</a>
                         </div>
                         <div class="col-6">
-                          <a href="/Guest/Home/Details?MovieID=${movie.movieID}" class="btn btn-outline-warning">
+                        <a href="/Guest/Detail/Details?MovieID=${movie.movieID}" class="btn btn-outline-warning">
                           ${movie.isUpcomingMovie ? "Detail" : "Book Ticket"}
-</a>
+</a>                    </a>
 
                         </div>
                     </div>
