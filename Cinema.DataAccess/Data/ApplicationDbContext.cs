@@ -23,7 +23,7 @@ namespace Cinema.DataAccess.Data
         public DbSet<Seat> Seats { get; set; }
 
         public DbSet<ShowtimeSeat> showTimeSeats { get; set; }
-        public DbSet<Theater> Cinemas { get; set; }
+        public DbSet<Theater> Cinemas { get; set; } 
         public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
@@ -172,8 +172,8 @@ namespace Cinema.DataAccess.Data
                     Status = CinemaStatus.Open,
                     OpeningTime = "09:00",  // Changed from TimeSpan to string
                     ClosingTime = "23:00",  // Changed from TimeSpan to string
-
-
+               
+                 
                 },
                 new Theater
                 {
@@ -185,8 +185,8 @@ namespace Cinema.DataAccess.Data
                     Status = CinemaStatus.Open,
                     OpeningTime = "10:00",  // Changed from TimeSpan to string
                     ClosingTime = "22:30",  // Changed from TimeSpan to string
-
-
+                  
+                   
                 },
                    new Theater
                    {
