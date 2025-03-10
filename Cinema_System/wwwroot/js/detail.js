@@ -1,67 +1,145 @@
-﻿//IN RA GHẾ
-$(document).ready(function () {
-    // Generate seats
-    const seatsContainer = $('#seats');
-    for (let row = 1; row <= 5; row++) {
-        for (let seatNum = 1; seatNum <= 10; seatNum++) {
-            const seat = $('<div>').addClass('seat').text(`${String.fromCharCode(64 + row)}${seatNum}`);
-            if (Math.random() < 0.1) seat.addClass('booked');
-            if (Math.random() < 0.05) seat.addClass('maintenance');
-            seatsContainer.append(seat);
-        }
-        seatsContainer.append($('<br>'));
+﻿$(document).ready(function () {
+    initializeMovieDetails();
+});
+
+// ==============================================
+// INITIALIZATION
+// ==============================================
+function initializeMovieDetails() {
+    const movieID = getMovieID();
+    const { targetDate, targetCity, targetTime } = getUrlParams();
+
+    if (movieID) {
+        fetchMovieDetails(movieID, targetDate, targetCity, targetTime);
+    } else {
+        showErrorMessage("Movie ID not found");
+    }
+}
+
+// ==============================================
+// DATA FETCHING
+// ==============================================
+function fetchMovieDetails(movieID, targetDate, targetCity, targetTime) {
+    $.ajax({
+        url: buildDetailsUrl(movieID, targetDate, targetCity, targetTime),
+        type: "GET",
+        success: handleDetailsSuccess,
+        error: handleDetailsError
+    });
+}
+
+// ==============================================
+// RESPONSE HANDLING
+// ==============================================
+function handleDetailsSuccess(response) {
+    if (response.message === "Success" && response.data) {
+        updateAllSections(response.data);
+    } else {
+        showErrorMessage(response.message || "No data available");
+    }
+}
+
+function handleDetailsError(xhr, status, error) {
+    console.error("API Error:", error);
+    showErrorMessage("Failed to load movie details");
+}
+
+// ==============================================
+// UI UPDATES
+// ==============================================
+function updateAllSections(data) {
+    updateMovieInfoSection(data);
+    updateShowtimesSection(data.showtimes);
+}
+
+function updateMovieInfoSection(data) {
+    $("#moviePoster").attr("src", data.movieImage || "/default-image.jpg");
+    $("#movieTitle").text(data.movieName || "Unknown Movie");
+    $("#movieGenre").text(data.genre || "N/A");
+    $("#movieDuration").text(data.duration || "N/A");
+    $("#movieReleaseDate").text(data.date || "N/A");
+    $("#movieSynopsis").text(data.synopsis || "No synopsis available.");
+    $("#trailerLink").attr("href", data.trailerLink || "#");
+}
+
+function updateShowtimesSection(showtimes) {
+    const showtimesHTML = showtimes && showtimes.length > 0
+        ? buildShowtimesCards(showtimes)
+        : "<p class='text-danger'>No showtimes available</p>";
+
+    $("#showtimes").html(`<div class="row">${showtimesHTML}</div>`);
+}
+
+// ==============================================
+// COMPONENT BUILDERS
+// ==============================================
+function buildShowtimesCards(showtimes) {
+    return showtimes.map(showtime => `
+        <div class="col-md-6 mb-3">
+            <div class="card p-3">
+                ${buildShowtimeHeader(showtime)}
+                ${buildTicketsList(showtime.tickets)}
+            </div>
+        </div>`
+    ).join('');
+}
+
+function buildShowtimeHeader(showtime) {
+    return `
+        <h5 class="text-primary">Cinema: ${showtime.cinemaName}</h5>
+        <p><strong>Room:</strong> ${showtime.roomName}</p>
+        <p><strong>Showtime:</strong> ${showtime.showtime}</p>
+        <h6>🎟️ Available Tickets</h6>`;
+}
+
+function buildTicketsList(tickets) {
+    if (!tickets || tickets.length === 0) {
+        return `<ul class="list-group">
+            <li class="list-group-item text-muted">No tickets available</li>
+        </ul>`;
     }
 
-// HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
-    $('#showtime').change(function () {
-        const selectedShowtime = $('#showtime').val();
-        if (selectedShowtime) {
-            $('#seat-selection').removeClass('d-none'); // Hiển thị section đặt ghế
-        } else {
-            $('#seat-selection').addClass('d-none'); // Ẩn section đặt ghế nếu không chọn suất chiếu
-        }
-    });
+    return `<ul class="list-group">
+        ${tickets.map(ticket => `
+            <li class="list-group-item">
+                Seat: <strong>${ticket.seatNumber}</strong>
+                (${ticket.seatType}) - $${ticket.price}
+            </li>`
+    ).join('')}
+    </ul>`;
+}
 
- //HIÊN THANH BOOKING SUMMARY KHI CHỌN XONG GHẾ
-    $('.seat').click(function () {
-        if (!$(this).hasClass('booked') && !$(this).hasClass('maintenance')) {
-            $(this).toggleClass('selected');
-            if ($('.seat.selected').length > 0) {
-                $('#booking-summary').removeClass('d-none');
-            } else {
-                $('#booking-summary').addClass('d-none');
-            }
-        }
-    });
+// ==============================================
+// UTILITIES
+// ==============================================
+function getMovieID() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return $("#movieId").val() || urlParams.get("MovieID");
+}
 
- // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
-    let timeLeft = 300;
-    const countdown = setInterval(function () {
-        timeLeft--;
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        $('#countdown').text(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            alert('Hết thời gian giữ vé!');
-            location.reload();
-        }
-    }, 1000);
-});
+function getUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+        targetDate: urlParams.get("targetDate") || "01/03/2025",
+        targetCity: urlParams.get("targetCity"),
+        targetTime: urlParams.get("targetTime")
+    };
+}
 
-// Xử lý nút tăng/giảm số lượng đồ ăn
-$(document).ready(function () {
-    $('.plus').click(function () {
-        let count = $(this).siblings('.count');
-        let currentCount = parseInt(count.text());
-        count.text(currentCount + 1);
+function buildDetailsUrl(movieID, targetDate, targetCity, targetTime) {
+    const params = new URLSearchParams({
+        MovieID: movieID,
+        targetDate,
+        targetCity,
+        targetTime
     });
+    return `/Guest/Detail/Details?${params.toString()}`;
+}
 
-    $('.minus').click(function () {
-        let count = $(this).siblings('.count');
-        let currentCount = parseInt(count.text());
-        if (currentCount > 0) {
-            count.text(currentCount - 1);
-        }
-    });
-});
+function showErrorMessage(message) {
+    $("#movie-info").html(`
+        <div class="alert alert-danger" role="alert">
+            ${message}
+        </div>
+    `);
+}

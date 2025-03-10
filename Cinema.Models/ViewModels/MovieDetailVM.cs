@@ -10,14 +10,13 @@ namespace Cinema.Models.ViewModels
 {
     public class MovieDetailVM
     {
-
         public Movie Movie { get; set; }
-        [ValidateNever]
-        public IEnumerable<SelectListItem> ShowTimes { get; set; }
-        public List<ShowtimeSeat> ShowtimeSeats { get; set; }
-        public List<Seat> Seats { get; set; }
-        public List<Product> Products { get; set; }
-        public List<Cinema> Cinemas { get; set; }
-        public IEnumerable<OrderDetail> orderDetails { get; set; } // this is shopping cart 
+        public List<ShowDateVM> ShowDates { get; set; }
+
+        // Shopping Cart Items
+        public List<TicketSelectionVM> SelectedSeats { get; set; } = new List<TicketSelectionVM>();
+        public List<FoodSelectionVM> SelectedFoodItems { get; set; } = new List<FoodSelectionVM>();
+
+        public double TotalPrice { get; set; } // Automatically calculated
     }
 }

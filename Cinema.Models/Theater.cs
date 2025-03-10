@@ -1,10 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Cinema.Models
 {
-    public class Cinema
+    public class Theater
     {
         [Key]
         public int CinemaID { get; set; }
@@ -25,20 +30,24 @@ namespace Cinema.Models
         public CinemaStatus Status { get; set; } = CinemaStatus.Open;
 
         [Required]
-        public TimeSpan OpeningTime { get; set; }
+        //public TimeSpan OpeningTime { get; set; }
+        public string OpeningTime { get; set; }
 
         [Required]
-        public TimeSpan ClosingTime { get; set; }
-        public DateTime CreatedAt { get; set; } 
-        public DateTime UpdatedAt { get; set; }
+        //public TimeSpan ClosingTime { get; set; }
+        public string ClosingTime { get; set; }
+        public DateTime ? CreatedAt { get; set; }
+        public DateTime ? UpdatedAt { get; set; }
 
-        public string AdminID { get; set; } // Foreign key
+        public string? CinemaCity { get; set; }
+        public string ? AdminID { get; set; } // Foreign key
 
         // Navigation property
         [ForeignKey("AdminID")]
         [ValidateNever]
         public virtual ApplicationUser Admin { get; set; }
         public virtual ICollection<Room> Rooms { get; set; }
+
     }
 
     public enum CinemaStatus
@@ -47,3 +56,4 @@ namespace Cinema.Models
         Closed
     }
 }
+
