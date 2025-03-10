@@ -1,11 +1,16 @@
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Security.Claims;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Cinema_System.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using QRCoder;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -14,17 +19,23 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
+      
         public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
+          
         }
-
         public IActionResult Index()
         {
+            
             return View();
         }
 
+        public IActionResult Chat()
+        {
+            return View();
+        }
         #region API
         [HttpGet]
         public async Task<IActionResult> GetMovies(int Showingpage = 1, int Upcommingpage = 1, int CouponPage = 1)
@@ -60,45 +71,12 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-        public async Task<IActionResult> Details(int MovieID)
-        {
-            var showTimes = await _unitOfWork.showTime.GetAllAsync(u => u.MovieID == MovieID, includeProperties: "Cinema");
-
-            MovieDetailVM detailVM = new MovieDetailVM()
-            {
-                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID),
-
-                // Populate Cinemas
-                CinemaListItem = showTimes.Select(u => new SelectListItem
-                {
-                    Value = u.CinemaID.ToString(),
-                    Text = u.Cinema.Name
-                }),
-
-                // Populate Dates
-                DateListItem = showTimes.Select(u => new SelectListItem
-                {
-                    Value = u.ShowTimeID.ToString(),
-                    Text = u.ShowDates
-
-                }),
-
-                // Populate ShowTimes
-                ShowTimeListItem = showTimes.Select(u => new SelectListItem
-                {
-                    Value = u.ShowTimeID.ToString(),
-                    Text = u.ShowTimes
-                })
-            };
-
-            return View(detailVM);
-        }
+   
 
 
-        public async Task<IActionResult> Cart()
-        {
-            return View();
-        }
+
+
+      
 
         public async Task<IActionResult> Showing()
         {
@@ -116,6 +94,8 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return View(movies);
         }
+
+     
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

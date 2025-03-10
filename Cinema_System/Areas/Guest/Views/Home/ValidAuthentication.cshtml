@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Ticket Validation";
+}
+
+<h2>Validation Result</h2>
+
+<p>@ViewBag.Message</p>
+
+@if (!string.IsNullOrEmpty(ViewBag.TicketId))
+{
+    <p>Ticket ID: @ViewBag.TicketId</p>
+}
+else
+{
+    <p>No ticket information available.</p>
+}

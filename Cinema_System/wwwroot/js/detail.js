@@ -1,26 +1,60 @@
-﻿//IN RA GHẾ
-$(document).ready(function () {
-    // Generate seats
+﻿$(document).ready(function () {
     const seatsContainer = $('#seats');
+    const userId = "User123"; // 🔥 Replace with actual user login ID
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/seatBookingHub")
+        .build();
+
+    // 🎭 Generate seats dynamically
     for (let row = 1; row <= 5; row++) {
         for (let seatNum = 1; seatNum <= 10; seatNum++) {
-            const seat = $('<div>').addClass('seat').text(`${String.fromCharCode(64 + row)}${seatNum}`);
-            if (Math.random() < 0.1) seat.addClass('booked');
-            if (Math.random() < 0.05) seat.addClass('maintenance');
+            const seatId = `${String.fromCharCode(64 + row)}${seatNum}`;
+            const seat = $('<div>')
+                .addClass('seat available') // Default class
+                .text(seatId)
+                .attr('data-seat-id', seatId);
             seatsContainer.append(seat);
         }
         seatsContainer.append($('<br>'));
     }
 
-// HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
+    // 🔄 Fetch booked seats from server on page load
+    connection.start().then(() => {
+        connection.invoke("GetBookedSeats")
+            .then(bookedSeats => {
+                bookedSeats.forEach(seatId => {
+                    $(`[data-seat-id="${seatId}"]`).removeClass('available').addClass('booked');
+                });
+            })
+            .catch(err => console.error(err));
+    }).catch(err => console.error("SignalR Connection Error:", err));
+
+    // 🖱️ Click event for booking seats
+    $(document).on('click', '.seat.available', function () {
+        const seatId = $(this).data('seat-id');
+        connection.invoke("BookSeat", seatId, userId)
+            .catch(err => console.error(err));
+    });
+
+    // ✅ Handle real-time seat booking update
+    connection.on("SeatBooked", function (seatId, user) {
+        $(`[data-seat-id="${seatId}"]`).removeClass('available').addClass('booked');
+    });
+
+    // 🟢 Handle real-time seat release update
+    connection.on("SeatReleased", function (seatId) {
+        $(`[data-seat-id="${seatId}"]`).removeClass('booked').addClass('available');
+    });
+
+    // ❌ Handle booking failure
+    connection.on("SeatBookingFailed", function (seatId, message) {
+        alert(`Seat ${seatId} booking failed: ${message}`);
+    });
+
+    // 🎭 Toggle seat selection and booking summary when selecting a showtime
     $('#showtime').change(function () {
         const selectedShowtime = $('#showtime').val();
-        console.log(selectedShowtime);
-        if (selectedShowtime && selectedShowtime != "- Chọn giờ -") {
-            $('#seat-selection').removeClass('d-none'); // Hiển thị section đặt ghế
-        } else {
-            $('#seat-selection').addClass('d-none'); // Ẩn section đặt ghế nếu không chọn suất chiếu
-        }
+        $('#seat-selection').toggleClass('d-none', !selectedShowtime);
     });
 
     $(document).ready(function () {
@@ -49,89 +83,16 @@ $(document).ready(function () {
                 }
             });
 
-            // Cập nhật tổng giá trên giao diện
-            $('#total-price').text(total.toLocaleString() + ' VND');
-
-            // Cập nhật danh sách món ăn đã chọn
-            $('#selected-foods').text(selectedFoods.length > 0 ? selectedFoods.join(', ') : 'No food selected');
-
-            // Cập nhật giá trị của input hidden
-            $('#totalAmountInput').val(total);
+    // 📝 Show booking summary when selecting seats
+    $(document).on('click', '.seat:not(.booked, .maintenance)', function () {
+        $(this).toggleClass('selected');
+        if ($('.seat.selected').length > 0) {
+            $('#booking-summary').removeClass('d-none');
+        } else {
+            $('#booking-summary').addClass('d-none');
         }
-
-
-        // Xử lý chọn ghế
-        $('.seat').click(function () {
-            if (!$(this).hasClass('booked') && !$(this).hasClass('maintenance')) {
-                $(this).toggleClass('selected');
-                if ($('.seat.selected').length > 0) {
-                    $('#booking-summary').removeClass('d-none');
-                } else {
-                    $('#booking-summary').addClass('d-none');
-                }
-                updateTotal();
-            }
-        });
-
-        // Xử lý tăng giảm số lượng thức ăn
-        $('.plus').click(function () {
-            let count = $(this).siblings('.count');
-            count.text(parseInt(count.text()) + 1);
-            updateTotal();
-        });
-
-        $('.minus').click(function () {
-            let count = $(this).siblings('.count');
-            if (parseInt(count.text()) > 0) {
-                count.text(parseInt(count.text()) - 1);
-                updateTotal();
-            }
-        });
     });
-
-    $(document).ready(function () {
-        $("#book-btn").click(function () {
-            let selectedSeats = [];
-            $(".seat.selected").each(function () {
-                selectedSeats.push($(this).text().trim()); // Lấy tên ghế (VD: A1, B2)
-            });
-
-            let selectedFoods = [];
-            $(".product-card").each(function () {
-                let count = parseInt($(this).find(".count").text());
-                if (count > 0) {
-                    let foodName = $(this).find("h4").text();
-                    let price = parseInt($(this).find(".price").text().replace(/\D/g, ""));
-                    selectedFoods.push({ name: foodName, price: price, quantity: count });
-                }
-            });
-
-            let bookingData = {
-                seats: selectedSeats,
-                items: selectedFoods,
-                totalAmount: $("#total-price").text().replace(/\D/g, "") // Chuyển đổi số tiền
-            };
-
-            $.ajax({
-                url: "/Guest/Payment/CreatePayment",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(bookingData),
-                success: function (response) {
-                    if (response.paymentUrl) {
-                        window.location.href = response.paymentUrl; // Chuyển hướng đến cổng thanh toán
-                    } else {
-                        alert("Payment failed, please try again.");
-                    }
-                },
-                error: function (xhr) {
-                    alert("Error processing payment: " + xhr.responseText);
-                }
-            });
-        });
-    });
-
-
+});
 
 
  // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
@@ -150,3 +111,23 @@ $(document).ready(function () {
 });
 
 // Xử lý nút tăng/giảm số lượng đồ ăn
+$(document).ready(function () {
+    $('.plus').click(function () {
+        let count = $(this).siblings('.count');
+        let currentCount = parseInt(count.text());
+        count.text(currentCount + 1);
+    });
+
+    $('.minus').click(function () {
+        let count = $(this).siblings('.count');
+        let currentCount = parseInt(count.text());
+        if (currentCount > 0) {
+            count.text(currentCount - 1);
+        }
+    });
+});
+
+
+
+
+
