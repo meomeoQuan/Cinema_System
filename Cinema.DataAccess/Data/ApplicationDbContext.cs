@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cinema.Models;
+using Cinema.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,7 @@ namespace Cinema.DataAccess.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<FoodSelectionVM>().HasNoKey();
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
@@ -381,7 +383,7 @@ namespace Cinema.DataAccess.Data
                     ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
                     ShowtimeID = 1,           // Link to ShowTimeID = 1
                     SeatID = seatId,          // Each seat (1-50)
-                    Price = 10.00,            // Default price
+                   Price = 10.0,
                     Status = ShowtimeSeatStatus.Available
                 }).ToArray()
             );
