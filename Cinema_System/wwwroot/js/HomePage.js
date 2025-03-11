@@ -113,7 +113,7 @@ function updateMovieSection(category, movies, totalPages, currentPage) {
                             <a href="${movie.trailerLink}" class="text-dark" target="_blank" style="font-size:20px">See Trailer</a>
                         </div>
                         <div class="col-6">
-                        <a href="/Guest/Detail/Details?MovieID=${movie.movieID}" class="btn btn-outline-warning">
+                        <a href="/Guest/Detail/Index?MovieID=${movie.movieID}" class="btn btn-outline-warning">
                           ${movie.isUpcomingMovie ? "Detail" : "Book Ticket"}
 </a>                    </a>
 

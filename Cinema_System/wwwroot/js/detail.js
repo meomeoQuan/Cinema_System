@@ -1,145 +1,138 @@
 ﻿$(document).ready(function () {
-    initializeMovieDetails();
-});
+    var movieID = $("#movieID").val();
+    var IdUser = $("#targetTime").val();
+    var allShowtimes = []; // Store all showtimes for filtering
 
-// ==============================================
-// INITIALIZATION
-// ==============================================
-function initializeMovieDetails() {
-    const movieID = getMovieID();
-    const { targetDate, targetCity, targetTime } = getUrlParams();
-
-    if (movieID) {
-        fetchMovieDetails(movieID, targetDate, targetCity, targetTime);
-    } else {
-        showErrorMessage("Movie ID not found");
-    }
-}
-
-// ==============================================
-// DATA FETCHING
-// ==============================================
-function fetchMovieDetails(movieID, targetDate, targetCity, targetTime) {
     $.ajax({
-        url: buildDetailsUrl(movieID, targetDate, targetCity, targetTime),
-        type: "GET",
-        success: handleDetailsSuccess,
-        error: handleDetailsError
+        url: `/Guest/Detail/Details?userId=${IdUser}&MovieID=${movieID}`,
+        method: "GET",
+        success: function (response) {
+            console.log("Response received:", response);
+
+            if (response.message !== "Success") {
+                $("#movieDetails").html("<p>Failed to load movie details.</p>");
+                return;
+            }
+
+            var data = response.data;
+            var availableDates = data.availableDates.map(d => d.date);
+            var availableCities = data.availableCities.map(c => c.city);
+            allShowtimes = data.showtimes || [];
+
+            createToggleButtons("#filterDates", availableDates);
+            createDropdown("#filterCities", availableCities);
+            updateShowtimes(allShowtimes);
+
+            $(".date-toggle").click(function () {
+                $(this).toggleClass("active");
+                applyFilters();
+            });
+
+            // Ensure the city selection triggers filtering
+            $("#filterCities").on("change", function () {
+                applyFilters();
+            });
+        },
+        error: function () {
+            $("#movieDetails").html("<p>Error loading movie details.</p>");
+        }
     });
-}
 
-// ==============================================
-// RESPONSE HANDLING
-// ==============================================
-function handleDetailsSuccess(response) {
-    if (response.message === "Success" && response.data) {
-        updateAllSections(response.data);
-    } else {
-        showErrorMessage(response.message || "No data available");
-    }
-}
+    function applyFilters() {
+        var selectedDates = getActiveToggleValues("#filterDates");
+        var selectedCity = $("#filterCities").val(); // Changed to get value from the correct dropdown
 
-function handleDetailsError(xhr, status, error) {
-    console.error("API Error:", error);
-    showErrorMessage("Failed to load movie details");
-}
+        var filteredShowtimes = filterShowtimes(allShowtimes, {
+            date: selectedDates,
+            city: selectedCity ? [selectedCity] : [] // Ensure city filter works
+        });
 
-// ==============================================
-// UI UPDATES
-// ==============================================
-function updateAllSections(data) {
-    updateMovieInfoSection(data);
-    updateShowtimesSection(data.showtimes);
-}
-
-function updateMovieInfoSection(data) {
-    $("#moviePoster").attr("src", data.movieImage || "/default-image.jpg");
-    $("#movieTitle").text(data.movieName || "Unknown Movie");
-    $("#movieGenre").text(data.genre || "N/A");
-    $("#movieDuration").text(data.duration || "N/A");
-    $("#movieReleaseDate").text(data.date || "N/A");
-    $("#movieSynopsis").text(data.synopsis || "No synopsis available.");
-    $("#trailerLink").attr("href", data.trailerLink || "#");
-}
-
-function updateShowtimesSection(showtimes) {
-    const showtimesHTML = showtimes && showtimes.length > 0
-        ? buildShowtimesCards(showtimes)
-        : "<p class='text-danger'>No showtimes available</p>";
-
-    $("#showtimes").html(`<div class="row">${showtimesHTML}</div>`);
-}
-
-// ==============================================
-// COMPONENT BUILDERS
-// ==============================================
-function buildShowtimesCards(showtimes) {
-    return showtimes.map(showtime => `
-        <div class="col-md-6 mb-3">
-            <div class="card p-3">
-                ${buildShowtimeHeader(showtime)}
-                ${buildTicketsList(showtime.tickets)}
-            </div>
-        </div>`
-    ).join('');
-}
-
-function buildShowtimeHeader(showtime) {
-    return `
-        <h5 class="text-primary">Cinema: ${showtime.cinemaName}</h5>
-        <p><strong>Room:</strong> ${showtime.roomName}</p>
-        <p><strong>Showtime:</strong> ${showtime.showtime}</p>
-        <h6>🎟️ Available Tickets</h6>`;
-}
-
-function buildTicketsList(tickets) {
-    if (!tickets || tickets.length === 0) {
-        return `<ul class="list-group">
-            <li class="list-group-item text-muted">No tickets available</li>
-        </ul>`;
+        updateShowtimes(filteredShowtimes);
     }
 
-    return `<ul class="list-group">
-        ${tickets.map(ticket => `
-            <li class="list-group-item">
-                Seat: <strong>${ticket.seatNumber}</strong>
-                (${ticket.seatType}) - $${ticket.price}
-            </li>`
-    ).join('')}
-    </ul>`;
-}
+    function filterShowtimes(showtimes, filters) {
+        return showtimes.filter(show =>
+            (!filters.date.length || filters.date.includes(show.date)) &&
+            (!filters.city.length || show.city === filters.city[0]) // Fix city filtering
+        );
+    }
 
-// ==============================================
-// UTILITIES
-// ==============================================
-function getMovieID() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return $("#movieId").val() || urlParams.get("MovieID");
-}
+    function updateShowtimes(showtimes) {
+        var cinemaMap = {};
 
-function getUrlParams() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return {
-        targetDate: urlParams.get("targetDate") || "01/03/2025",
-        targetCity: urlParams.get("targetCity"),
-        targetTime: urlParams.get("targetTime")
-    };
-}
+        showtimes.forEach(show => {
+            if (!cinemaMap[show.cinemaName]) {
+                cinemaMap[show.cinemaName] = [];
+            }
+            cinemaMap[show.cinemaName].push(show);
+        });
 
-function buildDetailsUrl(movieID, targetDate, targetCity, targetTime) {
-    const params = new URLSearchParams({
-        MovieID: movieID,
-        targetDate,
-        targetCity,
-        targetTime
-    });
-    return `/Guest/Detail/Details?${params.toString()}`;
-}
+        var formattedShowtimes = "<p><strong>Showtimes:</strong></p>";
 
-function showErrorMessage(message) {
-    $("#movie-info").html(`
-        <div class="alert alert-danger" role="alert">
-            ${message}
-        </div>
-    `);
-}
+        formattedShowtimes += Object.entries(cinemaMap)
+            .map(([cinemaName, shows]) =>
+                `<p><strong>${cinemaName}</strong> - ` +
+                shows.map(show => `<button class="btn btn-outline-primary showtime-btn" data-showtime='${JSON.stringify(show)}'>${show.showtime}</button>`).join(" ") +
+                `</p>`
+            )
+            .join("") || "<p>No showtimes available</p>";
+
+        $("#movieDetails").html(formattedShowtimes);
+
+        $(".showtime-btn").click(function () {
+            $(".showtime-btn").removeClass("btn-primary").addClass("btn-outline-primary");
+            $(this).removeClass("btn-outline-primary").addClass("btn-primary");
+            let selectedShowtime = JSON.parse($(this).attr("data-showtime"));
+            renderSeats(selectedShowtime.seatList);
+        });
+    }
+
+    function renderSeats(seats) {
+        var seatsContainer = $("#seatsContainer").empty().addClass("seat-grid");
+
+        seats.forEach(seat => {
+            let seatClass = "seat";
+            if (seat.selected) seatClass += " booked";
+            if (seat.maintenance) seatClass += " maintenance";
+
+            let seatDiv = $(`<div class="${seatClass}" data-seat-id="${seat.seatId}">${seat.seatNumber}</div>`);
+            seatDiv.click(function () {
+                if (!$(this).hasClass("booked") && !$(this).hasClass("maintenance")) {
+                    $(this).toggleClass("selected");
+                    updateBookingSummary();
+                }
+            });
+
+            seatsContainer.append(seatDiv);
+        });
+    }
+
+    function updateBookingSummary() {
+        if ($(".seat.selected").length > 0) {
+            $("#booking-summary").removeClass("d-none");
+        } else {
+            $("#booking-summary").addClass("d-none");
+        }
+    }
+
+    function createToggleButtons(container, values) {
+        var buttonsHtml = values.map(value =>
+            `<button class="btn btn-outline-primary date-toggle" data-value="${value}">${value}</button>`
+        ).join(" ");
+        $(container).html(buttonsHtml);
+    }
+
+    function createDropdown(container, values) {
+        var dropdownHtml = `<select id="citySelect" class="form-select">
+            <option value="">All Cities</option>
+            ${values.map(value => `<option value="${value}">${value}</option>`).join("")}
+        </select>`;
+        $(container).html(dropdownHtml);
+    }
+
+    function getActiveToggleValues(container) {
+        return $(`${container} .date-toggle.active`).map(function () {
+            return $(this).attr("data-value");
+        }).get();
+    }
+});
