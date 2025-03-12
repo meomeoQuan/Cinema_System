@@ -2,41 +2,41 @@
 
 <style>
 	.date-container, .showtime-container {
-	margin-top: 15px;
+		margin-top: 15px;
 	}
 
 	.date-list {
-	display: flex;
-	gap: 10px;
-	overflow-x: auto;
-	white-space: nowrap;
+		display: flex;
+		gap: 10px;
+		overflow-x: auto;
+		white-space: nowrap;
 	}
 
 	.date-item, .showtime-item {
-	padding: 10px 15px;
-	background-color: #f8f9fa;
-	border-radius: 8px;
-	cursor: pointer;
-	text-align: center;
-	min-width: 100px;
-	border: 1px solid #ccc;
+		padding: 10px 15px;
+		background-color: #f8f9fa;
+		border-radius: 8px;
+		cursor: pointer;
+		text-align: center;
+		min-width: 100px;
+		border: 1px solid #ccc;
 	}
 
-	.date-item.active {
-	background-color: #007bff;
-	color: white;
-	}
+		.date-item.active {
+			background-color: #007bff;
+			color: white;
+		}
 
 	.showtime-list {
-	display: flex;
-	gap: 10px;
-	flex-wrap: wrap;
+		display: flex;
+		gap: 10px;
+		flex-wrap: wrap;
 	}
 
 	.showtime-item {
-	background-color: #28a745;
-	color: white;
-	border: 1px solid #28a745;
+		background-color: #28a745;
+		color: white;
+		border: 1px solid #28a745;
 	}
 </style>
 <body>
@@ -65,35 +65,26 @@
 			</div>
 		</section>
 
-		<div class="container">
-			@foreach (var date in Model.ShowDates)
-			{
-				<h2>Date: @date.ShowDate</h2>
-				@foreach (var city in date.Cities)
-				{
-					<p>City: @city.CityName</p>
-					@foreach (var cinema in city.Cinemas)
-					{
-						<h4>Cinema: @cinema.CinemaName</h4>
-						<p>Times: @string.Join(", ", cinema.ShowTimes)</p> <!-- Show all times in a line -->
-						<!-- Display Seats -->
-						<h5>Seat Layout</h5>
-						<div class="seat-container">
-							@foreach (var row in cinema.Seats)
-							{
-								<div class="seat-row">
-									<strong>Row @row.Row:</strong>
-									@foreach (var seat in row.listSeatGrid)
-									{
-										<span class="seat @(seat.Contains("Available") ? "available" : "booked")">@seat</span>
-									}
-								</div>
-							}
-						</div>
-					}
-				}
-			}
-		</div>
+	
+
+<!-- Loop through each ShowDate -->
+@foreach (var date in Model.ShowDates)
+{
+    <h2>Date: @date.ShowDate</h2>
+    @foreach (var city in date.Cities)
+    {
+        <p>City: @city.CityName</p>
+        @foreach (var cinema in city.Cinemas)
+        {
+            <h4>Cinema: @cinema.CinemaName</h4>
+            <p>Showtimes: @string.Join(", ", cinema.ShowTimes)</p>
+
+            <!-- Loop through SeatsByShowtime dictionary -->
+          
+        }
+    }
+}
+
 
 
 		<!-- 🎭 Seat Booking Section -->
@@ -229,7 +220,7 @@
 
 @section Scripts {
 	<script src="~/js/detail.js"></script>
-	
+
 
 	<link rel="stylesheet" href="~/css/detail.css" />
 	<script>
@@ -267,7 +258,7 @@
 
 
 
-	
+
 	.seat-container {
 		margin-top: 20px;
 	}
@@ -299,6 +290,5 @@
 	.booked {
 		background-color: lightcoral;
 	}
-
 
 </style>  

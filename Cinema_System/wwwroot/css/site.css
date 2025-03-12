@@ -550,8 +550,10 @@ bg-success {
         border-color: #578553;
     }
 body {
-    background: #000000;
- 
+    background: radial-gradient(circle at center, #001f3f, #000);
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    
 }
 .dropdown_list {
     position: absolute;
@@ -577,4 +579,12 @@ body {
     padding: .25rem 1.5rem .25rem .5rem;
     border-radius: .25rem;
     transition: background-color .4s;
+}
+.dot {
+    height: 10px;
+    width: 10px;
+    margin: 5px;
+    background-color: gray;
+    border-radius: 50%;
+    display: inline-block;
 }

@@ -16,6 +16,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+    <PackageReference Include="payOS" Version="1.0.9" />
+    <PackageReference Include="QrCode.Net" Version="0.4.0" />
+    <PackageReference Include="QRCoderNetCore" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,7 +28,6 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Views\Home\" />
     <Folder Include="Areas\Admin\Views\Cinemas\" />
-    <Folder Include="Areas\Staff\Controllers\" />
   </ItemGroup>
 
 </Project>
