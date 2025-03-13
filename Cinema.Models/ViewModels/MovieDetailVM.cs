@@ -10,13 +10,13 @@ namespace Cinema.Models.ViewModels
 {
     public class MovieDetailVM
     {
-
         public Movie Movie { get; set; }
         public List<ShowDateVM> ShowDates { get; set; }
 
-        // Shopping Cart
-        public List<OrderDetail> OrderDetails { get; set; } // từ đây có thể lấy ra thông tin user id
+        // Shopping Cart Items
+        public List<TicketSelectionVM> SelectedSeats { get; set; } = new List<TicketSelectionVM>();
+        public List<FoodSelectionVM> SelectedFoodItems { get; set; } = new List<FoodSelectionVM>();
 
-        // trang này sẽ dc làm như là 1 cái shopping cart 
+        public double TotalPrice { get; set; } // Automatically calculated
     }
 }
