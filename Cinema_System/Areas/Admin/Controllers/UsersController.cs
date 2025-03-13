@@ -1,4 +1,6 @@
-﻿using Cinema.DataAccess.Data;
+﻿using System.Text;
+using System.Text.RegularExpressions;
+using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
@@ -74,7 +76,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(ApplicationUser user)
+        public async Task<IActionResult> Create(ApplicationUser user, string role)
         {
             if (ModelState.IsValid)
             {
@@ -84,10 +86,27 @@ namespace Cinema_System.Areas.Admin.Controllers
                     {
                         return Json(new { success = false, message = "Email already exists." });
                     }
+                    if (_unitOfWork.ApplicationUser.Get(u => u.PhoneNumber == user.PhoneNumber) != null)
+                    {
+                        return Json(new { success = false, message = "Phone number already exists." });
+                    }
+                    if (!IsValidPhoneNumber(user.PhoneNumber ?? string.Empty))
+                    {
+                        return Json(new { success = false, message = "Invalid phone number format." });
+                    }
 
-                    _unitOfWork.ApplicationUser.Add(user);
-                    _unitOfWork.SaveAsync();
-                    return Json(new { success = true, message = "User created successfully." });
+                    user.UserName = user.Email; // Ensure UserName is set to Email
+                    string password = GenerateRandomPassword();
+                    var result = await _userManager.CreateAsync(user, password);
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddToRoleAsync(user, role);
+                        return Json(new { success = true, message = "User created successfully.", password });
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = string.Join(", ", result.Errors.Select(e => e.Description)) });
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -96,9 +115,26 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
             return Json(new { success = false, message = "Invalid user data." });
         }
+        private string GenerateRandomPassword()
+        {
+            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*?_-";
+            var random = new Random();
+            var password = new StringBuilder();
+            for (int i = 0; i < 12; i++)
+            {
+                password.Append(validChars[random.Next(validChars.Length)]);
+            }
+            return password.ToString();
+        }
+        private bool IsValidPhoneNumber(string phoneNumber)
+        {
+            // Define a regular expression for validating phone numbers
+            var phoneRegex = new Regex(@"^\d{10}$"); // Example: 10-digit phone number
+            return phoneRegex.IsMatch(phoneNumber);
+        }
 
         [HttpPost]
-        public IActionResult UpdateUserField(string id, string field, string value)
+        public async Task<IActionResult> UpdateUserField(string id, string field, string value)
         {
             var user = _unitOfWork.ApplicationUser.Get(u => u.Id == id);
             if (user == null)
@@ -133,13 +169,21 @@ namespace Cinema_System.Areas.Admin.Controllers
                         {
                             return Json(new { success = false, message = "Phone Number cannot be empty." });
                         }
+                        if (_unitOfWork.ApplicationUser.Get(u => u.PhoneNumber == value && u.Id != id) != null)
+                        {
+                            return Json(new { success = false, message = "Phone number already exists." });
+                        }
+                        if (!IsValidPhoneNumber(user.PhoneNumber ?? string.Empty))
+                        {
+                            return Json(new { success = false, message = "Invalid phone number format." });
+                        }
                         user.PhoneNumber = value;
                         break;
                     default:
                         return Json(new { success = false, message = "Invalid field." });
                 }
 
-                _unitOfWork.SaveAsync();
+                _ = _unitOfWork.SaveAsync();
                 return Json(new { success = true, message = "User updated successfully." });
             }
             catch (Exception ex)

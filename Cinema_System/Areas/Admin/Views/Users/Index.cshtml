@@ -1,4 +1,5 @@
-﻿@model IEnumerable<ApplicationUser>
+﻿@using Cinema.Utility
+@model IEnumerable<ApplicationUser>
 
 @{
     ViewData["Title"] = "User Management";
@@ -30,9 +31,9 @@
                         @foreach (var user in Model)
                         {
                             <tr>
-                                <td contenteditable="true" data-id="@user.Id" data-field="FullName">@user.FullName</td>
-                                <td contenteditable="true" data-id="@user.Id" data-field="Email">@user.Email</td>
-                                <td contenteditable="true" data-id="@user.Id" data-field="PhoneNumber">@user.PhoneNumber</td>
+                                <td data-id="@user.Id" data-field="FullName">@user.FullName</td>
+                                <td data-id="@user.Id" data-field="Email">@user.Email</td>
+                                <td data-id="@user.Id" data-field="PhoneNumber">@user.PhoneNumber</td>
                                 <td class="text-center">
                                     @* Badge hiển thị màu theo role *@
                                     @{
@@ -67,10 +68,10 @@
                                                 <i class="bi bi-unlock-fill me-1"></i>UNLOCK
                                             </button>
                                         }
-                                        <a asp-action="Edit" asp-route-id="@user.Id"
-                                           class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold">
-                                            <i class="bi bi-pencil-fill me-1"></i>Edit
-                                        </a>
+                                        <button onclick="enableEdit(this)"
+                                                class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold">
+                                            <i class="bi bi-pencil-square me-1"></i>Edit
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -187,6 +188,11 @@
                     return;
                 }
 
+                if (!/^\d{10}$/.test(userPhone)) {
+                    toastr.error('Phone number must be a 10-digit number.');
+                    return;
+                }
+
                 $.ajax({
                     url: '/Admin/Users/Create',
                     type: 'POST',
@@ -200,6 +206,7 @@
                     success: function(response) {
                         if (response.success) {
                             toastr.success(response.message);
+                            alert('User created successfully. Password: ' + response.password);
                             location.reload();
                         } else {
                             toastr.error(response.message);
@@ -212,6 +219,18 @@
                 });
             });
         });
+
+        function enableEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
+            $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
+        }
+
+        function saveEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
+            $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
+        }
 
         function lockUser(userId, button) {
             if (confirm('Are you sure you want to lock this user?')) {
