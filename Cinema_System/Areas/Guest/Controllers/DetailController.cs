@@ -93,7 +93,9 @@ namespace Cinema_System.Areas.Guest.Controllers
                     {
                         SeatId = seat.SeatID,
                         SeatNumber = seat.Seat.SeatName,
+
                         SeatType = seat.SeatType.ToString(),
+
                         Price = seat.Price
                     })
                     .ToList()
