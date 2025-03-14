@@ -1,0 +1,209 @@
+﻿@model MovieDetailVM
+
+	
+	<body>
+		<input asp-for="Movie.MovieID" hidden/>
+		<div class="container">
+			<!-- Section 1: Movie Information -->
+			<section id="movie-info" class="row mb-5">
+
+				<div class="col-md-4">
+					<img src="@Model.Movie.MovieImage" alt="Movie Poster" class="img-fluid" />
+				</div> 
+				<div class="col-md-8">
+					<h1>@Model.Movie.Title</h1>
+					<!--<p><strong>Director:</strong> Director Name</p> -->
+					<!--<p><strong>Cast:</strong> Actor 1, Actor 2, Actor 3</p> -->
+					<p><strong>Genre:</strong>  @Model.Movie.Genre</p>
+					<p><strong>Duration:</strong>  @Model.Movie.Duration</p>
+					<p><strong>Release Date:</strong>  @Model.Movie.ReleaseDate</p>
+					<p>
+						<strong>Synopsis:</strong> @Model.Movie.Synopsis
+					</p>
+					<p>
+						<a href="@Model.Movie.TrailerLink"><i class="fa-solid fa-circle-play" style="color: white;"></i></a> Watch Trailer
+					</p>
+
+				</div>
+			</section>
+
+			<!-- Section 2: Booking Options -->
+			<section id="booking-options" class="mb-5">
+				<h2 class="text-center">SHOWTIMES</h2>
+				<div class="row">
+					<div class="col-md-4">
+						<label for="cinema">Choose cinema</label>
+						<select id="cinema" class="form-control">
+							<option>Cinema 1</option>
+							<option>Cinema 2</option>
+						</select>
+					</div>
+					<div class="col-md-4">
+						<label for="date">Choose date</label>
+						<select id="date" class="form-control">
+							<option value="2023-10-25">25/10/2023</option>
+							<option value="2023-10-26">26/10/2023</option>
+							<option value="2023-10-27">27/10/2023</option>
+							<option value="2023-10-28">28/10/2023</option>
+							<option value="2023-10-29">29/10/2023</option>
+						</select>
+					</div>
+					<div class="col-md-4">
+						<label for="showtime">Choose time</label>
+						<select id="showtime" class="form-control">
+							<option>- Chọn giờ -</option>
+							<option>10:00 AM</option>
+							<option>02:00 PM</option>
+							<option>06:00 PM</option>
+						</select>
+					</div>
+				</div>
+			</section>
+
+			<!-- Section 3: Seat Selection -->
+			<section id="seat-selection" class="mb-5 d-none">
+				<h2 class="text-center">Seat Booking</h2>
+				<div class="screen text-center mb-3">Screen</div>
+				<div id="seats" class="text-center"></div>
+
+				<!-- Chú thích các loại ghế -->
+				<div class="seat-legend text-center mt-4">
+					<div class="legend-item">
+						<div class="seat available"></div>
+						<span>Available</span>
+					</div>
+					<div class="legend-item">
+						<div class="seat selected"></div>
+						<span>Selected</span>
+					</div>
+					<div class="legend-item">
+						<div class="seat maintenance"></div>
+						<span>Maintenance</span>
+					</div>
+					<div class="legend-item">
+						<div class="seat reserved"></div>
+						<span>Reserved</span>
+					</div>
+				</div>
+			</section>
+
+			<!-- Section 4: Food Selection -->
+			<section id="food-selection" class="mb-5">
+				<h2 class="text-center">food</h2>
+
+				<!-- COMBO 2 NGĂN -->
+				<h3 class="category-title text-center">COMBO FOOD</h3>
+				<div class="row justify-content-center">
+					<div class="col-md-6">
+						<div class="product-card d-flex align-items-center">
+							<img src="~/css/images/popcorn1.png" alt="Combo Gấu" class="product-img">
+							<div class="product-info">
+								<h4>COMBO COUPLE</h4>
+								<p>2 Coke 32oz + 1 Corn 2 serves 64OZ Cheese + Caramel</p>
+								<span class="price">119,000 VNĐ</span>
+								<div class="quantity">
+									<button class="btn minus">-</button>
+									<span class="count">0</span>
+									<button class="btn plus">+</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="product-card d-flex align-items-center">
+							<img src="~/css/images/popcorn2.png" alt="Combo Có Gấu" class="product-img">
+							<div class="product-info">
+								<h4>COMBO FULL</h4>
+								<p>4 Coke 22oz + 2 Corn 2 serves 64OZ Cheese + Caramel</p>
+								<span class="price">129,000 VNĐ</span>
+								<div class="quantity">
+									<button class="btn minus">-</button>
+									<span class="count">0</span>
+									<button class="btn plus">+</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- NƯỚC NGỌT -->
+				<h3 class="category-title text-center">drink</h3>
+				<div class="row justify-content-center">
+					<div class="col-md-6">
+						<div class="product-card d-flex align-items-center">
+							<img src="~/css/images/drink1.png" alt="Sprite" class="product-img">
+							<div class="product-info">
+								<h4>SPRITE 32OZ</h4>
+								<span class="price">37,000 VNĐ</span>
+								<div class="quantity">
+									<button class="btn minus">-</button>
+									<span class="count">0</span>
+									<button class="btn plus">+</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="product-card d-flex align-items-center">
+							<img src="~/css/images/drink2.png" alt="Coke" class="product-img">
+							<div class="product-info">
+								<h4>COKE 32OZ</h4>
+								<span class="price">37,000 VNĐ</span>
+								<div class="quantity">
+									<button class="btn minus">-</button>
+									<span class="count">0</span>
+									<button class="btn plus">+</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Section 5: Booking Summary -->
+			<section id="booking-summary" class="mb-5 d-none">
+				<!--<h2>Booking Summary</h2>-->
+				<div class="row align-items-center">
+					<div class="col-md-3">
+					<p><strong>Movie:</strong> @Model.Movie.Title</p>
+					</div>
+					<div class="col-md-3">
+						<p><strong>Food:</strong> <span id="selected-foods">No food selected</span></p>
+					</div>
+					<div class="col-md-3">
+						<p><strong>Time expired:</strong> <span id="countdown">05:00</span></p>
+					</div>	
+					<div class="col-md-2">
+					<p><strong>Total:</strong> <span id="total-price">0 VND</span></p>
+					</div>
+					<div class="col-md-1">
+					<form id="booking-form" action="@Url.Action("CreatePayment", "Payment", new { area = "Guest" })" method="post">
+						<input type="hidden" id="totalAmountInput" name="totalAmount" value="0" />
+
+						<!-- Input hidden để chứa danh sách ghế -->
+						<div id="seat-inputs"></div>
+
+						<!-- Input hidden để chứa danh sách món ăn -->
+						<div id="food-inputs"></div>
+
+						<button type="submit" class="btn btn-success">Book</button>
+					</form>
+
+
+
+					</div>
+				</div>
+			</section>
+
+			
+			
+			</div>
+	</body>
+
+
+	@section Scripts{
+	<script src="~/js/detail.js"></script>
+	<link rel="stylesheet" href="~/css/detail.css" />
+	}

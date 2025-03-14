@@ -8,8 +8,26 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Cinema.Utility;
 using Cinema.DbInitializer;
 using Cinema.DataAccess.DbInitializer;
+using Net.payOS;
+using Cinema_System.Areas.Service;
 
 var builder = WebApplication.CreateBuilder(args);
+
+IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+PayOS payOs = new PayOS(
+    configuration["PayOs:ClientId"] ?? throw new Exception("Cannot find environment"),
+    configuration["PayOs:ApiKey"] ?? throw new Exception("Cannot find environment"),
+    configuration["PayOs:CheckSumKey"] ?? throw new Exception("Cannot find environment"));
+
+builder.Services.AddSingleton(payOs);
+
+// Đăng ký PayOSService vào DI container
+builder.Services.AddScoped<PayOSService>();  // Hoặc AddSingleton nếu bạn muốn dùng singleton
+
+// Đăng ký các dịch vụ khác
+builder.Services.AddControllersWithViews();
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -136,10 +154,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{area=Admin}/{controller=Users}/{action=Index}/{id?}")
-//    .WithStaticAssets();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{area=Admin}/{controller=Users}/{action=Index}/{id?}")
+    .WithStaticAssets();
 
 app.Run();
 
