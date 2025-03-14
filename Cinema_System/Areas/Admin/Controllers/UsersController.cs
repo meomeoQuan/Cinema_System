@@ -1,4 +1,5 @@
 ﻿using Cinema.DataAccess.Data;
+using Cinema.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,15 +10,15 @@ namespace Cinema_System.Areas.Admin.Controllers
     //[Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public UsersController(ApplicationDbContext db)
+        private readonly IUnitOfWork _unitOfWork;
+        public UsersController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            var users = _db.Users.ToList();
+            var users = _unitOfWork.ApplicationUser.GetAll();
             return View(users);
         }
     }

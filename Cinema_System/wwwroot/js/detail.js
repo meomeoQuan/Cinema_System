@@ -1,156 +1,138 @@
 ﻿$(document).ready(function () {
-    initializeMovieDetails();
-});
+    var movieID = $("#movieID").val();
+    var IdUser = $("#targetTime").val();
+    var allShowtimes = []; // Store all showtimes for filtering
 
-// ==============================================
-// INITIALIZATION
-// ==============================================
-function initializeMovieDetails() {
-    const movieID = getMovieID();
-    const { targetDate, targetCity, targetTime } = getUrlParams();
+    $.ajax({
+        url: `/Guest/Detail/Details?userId=${IdUser}&MovieID=${movieID}`,
+        method: "GET",
+        success: function (response) {
+            console.log("Response received:", response);
 
-    if (movieID) {
-        fetchMovieDetails(movieID, targetDate, targetCity, targetTime);
-    } else {
-        showErrorMessage("Movie ID not found");
+            if (response.message !== "Success") {
+                $("#movieDetails").html("<p>Failed to load movie details.</p>");
+                return;
+            }
+
+            var data = response.data;
+            var availableDates = data.availableDates.map(d => d.date);
+            var availableCities = data.availableCities.map(c => c.city);
+            allShowtimes = data.showtimes || [];
+
+            createToggleButtons("#filterDates", availableDates);
+            createDropdown("#filterCities", availableCities);
+            updateShowtimes(allShowtimes);
+
+            $(".date-toggle").click(function () {
+                $(this).toggleClass("active");
+                applyFilters();
+            });
+
+            // Ensure the city selection triggers filtering
+            $("#filterCities").on("change", function () {
+                applyFilters();
+            });
+        },
+        error: function () {
+            $("#movieDetails").html("<p>Error loading movie details.</p>");
+        }
+    });
+
+    function applyFilters() {
+        var selectedDates = getActiveToggleValues("#filterDates");
+        var selectedCity = $("#filterCities").val(); // Changed to get value from the correct dropdown
+
+        var filteredShowtimes = filterShowtimes(allShowtimes, {
+            date: selectedDates,
+            city: selectedCity ? [selectedCity] : [] // Ensure city filter works
+        });
+
+        updateShowtimes(filteredShowtimes);
     }
-}
 
-// HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
-    $('#showtime').change(function () {
-        const selectedShowtime = $('#showtime').val();
-        console.log(selectedShowtime);
-        if (selectedShowtime && selectedShowtime != "- Chọn giờ -") {
-            $('#seat-selection').removeClass('d-none'); // Hiển thị section đặt ghế
+    function filterShowtimes(showtimes, filters) {
+        return showtimes.filter(show =>
+            (!filters.date.length || filters.date.includes(show.date)) &&
+            (!filters.city.length || show.city === filters.city[0]) // Fix city filtering
+        );
+    }
+
+    function updateShowtimes(showtimes) {
+        var cinemaMap = {};
+
+        showtimes.forEach(show => {
+            if (!cinemaMap[show.cinemaName]) {
+                cinemaMap[show.cinemaName] = [];
+            }
+            cinemaMap[show.cinemaName].push(show);
+        });
+
+        var formattedShowtimes = "<p><strong>Showtimes:</strong></p>";
+
+        formattedShowtimes += Object.entries(cinemaMap)
+            .map(([cinemaName, shows]) =>
+                `<p><strong>${cinemaName}</strong> - ` +
+                shows.map(show => `<button class="btn btn-outline-primary showtime-btn" data-showtime='${JSON.stringify(show)}'>${show.showtime}</button>`).join(" ") +
+                `</p>`
+            )
+            .join("") || "<p>No showtimes available</p>";
+
+        $("#movieDetails").html(formattedShowtimes);
+
+        $(".showtime-btn").click(function () {
+            $(".showtime-btn").removeClass("btn-primary").addClass("btn-outline-primary");
+            $(this).removeClass("btn-outline-primary").addClass("btn-primary");
+            let selectedShowtime = JSON.parse($(this).attr("data-showtime"));
+            renderSeats(selectedShowtime.seatList);
+        });
+    }
+
+    function renderSeats(seats) {
+        var seatsContainer = $("#seatsContainer").empty().addClass("seat-grid");
+
+        seats.forEach(seat => {
+            let seatClass = "seat";
+            if (seat.selected) seatClass += " booked";
+            if (seat.maintenance) seatClass += " maintenance";
+
+            let seatDiv = $(`<div class="${seatClass}" data-seat-id="${seat.seatId}">${seat.seatNumber}</div>`);
+            seatDiv.click(function () {
+                if (!$(this).hasClass("booked") && !$(this).hasClass("maintenance")) {
+                    $(this).toggleClass("selected");
+                    updateBookingSummary();
+                }
+            });
+
+            seatsContainer.append(seatDiv);
+        });
+    }
+
+    function updateBookingSummary() {
+        if ($(".seat.selected").length > 0) {
+            $("#booking-summary").removeClass("d-none");
         } else {
-            $('#seat-selection').addClass('d-none'); // Ẩn section đặt ghế nếu không chọn suất chiếu
+            $("#booking-summary").addClass("d-none");
         }
-    });
+    }
 
-    $(document).ready(function () {
-        let seatPrice = 80000; // Giá giả định cho mỗi ghế
+    function createToggleButtons(container, values) {
+        var buttonsHtml = values.map(value =>
+            `<button class="btn btn-outline-primary date-toggle" data-value="${value}">${value}</button>`
+        ).join(" ");
+        $(container).html(buttonsHtml);
+    }
 
-        function updateTotal() {
-            let total = 0;
-            let selectedFoods = [];
+    function createDropdown(container, values) {
+        var dropdownHtml = `<select id="citySelect" class="form-select">
+            <option value="">All Cities</option>
+            ${values.map(value => `<option value="${value}">${value}</option>`).join("")}
+        </select>`;
+        $(container).html(dropdownHtml);
+    }
 
-            // Tính tổng tiền ghế đã chọn
-            $('.seat.selected').each(function () {
-                total += 80000; // Giá mỗi ghế
-            });
-
-            total -= 80000;
-
-            // Tính tổng tiền thức ăn đã chọn
-            $('.product-card').each(function () {
-                let count = parseInt($(this).find('.count').text());
-                let foodName = $(this).find('h4').text();
-                let price = parseInt($(this).find('.price').text().replace(/\D/g, ''));
-
-                if (count > 0) {
-                    selectedFoods.push(`${count} x ${foodName}`);
-                    total += count * price;
-                }
-            });
-
-            // Cập nhật tổng giá trên giao diện
-            $('#total-price').text(total.toLocaleString() + ' VND');
-
-            // Cập nhật danh sách món ăn đã chọn
-            $('#selected-foods').text(selectedFoods.length > 0 ? selectedFoods.join(', ') : 'No food selected');
-
-            // Cập nhật giá trị của input hidden
-            $('#totalAmountInput').val(total);
-        }
-
-
-        // Xử lý chọn ghế
-        $('.seat').click(function () {
-            if (!$(this).hasClass('booked') && !$(this).hasClass('maintenance')) {
-                $(this).toggleClass('selected');
-                if ($('.seat.selected').length > 0) {
-                    $('#booking-summary').removeClass('d-none');
-                } else {
-                    $('#booking-summary').addClass('d-none');
-                }
-                updateTotal();
-            }
-        });
-
-        // Xử lý tăng giảm số lượng thức ăn
-        $('.plus').click(function () {
-            let count = $(this).siblings('.count');
-            count.text(parseInt(count.text()) + 1);
-            updateTotal();
-        });
-
-        $('.minus').click(function () {
-            let count = $(this).siblings('.count');
-            if (parseInt(count.text()) > 0) {
-                count.text(parseInt(count.text()) - 1);
-                updateTotal();
-            }
-        });
-    });
-
-    $(document).ready(function () {
-        $("#book-btn").click(function () {
-            let selectedSeats = [];
-            $(".seat.selected").each(function () {
-                selectedSeats.push($(this).text().trim()); // Lấy tên ghế (VD: A1, B2)
-            });
-
-            let selectedFoods = [];
-            $(".product-card").each(function () {
-                let count = parseInt($(this).find(".count").text());
-                if (count > 0) {
-                    let foodName = $(this).find("h4").text();
-                    let price = parseInt($(this).find(".price").text().replace(/\D/g, ""));
-                    selectedFoods.push({ name: foodName, price: price, quantity: count });
-                }
-            });
-
-            let bookingData = {
-                seats: selectedSeats,
-                items: selectedFoods,
-                totalAmount: $("#total-price").text().replace(/\D/g, "") // Chuyển đổi số tiền
-            };
-
-            $.ajax({
-                url: "/Guest/Payment/CreatePayment",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(bookingData),
-                success: function (response) {
-                    if (response.paymentUrl) {
-                        window.location.href = response.paymentUrl; // Chuyển hướng đến cổng thanh toán
-                    } else {
-                        alert("Payment failed, please try again.");
-                    }
-                },
-                error: function (xhr) {
-                    alert("Error processing payment: " + xhr.responseText);
-                }
-            });
-        });
-    });
-
-
-
-
- // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
-    let timeLeft = 300;
-    const countdown = setInterval(function () {
-        timeLeft--;
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        $('#countdown').text(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            alert('Hết thời gian giữ vé!');
-            location.reload();
-        }
-    }, 1000);
+    function getActiveToggleValues(container) {
+        return $(`${container} .date-toggle.active`).map(function () {
+            return $(this).attr("data-value");
+        }).get();
+    }
 });
-
-// Xử lý nút tăng/giảm số lượng đồ ăn

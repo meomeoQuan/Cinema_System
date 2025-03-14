@@ -154,10 +154,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{area=Admin}/{controller=Users}/{action=Index}/{id?}")
-//    .WithStaticAssets();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{area=Admin}/{controller=Users}/{action=Index}/{id?}")
+    .WithStaticAssets();
 
 app.Run();
 

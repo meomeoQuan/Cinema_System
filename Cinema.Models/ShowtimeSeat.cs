@@ -1,6 +1,7 @@
 ﻿using Cinema.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 public class ShowtimeSeat
 {
@@ -27,9 +28,11 @@ public class ShowtimeSeat
 
     // Navigation properties
     [ForeignKey("ShowtimeID")]
+    [ValidateNever]
     public virtual ShowTime Showtime { get; set; }
 
     [ForeignKey("SeatID")]
+    [ValidateNever]
     public virtual Seat Seat { get; set; }
 }
 
