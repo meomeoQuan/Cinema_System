@@ -62,7 +62,8 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return View();
             }
         }
-
+    }
+}
 
 
 //        // POST: HomeController/Delete/5
