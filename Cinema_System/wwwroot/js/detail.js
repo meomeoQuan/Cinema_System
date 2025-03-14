@@ -78,7 +78,17 @@
         );
 
         updateShowtimesDisplay(filtered);
+        updateHiddenInputs(filters);
     }
+    //====================== Populate hidden input fields==================
+    function updateHiddenInputs(filters) {
+        $("#selectedDate").val(filters.date.length ? filters.date[0] : ""); // Assuming single date selection
+        $("#selectedCity").val(filters.city || "");
+    }
+
+    //====================== Populate hidden input fields==================
+   
+
 
     function getActiveDateFilter() {
         return $("#filterDates .date-toggle.active").map(function () {
@@ -119,10 +129,16 @@
 
         const showtime = JSON.parse($btn.attr("data-showtime"));
 
+        //====================== Populate hidden input fields==================
+        $("#selectedCinema").val(showtime.cinemaName);
+        $("#RoomId").val(showtime.roomId);
+        $("#RoomName").val(showtime.roomName);
+        $("#selectedShowtime").val(showtime.showtime);
+        //=====================================================================
         renderSeats(showtime.seatList);
-        renderTicketList(showtime.ticketList);  // ✅ Call function to render ticket list
-       
+        renderTicketList(showtime.ticketList);
     }
+
 
     function renderTicketList(ticketList) {
         const ticketContainer = $("#ticketContainer").empty(); // Clear previous tickets
@@ -159,7 +175,7 @@
 
         seats.forEach(seat => {
             const seatClass = `seat ${seat.selected ? 'booked' : ''} ${seat.maintenance ? 'maintenance' : ''}`;
-            const $seat = $(`<div class="${seatClass}" data-seat-id="${seat.seatId}" data-seat-type="${seat.seatType}">${seat.seatNumber}</div>`)
+            const $seat = $(`<div class="${seatClass}" data-seat-id="${seat.seatId}" data-seat-type="${seat.seatType}" data-seat-number="${seat.seatNumber}">${seat.seatNumber}</div>`)
                 .click(function () {
                     if (!$(this).hasClass("booked") && !$(this).hasClass("maintenance")) {
                         $(this).toggleClass("selected");
@@ -210,7 +226,8 @@
         let selectedSeats = $(".seat.selected").map(function () {
             return {
                 seatId: $(this).data("seat-id"),
-                seatType: $(this).data("seat-type")
+                seatType: $(this).data("seat-type"),
+                seatNumber: $(this).data("seat-number")
             };
         }).get();
 
@@ -243,6 +260,13 @@
                 return;
             }
         }
+
+        //====================== Populate hidden input fields==================
+        // Populate hidden fields
+        $("#SelectedSeatsJson").val(JSON.stringify(selectedSeats));
+        $("#TicketsJson").val(JSON.stringify(selectedTickets));
+        //====================== Populate hidden input fields==================
+
     }
 
 
@@ -298,6 +322,11 @@ $(document).ready(function () {
 
         // Update the display
         $("#displayFood").text(combinedSummary);
+
+        //====================== Populate hidden input fields==================
+        $("#ItemsJson").val(JSON.stringify(combinedSummary));
+        //====================== Populate hidden input fields==================
+
     }
 
     // Event listener for plus button
@@ -319,6 +348,7 @@ $(document).ready(function () {
             calculateTotalPrice();
         }
     });
+
 
     function calculateTotalPrice() {
         let totalPrice = 0;
@@ -353,5 +383,40 @@ $(document).ready(function () {
 
         // Update the total price display
         $("#displayTotalPrice").text(totalPrice.toFixed(2) + " VND");
+
+
+        //====================== Populate hidden input fields==================
+        $("#TotalPrice").val(totalPrice.toFixed(2)); // Store formatted price
+        //====================== Populate hidden input fields==================
     }
 });
+
+function handleFormSubmission(event) {
+    event.preventDefault(); // Prevent normal form submission
+
+    // Collect all required data
+    $("#MovieName").val($("#displayMovieName").text());
+    $("#selectedDate").val(getActiveDateFilter());
+    $("#selectedCity").val($("#citySelect").val());
+    $("#selectedCinema").val($(".showtime-btn.btn-primary").closest(".card").find(".card-title").text());
+    $("#selectedShowtime").val($(".showtime-btn.btn-primary").text());
+    $("#RoomId").val($(".showtime-btn.btn-primary").data("showtime").roomId);
+    $("#RoomName").val($(".showtime-btn.btn-primary").data("showtime").roomName);
+
+    // Get seats, tickets, and food
+    let selectedSeats = $(".seat.selected").map(function () {
+        return { seatId: $(this).data("seat-id"), seatNumber: $(this).text() };
+    }).get();
+    $("#SelectedSeatsJson").val(JSON.stringify(selectedSeats));
+    $("#TicketsJson").val(JSON.stringify(getSelectedTickets()));
+    $("#FoodItemsJson").val(JSON.stringify(getSelectedFood()));
+
+    // Update total price
+    $("#TotalPrice").val(calculateTotalPrice(getSelectedTickets(), getSelectedFood()).toFixed(2));
+
+    // Submit the form
+    $("#booking-summary").submit();
+}
+
+// Event listener for form submission
+$("#booking-summary").on("submit", handleFormSubmission);

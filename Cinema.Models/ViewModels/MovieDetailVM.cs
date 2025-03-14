@@ -11,12 +11,6 @@ namespace Cinema.Models.ViewModels
     public class MovieDetailVM
     {
         public Movie Movie { get; set; }
-        public List<ShowDateVM> ShowDates { get; set; }
-
-        // Shopping Cart Items
-        public List<TicketSelectionVM> SelectedSeats { get; set; } = new List<TicketSelectionVM>();
-        public List<FoodSelectionVM> SelectedFoodItems { get; set; } = new List<FoodSelectionVM>();
-
-        public double TotalPrice { get; set; } // Automatically calculated
+        public OrderDetail OrderDetail { get; set; }
     }
 }

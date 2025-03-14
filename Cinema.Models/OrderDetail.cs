@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Cinema.Models.ViewModels;
+using Newtonsoft.Json;
 
 namespace Cinema.Models
 {
@@ -14,7 +15,7 @@ namespace Cinema.Models
         public int OrderID { get; set; } // Foreign key
 
         [Required]
-        public int UserId { get; set; }
+        public string ? UserId { get; set; }
 
         [Required]
         public int MovieId { get; set; }
@@ -32,15 +33,14 @@ namespace Cinema.Models
         public string Cinema { get; set; }
 
         [Required]
-        public int RoomId { get; set; } // Added RoomId
+        public int RoomId { get; set; }
 
         [Required]
-        public string RoomName { get; set; } // Added RoomName
+        public string RoomName { get; set; }
 
         [Required]
         public string Showtime { get; set; }
 
-        // 🟢 **Added fields**
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; } = 1;
@@ -49,17 +49,45 @@ namespace Cinema.Models
         [Range(0.00, 999999.99, ErrorMessage = "Price must be a positive value.")]
         public double Price { get; set; } // Price per unit
 
-        // List of selected tickets (multiple seats possible)
+        // 🟢 **New properties for JSON serialization**
         [NotMapped]
-        public List<TicketSelectionVM> Tickets { get; set; } = new List<TicketSelectionVM>();
+        public string? TicketsJson { get; set; }
 
-        // List of selected food items (multiple items possible)
         [NotMapped]
-        public List<FoodSelectionVM> FoodItems { get; set; } = new List<FoodSelectionVM>();
+        public string ? SelectedSeatsJson { get; set; }
 
-        // 🟢 **Now, TotalPrice makes sense**
         [NotMapped]
-        public double TotalPrice { get; set; } = 0;// **Subtotal for this item**
+        public string? ItemsJson { get; set; }
+
+        // 🟢 **Mapped lists**
+        [NotMapped]
+        public List<TicketSelectionVM> Tickets
+        {
+            get => string.IsNullOrEmpty(TicketsJson) ? new List<TicketSelectionVM>()
+                : JsonConvert.DeserializeObject<List<TicketSelectionVM>>(TicketsJson);
+
+            set => TicketsJson = JsonConvert.SerializeObject(value);
+        }
+
+        [NotMapped]
+        public List<ShowtimeSeat> SelectedSeats
+        {
+            get => string.IsNullOrEmpty(SelectedSeatsJson) ? new List<ShowtimeSeat>()
+                : JsonConvert.DeserializeObject<List<ShowtimeSeat>>(SelectedSeatsJson);
+
+            set => SelectedSeatsJson = JsonConvert.SerializeObject(value);
+        }
+
+        [NotMapped]
+        public List<FoodSelectionVM> FoodItems
+        {
+            get => string.IsNullOrEmpty(ItemsJson) ? new List<FoodSelectionVM>()
+                : JsonConvert.DeserializeObject<List<FoodSelectionVM>>(ItemsJson);
+            set => ItemsJson = JsonConvert.SerializeObject(value);
+        }
+
+        [NotMapped]
+        public double TotalPrice { get; set; } = 0; // Subtotal
 
         // Navigation properties
         [ForeignKey("OrderID")]

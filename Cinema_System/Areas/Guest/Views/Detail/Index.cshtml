@@ -80,8 +80,7 @@
         </div>
     </section>
 
-    <!-- Section 5: Booking Summary -->
-    <form id="booking-summary" asp-action="" class="mb-5 d-none" method="post">
+   
         <div class="row align-items-center">
             <!-- Movie Details -->
             <div class="col-md-3">
@@ -109,21 +108,29 @@
             </div>
         </div>
 
-        <!-- Hidden Fields for Form Submission -->
-        <input type="hidden" name="User Id" id="User Id" value="@ViewData["User Id"]" />
-        <input type="hidden" name="MovieId" id="movieID" value="@ViewData["MovieID"]" />
-        <input type="hidden" name="MovieName" id="MovieName" />
-        <input type="hidden" name="Date" id="selectedDate" />
-        <input type="hidden" name="City" id="selectedCity" />
-        <input type="hidden" name="Cinema" id="selectedCinema" />
-        <input type="hidden" name="RoomId" id="RoomId" />
-        <input type="hidden" name="RoomName" id="RoomName" />
-        <input type="hidden" name="Showtime" id="selectedShowtime" />
-        <input type="hidden" name="TotalPrice" id="TotalPrice" />
-        <input type="hidden" name="TicketsJson" id="TicketsJson" />
-        <input type="hidden" name="SelectedSeatsJson" id="SelectedSeatsJson" />
-        <input type="hidden" name="FoodItemsJson" id="FoodItemsJson" />
-    </form>
+
+
+   <form method="post" class="mb-5 ">
+    <input type="hidden" name="MovieId" id="movieID" />
+    <input type="hidden" name="MovieName" id="MovieName" />
+    <input type="hidden" name="Date" id="selectedDate" />
+    <input type="hidden" name="City" id="selectedCity" />
+    <input type="hidden" name="Cinema" id="selectedCinema" />
+    <input type="hidden" name="RoomId" id="RoomId" />
+    <input type="hidden" name="RoomName" id="RoomName" />
+    <input type="hidden" name="Showtime" id="selectedShowtime" />
+    <input type="hidden" name="TotalPrice" id="TotalPrice" />
+
+    <!-- Serialize JSON data before submission -->
+    <input type="hidden" name="TicketsJson" id="TicketsJson" />
+    <input type="hidden" name="SelectedSeatsJson" id="SelectedSeatsJson" />
+    <input type="hidden" name="ItemsJson" id="ItemsJson" />
+
+    <button type="submit" asp-controller="Detail" asp-action="ConfirmBooking" class="btn btn-success">Confirm Booking</button>
+</form>
+
+
+   
 
 
 
@@ -133,6 +140,59 @@
 @section Scripts {
 	<script src="~/js/detail.js"></script>
 	<link rel="stylesheet" href="~/css/detail.css" />
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Example of setting JSON values dynamically
+                document.getElementById("TicketsJson").value = JSON.stringify(selectedTickets);
+                document.getElementById("SelectedSeatsJson").value = JSON.stringify(selectedSeats);
+                document.getElementById("ItemsJson").value = JSON.stringify(selectedFoodItems);
+            });
+            document.getElementById("booking-summary")?.classList.remove("d-none");
+                    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Example: Setting values when the user selects options
+                document.getElementById("MovieName").value = "Inception";
+                document.getElementById("selectedDate").value = "2025-03-15";
+                document.getElementById("selectedCity").value = "Tokyo";
+                document.getElementById("selectedCinema").value = "Shibuya IMAX";
+                document.getElementById("RoomId").value = "101";
+                document.getElementById("RoomName").value = "VIP Room";
+                document.getElementById("selectedShowtime").value = "18:00";
+                document.getElementById("TotalPrice").value = "3500";
+
+                // Example: Storing ticket selections in JSON
+                let selectedTickets = [
+                    { "Category": "Standard", "Quantity": 2 },
+                    { "Category": "VIP", "Quantity": 1 }
+                ];
+                document.getElementById("TicketsJson").value = JSON.stringify(selectedTickets);
+
+                // Example: Storing seat selections in JSON
+                let selectedSeats = [
+                    { "SeatNumber": "A1" },
+                    { "SeatNumber": "A2" }
+                ];
+                document.getElementById("SelectedSeatsJson").value = JSON.stringify(selectedSeats);
+
+                // Example: Storing food selections in JSON
+                let selectedFood = [
+                    { "Item": "Popcorn", "Quantity": 1 },
+                    { "Item": "Soda", "Quantity": 1 }
+                ];
+                document.getElementById("ItemsJson").value = JSON.stringify(selectedFood);
+            });
+
+            // Ensure values are set before submitting
+            document.getElementById("bookingForm").addEventListener("submit", function () {
+                console.log("Submitting form with:");
+                console.log("Movie Name:", document.getElementById("MovieName").value);
+                console.log("Tickets:", document.getElementById("TicketsJson").value);
+                console.log("Seats:", document.getElementById("SelectedSeatsJson").value);
+                console.log("Food:", document.getElementById("ItemsJson").value);
+            });
+        </script>
+
+        </script>
 }
 
 
