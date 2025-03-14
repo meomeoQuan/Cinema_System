@@ -25,6 +25,4 @@
     <ProjectReference Include="..\Cinema.Utility\Cinema.Utility.csproj" />
   </ItemGroup>
 
-  
-
 </Project>

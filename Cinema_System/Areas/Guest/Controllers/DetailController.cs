@@ -101,34 +101,20 @@ namespace Cinema_System.Areas.Guest.Controllers
                 RoomId = show.Room.RoomID,
                 RoomName = show.Room.RoomNumber,
                 Showtime = show.ShowTimes,
-                ShowtimeId = show.ShowTimeID,
-                Selected = false,
 
-                // Ticket List (Standard, VIP, etc.)
-                TicketList = showtimeSeats
-            .Where(seat => seat.ShowtimeID == show.ShowTimeID)
-            .GroupBy(seat => seat.SeatType)
-            .Select(group => new
-            {
-                TicketType = group.Key.ToString(),
-                Price = group.First().Price,  // Assuming same price for each type
-                AvailableQuantity = group.Count(seat => seat.Status == ShowtimeSeatStatus.Available),
-                SelectedQuantity = 0
-            })
-            .ToList(),
+                Tickets = showtimeSeats
+                    .Where(seat => seat.ShowtimeID == show.ShowTimeID)
+                    .Select(seat => new
+                    {
+                        SeatId = seat.SeatID,
+                        SeatNumber = seat.Seat.SeatName,
 
-                // Seat List
-                SeatList = showtimeSeats
-            .Where(seat => seat.ShowtimeID == show.ShowTimeID)
-            .Select(seat => new
-            {
-                SeatId = seat.SeatID,
-                SeatNumber = seat.Seat.SeatName,
-                SeatType = seat.SeatType.ToString(),
-                Price = seat.Price,
-                Selected = false
-            })
-            .ToList()
+                        SeatType = seat.SeatType.ToString(),
+
+                        Price = seat.Price
+                    })
+                    .ToList()
+
             }).ToList();
 
 
