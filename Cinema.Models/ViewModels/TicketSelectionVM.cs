@@ -8,9 +8,8 @@ namespace Cinema.Models.ViewModels
 {
     public class TicketSelectionVM
     {
-        public int SeatId { get; set; }   // Unique seat ID
-        public string SeatNumber { get; set; } // e.g., A1, B3
-        public TicketType SeatType { get; set; }
-        public double Price { get; set; }
+        public string Category { get; set; }
+        public int Quantity { get; set; }
     }
+
 }

@@ -34,173 +34,165 @@
 	</section>
 
 
-<h1>Movie Details Page</h1>
+
 
 <input type="hidden" id="movieID" value="@ViewData["MovieID"]" />
 
 
-	<div class="row">
-		<!-- Filter by Date (Toggle Buttons) -->
-		<div class="col-md-6">
-			<h5>Filter by Date:</h5>
-			<div id="filterDates" class="mb-3 btn-group-toggle" data-toggle="buttons" ></div>
+	<div class="container mt-3 mb-4">
+		<div class="row mb-3">
+			<div class="text-center fw-bold"><h3>Lịch Chiếu</h3></div>
+			
+			<div id="filterDates" class="col-12 d-flex justify-content-evenly flex-wrap mb-2"></div>
+
+			<div class="d-flex justify-content-between align-items-center mb-2">
+				<div class="fw-bold"><h3>Danh sách Rạp</h3></div>
+				<div id="filterCities" class="small"></div>
+			</div>
+
+			<div id="movieDetails" class="col-8 mb-2 mx-auto"></div>
+			<h3 class="category-title text-center fw-bold">Chọn loại vé</h3>
+			<div id="ticketContainer" class="row justify-content-center">
+				<!-- Ticket types will be inserted dynamically here -->
+			</div>
+
+			</div>
+
 		</div>
-
-		<!-- Filter by City (Dropdown Selection) -->
-		<div class="col-md-6">
-			<h5>Filter by City:</h5>
-			<select id="filterCities" class="form-control">
-				<option value="">All Cities</option>
-			</select>
-		</div>
-	</div>
-
-	<!-- Movie Details and Showtimes -->
-	<div id="movieDetails" class="mt-3">
-		<h5>Available Showtimes:</h5>
-	</div>
-
-	<!-- Seat Selection -->
-	<div id="seat-selection" class="mt-3">
-		<h5>Seat Selection:</h5>
-		<div id="seatsContainer" class="text-center"></div>
-	</div>
+	<div id="seatsContainer" class="mb-4 mx-auto col-8"></div>
 
 
 
 
 
-		<!-- Section 3: Seat Selection -->
-		<section id="seat-selection" class="mb-5 d-none">
-			<h2 class="text-center">Seat Booking</h2>
-			<div class="screen text-center mb-3">Screen</div>
-			<div id="seats" class="text-center"></div>
-
-			<!-- Chú thích các loại ghế -->
-			<div class="seat-legend text-center mt-4">
-				<div class="legend-item">
-					<div class="seat available"></div>
-					<span>Available</span>
-				</div>
-				<div class="legend-item">
-					<div class="seat selected"></div>
-					<span>Selected</span>
-				</div>
-				<div class="legend-item">
-					<div class="seat maintenance"></div>
-					<span>Maintenance</span>
-				</div>
-				<div class="legend-item">
-					<div class="seat reserved"></div>
-					<span>Reserved</span>
-				</div>
-			</div>
-		</section>
-
-		<!-- Section 4: Food Selection -->
-		<section id="food-selection" class="mb-5">
-			<h2 class="text-center">food</h2>
-
-			<!-- COMBO 2 NGĂN -->
-			<h3 class="category-title text-center">COMBO FOOD</h3>
-			<div class="row justify-content-center">
-				<div class="col-md-6">
-					<div class="product-card d-flex align-items-center">
-						<img src="~/css/images/popcorn1.png" alt="Combo Gấu" class="product-img">
-						<div class="product-info">
-							<h4>COMBO COUPLE</h4>
-							<p>2 Coke 32oz + 1 Corn 2 serves 64OZ Cheese + Caramel</p>
-							<span class="price">119,000 VNĐ</span>
-							<div class="quantity">
-								<button class="btn minus">-</button>
-								<span class="count">0</span>
-								<button class="btn plus">+</button>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="col-md-6">
-					<div class="product-card d-flex align-items-center">
-						<img src="~/css/images/popcorn2.png" alt="Combo Có Gấu" class="product-img">
-						<div class="product-info">
-							<h4>COMBO FULL</h4>
-							<p>4 Coke 22oz + 2 Corn 2 serves 64OZ Cheese + Caramel</p>
-							<span class="price">129,000 VNĐ</span>
-							<div class="quantity">
-								<button class="btn minus">-</button>
-								<span class="count">0</span>
-								<button class="btn plus">+</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- NƯỚC NGỌT -->
-			<h3 class="category-title text-center">drink</h3>
-			<div class="row justify-content-center">
-				<div class="col-md-6">
-					<div class="product-card d-flex align-items-center">
-						<img src="~/css/images/drink1.png" alt="Sprite" class="product-img">
-						<div class="product-info">
-							<h4>SPRITE 32OZ</h4>
-							<span class="price">37,000 VNĐ</span>
-							<div class="quantity">
-								<button class="btn minus">-</button>
-								<span class="count">0</span>
-								<button class="btn plus">+</button>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="col-md-6">
-					<div class="product-card d-flex align-items-center">
-						<img src="~/css/images/drink2.png" alt="Coke" class="product-img">
-						<div class="product-info">
-							<h4>COKE 32OZ</h4>
-							<span class="price">37,000 VNĐ</span>
-							<div class="quantity">
-								<button class="btn minus">-</button>
-								<span class="count">0</span>
-								<button class="btn plus">+</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<!-- Section 5: Booking Summary -->
-		<section id="booking-summary" class="mb-5 d-none">
-			<!--<h2>Booking Summary</h2>-->
-			<div class="row align-items-center">
-				<div class="col-md-3">
-					<p><strong>Movie:</strong> Nha Gia Tien</p>
-				</div>
-				<div class="col-md-3">
-					<p><strong>Food:</strong> 1 Combo Couple</p>
-				</div>
-				<div class="col-md-3">
-					<p><strong>Time expired:</strong> <span id="countdown">05:00</span></p>
-				</div>
-				<div class="col-md-2">
-					<p><strong>Total:</strong> 80.000 VND</p>
-				</div>
-				<div class="col-md-1">
-					<button class="btn btn-success">Book</button>
-				</div>
-			</div>
-		</section>
 
 
 
+
+
+    <!-- Section 4: Food Selection -->
+    <section id="food-selection" class="mb-5">
+        <h2 class="text-center">Food</h2>
+        <h3 class="category-title text-center">Combo Food</h3>
+        <div class="row justify-content-center" id="foodContainer">
+          
+          
+        </div>
+    </section>
+
+   
+        <div class="row align-items-center">
+            <!-- Movie Details -->
+            <div class="col-md-3">
+                <p><strong>Movie:</strong> <span id="displayMovieName">@Model.Movie.Title</span></p>
+            </div>
+
+            <!-- Combined Food and Tickets Display -->
+            <div class="col-md-3">
+                <p><strong>Items:</strong> <span id="displayFood">None</span></p>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div class="col-md-3">
+                <p><strong>Time expired:</strong> <span id="countdown">05:00</span></p>
+            </div>
+
+            <!-- Total Price -->
+            <div class="col-md-2">
+                <p><strong>Total:</strong> <span id="displayTotalPrice">0 VND</span></p>
+            </div>
+
+            <!-- Confirm Booking Button -->
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-success">Confirm Booking</button>
+            </div>
+        </div>
+
+
+
+   <form method="post" class="mb-5 ">
+    <input type="hidden" name="MovieId" id="movieID" />
+    <input type="hidden" name="MovieName" id="MovieName" />
+    <input type="hidden" name="Date" id="selectedDate" />
+    <input type="hidden" name="City" id="selectedCity" />
+    <input type="hidden" name="Cinema" id="selectedCinema" />
+    <input type="hidden" name="RoomId" id="RoomId" />
+    <input type="hidden" name="RoomName" id="RoomName" />
+    <input type="hidden" name="Showtime" id="selectedShowtime" />
+    <input type="hidden" name="TotalPrice" id="TotalPrice" />
+
+    <!-- Serialize JSON data before submission -->
+    <input type="hidden" name="TicketsJson" id="TicketsJson" />
+    <input type="hidden" name="SelectedSeatsJson" id="SelectedSeatsJson" />
+    <input type="hidden" name="ItemsJson" id="ItemsJson" />
+
+    <button type="submit" asp-controller="Detail" asp-action="ConfirmBooking" class="btn btn-success">Confirm Booking</button>
+</form>
+
+
+   
+
+
+
+	
 
 
 @section Scripts {
 	<script src="~/js/detail.js"></script>
 	<link rel="stylesheet" href="~/css/detail.css" />
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Example of setting JSON values dynamically
+                document.getElementById("TicketsJson").value = JSON.stringify(selectedTickets);
+                document.getElementById("SelectedSeatsJson").value = JSON.stringify(selectedSeats);
+                document.getElementById("ItemsJson").value = JSON.stringify(selectedFoodItems);
+            });
+            document.getElementById("booking-summary")?.classList.remove("d-none");
+                    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Example: Setting values when the user selects options
+                document.getElementById("MovieName").value = "Inception";
+                document.getElementById("selectedDate").value = "2025-03-15";
+                document.getElementById("selectedCity").value = "Tokyo";
+                document.getElementById("selectedCinema").value = "Shibuya IMAX";
+                document.getElementById("RoomId").value = "101";
+                document.getElementById("RoomName").value = "VIP Room";
+                document.getElementById("selectedShowtime").value = "18:00";
+                document.getElementById("TotalPrice").value = "3500";
+
+                // Example: Storing ticket selections in JSON
+                let selectedTickets = [
+                    { "Category": "Standard", "Quantity": 2 },
+                    { "Category": "VIP", "Quantity": 1 }
+                ];
+                document.getElementById("TicketsJson").value = JSON.stringify(selectedTickets);
+
+                // Example: Storing seat selections in JSON
+                let selectedSeats = [
+                    { "SeatNumber": "A1" },
+                    { "SeatNumber": "A2" }
+                ];
+                document.getElementById("SelectedSeatsJson").value = JSON.stringify(selectedSeats);
+
+                // Example: Storing food selections in JSON
+                let selectedFood = [
+                    { "Item": "Popcorn", "Quantity": 1 },
+                    { "Item": "Soda", "Quantity": 1 }
+                ];
+                document.getElementById("ItemsJson").value = JSON.stringify(selectedFood);
+            });
+
+            // Ensure values are set before submitting
+            document.getElementById("bookingForm").addEventListener("submit", function () {
+                console.log("Submitting form with:");
+                console.log("Movie Name:", document.getElementById("MovieName").value);
+                console.log("Tickets:", document.getElementById("TicketsJson").value);
+                console.log("Seats:", document.getElementById("SelectedSeatsJson").value);
+                console.log("Food:", document.getElementById("ItemsJson").value);
+            });
+        </script>
+
+        </script>
 }
 
 
