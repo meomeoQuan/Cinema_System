@@ -1,9 +1,11 @@
-﻿using System.Text;
+
+using System.Text;
 using System.Text.RegularExpressions;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +19,7 @@ namespace Cinema_System.Areas.Admin.Controllers
     public class UsersController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -27,15 +30,18 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
+
         }
 
         public async Task<IActionResult> Index()
         {
+
             var users = await _unitOfWork.ApplicationUser.GetAllAsync();
             foreach (var user in users)
             {
                 user.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Guest";
             }
+
             return View(users);
         }
 
