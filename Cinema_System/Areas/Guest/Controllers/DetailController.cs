@@ -22,13 +22,15 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
         public async Task<IActionResult> Index(int ? MovieID)
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             MovieDetailVM? Movie = new MovieDetailVM()
             {
                 Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
 
             };
             ViewData["MovieID"] = MovieID; // Store MovieID using ViewData
-
+            ViewData["UserId"] = userId;
             return View(Movie);
         }
 
@@ -84,25 +86,41 @@ namespace Cinema_System.Areas.Guest.Controllers
                 date = show.ShowDates,
                 CinemaName = show.Cinema.Name,
                 CinemaId = show.CinemaID,
+                CinemaAddress = show.Cinema.Address,
                 City = show.Cinema.CinemaCity,
                 RoomId = show.Room.RoomID,
                 RoomName = show.Room.RoomNumber,
                 Showtime = show.ShowTimes,
                 ShowtimeId = show.ShowTimeID,
-                
                 Selected = false,
+
+                // Ticket List (Standard, VIP, etc.)
+                TicketList = showtimeSeats
+            .Where(seat => seat.ShowtimeID == show.ShowTimeID)
+            .GroupBy(seat => seat.SeatType)
+            .Select(group => new
+            {
+                TicketType = group.Key.ToString(),
+                Price = group.First().Price,  // Assuming same price for each type
+                AvailableQuantity = group.Count(seat => seat.Status == ShowtimeSeatStatus.Available),
+                SelectedQuantity = 0
+            })
+            .ToList(),
+
+                // Seat List
                 SeatList = showtimeSeats
-                    .Where(seat => seat.ShowtimeID == show.ShowTimeID)
-                    .Select(seat => new
-                    {
-                        SeatId = seat.SeatID,
-                        SeatNumber = seat.Seat.SeatName,
-                        SeatType = seat.SeatType.ToString(),
-                        Price = seat.Price,
-                        Selected = false
-                    })
-                    .ToList()
+            .Where(seat => seat.ShowtimeID == show.ShowTimeID)
+            .Select(seat => new
+            {
+                SeatId = seat.SeatID,
+                SeatNumber = seat.Seat.SeatName,
+                SeatType = seat.SeatType.ToString(),
+                Price = seat.Price,
+                Selected = false
+            })
+            .ToList()
             }).ToList();
+
 
             // ✅ Get Food Items (No filtering)
             var foodItemsList = await _unitOfWork.Product.GetAllAsync();

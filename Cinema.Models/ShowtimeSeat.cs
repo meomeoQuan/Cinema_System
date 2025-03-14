@@ -14,6 +14,8 @@ public class ShowtimeSeat
     [Required]
     public int SeatID { get; set; } // Foreign key
 
+   
+
     [Required]
     [Range(0.00, 9999.99, ErrorMessage = "Price must be a positive value.")]
     public double Price { get; set; }  // Default price
@@ -41,9 +43,9 @@ public class ShowtimeSeat
 // Enum for different ticket types
 public enum TicketType
 {
-    Standard,
-    VIP,
-    Double
+   Vip,
+   Standard,
+   Double
 }
 
 // Enum for seat booking status

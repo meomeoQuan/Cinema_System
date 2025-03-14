@@ -88,7 +88,7 @@ function updateMovieSection(category, movies, totalPages, currentPage) {
                     <div class="row p-2">
                         <div class="col-12 p-1">
                            
-                               <img src="${movie.CouponImage ? movie.CouponImage : 'https://placehold.co/500x300/png'}"   class="card-img-top rounded"  />
+                               <img src="${movie.CouponImage ? movie.CouponImage : 'https://placehold.co/500x300/png'}"   class="card-img-top img-fluid rounded"  />
                            
                         </div>
                     </div>
@@ -102,7 +102,7 @@ function updateMovieSection(category, movies, totalPages, currentPage) {
                         <div class="col-12 p-1">
                             <div class="card rounded">
                                 <img src="${movie.movieImage ? movie.movieImage : 'https://placehold.co/500x700/png'}" 
-                                    class="card-img-top rounded" 
+                                    class="card-img-top img-fluid rounded" 
                                     alt="${movie.title}" />
                             </div>
                         </div>
