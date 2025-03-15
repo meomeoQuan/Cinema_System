@@ -1,16 +1,82 @@
 ﻿//IN RA GHẾ
-$(document).ready(function () {
-    // Generate seats
-    const seatsContainer = $('#seats');
-    for (let row = 1; row <= 5; row++) {
-        for (let seatNum = 1; seatNum <= 10; seatNum++) {
-            const seat = $('<div>').addClass('seat').text(`${String.fromCharCode(64 + row)}${seatNum}`);
-            if (Math.random() < 0.1) seat.addClass('booked');
-            if (Math.random() < 0.05) seat.addClass('maintenance');
-            seatsContainer.append(seat);
+document.getElementById("time").addEventListener("change", function () {
+        const seatSelection = document.getElementById("seat-selection");
+    if (this.value) {
+        seatSelection.classList.remove("d-none");
+        const seatsContainer = document.getElementById("seats");
+        seatsContainer.innerHTML = "";
+        let showtimeId = document.getElementById("time").value;
+
+        if (showtimeId) {
+            let showtimeSeatSet = new Set();
+
+            // Gọi API để lấy danh sách ghế
+            fetch(`/api/showtime-seat/${showtimeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(showtimeSeat => {
+                        showtimeSeatSet.add(showtimeSeat.showtimeSeatID);
+                    });
+
+                    // Chuyển Set thành Array
+                    let seatIdList = Array.from(showtimeSeatSet);
+
+                    // Gửi danh sách ID ghế đến API
+                    return fetch("/api/seats", { // Cập nhật URL API
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(seatIdList) // Chuyển Set thành mảng trước khi gửi
+                    });
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Lỗi: ${response.status} - ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let rowSeatSet = new Set();
+                    Array.from(data).forEach(seat => {
+                        if (!rowSeatSet.has(seat.row)) {
+                            rowSeatSet.add(seat.row);
+                        }
+                    })
+                    let identitySeat = 0;
+                    rowSeatSet.forEach(row => {
+                        for (let seatNum = 1; seatNum <= 10 && identitySeat < data.length; seatNum++) {
+                            const seat = `<div class='seat'>${String.fromCharCode(64 + row)}${Array.from(data)[identitySeat].seatID}</div>`;
+                            seatsContainer.insertAdjacentHTML("beforeend", seat);
+                            identitySeat++;
+                        }
+                        seatsContainer.insertAdjacentHTML("beforeend", "<br>");
+                    })
+                })
+                .catch(error => console.error("Lỗi:", error));
         }
-        seatsContainer.append($('<br>'));
     }
+    else if (!seatSelection.classList.contains("d-none")) {
+        seatSelection.classList.add("d-none");
+    }
+
+});
+
+
+$(document).ready(function () {
+    
+//    for (let row = 1; row <= 5; row++) {
+//        for (let seatNum = 1; seatNum <= 10; seatNum++) {
+//            const seat = $('<div>').addClass('seat').text(`${String.fromCharCode(64 + row)}${seatNum}`);
+//            if (Math.random() < 0.1) seat.addClass('booked');
+//            if (Math.random() < 0.05) seat.addClass('maintenance');
+//            seatsContainer.append(seat);
+//        }
+//        seatsContainer.append($('<br>'));
+//    }
+
+    
+
 
 // HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
     $('#showtime').change(function () {
@@ -148,44 +214,6 @@ $(document).ready(function () {
         }
     }, 1000);
 });
-// HIỂN THỊ RẠP THEO THÀNH PHỐ
-    //document.addEventListener("DOMContentLoaded", function () {
-    //    let cinemaCityDropdown = document.getElementById("cinemaCity");
-    //    let cinemaDropdown = document.getElementById("cinema");
-
-    //    // SỰ KIỆN CHỌN THÀNH PHỐ -> LỌC RẠP
-    //    cinemaCityDropdown.addEventListener("change", function () {
-    //        let selectedCity = this.value;
-
-    //        Array.from(cinemaDropdown.options).forEach(option => {
-    //            let city = option.getAttribute("data-city");
-
-    //            if (!selectedCity || city === selectedCity) {
-    //                option.style.display = "block";
-    //            } else {
-    //                option.style.display = "none";
-    //            }
-    //        });
-
-    //        // Đặt lại dropdown rạp về mặc định sau khi lọc
-    //        cinemaDropdown.selectedIndex = 0;
-    //    });
-
-    //    // 🔥 SỰ KIỆN CHỌN RẠP -> CẬP NHẬT THÀNH PHỐ 🔥
-    //    cinemaDropdown.addEventListener("change", function () {
-    //        let selectedTheater = this.options[this.selectedIndex];
-
-    //        // Nếu chọn "Select a Theater" thì cũng đặt lại thành phố
-    //        if (selectedTheater.value === "") {
-    //            cinemaCityDropdown.selectedIndex = 0; // Đặt về "Select a City"
-    //        } else {
-    //            let city = selectedTheater.getAttribute("data-city");
-    //            if (city) {
-    //                cinemaCityDropdown.value = city;
-    //            }
-    //        }
-    //    });
-//});
 
 document.addEventListener("DOMContentLoaded", function () {
     // Load danh sách thành phố khi vào trang
@@ -294,7 +322,7 @@ document.getElementById("date").addEventListener("change", function () {
 
                         let option = document.createElement("option");
                         option.textContent = formattedTime;
-                        option.value = formattedTime;
+                        option.value = showtime.showTimeID;
                         timeDropdown.appendChild(option);
                     }
                 });
