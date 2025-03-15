@@ -186,4 +186,22 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+// Lấy ngày giờ
+<script>
+    document.getElementById("date").addEventListener("change", function () {
+        var selectedDate = this.value;
+    var showtimes = @Html.Raw(Json.Serialize(ViewBag.ShowTimesByDate));
 
+    var showtimeSelect = document.getElementById("showtime");
+    showtimeSelect.innerHTML = '<option value="">-- Select a Time --</option>'; // Reset
+
+    if (showtimes[selectedDate]) {
+        showtimes[selectedDate].forEach(time => {
+            var option = document.createElement("option");
+            option.value = time;
+            option.textContent = time;
+            showtimeSelect.appendChild(option);
+        });
+        }
+    });
+</script>

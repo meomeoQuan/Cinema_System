@@ -64,14 +64,14 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-        public async Task<IActionResult> Details(int  MovieID)
+        public async Task<IActionResult> Details(int MovieID)
         {
-            MovieDetailVM detailVM = new MovieDetailVM() {
-
+            MovieDetailVM detailVM = new MovieDetailVM()
+            {
                 Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
-
             };
-            // L?y danh sách r?p
+
+            // L?y danh sách r?p ?ang ho?t ??ng
             var theaters = _context.Theaters.Where(t => t.Status == CinemaStatus.Open).ToList();
 
             // L?y danh sách thành ph? duy nh?t
@@ -81,12 +81,31 @@ namespace Cinema_System.Areas.Guest.Controllers
                                 .Distinct()
                                 .ToList();
 
+            // L?y danh sách su?t chi?u theo MovieID
+            var showTimes = _context.showTimes
+                                    .Where(st => st.MovieID == MovieID)
+                                    .Include(st => st.Room)
+                                    .ToList();
+
+            // L?y danh sách ngày chi?u duy nh?t
+            var showDates = showTimes.Select(st => st.ShowDate.Date)
+                                     .Distinct()
+                                     .OrderBy(date => date)
+                                     .ToList();
+
+            // L?y danh sách gi? chi?u theo t?ng ngày
+            var showTimesByDate = showTimes.GroupBy(st => st.ShowDate.Date)
+                                           .ToDictionary(g => g.Key, g => g.Select(st => st.ShowDate.TimeOfDay).Distinct().OrderBy(t => t).ToList());
+
             // Truy?n d? li?u qua ViewBag
             ViewBag.Theaters = theaters;
             ViewBag.CinemaCities = cities;
+            ViewBag.ShowDates = showDates;  // Danh sách ngày chi?u
+            ViewBag.ShowTimesByDate = showTimesByDate;  // Danh sách gi? chi?u theo ngày
 
             return View(detailVM);
         }
+
 
         public async Task<IActionResult> Cart()
         {
