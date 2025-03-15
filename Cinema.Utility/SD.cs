@@ -8,10 +8,8 @@ namespace Cinema.Utility
 {
     public static class SD
     {
-        public const string Role_Customer = "Guest";
+        public const string Role_Guest = "Guest";
         public const string Role_Admin = "Admin";
         public const string Role_Staff = "Staff";
-
-       
     }
 }

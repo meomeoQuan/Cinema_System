@@ -28,23 +28,35 @@
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-center">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Products</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Discount</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">About Us</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Policy</a></li>
+                            <a class="nav-link small-text" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
                         <li class="nav-item">
+                            <a class="nav-link small-text" asp-area="" asp-controller="Order" asp-action="Index">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link small-text" asp-area="" asp-controller="Order" asp-action="Index">Discount</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link small-text" asp-area="" asp-controller="Order" asp-action="Index">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link small-text" asp-area="" asp-controller="Order" asp-action="Index">Policy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link small-text" asp-area="Guest" asp-controller="Cart" asp-action="Index"></a>
+
                             <a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">
+
                                 <i class="fa-solid fa-cart-shopping"></i>
                             </a>
                         </li>
-                      
-                        @if(User.IsInRole("Staff"))
+
+                        @if (User.IsInRole("Staff"))
                         {
                             <li class="nav-item"><a class="nav-link" asp-area="Staff" asp-controller="Staff" asp-action="CameraScan">Scan Camera</a></li>
                         }
-                       
-                        
+
+
                     </ul>
                 </div>
 
@@ -71,7 +83,7 @@
     @* <partial name="_ChatPartial" /> *@
 
     <script src="~/lib/aspnet/signalr/dist/browser/signalr.js"></script>
-	<script src="~/js/chat.js"></script>
+    <script src="~/js/chat.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
@@ -110,7 +122,6 @@
             font-size: 24px;
             cursor: pointer;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-         
         }
 
             .chat-icon:hover {
@@ -121,3 +132,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

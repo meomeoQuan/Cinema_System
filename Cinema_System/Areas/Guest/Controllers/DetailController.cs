@@ -6,6 +6,13 @@ using Cinema.DataAccess.Repository.IRepository;
 using QRCoder;
 using System.Drawing.Imaging;
 using System.Drawing;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Cinema_System.Models;
+using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -14,112 +21,175 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
 
+        [BindProperty]
+
+        private  MovieDetailVM movieDetail { get; set; }
 
         public DetailController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-
-
-        public async Task<IActionResult> Details(int MovieID, string? targetDate = "01/03/2025", string? targetCity = "Danang", string? targetTime = "18:30")
+        public async Task<IActionResult> Index(int? MovieID)
         {
+          
+            MovieDetailVM? Movie = new MovieDetailVM()
+            {
+                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID),
+                OrderDetail = new OrderDetail()
+
+
+            };
+            ViewData["MovieID"] = MovieID; // Store MovieID using ViewData
+           
+            return View(Movie);
+        }
+
+        //C1
+        public async Task<IActionResult> Details(int MovieID, string? targetDate = null, string? targetCity = null, string? targetTime = null)
+        {
+            // ✅ Get User ID from Claims
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            // ✅ Fetch Movie Details
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID);
+            if (movie == null)
+            {
+                return NotFound("Movie not found.");
+            }
+
+            // ✅ Fetch Showtimes for the selected movie
             var showTimes = await _unitOfWork.showTime.GetAllAsync(
-                u => u.MovieID == MovieID, includeProperties: "Cinema"
+                u => u.MovieID == MovieID, includeProperties: "Cinema,Room"
             );
 
+            // ✅ Fetch Showtime Seats
             var showtimeSeats = await _unitOfWork.ShowTimeSeat.GetAllAsync(
                 includeProperties: "Seat"
-            ); // Fetch all seats related to showtimes
+            );
 
-            MovieDetailVM detailVM = new MovieDetailVM()
+            // ✅ Get available cities
+            var availableCities = showTimes
+                .Select(show => show.Cinema.CinemaCity)
+                .Distinct()
+                .Select(city => new
+                {
+                    City = city,
+                    Selected = (!string.IsNullOrEmpty(targetCity) && city.Equals(targetCity, StringComparison.OrdinalIgnoreCase))
+                })
+                .ToList();
+
+            // ✅ Get available dates
+            var availableDates = showTimes
+                .Select(show => show.ShowDates)
+                .Distinct()
+                .Select(date => new
+                {
+                    Date = date,
+                    Selected = (!string.IsNullOrEmpty(targetDate) && date == targetDate)
+                })
+                .ToList();
+
+            // ✅ Get all showtimes (No filtering here, let JS filter)
+            var showtimeList = showTimes.Select(show => new
             {
-                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID),
-                ShowDates = showTimes
-                    .Where(show =>
-                        (string.IsNullOrEmpty(targetDate) || show.ShowDates == targetDate) &&  // ✅ Date filter
-                        (string.IsNullOrEmpty(targetCity) || string.Equals(show?.Cinema?.CinemaCity?.ToLower().Trim(), targetCity.ToLower().Trim(), StringComparison.OrdinalIgnoreCase)) && // ✅ City filter
-                        (string.IsNullOrEmpty(targetTime) || show.ShowTimes == targetTime) // ✅ Time filter
-                    )
-                    .GroupBy(show => show.ShowDates) // Group by Date
-                    .OrderBy(g => g.Key) // Sort Dates
-                    .Select(dateGroup => new ShowDateVM
+                date = show.ShowDates,
+                CinemaName = show.Cinema.Name,
+                CinemaId = show.CinemaID,
+                CinemaAddress = show.Cinema.Address,
+                City = show.Cinema.CinemaCity,
+                RoomId = show.Room.RoomID,
+                RoomName = show.Room.RoomNumber,
+                Showtime = show.ShowTimes,
+
+                Tickets = showtimeSeats
+                    .Where(seat => seat.ShowtimeID == show.ShowTimeID)
+                    .Select(seat => new
                     {
-                        ShowDate = dateGroup.Key,
-                        Cities = dateGroup.GroupBy(show => show.Cinema.CinemaCity) // Group by City
-                            .Select(cityGroup => new CityVM
-                            {
-                                CityName = cityGroup.Key,
-                                Cinemas = cityGroup.GroupBy(show => new { show.CinemaID, show.Cinema.Name })
-                                    .Select(cinemaGroup => new TimeScheduleVM
-                                    {
-                                        CinemaID = cinemaGroup.Key.CinemaID,
-                                        CinemaName = cinemaGroup.Key.Name,
-                                        ShowTimes = cinemaGroup
-                                            .Where(show => string.IsNullOrEmpty(targetTime) || show.ShowTimes == targetTime) // ✅ Apply Time Filter here
-                                            .Select(show => show.ShowTimes)
-                                            .Distinct()
-                                            .OrderBy(time => time) // Sort ShowTimes
-                                            .ToList(),
-                                        Seats = cinemaGroup
-                                            .SelectMany(show => showtimeSeats
-                                                .Where(seat => seat.ShowtimeID == show.ShowTimeID)
-                                                .GroupBy(seat => seat.Seat.Row)
-                                                .OrderBy(group => group.Key) // Order rows alphabetically
-                                                .Select(rowGroup => new CinemaSeatVM
-                                                {
-                                                    Row = rowGroup.Key,
-                                                    listSeatGrid = rowGroup
-                                                        .OrderBy(seat => seat.Seat.ColumnNumber)
-                                                        .Select(seat => seat.Seat.SeatName + " (" + seat.Status + ")")
-                                                        .ToList()
-                                                })
-                                            )
-                                            .ToList()
-                                    })
-                                    .ToList()
-                            })
-                            .ToList()
+                        SeatId = seat.SeatID,
+                        SeatNumber = seat.Seat.SeatName,
+
+                        SeatType = seat.SeatType.ToString(),
+
+                        Price = seat.Price
                     })
                     .ToList()
+
+            }).ToList();
+
+
+            // ✅ Get Food Items (No filtering)
+            var foodItemsList = await _unitOfWork.Product.GetAllAsync();
+            //var selectedFoodItems = foodItems
+            //    .Take(1) // Dummy selection logic
+            //    .Select(food => new
+            //    {
+            //        FoodId = food.ProductID,
+            //        FoodName = food.Name,
+            //        Quantity = 2,
+            //        Price = food.Price
+            //    })
+            //    .ToList();
+
+            // ✅ Calculate Total Price
+            //double totalPrice = showtimeList.Sum(st => st.Tickets.Sum(t => t.Price)) + selectedFoodItems.Sum(f => f.Price * f.Quantity);
+
+            // ✅ Return structured response
+            var result = new
+            {
+                UserId = userId,
+                MovieId = movie.MovieID,
+                MovieName = movie.Title,
+                AvailableDates = availableDates, // Now an array of { Date, Selected }
+                SelectedDate = targetDate, // Can be removed if frontend uses `AvailableDates`
+                AvailableCities = availableCities, // Now an array of { City, Selected }
+                City = targetCity, // Can be removed if frontend uses `AvailableCities`
+                Showtimes = showtimeList,
+                FoodItems = foodItemsList,
+                Selected = false,
+                TotalPrice = 0
             };
 
-            return View(detailVM);
+            return Json(new { message = "Success", data = result });
         }
-
-
-
-
+        [AllowAnonymous]
         [HttpPost]
-        public IActionResult Create(int MovieID, int CinemaID, string ShowDate, string ShowTime)
+        public IActionResult ConfirmBooking(OrderDetail orderDetail)
         {
-            // 1. Validate inputs
-            // 2. Process booking (e.g., save to database)
-            // 3. Redirect to confirmation page
-
-            return RedirectToAction("Confirmation", new
+            if (orderDetail == null)
             {
-                MovieID = MovieID,
-                CinemaID = CinemaID,
-                ShowDate = ShowDate,
-                ShowTime = ShowTime
-            });
+                return BadRequest("Order details are missing.");
+            }
+
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            orderDetail.UserId = userId;
+
+            // Deserialize JSON fields
+            orderDetail.Tickets = string.IsNullOrEmpty(orderDetail.TicketsJson)
+                ? new List<TicketSelectionVM>()
+                : JsonConvert.DeserializeObject<List<TicketSelectionVM>>(orderDetail.TicketsJson);
+
+            orderDetail.SelectedSeats = string.IsNullOrEmpty(orderDetail.SelectedSeatsJson)
+                ? new List<ShowtimeSeat>()
+                : JsonConvert.DeserializeObject<List<ShowtimeSeat>>(orderDetail.SelectedSeatsJson);
+
+            orderDetail.FoodItems = string.IsNullOrEmpty(orderDetail.ItemsJson)
+                ? new List<FoodSelectionVM>()
+                : JsonConvert.DeserializeObject<List<FoodSelectionVM>>(orderDetail.ItemsJson);
+
+            // Save to database
+            _unitOfWork.OrderDetail.Add(orderDetail);
+            _unitOfWork.SaveAsync();
+
+            return RedirectToAction("Confirmation", new { orderId = orderDetail.OrderDetailID });
         }
 
-        public IActionResult Confirmation(int MovieID, int CinemaID, string ShowDate, string ShowTime)
-        {
-            var bookingDetails = new
-            {
-                MovieID = MovieID,
-                CinemaID = CinemaID,
-                ShowDate = ShowDate,
-                ShowTime = ShowTime
-            };
 
-            return View(bookingDetails);
-        }
+
+
+
+
         [HttpPost]
         public IActionResult GenerateTicket(string ticketId)
         {
@@ -144,7 +214,8 @@ namespace Cinema_System.Areas.Guest.Controllers
             ViewBag.TicketId = ticketId;
             return View("TestQR");
         }
-
+        //https://localhost:7115/Guest/Detail/GenerateTicket to test QRcode
+        // enter staff login to use scan camera Staff account in DBInitializer username is account,,Staff@123 password
         public IActionResult TestQR()
         {
             return View();

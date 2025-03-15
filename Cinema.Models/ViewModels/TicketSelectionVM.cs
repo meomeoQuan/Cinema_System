@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Cinema.Models.ViewModels
 {
-    public class CityVM
+    public class TicketSelectionVM
     {
-        public string CityName { get; set; }
-        public List<TimeScheduleVM> Cinemas { get; set; }
+        public string Category { get; set; }
+        public int Quantity { get; set; }
     }
+
 }
