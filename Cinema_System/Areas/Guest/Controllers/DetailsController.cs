@@ -11,12 +11,10 @@ namespace Cinema_System.Areas.Guest.Controllers
     [Area("Guest")]
     public class DetailsController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DetailsController(ApplicationDbContext context, IUnitOfWork unitOfWork)
+        public DetailsController( IUnitOfWork unitOfWork)
         {
-            _context = context;
             _unitOfWork = unitOfWork;
         }
 
@@ -24,24 +22,11 @@ namespace Cinema_System.Areas.Guest.Controllers
         {
             MovieDetailVM detailVM = new MovieDetailVM()
             {
-
                 Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
-
             };
-            // Lấy danh sách rạp
-            var theaters = _context.Theaters.Where(t => t.Status == CinemaStatus.Open).ToList();
-
-            // Lấy danh sách thành phố duy nhất
-            var cities = _context.Theaters
-                                .Where(t => !string.IsNullOrEmpty(t.CinemaCity))
-                                .Select(t => t.CinemaCity)
-                                .Distinct()
-                                .ToList();
-
-            // Truyền dữ liệu qua ViewBag
-            ViewBag.CinemaCities = cities;
 
             return View(detailVM);
         }
     }
+
 }

@@ -185,7 +185,23 @@ $(document).ready(function () {
     //            }
     //        }
     //    });
-    //});
+//});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Load danh sách thành phố khi vào trang
+    fetch("/api/details/cities")
+        .then(response => response.json())
+        .then(data => {
+            let cityDropdown = document.getElementById("cinemaCity");
+            data.data.forEach(city => {
+                let option = document.createElement("option");
+                option.value = city;
+                option.textContent = city;
+                cityDropdown.appendChild(option);
+            });
+        });
+
+});
 
 // Hiện rạp theo thành phố đã chọn
 document.getElementById("cinemaCity").addEventListener("change", function () {
@@ -193,6 +209,12 @@ document.getElementById("cinemaCity").addEventListener("change", function () {
     let cinemaDropdown = document.getElementById("cinema");
 
     cinemaDropdown.innerHTML = '<option value="">Chọn rạp phim</option>';
+    let dateDropdown = document.getElementById("date");
+
+    dateDropdown.innerHTML = '<option value="">Chọn ngày chiếu</option>';
+    let timeDropdown = document.getElementById("time");
+
+    timeDropdown.innerHTML = '<option value="">Chọn giờ chiếu</option>';
 
     if (cinemaCityName) {
         fetch(`/api/cinemas/${cinemaCityName}`)
@@ -216,6 +238,10 @@ document.getElementById("cinema").addEventListener("change", function () {
     const movieId = document.querySelector('input[name="Movie.MovieID"]').value;
 
     dateDropdown.innerHTML = '<option value="">Chọn ngày chiếu</option>';
+
+    let timeDropdown = document.getElementById("time");
+
+    timeDropdown.innerHTML = '<option value="">Chọn giờ chiếu</option>';
 
     if (cinemaId) {
         fetch(`/api/showtime/${cinemaId}/${movieId}`)

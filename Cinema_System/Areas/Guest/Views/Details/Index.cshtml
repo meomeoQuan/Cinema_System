@@ -26,25 +26,6 @@
 
 				</div>
 			</section>
-			<div class="alert alert-info mt-3">
-				@if (ViewBag.Theaters != null)
-				{
-					<p>Number of Theaters: @ViewBag.Theaters.Count</p>
-				}
-				else
-				{
-					<p>Number of Theaters: 0</p>
-				}
-
-				@if (ViewBag.CinemaCities != null)
-				{
-					<p>Number of Cities: @ViewBag.CinemaCities.Count</p>
-				}
-				else
-				{
-					<p>Number of Cities: 0</p>
-				}
-			</div>
 
 			<!-- Section 2: Booking Options -->
 			<section id="booking-options" class="mb-5">
@@ -54,17 +35,6 @@
 						<label for="cinemaCity">Choose city</label>
 						<select id="cinemaCity" class="form-control">
 							<option value="">-- Select a City --</option>
-							@if (ViewBag.CinemaCities != null && ViewBag.CinemaCities.Count > 0)
-							{
-								@foreach (var city in ViewBag.CinemaCities)
-								{
-									<option value="@city">@city</option>
-								}
-							}
-							else
-							{
-								<option>No cities available (Count: @(ViewBag.CityCount ?? 0))</option>
-							}
 						</select>
 					</div>
 
