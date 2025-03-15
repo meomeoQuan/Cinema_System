@@ -31,13 +31,45 @@
 			<section id="booking-options" class="mb-5">
 				<h2 class="text-center">SHOWTIMES</h2>
 				<div class="row">
+					<!-- Chọn thành phố -->
+					<div class="col-md-4">
+						<label for="cinemaCity">Choose city</label>
+						<select id="cinemaCity" class="form-control">
+							<option value="">-- Select a City --</option>
+							@if (ViewBag.CinemaCities != null)
+							{
+								@foreach (var city in ViewBag.CinemaCities)
+								{
+									<option value="@city">@city</option>
+								}
+							}
+							else
+							{
+								<option>No cities available</option>
+							}
+						</select>
+					</div>
+
+					<!-- Chọn rạp -->
 					<div class="col-md-4">
 						<label for="cinema">Choose cinema</label>
 						<select id="cinema" class="form-control">
-							<option>Cinema 1</option>
-							<option>Cinema 2</option>
+							<option value="">-- Select a Theater --</option>
+							@if (ViewBag.Theaters != null)
+							{
+								@foreach (var theater in ViewBag.Theaters)
+								{
+									<option value="@theater.CinemaID" data-city="@theater.CinemaCity">@theater.Name</option>
+								}
+							}
+							else
+							{
+								<option>No theaters available</option>
+							}
 						</select>
 					</div>
+
+					<!-- Chọn ngày -->
 					<div class="col-md-4">
 						<label for="date">Choose date</label>
 						<select id="date" class="form-control">
@@ -48,7 +80,9 @@
 							<option value="2023-10-29">29/10/2023</option>
 						</select>
 					</div>
-					<div class="col-md-4">
+
+					<!-- Chọn giờ -->
+					<div class="col-md-4 mt-3">
 						<label for="showtime">Choose time</label>
 						<select id="showtime" class="form-control">
 							<option>- Chọn giờ -</option>
@@ -59,6 +93,7 @@
 					</div>
 				</div>
 			</section>
+
 
 			<!-- Section 3: Seat Selection -->
 			<section id="seat-selection" class="mb-5 d-none">

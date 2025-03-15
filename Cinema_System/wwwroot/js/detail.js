@@ -148,5 +148,26 @@ $(document).ready(function () {
         }
     }, 1000);
 });
+// HIỂN THỊ RẠP THEO THÀNH PHỐ
+document.addEventListener("DOMContentLoaded", function () {
+    let cinemaCityDropdown = document.getElementById("cinemaCity");
+    let cinemaDropdown = document.getElementById("cinema");
 
-// Xử lý nút tăng/giảm số lượng đồ ăn
+    cinemaCityDropdown.addEventListener("change", function () {
+        let selectedCity = this.value;
+
+        // Lặp qua các option trong danh sách rạp
+        Array.from(cinemaDropdown.options).forEach(option => {
+            let city = option.getAttribute("data-city");
+
+            if (!selectedCity || city === selectedCity) {
+                option.style.display = "block";
+            } else {
+                option.style.display = "none";
+            }
+        });
+
+        // Đặt giá trị mặc định cho danh sách rạp
+        cinemaDropdown.selectedIndex = 0;
+    });
+});
