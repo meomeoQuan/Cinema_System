@@ -149,59 +149,41 @@ $(document).ready(function () {
     }, 1000);
 });
 // HIỂN THỊ RẠP THEO THÀNH PHỐ
-document.addEventListener("DOMContentLoaded", function () {
-    let cinemaCityDropdown = document.getElementById("cinemaCity");
-    let cinemaDropdown = document.getElementById("cinema");
+    document.addEventListener("DOMContentLoaded", function () {
+        let cinemaCityDropdown = document.getElementById("cinemaCity");
+        let cinemaDropdown = document.getElementById("cinema");
 
-    // SỰ KIỆN CHỌN THÀNH PHỐ -> LỌC RẠP
-    cinemaCityDropdown.addEventListener("change", function () {
-        let selectedCity = this.value;
+        // SỰ KIỆN CHỌN THÀNH PHỐ -> LỌC RẠP
+        cinemaCityDropdown.addEventListener("change", function () {
+            let selectedCity = this.value;
 
-        Array.from(cinemaDropdown.options).forEach(option => {
-            let city = option.getAttribute("data-city");
+            Array.from(cinemaDropdown.options).forEach(option => {
+                let city = option.getAttribute("data-city");
 
-            if (!selectedCity || city === selectedCity) {
-                option.style.display = "block";
+                if (!selectedCity || city === selectedCity) {
+                    option.style.display = "block";
+                } else {
+                    option.style.display = "none";
+                }
+            });
+
+            // Đặt lại dropdown rạp về mặc định sau khi lọc
+            cinemaDropdown.selectedIndex = 0;
+        });
+
+        // 🔥 SỰ KIỆN CHỌN RẠP -> CẬP NHẬT THÀNH PHỐ 🔥
+        cinemaDropdown.addEventListener("change", function () {
+            let selectedTheater = this.options[this.selectedIndex];
+
+            // Nếu chọn "Select a Theater" thì cũng đặt lại thành phố
+            if (selectedTheater.value === "") {
+                cinemaCityDropdown.selectedIndex = 0; // Đặt về "Select a City"
             } else {
-                option.style.display = "none";
+                let city = selectedTheater.getAttribute("data-city");
+                if (city) {
+                    cinemaCityDropdown.value = city;
+                }
             }
         });
-
-        // Đặt lại dropdown rạp về mặc định sau khi lọc
-        cinemaDropdown.selectedIndex = 0;
     });
 
-    // 🔥 SỰ KIỆN CHỌN RẠP -> CẬP NHẬT THÀNH PHỐ 🔥
-    cinemaDropdown.addEventListener("change", function () {
-        let selectedTheater = this.options[this.selectedIndex];
-
-        // Nếu chọn "Select a Theater" thì cũng đặt lại thành phố
-        if (selectedTheater.value === "") {
-            cinemaCityDropdown.selectedIndex = 0; // Đặt về "Select a City"
-        } else {
-            let city = selectedTheater.getAttribute("data-city");
-            if (city) {
-                cinemaCityDropdown.value = city;
-            }
-        }
-    });
-});
-// Lấy ngày giờ
-<script>
-    document.getElementById("date").addEventListener("change", function () {
-        var selectedDate = this.value;
-    var showtimes = @Html.Raw(Json.Serialize(ViewBag.ShowTimesByDate));
-
-    var showtimeSelect = document.getElementById("showtime");
-    showtimeSelect.innerHTML = '<option value="">-- Select a Time --</option>'; // Reset
-
-    if (showtimes[selectedDate]) {
-        showtimes[selectedDate].forEach(time => {
-            var option = document.createElement("option");
-            option.value = time;
-            option.textContent = time;
-            showtimeSelect.appendChild(option);
-        });
-        }
-    });
-</script>

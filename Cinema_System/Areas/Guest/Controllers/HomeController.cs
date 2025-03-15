@@ -1,4 +1,4 @@
-using System.Diagnostics;
+Ôªøusing System.Diagnostics;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
@@ -64,48 +64,29 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-        public async Task<IActionResult> Details(int MovieID)
+        public async Task<IActionResult> Details(int  MovieID)
         {
-            MovieDetailVM detailVM = new MovieDetailVM()
-            {
-                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
-            };
+            MovieDetailVM detailVM = new MovieDetailVM() {
 
-            // L?y danh s·ch r?p ?ang ho?t ??ng
+                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
+
+            };
+            // L·∫•y danh s√°ch r·∫°p
             var theaters = _context.Theaters.Where(t => t.Status == CinemaStatus.Open).ToList();
 
-            // L?y danh s·ch th‡nh ph? duy nh?t
+            // L·∫•y danh s√°ch th√†nh ph·ªë duy nh·∫•t
             var cities = _context.Theaters
                                 .Where(t => !string.IsNullOrEmpty(t.CinemaCity))
                                 .Select(t => t.CinemaCity)
                                 .Distinct()
                                 .ToList();
 
-            // L?y danh s·ch su?t chi?u theo MovieID
-            var showTimes = _context.showTimes
-                                    .Where(st => st.MovieID == MovieID)
-                                    .Include(st => st.Room)
-                                    .ToList();
-
-            // L?y danh s·ch ng‡y chi?u duy nh?t
-            var showDates = showTimes.Select(st => st.ShowDate.Date)
-                                     .Distinct()
-                                     .OrderBy(date => date)
-                                     .ToList();
-
-            // L?y danh s·ch gi? chi?u theo t?ng ng‡y
-            var showTimesByDate = showTimes.GroupBy(st => st.ShowDate.Date)
-                                           .ToDictionary(g => g.Key, g => g.Select(st => st.ShowDate.TimeOfDay).Distinct().OrderBy(t => t).ToList());
-
-            // Truy?n d? li?u qua ViewBag
+            // Truy·ªÅn d·ªØ li·ªáu qua ViewBag
             ViewBag.Theaters = theaters;
             ViewBag.CinemaCities = cities;
-            ViewBag.ShowDates = showDates;  // Danh s·ch ng‡y chi?u
-            ViewBag.ShowTimesByDate = showTimesByDate;  // Danh s·ch gi? chi?u theo ng‡y
 
             return View(detailVM);
         }
-
 
         public async Task<IActionResult> Cart()
         {
