@@ -73,40 +73,23 @@
 						<label for="cinema">Choose cinema</label>
 						<select id="cinema" class="form-control">
 							<option value="">-- Select a Theater --</option>
-							@if (ViewBag.Theaters != null && ViewBag.Theaters.Count > 0)
-							{
-								@foreach (var theater in ViewBag.Theaters)
-								{
-									<option value="@theater.CinemaID" data-city="@theater.CinemaCity">@theater.Name</option>
-								}
-							}
-							else
-							{
-								<option>No theaters available (Count: @(ViewBag.TheaterCount ?? 0))</option>
-							}
 						</select>
 					</div>
 
 					<!-- Chọn ngày -->
 					<div class="col-md-4">
 						<label for="date">Choose date</label>
+						<input asp-for="Movie.MovieID" hidden />
 						<select id="date" class="form-control">
-							<option value="2023-10-25">25/10/2023</option>
-							<option value="2023-10-26">26/10/2023</option>
-							<option value="2023-10-27">27/10/2023</option>
-							<option value="2023-10-28">28/10/2023</option>
-							<option value="2023-10-29">29/10/2023</option>
+							<option value="">-- Select a date --</option>
 						</select>
 					</div>
 
 					<!-- Chọn giờ -->
 					<div class="col-md-4 mt-3">
-						<label for="showtime">Choose time</label>
-						<select id="showtime" class="form-control">
+						<label for="time">Choose time</label>
+						<select id="time" class="form-control">
 							<option>- Chọn giờ -</option>
-							<option>10:00 AM</option>
-							<option>02:00 PM</option>
-							<option>06:00 PM</option>
 						</select>
 					</div>
 				</div>

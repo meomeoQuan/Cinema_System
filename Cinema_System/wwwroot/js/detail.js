@@ -149,41 +149,130 @@ $(document).ready(function () {
     }, 1000);
 });
 // HIỂN THỊ RẠP THEO THÀNH PHỐ
-    document.addEventListener("DOMContentLoaded", function () {
-        let cinemaCityDropdown = document.getElementById("cinemaCity");
-        let cinemaDropdown = document.getElementById("cinema");
+    //document.addEventListener("DOMContentLoaded", function () {
+    //    let cinemaCityDropdown = document.getElementById("cinemaCity");
+    //    let cinemaDropdown = document.getElementById("cinema");
 
-        // SỰ KIỆN CHỌN THÀNH PHỐ -> LỌC RẠP
-        cinemaCityDropdown.addEventListener("change", function () {
-            let selectedCity = this.value;
+    //    // SỰ KIỆN CHỌN THÀNH PHỐ -> LỌC RẠP
+    //    cinemaCityDropdown.addEventListener("change", function () {
+    //        let selectedCity = this.value;
 
-            Array.from(cinemaDropdown.options).forEach(option => {
-                let city = option.getAttribute("data-city");
+    //        Array.from(cinemaDropdown.options).forEach(option => {
+    //            let city = option.getAttribute("data-city");
 
-                if (!selectedCity || city === selectedCity) {
-                    option.style.display = "block";
-                } else {
-                    option.style.display = "none";
-                }
+    //            if (!selectedCity || city === selectedCity) {
+    //                option.style.display = "block";
+    //            } else {
+    //                option.style.display = "none";
+    //            }
+    //        });
+
+    //        // Đặt lại dropdown rạp về mặc định sau khi lọc
+    //        cinemaDropdown.selectedIndex = 0;
+    //    });
+
+    //    // 🔥 SỰ KIỆN CHỌN RẠP -> CẬP NHẬT THÀNH PHỐ 🔥
+    //    cinemaDropdown.addEventListener("change", function () {
+    //        let selectedTheater = this.options[this.selectedIndex];
+
+    //        // Nếu chọn "Select a Theater" thì cũng đặt lại thành phố
+    //        if (selectedTheater.value === "") {
+    //            cinemaCityDropdown.selectedIndex = 0; // Đặt về "Select a City"
+    //        } else {
+    //            let city = selectedTheater.getAttribute("data-city");
+    //            if (city) {
+    //                cinemaCityDropdown.value = city;
+    //            }
+    //        }
+    //    });
+    //});
+
+// Hiện rạp theo thành phố đã chọn
+document.getElementById("cinemaCity").addEventListener("change", function () {
+    let cinemaCityName = this.value;
+    let cinemaDropdown = document.getElementById("cinema");
+
+    cinemaDropdown.innerHTML = '<option value="">Chọn rạp phim</option>';
+
+    if (cinemaCityName) {
+        fetch(`/api/cinemas/${cinemaCityName}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(cinema => {
+                    let option = document.createElement("option");
+                    option.value = cinema.cinemaID;
+                    option.textContent = cinema.name;
+                    cinemaDropdown.appendChild(option);
+                });
             });
+    }
+})
 
-            // Đặt lại dropdown rạp về mặc định sau khi lọc
-            cinemaDropdown.selectedIndex = 0;
-        });
+// Hiện ngày theo rạp đã chọn
 
-        // 🔥 SỰ KIỆN CHỌN RẠP -> CẬP NHẬT THÀNH PHỐ 🔥
-        cinemaDropdown.addEventListener("change", function () {
-            let selectedTheater = this.options[this.selectedIndex];
+document.getElementById("cinema").addEventListener("change", function () {
+    let cinemaId = this.value;
+    let dateDropdown = document.getElementById("date");
+    const movieId = document.querySelector('input[name="Movie.MovieID"]').value;
 
-            // Nếu chọn "Select a Theater" thì cũng đặt lại thành phố
-            if (selectedTheater.value === "") {
-                cinemaCityDropdown.selectedIndex = 0; // Đặt về "Select a City"
-            } else {
-                let city = selectedTheater.getAttribute("data-city");
-                if (city) {
-                    cinemaCityDropdown.value = city;
-                }
-            }
-        });
-    });
+    dateDropdown.innerHTML = '<option value="">Chọn ngày chiếu</option>';
 
+    if (cinemaId) {
+        fetch(`/api/showtime/${cinemaId}/${movieId}`)
+            .then(response => response.json())
+            .then(data => {
+                let uniqueDates = new Set();
+
+                data.forEach(showtime => {
+                    let formattedDate = new Date(showtime.showDate).toISOString().split("T")[0];
+
+                    if (!uniqueDates.has(formattedDate)) {
+                        uniqueDates.add(formattedDate);
+
+                        let option = document.createElement("option");
+                        option.textContent = formattedDate;
+                        option.value = formattedDate;
+                        dateDropdown.appendChild(option);
+                    }
+                });
+            })
+            .catch(error => console.error("Lỗi:", error));
+    }
+});
+
+
+// Hiện giờ theo ngày đã chọn
+document.getElementById("date").addEventListener("change", function () {
+    let cinemaId = document.getElementById("cinema").value;
+    const movieId = document.querySelector('input[name="Movie.MovieID"]').value;
+    let timeDropdown = document.getElementById("time");
+    let dateChoose = this.value;
+
+    timeDropdown.innerHTML = '<option value="">Chọn giờ chiếu</option>';
+
+    if (cinemaId) {
+        fetch(`/api/showtime/${cinemaId}/${movieId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(showtime => {
+                    let dateObj = new Date(showtime.showDate);
+                    let formattedDate = new Date(showtime.showDate).toISOString().split("T")[0];
+                    if (dateChoose === formattedDate) {
+
+                        // Format giờ theo "HH:mm" (24h)
+                        let formattedTime = dateObj.toLocaleTimeString("vi-VN", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false, // Dùng hệ 24 giờ
+                        });
+
+                        let option = document.createElement("option");
+                        option.textContent = formattedTime;
+                        option.value = formattedTime;
+                        timeDropdown.appendChild(option);
+                    }
+                });
+            })
+            .catch(error => console.error("Lỗi:", error));
+    }
+});

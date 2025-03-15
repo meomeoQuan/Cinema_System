@@ -14,12 +14,10 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ApplicationDbContext _context;
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
-            _context = context;
         }
         
 
@@ -63,30 +61,6 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
         #endregion
-
-        public async Task<IActionResult> Details(int  MovieID)
-        {
-            MovieDetailVM detailVM = new MovieDetailVM() {
-
-                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
-
-            };
-            // Lấy danh sách rạp
-            var theaters = _context.Theaters.Where(t => t.Status == CinemaStatus.Open).ToList();
-
-            // Lấy danh sách thành phố duy nhất
-            var cities = _context.Theaters
-                                .Where(t => !string.IsNullOrEmpty(t.CinemaCity))
-                                .Select(t => t.CinemaCity)
-                                .Distinct()
-                                .ToList();
-
-            // Truyền dữ liệu qua ViewBag
-            ViewBag.Theaters = theaters;
-            ViewBag.CinemaCities = cities;
-
-            return View(detailVM);
-        }
 
         public async Task<IActionResult> Cart()
         {
