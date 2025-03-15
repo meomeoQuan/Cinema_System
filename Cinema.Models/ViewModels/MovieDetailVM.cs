@@ -17,7 +17,7 @@ namespace Cinema.Models.ViewModels
         public List<ShowtimeSeat> ShowtimeSeats { get; set; }
         public List<Seat> Seats { get; set; }
         public List<Product> Products { get; set; }
-        public List<Cinema> Cinemas { get; set; }
+        public List<Theater> Cinemas { get; set; }
         public IEnumerable<OrderDetail> orderDetails { get; set; } // this is shopping cart 
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Cinema.Models
 {
-    public class Cinema
+    public class Theater
     {
         [Key]
         public int CinemaID { get; set; }
@@ -31,9 +31,8 @@ namespace Cinema.Models
         public TimeSpan ClosingTime { get; set; }
         public DateTime CreatedAt { get; set; } 
         public DateTime UpdatedAt { get; set; }
-
-        public string AdminID { get; set; } // Foreign key
-
+        public string? CinemaCity { get; set; }
+        public string? AdminID { get; set; } // Foreign key
         // Navigation property
         [ForeignKey("AdminID")]
         [ValidateNever]

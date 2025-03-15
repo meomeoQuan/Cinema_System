@@ -17,15 +17,8 @@ namespace Cinema.Models
         [Required]
         public DateTime ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
         //public string ShowDates { get; set; }
-        [Required]
-        public TimeSpan ShowTimes { get; set; } // SQL `TIME` maps to `TimeSpan`
-        //public string ShowTimes { get; set; }
 
 
-        public int CinemaID { get; set; }
-        [ForeignKey(nameof(CinemaID))]
-        [ValidateNever]
-        public Cinema Cinema { get; set; }
 
 
         public int RoomID { get; set; }

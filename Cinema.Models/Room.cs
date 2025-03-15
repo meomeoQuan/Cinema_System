@@ -38,9 +38,10 @@ namespace Cinema.Models
         public int CinemaID { get; set; }
         [ForeignKey("CinemaID")]
         [ValidateNever]
-        public Cinema Cinema { get; set; }
+        public Theater Cinema { get; set; }
 
         public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
+        public virtual ICollection<ShowTime> ShowTimes { get; set; } = new List<ShowTime>();
 
 
     }

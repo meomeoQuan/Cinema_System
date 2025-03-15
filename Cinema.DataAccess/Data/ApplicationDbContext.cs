@@ -1,29 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Cinema.Models;
+using Cinema.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.DataAccess.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
-        public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<OrderTable> OrderTables { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Seat> Seats { get; set; }
+
+        public DbSet<ShowtimeSeat> showTimeSeats { get; set; }
+        public DbSet<Theater> Cinemas { get; set; }
+        public DbSet<ShowTime> showTimes { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<FoodSelectionVM>().HasNoKey();
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
+
+            // Room → ShowTime (Disable Cascade Delete)
+            modelBuilder.Entity<ShowTime>()
+                .HasOne(s => s.Room)
+                .WithMany(r => r.ShowTimes)
+                .HasForeignKey(s => s.RoomID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Movie → ShowTime (Disable Cascade Delete)
+            modelBuilder.Entity<ShowTime>()
+                .HasOne(s => s.Movie)
+                .WithMany(m => m.ShowTimes)
+                .HasForeignKey(s => s.MovieID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Cinema → Room (Disable Cascade Delete)
+            modelBuilder.Entity<Room>()
+                .HasOne(r => r.Cinema)
+                .WithMany(c => c.Rooms)
+                .HasForeignKey(r => r.CinemaID)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
+
+            // Configure Theater Table
+            modelBuilder.Entity<Theater>()
+                .Property(t => t.Status)
+                .HasConversion<string>(); // Store enum as string
 
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
@@ -123,6 +163,234 @@ namespace Cinema.DataAccess.Data
                     ProductImage = ""
                 }
             );
+            // Seed Sample Theaters
+            modelBuilder.Entity<Theater>().HasData(
+                new Theater
+                {
+                    CinemaID = 1,
+                    Name = "Grand Cinema",
+                    Address = "123 Main St, Da Nang City",
+                    CinemaCity = "Danang",
+                    NumberOfRooms = 5,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                    ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+
+
+                },
+                new Theater
+                {
+                    CinemaID = 2,
+                    Name = "Skyline Theater",
+                    Address = "456 Broadway Ave, HCM City",
+                    CinemaCity = "Ho Chi Minh",
+                    NumberOfRooms = 7,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                    ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+
+
+                },
+                   new Theater
+                   {
+                       CinemaID = 3,
+                       Name = "CGV Cinema",
+                       Address = "124 Main St, Danang City",
+                       CinemaCity = "Danang",
+                       NumberOfRooms = 5,
+                       Status = CinemaStatus.Open,
+                       OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                       ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+
+
+                   },
+                    new Theater
+                    {
+                        CinemaID = 4,
+                        Name = "HCM Cinestar Cinema",
+                        Address = "124 Main St, HCM City",
+                        CinemaCity = "Ho Chi Minh",
+                        NumberOfRooms = 5,
+                        Status = CinemaStatus.Open,
+                        OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                        ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+
+
+                    }
+            );
+            modelBuilder.Entity<Room>().HasData(
+    new Room
+    {
+        RoomID = 1,
+        RoomNumber = "A1",
+        Capacity = 100,
+        Status = RoomStatus.Available,
+        CinemaID = 1 // Matches existing Theater
+    },
+    new Room
+    {
+        RoomID = 2,
+        RoomNumber = "B1",
+        Capacity = 150,
+        Status = RoomStatus.Available,
+        CinemaID = 2 // Matches existing Theater
+    }
+);
+            // Seed Seats for RoomID = 1 (5 rows x 10 columns = 50 seats)
+            modelBuilder.Entity<Seat>().HasData(
+                // Row A
+                new Seat { SeatID = 1, Row = "A", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 2, Row = "A", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 3, Row = "A", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 4, Row = "A", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 5, Row = "A", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 6, Row = "A", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 7, Row = "A", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 8, Row = "A", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 9, Row = "A", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 10, Row = "A", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row B
+                new Seat { SeatID = 11, Row = "B", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 12, Row = "B", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 13, Row = "B", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 14, Row = "B", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 15, Row = "B", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 16, Row = "B", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 17, Row = "B", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 18, Row = "B", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 19, Row = "B", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 20, Row = "B", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row C
+                new Seat { SeatID = 21, Row = "C", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 22, Row = "C", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 23, Row = "C", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 24, Row = "C", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 25, Row = "C", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 26, Row = "C", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 27, Row = "C", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 28, Row = "C", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 29, Row = "C", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 30, Row = "C", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row D
+                new Seat { SeatID = 31, Row = "D", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 32, Row = "D", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 33, Row = "D", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 34, Row = "D", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 35, Row = "D", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 36, Row = "D", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 37, Row = "D", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 38, Row = "D", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 39, Row = "D", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 40, Row = "D", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available },
+
+                // Row E
+                new Seat { SeatID = 41, Row = "E", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 42, Row = "E", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 43, Row = "E", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 44, Row = "E", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 45, Row = "E", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 46, Row = "E", ColumnNumber = 6, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 47, Row = "E", ColumnNumber = 7, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 48, Row = "E", ColumnNumber = 8, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 49, Row = "E", ColumnNumber = 9, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 50, Row = "E", ColumnNumber = 10, RoomID = 1, Status = SeatStatus.Available }
+            );
+
+
+            // Seed Sample ShowTimes
+            modelBuilder.Entity<ShowTime>().HasData(
+                new ShowTime
+                {
+                    ShowTimeID = 1,
+                    ShowDate = new DateTime(2025, 3, 10, 7, 30, 0), // Ensure a valid date is assigned
+                    RoomID = 1,
+                    MovieID = 1
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 2,
+                    ShowDate = new DateTime(2025, 3, 10, 9, 30, 0), // Ensure a valid date is assigned
+                    RoomID = 2,
+                    MovieID = 2
+                }
+                ,
+                  new ShowTime
+                  {
+                      ShowTimeID = 3,
+                      ShowDate = new DateTime(2025, 3, 10, 11, 30, 0), // Ensure a valid date is assigned
+                      RoomID = 1,
+                      MovieID = 1
+                  },
+                       new ShowTime
+                       {
+                           ShowTimeID = 4,
+                           ShowDate = new DateTime(2025, 3, 10, 13, 30, 0), // Ensure a valid date is assigned
+                           RoomID = 1,
+                           MovieID = 1
+                       },
+                          new ShowTime
+                          {
+                              ShowTimeID = 5,
+                              ShowDate = new DateTime(2025, 3, 11, 7, 30, 0), // Ensure a valid date is assigned
+                              RoomID = 1,
+                              MovieID = 1
+                          },
+                           new ShowTime
+                           {
+                               ShowTimeID = 6,
+                               ShowDate = new DateTime(2025, 3, 11, 9, 30, 0), // Ensure a valid date is assigned
+                               RoomID = 2,
+                               MovieID = 1
+                           },
+                            new ShowTime
+                            {
+                                ShowTimeID = 7,
+                                ShowDate = new DateTime(2025, 3, 11, 11, 30, 0), // Ensure a valid date is assigned
+                                RoomID = 2,
+                                MovieID = 1
+                            },
+                             new ShowTime
+                             {
+                                 ShowTimeID = 8,
+                                 ShowDate = new DateTime(2025, 3, 12, 9, 30, 0), // Ensure a valid date is assigned
+                                 RoomID = 1,
+                                 MovieID = 1
+                             }
+
+            );
+            // Seed ShowtimeSeats for RoomID = 1 and ShowTimeID = 1
+            modelBuilder.Entity<ShowtimeSeat>().HasData(
+     Enumerable.Range(1, 50).Select(seatId => new ShowtimeSeat
+     {
+         ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
+         ShowtimeID = 1,           // Link to ShowTimeID = 1
+         SeatID = seatId,          // Each seat (1-50)
+         Price = 80000,            // Fixed price for all seats
+         Status = ShowtimeSeatStatus.Available,
+     }).ToArray()
+ );
+
+            // Helper method to check if a seat falls within the VIP area
+            bool IsVipSeat(int seatId)
+            {
+                var vipSeats = new HashSet<int>
+    {
+        // B3 to B8
+        13, 14, 15, 16, 17, 18,
+        // C3 to C8
+        23, 24, 25, 26, 27, 28,
+        // D3 to D8
+        33, 34, 35, 36, 37, 38
+    };
+
+                return vipSeats.Contains(seatId);
+            }
+
+
+
         }
     }
 }
