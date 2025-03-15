@@ -16,9 +16,8 @@ namespace Cinema.DataAccess.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-
-        public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<OrderTable> OrderTables { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Seat> Seats { get; set; }
 
@@ -185,7 +184,7 @@ namespace Cinema.DataAccess.Data
                     Status = CinemaStatus.Open,
                     OpeningTime = "10:00",  // Changed from TimeSpan to string
                     ClosingTime = "22:30",  // Changed from TimeSpan to string
-                  
+                    
                    
                 },
                    new Theater
@@ -216,23 +215,23 @@ namespace Cinema.DataAccess.Data
                     }
             );
             modelBuilder.Entity<Room>().HasData(
-    new Room
-    {
-        RoomID = 1,
-        RoomNumber = "A1",
-        Capacity = 100,
-        Status = RoomStatus.Available,
-        CinemaID = 1 // Matches existing Theater
-    },
-    new Room
-    {
-        RoomID = 2,
-        RoomNumber = "B1",
-        Capacity = 150,
-        Status = RoomStatus.Available,
-        CinemaID = 2 // Matches existing Theater
-    }
-);
+                new Room
+                {
+                    RoomID = 1,
+                    RoomNumber = "A1",
+                    Capacity = 100,
+                    Status = RoomStatus.Available,
+                    CinemaID = 1 // Matches existing Theater
+                },
+                new Room
+                {
+                    RoomID = 2,
+                    RoomNumber = "B1",
+                    Capacity = 150,
+                    Status = RoomStatus.Available,
+                    CinemaID = 2 // Matches existing Theater
+                }
+            );
             // Seed Seats for RoomID = 1 (5 rows x 10 columns = 50 seats)
             modelBuilder.Entity<Seat>().HasData(
                 // Row A
@@ -386,7 +385,41 @@ namespace Cinema.DataAccess.Data
                 }).ToArray()
             );
 
+            // Seed Orders
+            var random = new Random();
+            var orderStatuses = Enum.GetValues(typeof(OrderStatus)).Cast<OrderStatus>().ToArray();
+            var orders = new List<OrderTable>();
 
+            for (int i = 1; i <= 50; i++)
+            {
+                orders.Add(new OrderTable
+                {
+                    OrderID = i,
+                    UserID = "user" + random.Next(1, 10), // Assuming 10 users
+                    Status = orderStatuses[random.Next(orderStatuses.Length)],
+                    CouponID = random.Next(1, 3), // Assuming 2 coupons
+                    CreatedAt = DateTime.Now.AddMonths(-random.Next(0, 13)),
+                    UpdatedAt = DateTime.Now.AddMonths(-random.Next(0, 13))
+                });
+            }
+
+            modelBuilder.Entity<OrderTable>().HasData(orders.ToArray());
+
+            // Seed OrderDetails
+            var orderDetails = new List<OrderDetail>();
+  
+            for (int i = 1; i <= 100; i++)
+            {
+                orderDetails.Add(new OrderDetail
+                {
+                    OrderDetailID = i,
+                    OrderID = random.Next(1, 51), // Assuming 50 orders
+                    ProductID = random.Next(1, 3), // Assuming 2 products
+                    ShowtimeSeatID = random.Next(1, 51) // Assuming 50 seats
+                });
+            }
+
+            modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
         }
     }
 }

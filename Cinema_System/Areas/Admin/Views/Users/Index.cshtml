@@ -1,15 +1,15 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@* @page *@
+@using Cinema.Utility
+@* @model IndexModel *@
 @model IEnumerable<ApplicationUser>
-@{
-    ViewData["Title"] = "Index";
-}
-@{
-    // Sử dụng layout Admin
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-}
 
+
+@{
+    ViewData["Title"] = "User Management";
+    // var currentUserId = Model.CurrentUserId;
+    // Console.WriteLine("abc    "+currentUserId );
+}
+@* @(user.Id == @currentUserId ? "disabled opacity-50" : "") *@
 <div class="container-fluid mt-4">
     <!-- Tiêu đề bảng + nút Add -->
     <div class="card shadow-sm">
@@ -52,23 +52,48 @@
                         @foreach (var user in Model)
                         {
                             <tr>
-                                <td>@user.FullName</td>
-                                <td>@user.Email</td>
-                                <td>@user.PhoneNumber</td>
-                                <td>
+                                <td data-id="@user.Id" data-field="FullName" @(user.Role == SD..Role_Guest ? "contenteditable='false'" : "contenteditable='true'")>@user.FullName</td>
+                                <td data-id="@user.Id" data-field="Email" @(user.Role == SD.Role_Guest ? "contenteditable='false'" : "contenteditable='true'")>@user.Email</td>
+                                <td data-id="@user.Id" data-field="PhoneNumber" @(user.Role == SD.Role_Guest ? "contenteditable='false'" : "contenteditable='true'")>@user.PhoneNumber</td>
+                                <td class="text-center">
                                     @* Badge hiển thị màu theo role *@
-                                    @if (user.Role == "Admin")
-                                    {
-                                        <span class="badge badge-danger">Admin</span>
+                                    @{
+                                        string GetBadgeClass(string role)
+                                        {
+                                            return role.ToLower() switch
+                                            {
+                                                "admin" => "bg-danger",
+                                                "staff" => "bg-success",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
                                     }
-                                    else if (user.Role == "Staff")
-                                    {
-                                        <span class="badge badge-success">Staff</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge badge-secondary">@user.Role</span>
-                                    }
+                                    <span class="badge @GetBadgeClass(user.Role) text-white rounded-pill">
+                                        <i class="bi bi-person-fill me-1"></i>
+                                        @user.Role
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        @if (user.LockoutEnd == null || user.LockoutEnd < DateTime.Now)
+                                        {
+                                            <button onclick="lockUser('@user.Id', this)"
+                                                    class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
+                                                <i class="bi bi-lock-fill me-1"></i>LOCK
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button onclick="unlockUser('@user.Id', this)"
+                                                    class="btn btn-success btn-sm rounded-3 text-uppercase fw-semibold">
+                                                <i class="bi bi-unlock-fill me-1"></i>UNLOCK
+                                            </button>
+                                        }
+                                        <button onclick="enableEdit(this)"
+                                                class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold @(user.Role == SD.Role_Guest ? "disabled opacity-50" : "")">
+                                            <i class="bi bi-pencil-square me-1"></i>Edit
+                                        </button>
+                                    </div>
                                 </td>
                                 <td>
                                     <!-- Các nút hành động (Edit, Delete, v.v.) -->
@@ -93,4 +118,202 @@
             </div>
         </div>
     </div>
+    <!-- User Form -->
+    <div class="card shadow-sm">
+        <div id="user-form" class="p-0 d-none">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">Add new user</h4>
+            </div>
+            <div class="card-body">
+                <form id="createUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="userName" placeholder="Enter Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" placeholder="Enter Email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="userPhone" placeholder="Enter Phone Number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="Admin">Admin</option>
+                            <option value="Staff">Staff</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "info": true
+            });
+
+            // Inline editing
+            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
+                var id = $(this).data('id');
+                var field = $(this).data('field');
+                var value = $(this).text();
+
+                if (!value.trim()) {
+                    toastr.error('Field cannot be empty.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Admin/Users/UpdateUserField',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        field: field,
+                        value: value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
+
+            // Show user form on Add button click
+            $('#addUserBtn').click(function() {
+                $('#user-form').toggleClass('d-none');
+            });
+
+            // Handle form submission
+            $('#createUserForm').submit(function(e) {
+                e.preventDefault();
+
+                var userName = $('#userName').val();
+                var userEmail = $('#userEmail').val();
+                var userPhone = $('#userPhone').val();
+                var userRole = $('#userRole').val();
+
+                if (!userName.trim() || !userEmail.trim() || !userPhone.trim() || !userRole.trim()) {
+                    toastr.error('All fields are required.');
+                    return;
+                }
+
+                if (!/^\d{10}$/.test(userPhone)) {
+                    toastr.error('Phone number must be a 10-digit number.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Admin/Users/Create',
+                    type: 'POST',
+                    data: {
+                        FullName: userName,
+                        Email: userEmail,
+                        PhoneNumber: userPhone,
+                        Role: userRole,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            alert('User created successfully. Password: ' + response.password);
+                            location.reload();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
+        });
+
+        function enableEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
+            $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
+        }
+
+        function saveEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
+            $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
+        }
+
+        function lockUser(userId, button) {
+            // if (userId === currentUserId) {
+            //     toastr.error('You cannot lock your own account.');
+            //     return;
+            // }
+
+            if (confirm('Are you sure you want to lock this user?')) {
+                $.ajax({
+                    url: '/Admin/Users/Lock/' + userId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $(button).removeClass('btn-danger').addClass('btn-success').html('<i class="bi bi-unlock-fill me-1"></i>UNLOCK').attr('onclick', 'unlockUser(\'' + userId + '\', this)');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
+        }
+
+        function unlockUser(userId, button) {
+            if (confirm('Are you sure you want to unlock this user?')) {
+                $.ajax({
+                    url: '/Admin/Users/Unlock/' + userId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $(button).removeClass('btn-success').addClass('btn-danger').html('<i class="bi bi-lock-fill me-1"></i>LOCK').attr('onclick', 'lockUser(\'' + userId + '\', this)');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
+        }
+    </script>
+}
+@Html.AntiForgeryToken()
+
