@@ -235,7 +235,7 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cinemas",
+                name: "Theaters",
                 columns: table => new
                 {
                     CinemaID = table.Column<int>(type: "int", nullable: false)
@@ -253,9 +253,9 @@ namespace Cinema.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cinemas", x => x.CinemaID);
+                    table.PrimaryKey("PK_Theaters", x => x.CinemaID);
                     table.ForeignKey(
-                        name: "FK_Cinemas_AspNetUsers_AdminID",
+                        name: "FK_Theaters_AspNetUsers_AdminID",
                         column: x => x.AdminID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
@@ -334,9 +334,9 @@ namespace Cinema.DataAccess.Migrations
                 {
                     table.PrimaryKey("PK_Rooms", x => x.RoomID);
                     table.ForeignKey(
-                        name: "FK_Rooms_Cinemas_CinemaID",
+                        name: "FK_Rooms_Theaters_CinemaID",
                         column: x => x.CinemaID,
-                        principalTable: "Cinemas",
+                        principalTable: "Theaters",
                         principalColumn: "CinemaID",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -452,17 +452,6 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Cinemas",
-                columns: new[] { "CinemaID", "Address", "AdminID", "CinemaCity", "ClosingTime", "CreatedAt", "Name", "NumberOfRooms", "OpeningTime", "Status", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { 1, "123 Main St, Da Nang City", null, "Danang", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Grand Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, "456 Broadway Ave, HCM City", null, "Ho Chi Minh", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Skyline Theater", 7, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, "124 Main St, Danang City", null, "Danang", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "CGV Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 4, "124 Main St, HCM City", null, "Ho Chi Minh", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "HCM Cinestar Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Coupons",
                 columns: new[] { "CouponID", "Code", "CouponImage", "DiscountPercentage", "ExpireDate", "UsageLimit", "UsedCount" },
                 values: new object[] { 1, "TEST10", "", 0.10000000000000001, null, 10.0, 1 });
@@ -495,6 +484,17 @@ namespace Cinema.DataAccess.Migrations
                 {
                     { 1, "A large bucket of buttered popcorn.", "Popcorn", 5.9900000000000002, "", 0, 50 },
                     { 2, "Refreshing cold soda, 500ml.", "Soda", 2.9900000000000002, "", 1, 100 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Theaters",
+                columns: new[] { "CinemaID", "Address", "AdminID", "CinemaCity", "ClosingTime", "CreatedAt", "Name", "NumberOfRooms", "OpeningTime", "Status", "UpdatedAt" },
+                values: new object[,]
+                {
+                    { 1, "123 Main St, Da Nang City", null, "Danang", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Grand Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, "456 Broadway Ave, HCM City", null, "Ho Chi Minh", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Skyline Theater", 7, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, "124 Main St, Danang City", null, "Danang", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "CGV Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4, "124 Main St, HCM City", null, "Ho Chi Minh", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "HCM Cinestar Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(
@@ -675,11 +675,6 @@ namespace Cinema.DataAccess.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cinemas_AdminID",
-                table: "Cinemas",
-                column: "AdminID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_OrderID",
                 table: "OrderDetails",
                 column: "OrderID");
@@ -733,6 +728,11 @@ namespace Cinema.DataAccess.Migrations
                 name: "IX_showTimeSeats_ShowtimeID",
                 table: "showTimeSeats",
                 column: "ShowtimeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Theaters_AdminID",
+                table: "Theaters",
+                column: "AdminID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserCoupon_CouponID",
@@ -800,7 +800,7 @@ namespace Cinema.DataAccess.Migrations
                 name: "Rooms");
 
             migrationBuilder.DropTable(
-                name: "Cinemas");
+                name: "Theaters");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

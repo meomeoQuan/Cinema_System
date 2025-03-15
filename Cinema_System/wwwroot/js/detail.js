@@ -153,10 +153,10 @@ document.addEventListener("DOMContentLoaded", function () {
     let cinemaCityDropdown = document.getElementById("cinemaCity");
     let cinemaDropdown = document.getElementById("cinema");
 
+    // SỰ KIỆN CHỌN THÀNH PHỐ -> LỌC RẠP
     cinemaCityDropdown.addEventListener("change", function () {
         let selectedCity = this.value;
 
-        // Lặp qua các option trong danh sách rạp
         Array.from(cinemaDropdown.options).forEach(option => {
             let city = option.getAttribute("data-city");
 
@@ -167,7 +167,23 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Đặt giá trị mặc định cho danh sách rạp
+        // Đặt lại dropdown rạp về mặc định sau khi lọc
         cinemaDropdown.selectedIndex = 0;
     });
+
+    // 🔥 SỰ KIỆN CHỌN RẠP -> CẬP NHẬT THÀNH PHỐ 🔥
+    cinemaDropdown.addEventListener("change", function () {
+        let selectedTheater = this.options[this.selectedIndex];
+
+        // Nếu chọn "Select a Theater" thì cũng đặt lại thành phố
+        if (selectedTheater.value === "") {
+            cinemaCityDropdown.selectedIndex = 0; // Đặt về "Select a City"
+        } else {
+            let city = selectedTheater.getAttribute("data-city");
+            if (city) {
+                cinemaCityDropdown.value = city;
+            }
+        }
+    });
 });
+

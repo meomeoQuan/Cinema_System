@@ -5,6 +5,7 @@ using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Cinema_System.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -13,11 +14,15 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
+        private readonly ApplicationDbContext _context;
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, ApplicationDbContext context)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _context = context;
         }
+        
+
 
         public IActionResult Index()
         {
@@ -66,7 +71,19 @@ namespace Cinema_System.Areas.Guest.Controllers
                 Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID)
 
             };
-           
+            // L?y danh sách r?p
+            var theaters = _context.Theaters.Where(t => t.Status == CinemaStatus.Open).ToList();
+
+            // L?y danh sách thành ph? duy nh?t
+            var cities = _context.Theaters
+                                .Where(t => !string.IsNullOrEmpty(t.CinemaCity))
+                                .Select(t => t.CinemaCity)
+                                .Distinct()
+                                .ToList();
+
+            // Truy?n d? li?u qua ViewBag
+            ViewBag.Theaters = theaters;
+            ViewBag.CinemaCities = cities;
 
             return View(detailVM);
         }

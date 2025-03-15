@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250315152143_dbs")]
+    [Migration("20250315155530_dbs")]
     partial class dbs
     {
         /// <inheritdoc />
@@ -1471,7 +1471,7 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasIndex("AdminID");
 
-                    b.ToTable("Cinemas");
+                    b.ToTable("Theaters");
 
                     b.HasData(
                         new

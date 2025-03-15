@@ -1468,7 +1468,7 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasIndex("AdminID");
 
-                    b.ToTable("Cinemas");
+                    b.ToTable("Theaters");
 
                     b.HasData(
                         new

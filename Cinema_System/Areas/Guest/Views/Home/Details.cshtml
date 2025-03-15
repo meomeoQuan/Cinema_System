@@ -26,17 +26,35 @@
 
 				</div>
 			</section>
+			<div class="alert alert-info mt-3">
+				@if (ViewBag.Theaters != null)
+				{
+					<p>Number of Theaters: @ViewBag.Theaters.Count</p>
+				}
+				else
+				{
+					<p>Number of Theaters: 0</p>
+				}
+
+				@if (ViewBag.CinemaCities != null)
+				{
+					<p>Number of Cities: @ViewBag.CinemaCities.Count</p>
+				}
+				else
+				{
+					<p>Number of Cities: 0</p>
+				}
+			</div>
 
 			<!-- Section 2: Booking Options -->
 			<section id="booking-options" class="mb-5">
 				<h2 class="text-center">SHOWTIMES</h2>
-				<div class="row">
-					<!-- Chọn thành phố -->
+			<!-- Chọn thành phố -->
 					<div class="col-md-4">
 						<label for="cinemaCity">Choose city</label>
 						<select id="cinemaCity" class="form-control">
 							<option value="">-- Select a City --</option>
-							@if (ViewBag.CinemaCities != null)
+							@if (ViewBag.CinemaCities != null && ViewBag.CinemaCities.Count > 0)
 							{
 								@foreach (var city in ViewBag.CinemaCities)
 								{
@@ -45,7 +63,7 @@
 							}
 							else
 							{
-								<option>No cities available</option>
+								<option>No cities available (Count: @(ViewBag.CityCount ?? 0))</option>
 							}
 						</select>
 					</div>
@@ -55,7 +73,7 @@
 						<label for="cinema">Choose cinema</label>
 						<select id="cinema" class="form-control">
 							<option value="">-- Select a Theater --</option>
-							@if (ViewBag.Theaters != null)
+							@if (ViewBag.Theaters != null && ViewBag.Theaters.Count > 0)
 							{
 								@foreach (var theater in ViewBag.Theaters)
 								{
@@ -64,7 +82,7 @@
 							}
 							else
 							{
-								<option>No theaters available</option>
+								<option>No theaters available (Count: @(ViewBag.TheaterCount ?? 0))</option>
 							}
 						</select>
 					</div>
@@ -95,6 +113,7 @@
 			</section>
 
 
+			
 			<!-- Section 3: Seat Selection -->
 			<section id="seat-selection" class="mb-5 d-none">
 				<h2 class="text-center">Seat Booking</h2>
