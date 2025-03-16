@@ -66,12 +66,8 @@ document.getElementById("time").addEventListener("change", function () {
 // chọn ghế
 document.getElementById("seats").addEventListener("click", function (event) {
     let seat = event.target;
-    if (seat.classList.contains("seat") && !seat.classList.contains("maintenance")) {
-        if (seat.classList.contains("selected")) {
-            seat.classList.remove("selected");
-        } else {
-            seat.classList.add("selected");
-        }
+    if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
+        seat.classList.toggle("selected");
 
         console.log(seat.classList); // Kiểm tra class của ghế sau khi click
 
@@ -84,6 +80,7 @@ document.getElementById("seats").addEventListener("click", function (event) {
         updateTotal();
     }
 });
+
 
 
 

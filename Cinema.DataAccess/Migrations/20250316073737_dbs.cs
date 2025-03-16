@@ -511,8 +511,8 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "SeatID", "ColumnNumber", "RoomID", "Row", "Status" },
                 values: new object[,]
                 {
-                    { 1, 1, 1, "A", 0 },
-                    { 2, 2, 1, "A", 0 },
+                    { 1, 1, 1, "A", 1 },
+                    { 2, 2, 1, "A", 2 },
                     { 3, 3, 1, "A", 0 },
                     { 4, 4, 1, "A", 0 },
                     { 5, 5, 1, "A", 0 },

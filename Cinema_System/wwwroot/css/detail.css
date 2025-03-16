@@ -81,6 +81,7 @@ background-color: black;
 }
 .seat.booked {
     background-color: #dc3545;
+    cursor: not-allowed;
 }
 
 .seat.maintenance {

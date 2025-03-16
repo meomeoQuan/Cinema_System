@@ -239,8 +239,8 @@ namespace Cinema.DataAccess.Data
             // Seed Seats for RoomID = 1 (5 rows x 10 columns = 50 seats)
             modelBuilder.Entity<Seat>().HasData(
                 // Row A
-                new Seat { SeatID = 1, Row = "A", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
-                new Seat { SeatID = 2, Row = "A", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 1, Row = "A", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Maintenance },
+                new Seat { SeatID = 2, Row = "A", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Booked },
                 new Seat { SeatID = 3, Row = "A", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
                 new Seat { SeatID = 4, Row = "A", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
                 new Seat { SeatID = 5, Row = "A", ColumnNumber = 5, RoomID = 1, Status = SeatStatus.Available },
