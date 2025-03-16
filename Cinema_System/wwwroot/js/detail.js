@@ -47,7 +47,7 @@ document.getElementById("time").addEventListener("change", function () {
                     rowSeatSet.forEach(row => {
                         for (let seatNum = 1; seatNum <= 10 && identitySeat < data.length; seatNum++) {
                             seatCur = Array.from(data)[identitySeat];
-                            const seat = `<div class='seat${seatCur.status === 1 ? " maintenance" : seatCur.status === 2 ? " booked" : ""}'>${String.fromCharCode(64 + row)}${seatCur.seatID}</div>`;
+                            const seat = `<div class='seat${seatCur.status === 1 ? " maintenance" : seatCur.status === 2 ? " booked" : ""}'  data-seat-id='${seatCur.seatID}'>${String.fromCharCode(64 + row)}${String(seatCur.row) + seatCur.columnNumber}</div>`;
                             seatsContainer.insertAdjacentHTML("beforeend", seat);
                             identitySeat++;
                         }
@@ -66,8 +66,12 @@ document.getElementById("time").addEventListener("change", function () {
 // chọn ghế
 document.getElementById("seats").addEventListener("click", function (event) {
     let seat = event.target;
-    if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
-        seat.classList.toggle("selected");
+    if (seat.classList.contains("seat") && !seat.classList.contains("booked") && !seat.classList.contains("maintenance")) {
+        if (seat.classList.contains("selected")) {
+            seat.classList.remove("selected");
+        } else {
+            seat.classList.add("selected");
+        }
 
         console.log(seat.classList); // Kiểm tra class của ghế sau khi click
 
@@ -81,68 +85,124 @@ document.getElementById("seats").addEventListener("click", function (event) {
     }
 });
 
+async function updateTotal() {
+    let total = 0;
+    let selectedFoods = [];
 
+    let selectedSeats = document.querySelectorAll(".seat.selected");
+    let showTimeId = document.getElementById("time").value;
 
+    let selectedSeatIds = [];
 
+    for (let sls of selectedSeats) {
+        if (!sls.classList.contains("note")) {
+            selectedSeatIds.push(sls.getAttribute("data-seat-id"));
+        }
+    }
+
+    try {
+        let response = await fetch("/api/showtime-seat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ showTimeId: showTimeId, seatIds: selectedSeatIds })
+        });
+
+        let data = await response.json();
+        total = data.reduce((acc, seat) => acc + Number(seat.price || 0), 0);
+
+        let totalElement = document.getElementById("total");
+        if (totalElement) {
+            totalElement.innerText = `Total: ${total}`;
+        }
+    } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+    }
+
+    // Tính tổng tiền thức ăn đã chọn
+    $('.product-card').each(function () {
+        let count = parseInt($(this).find('.count').text());
+        let foodName = $(this).find('h4').text();
+        let price = parseInt($(this).find('.price').text().replace(/\D/g, ''));
+
+        if (count > 0) {
+            selectedFoods.push(`${count} x ${foodName}`);
+            total += count * price;
+        }
+    });
+
+    // Cập nhật tổng giá trên giao diện
+    $('#total-price').text(total.toLocaleString() + ' VND');
+
+    // Cập nhật danh sách món ăn đã chọn
+    $('#selected-foods').text(selectedFoods.length > 0 ? selectedFoods.join(', ') : 'No food selected');
+
+    // Cập nhật giá trị của input hidden
+    $('#totalAmountInput').val(total);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    let listProduct;
+    fetch("/api/products")
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            Array.from(data).map(product => {
+                let content = `<div class="col-md-6">
+						<div class="product-card d-flex align-items-center">
+							<img src="${product.productImage}" alt="${product.name}" class="product-img">
+							<div class="product-info">
+								<h4>${product.name}</h4>
+								<p>${product.description}</p>
+								<span class="price">${product.price} VNĐ</span>
+								<div class="quantity">
+									<button class="btn minus">-</button>
+									<span class="count">0</span>
+									<button class="btn plus">+</button>
+								</div>
+							</div>
+						</div>
+					</div>`;
+                let productHtml;
+                if (product.productType === 0) {
+                    productHtml = document.querySelector("#food-selection .food");
+
+                } else if (product.productType === 1) {
+                    productHtml = document.querySelector("#food-selection .drink");
+
+                } else if (product.productType === 2) {
+                    productHtml = document.querySelector("#food-selection .gift");
+                }
+                productHtml.innerHTML += content;
+            })
+            addEventListenersForButtons();
+            
+        })
+});
+
+function addEventListenersForButtons() {
+
+    document.querySelectorAll(".plus").forEach(plus => {
+        plus.addEventListener("click", function () {
+            let count = this.previousElementSibling;
+            count.textContent = parseInt(count.textContent) + 1;
+            updateTotal();
+        })
+    })
+
+    document.querySelectorAll(".minus").forEach(plus => {
+        plus.addEventListener("click", function () {
+            let count = this.nextElementSibling;
+            if (parseInt(count.textContent) > 0) {
+                count.textContent = parseInt(count.textContent) - 1;
+                updateTotal();
+            }
+        })
+    })
+}
 
 $(document).ready(function () {
     
 // HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
-
-    $(document).ready(function () {
-        let seatPrice = 80000; // Giá giả định cho mỗi ghế
-
-        function updateTotal() {
-            let total = 0;
-            let selectedFoods = [];
-
-            // Tính tổng tiền ghế đã chọn
-            $('.seat.booked').each(function () {
-                total += 80000; // Giá mỗi ghế
-            });
-
-            total -= 80000;
-
-            // Tính tổng tiền thức ăn đã chọn
-            $('.product-card').each(function () {
-                let count = parseInt($(this).find('.count').text());
-                let foodName = $(this).find('h4').text();
-                let price = parseInt($(this).find('.price').text().replace(/\D/g, ''));
-
-                if (count > 0) {
-                    selectedFoods.push(`${count} x ${foodName}`);
-                    total += count * price;
-                }
-            });
-
-            // Cập nhật tổng giá trên giao diện
-            $('#total-price').text(total.toLocaleString() + ' VND');
-
-            // Cập nhật danh sách món ăn đã chọn
-            $('#selected-foods').text(selectedFoods.length > 0 ? selectedFoods.join(', ') : 'No food selected');
-
-            // Cập nhật giá trị của input hidden
-            $('#totalAmountInput').val(total);
-        }
-
-
-       
-
-        // Xử lý tăng giảm số lượng thức ăn
-        $('.plus').click(function () {
-            let count = $(this).siblings('.count');
-            count.text(parseInt(count.text()) + 1);
-            updateTotal();
-        });
-
-        $('.minus').click(function () {
-            let count = $(this).siblings('.count');
-            if (parseInt(count.text()) > 0) {
-                count.text(parseInt(count.text()) - 1);
-                updateTotal();
-            }
-        });
-    });
 
     $(document).ready(function () {
         $("#book-btn").click(function () {
