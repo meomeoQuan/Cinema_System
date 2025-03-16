@@ -408,8 +408,8 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 1,
                             Description = "A large bucket of buttered popcorn.",
                             Name = "Popcorn",
-                            Price = 89.0,
-                            ProductImage = "~/css/images/popcorn.png",
+                            Price = 89000.0,
+                            ProductImage = "/css/images/popcorn.png",
                             ProductType = 0,
                             Quantity = 50
                         },
@@ -418,8 +418,8 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 2,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Soda",
-                            Price = 39.0,
-                            ProductImage = "~/css/images/soda.png",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/soda.png",
                             ProductType = 1,
                             Quantity = 100
                         },
@@ -428,8 +428,8 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 3,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Coca",
-                            Price = 39.0,
-                            ProductImage = "~/css/images/drink2.png",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/drink2.png",
                             ProductType = 1,
                             Quantity = 100
                         },
@@ -438,8 +438,8 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 4,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Sprite",
-                            Price = 39.0,
-                            ProductImage = "~/css/images/drink1.png",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/drink1.png",
                             ProductType = 1,
                             Quantity = 100
                         },
@@ -448,8 +448,8 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 5,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Combo Couple",
-                            Price = 129.0,
-                            ProductImage = "~/css/images/popcorn1.png",
+                            Price = 129000.0,
+                            ProductImage = "/css/images/popcorn1.png",
                             ProductType = 2,
                             Quantity = 100
                         },
@@ -458,8 +458,8 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 6,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Combo Full",
-                            Price = 229.0,
-                            ProductImage = "~/css/images/popcorn2.png",
+                            Price = 229000.0,
+                            ProductImage = "/css/images/popcorn2.png",
                             ProductType = 2,
                             Quantity = 100
                         });

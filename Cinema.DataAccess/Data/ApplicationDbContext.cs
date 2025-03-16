@@ -148,9 +148,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Popcorn",
                     Description = "A large bucket of buttered popcorn.",
                     ProductType = ProductType.Snack,
-                    Price = 89.000,
+                    Price = 89000,
                     Quantity = 50,
-                    ProductImage = "~/css/images/popcorn.png"
+                    ProductImage = "/css/images/popcorn.png"
                 },
                 new Product
                 {
@@ -158,9 +158,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Soda",
                     Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Drink,
-                    Price = 39.000,
+                    Price = 39000,
                     Quantity = 100,
-                    ProductImage = "~/css/images/soda.png"
+                    ProductImage = "/css/images/soda.png"
                 },
                 new Product
                 {
@@ -168,9 +168,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Coca",
                     Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Drink,
-                    Price = 39.000,
+                    Price = 39000,
                     Quantity = 100,
-                    ProductImage = "~/css/images/drink2.png"
+                    ProductImage = "/css/images/drink2.png"
                 },
                 new Product
                 {
@@ -178,9 +178,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Sprite",
                     Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Drink,
-                    Price = 39.000,
+                    Price = 39000,
                     Quantity = 100,
-                    ProductImage = "~/css/images/drink1.png"
+                    ProductImage = "/css/images/drink1.png"
                 },
                 new Product
                 {
@@ -188,9 +188,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Combo Couple",
                     Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Gift,
-                    Price = 129.000,
+                    Price = 129000,
                     Quantity = 100,
-                    ProductImage = "~/css/images/popcorn1.png"
+                    ProductImage = "/css/images/popcorn1.png"
                 },
                 new Product
                 {
@@ -198,9 +198,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Combo Full",
                     Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Gift,
-                    Price = 229.000,
+                    Price = 229000,
                     Quantity = 100,
-                    ProductImage = "~/css/images/popcorn2.png"
+                    ProductImage = "/css/images/popcorn2.png"
                 }
             );
             // Seed Sample Theaters
