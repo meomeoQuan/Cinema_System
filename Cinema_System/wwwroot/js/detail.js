@@ -226,13 +226,13 @@ document.getElementById("cinemaCity").addEventListener("change", function () {
     let cinemaDropdown = document.getElementById("cinema");
     const seatSelection = document.getElementById("seat-selection");
 
-    cinemaDropdown.innerHTML = '<option value="">Chọn rạp phim</option>';
+    cinemaDropdown.innerHTML = '<option value="">-- Select a Theater --</option>';
     let dateDropdown = document.getElementById("date");
 
-    dateDropdown.innerHTML = '<option value="">Chọn ngày chiếu</option>';
+    dateDropdown.innerHTML = '<option value="">-- Select a Date --</option>';
     let timeDropdown = document.getElementById("time");
 
-    timeDropdown.innerHTML = '<option value="">Chọn giờ chiếu</option>';
+    timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (cinemaCityName) {
         fetch(`/api/cinemas/${cinemaCityName}`)
@@ -258,11 +258,11 @@ document.getElementById("cinema").addEventListener("change", function () {
     const movieId = document.querySelector('input[name="Movie.MovieID"]').value;
     const seatSelection = document.getElementById("seat-selection");
 
-    dateDropdown.innerHTML = '<option value="">Chọn ngày chiếu</option>';
+    dateDropdown.innerHTML = '<option value="">-- Select a Date --</option>';
 
     let timeDropdown = document.getElementById("time");
 
-    timeDropdown.innerHTML = '<option value="">Chọn giờ chiếu</option>';
+    timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (cinemaId) {
         fetch(`/api/showtime/${cinemaId}/${movieId}`)
@@ -298,9 +298,9 @@ document.getElementById("date").addEventListener("change", function () {
     const seatSelection = document.getElementById("seat-selection");
     let dateChoose = this.value;
 
-    timeDropdown.innerHTML = '<option value="">Chọn giờ chiếu</option>';
+    timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
-    if (cinemaId) {
+    if (dateChoose) {
         fetch(`/api/showtime/${cinemaId}/${movieId}`)
             .then(response => response.json())
             .then(data => {

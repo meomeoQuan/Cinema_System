@@ -482,8 +482,12 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ProductID", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
                 values: new object[,]
                 {
-                    { 1, "A large bucket of buttered popcorn.", "Popcorn", 5.9900000000000002, "", 0, 50 },
-                    { 2, "Refreshing cold soda, 500ml.", "Soda", 2.9900000000000002, "", 1, 100 }
+                    { 1, "A large bucket of buttered popcorn.", "Popcorn", 89.0, "~/css/images/popcorn.png", 0, 50 },
+                    { 2, "Refreshing cold soda, 500ml.", "Soda", 39.0, "~/css/images/soda.png", 1, 100 },
+                    { 3, "Refreshing cold soda, 500ml.", "Coca", 39.0, "~/css/images/drink2.png", 1, 100 },
+                    { 4, "Refreshing cold soda, 500ml.", "Sprite", 39.0, "~/css/images/drink1.png", 1, 100 },
+                    { 5, "Refreshing cold soda, 500ml.", "Combo Couple", 129.0, "~/css/images/popcorn1.png", 2, 100 },
+                    { 6, "Refreshing cold soda, 500ml.", "Combo Full", 229.0, "~/css/images/popcorn2.png", 2, 100 }
                 });
 
             migrationBuilder.InsertData(

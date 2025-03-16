@@ -148,9 +148,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Popcorn",
                     Description = "A large bucket of buttered popcorn.",
                     ProductType = ProductType.Snack,
-                    Price = 5.99,
+                    Price = 89.000,
                     Quantity = 50,
-                    ProductImage = ""
+                    ProductImage = "~/css/images/popcorn.png"
                 },
                 new Product
                 {
@@ -158,9 +158,49 @@ namespace Cinema.DataAccess.Data
                     Name = "Soda",
                     Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Drink,
-                    Price = 2.99,
+                    Price = 39.000,
                     Quantity = 100,
-                    ProductImage = ""
+                    ProductImage = "~/css/images/soda.png"
+                },
+                new Product
+                {
+                    ProductID = 3,
+                    Name = "Coca",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Drink,
+                    Price = 39.000,
+                    Quantity = 100,
+                    ProductImage = "~/css/images/drink2.png"
+                },
+                new Product
+                {
+                    ProductID = 4,
+                    Name = "Sprite",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Drink,
+                    Price = 39.000,
+                    Quantity = 100,
+                    ProductImage = "~/css/images/drink1.png"
+                },
+                new Product
+                {
+                    ProductID = 5,
+                    Name = "Combo Couple",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Gift,
+                    Price = 129.000,
+                    Quantity = 100,
+                    ProductImage = "~/css/images/popcorn1.png"
+                },
+                new Product
+                {
+                    ProductID = 6,
+                    Name = "Combo Full",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Gift,
+                    Price = 229.000,
+                    Quantity = 100,
+                    ProductImage = "~/css/images/popcorn2.png"
                 }
             );
             // Seed Sample Theaters
