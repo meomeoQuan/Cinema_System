@@ -7,6 +7,7 @@ namespace Cinema.Models
     public class UserCoupon
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserCouponID { get; set; }
 
         [Required]

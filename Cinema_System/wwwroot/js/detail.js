@@ -1,6 +1,6 @@
 ﻿//IN RA GHẾ
 document.getElementById("time").addEventListener("change", function () {
-        const seatSelection = document.getElementById("seat-selection");
+    const seatSelection = document.getElementById("seat-selection");
     if (this.value) {
         seatSelection.classList.remove("d-none");
         const seatsContainer = document.getElementById("seats");
@@ -14,6 +14,7 @@ document.getElementById("time").addEventListener("change", function () {
             fetch(`/api/showtime-seat/${showtimeId}`)
                 .then(response => response.json())
                 .then(data => {
+                    let showtimeSeatList = data; // Lưu danh sách ghế từ API
                     data.forEach(showtimeSeat => {
                         showtimeSeatSet.add(showtimeSeat.showtimeSeatID);
                     });
@@ -21,59 +22,72 @@ document.getElementById("time").addEventListener("change", function () {
                     // Chuyển Set thành Array
                     let seatIdList = Array.from(showtimeSeatSet);
 
-                    // Gửi danh sách ID ghế đến API
-                    return fetch("/api/seats", { // Cập nhật URL API
+                    // Gửi danh sách ID ghế đến API để lấy chi tiết ghế
+                    return fetch("/api/seats", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify(seatIdList) // Chuyển Set thành mảng trước khi gửi
+                        body: JSON.stringify(seatIdList)
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Lỗi: ${response.status} - ${response.statusText}`);
+                        }
+                        return response.json();
+                    }).then(data => {
+                        let rowSeatSet = new Set();
+                        Array.from(data).forEach(seat => {
+                            if (!rowSeatSet.has(seat.row)) {
+                                rowSeatSet.add(seat.row);
+                            }
+                        });
+
+                        let identitySeat = 0;
+                        rowSeatSet.forEach(row => {
+                            for (let seatNum = 1; seatNum <= 10 && identitySeat < data.length; seatNum++) {
+                                let seatCur = Array.from(data)[identitySeat];
+                                let showtimeSeatCur = showtimeSeatList.find(showtimeSeat => showtimeSeat.seatID === seatCur.seatID);
+
+                                const seat = `<div class='seat${showtimeSeatCur.status === 1 || seatCur.status === 1 ? " maintenance" : showtimeSeatCur.status === 2 ? " booked" : ""}' 
+                                    data-show-seat-id='${showtimeSeatCur.showtimeSeatID}'  
+                                    data-seat-id='${seatCur.seatID}'>
+                                    ${String.fromCharCode(64 + row)}${seatCur.row}${seatCur.columnNumber}
+                                </div>`;
+
+                                seatsContainer.insertAdjacentHTML("beforeend", seat);
+                                identitySeat++;
+                            }
+                            seatsContainer.insertAdjacentHTML("beforeend", "<br>");
+                        });
                     });
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Lỗi: ${response.status} - ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    let rowSeatSet = new Set();
-                    Array.from(data).forEach(seat => {
-                        if (!rowSeatSet.has(seat.row)) {
-                            rowSeatSet.add(seat.row);
-                        }
-                    })
-                    let identitySeat = 0;
-                    rowSeatSet.forEach(row => {
-                        for (let seatNum = 1; seatNum <= 10 && identitySeat < data.length; seatNum++) {
-                            seatCur = Array.from(data)[identitySeat];
-                            const seat = `<div class='seat${seatCur.status === 1 ? " maintenance" : seatCur.status === 2 ? " booked" : ""}'  data-seat-id='${seatCur.seatID}'>${String.fromCharCode(64 + row)}${String(seatCur.row) + seatCur.columnNumber}</div>`;
-                            seatsContainer.insertAdjacentHTML("beforeend", seat);
-                            identitySeat++;
-                        }
-                        seatsContainer.insertAdjacentHTML("beforeend", "<br>");
-                    })
                 })
                 .catch(error => console.error("Lỗi:", error));
         }
-    }
-    else if (!seatSelection.classList.contains("d-none")) {
+    } else if (!seatSelection.classList.contains("d-none")) {
         seatSelection.classList.add("d-none");
     }
-
 });
+
 
 // chọn ghế
 document.getElementById("seats").addEventListener("click", function (event) {
     let seat = event.target;
     if (seat.classList.contains("seat") && !seat.classList.contains("booked") && !seat.classList.contains("maintenance")) {
+        let status;
         if (seat.classList.contains("selected")) {
             seat.classList.remove("selected");
+            status = 0;
         } else {
             seat.classList.add("selected");
+            status = 2;
         }
 
-        console.log(seat.classList); // Kiểm tra class của ghế sau khi click
+        fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/${status}`, {
+            method: "PUT",
+            headers: {
+                contentType: "application/json",
+            }
+        })
 
         if (document.querySelectorAll(".seat.selected").length > 0) {
             document.getElementById("booking-summary").classList.remove("d-none");
@@ -108,6 +122,7 @@ async function updateTotal() {
         });
 
         let data = await response.json();
+        console.log(data);
         total = data.reduce((acc, seat) => acc + Number(seat.price || 0), 0);
 
         let totalElement = document.getElementById("total");
@@ -145,7 +160,6 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch("/api/products")
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             Array.from(data).map(product => {
                 let content = `<div class="col-md-6">
 						<div class="product-card d-flex align-items-center">
@@ -153,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
 							<div class="product-info">
 								<h4>${product.name}</h4>
 								<p>${product.description}</p>
-								<span class="price">${product.price} VNĐ</span>
+								<span class="price" product-price="${product.price}">${product.price} VNĐ</span>
 								<div class="quantity">
 									<button class="btn minus">-</button>
 									<span class="count">0</span>
@@ -200,54 +214,50 @@ function addEventListenersForButtons() {
     })
 }
 
+document.getElementById('book-btn').addEventListener('click', function () {
+    let seatSelecteds = document.querySelectorAll(".seat.selected");
+    let selectedSeats = [];
+    seatSelecteds.forEach(seat => {
+        if (!seat.classList.contains('note')) {
+            selectedSeats.push({ nameSeat: String(seat.innerText).trim(), showTimeSeatId: seat.getAttribute("data-show-seat-id") });
+        }
+    })
+    let selectedFoods = [];
+
+    let productCard = document.querySelectorAll(".product-card");
+    productCard.forEach(product => {
+        let count = product.querySelector(".count").innerText;
+        if (count > 0) {
+            let foodName = product.querySelector("h4").innerText;
+            let price = product.querySelector(".price").getAttribute("product-price").replace(/\D/g, "");
+            selectedFoods.push({ name: foodName, price: price, quantity: count });
+        }
+    })
+
+    let bookingData = {
+                Seats: selectedSeats,
+        Items: selectedFoods,
+        TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, "") // Chuyển đổi số tiền
+    };
+
+    fetch(`/Guest/Payment/CreatePayment`, {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bookingData),
+    }).then(response => response.json())
+        .then(data => {
+            if (data.paymentUrl) {
+                window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
+            } else {
+                alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
+            }
+        })
+        .catch(error => console.error("Lỗi khi gọi API:", error));
+})
+
 $(document).ready(function () {
-    
-// HIỆN LỰA CHỌN GHẾ KHI CHỌN XONG SUẤT CHIẾU
-
-    $(document).ready(function () {
-        $("#book-btn").click(function () {
-            let selectedSeats = [];
-            $(".seat.selected").each(function () {
-                selectedSeats.push($(this).text().trim()); // Lấy tên ghế (VD: A1, B2)
-            });
-
-            let selectedFoods = [];
-            $(".product-card").each(function () {
-                let count = parseInt($(this).find(".count").text());
-                if (count > 0) {
-                    let foodName = $(this).find("h4").text();
-                    let price = parseInt($(this).find(".price").text().replace(/\D/g, ""));
-                    selectedFoods.push({ name: foodName, price: price, quantity: count });
-                }
-            });
-
-            let bookingData = {
-                seats: selectedSeats,
-                items: selectedFoods,
-                totalAmount: $("#total-price").text().replace(/\D/g, "") // Chuyển đổi số tiền
-            };
-
-            $.ajax({
-                url: "/Guest/Payment/CreatePayment",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(bookingData),
-                success: function (response) {
-                    if (response.paymentUrl) {
-                        window.location.href = response.paymentUrl; // Chuyển hướng đến cổng thanh toán
-                    } else {
-                        alert("Payment failed, please try again.");
-                    }
-                },
-                error: function (xhr) {
-                    alert("Error processing payment: " + xhr.responseText);
-                }
-            });
-        });
-    });
-
-
-
 
  // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
     let timeLeft = 300;

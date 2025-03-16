@@ -14,6 +14,7 @@ namespace Cinema.Models
     public class Movie
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MovieID { get; set; }
         [Required]
         public string Title { get; set; }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Cinema.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class dbs1 : Migration
+    public partial class dbs : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -452,6 +452,11 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Discriminator", "Email", "EmailConfirmed", "FullName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Points", "SecurityStamp", "TwoFactorEnabled", "UserImage", "UserName" },
+                values: new object[] { "a1234567-b89c-40d4-a123-456789abcdef", 0, "a1234567-b89c-40d4-a123-456789abcdef", "ApplicationUser", "daoduyquylop97@gmail.com", true, "Đào Duy Quý", true, null, "daoduyquylop97@gmail.com", "Đào Duy Quý", "AQAAAAEAACcQAAAAEJ9", "0123456789", true, 0, "a1234567-b89c-40d4-a123-456789abcdef", false, "/css/images/user.png", "Đào Duy Quý" });
+
+            migrationBuilder.InsertData(
                 table: "Coupons",
                 columns: new[] { "CouponID", "Code", "CouponImage", "DiscountPercentage", "ExpireDate", "UsageLimit", "UsedCount" },
                 values: new object[] { 1, "TEST10", "", 0.10000000000000001, null, 10.0, 1 });
@@ -516,7 +521,7 @@ namespace Cinema.DataAccess.Migrations
                 values: new object[,]
                 {
                     { 1, 1, 1, "A", 1 },
-                    { 2, 2, 1, "A", 2 },
+                    { 2, 2, 1, "A", 0 },
                     { 3, 3, 1, "A", 0 },
                     { 4, 4, 1, "A", 0 },
                     { 5, 5, 1, "A", 0 },

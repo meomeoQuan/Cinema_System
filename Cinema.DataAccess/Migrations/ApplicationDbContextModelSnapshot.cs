@@ -560,7 +560,7 @@ namespace Cinema.DataAccess.Migrations
                             ColumnNumber = 2,
                             RoomID = 1,
                             Row = "A",
-                            Status = 2
+                            Status = 0
                         },
                         new
                         {
@@ -1834,6 +1834,28 @@ namespace Cinema.DataAccess.Migrations
                     b.ToTable("AspNetUsers", (string)null);
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "a1234567-b89c-40d4-a123-456789abcdef",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef",
+                            Email = "daoduyquylop97@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = true,
+                            NormalizedEmail = "daoduyquylop97@gmail.com",
+                            NormalizedUserName = "Đào Duy Quý",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJ9",
+                            PhoneNumber = "0123456789",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef",
+                            TwoFactorEnabled = false,
+                            UserName = "Đào Duy Quý",
+                            FullName = "Đào Duy Quý",
+                            Points = 0,
+                            UserImage = "/css/images/user.png"
+                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.OrderDetail", b =>

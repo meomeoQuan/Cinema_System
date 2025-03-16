@@ -96,7 +96,6 @@
 
 			<!-- Section 4: Food Selection -->
 			<section id="food-selection" class="mb-5">
-				<h2 class="text-center">food</h2>
 
 				<!-- COMBO 2 NGĂN -->
 				<h3 class="category-title text-center">FOOD</h3>
@@ -131,17 +130,8 @@
 					<p><strong>Total:</strong> <span id="total-price">0 VND</span></p>
 					</div>
 					<div class="col-md-1">
-					<form id="booking-form" action="@Url.Action("CreatePayment", "Payment", new { area = "Guest" })" method="post">
-						<input type="hidden" id="totalAmountInput" name="totalAmount" value="0" />
 
-						<!-- Input hidden để chứa danh sách ghế -->
-						<div id="seat-inputs"></div>
-
-						<!-- Input hidden để chứa danh sách món ăn -->
-						<div id="food-inputs"></div>
-
-						<button type="submit" class="btn btn-success">Book</button>
-					</form>
+					<button type="button" id="book-btn" class="btn btn-success">Book</button>
 
 
 

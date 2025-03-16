@@ -12,6 +12,7 @@ namespace Cinema.Models
     public class ShowTime
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ShowTimeID { get; set; }
 
         [Required]

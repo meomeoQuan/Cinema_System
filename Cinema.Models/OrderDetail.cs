@@ -6,6 +6,7 @@ namespace Cinema.Models
     public class OrderDetail
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
 
         [Required]

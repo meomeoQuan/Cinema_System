@@ -1,4 +1,5 @@
 ﻿using Cinema.DataAccess.Data;
+using Cinema.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,5 +28,6 @@ namespace Cinema_System.Areas.Guest.Controllers
             }
             return Ok(seats);
         }
+
     }
 }

@@ -6,6 +6,9 @@ using Net.payOS.Types;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cinema.Models;
+using SQLitePCL;
+using Cinema.DataAccess.Data;
 
 namespace Cinema_System.Areas
 {
@@ -15,23 +18,34 @@ namespace Cinema_System.Areas
     {
         private readonly PayOSService _payOSService;
         private readonly PayOS _payOS;
+        private readonly ApplicationDbContext _context;
 
-        public PaymentController(PayOSService payOSService, PayOS payOS)
+        public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context)
         {
             _payOSService = payOSService;
             _payOS = payOS;
+            _context = context;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePayment([FromForm] PaymentRequest request)
+        public async Task<IActionResult> CreatePayment([FromBody] PaymentRequest request)
         {
             if (request == null || request.TotalAmount <= 0)
             {
                 return BadRequest("Invalid payment request.");
             }
 
-            Random random = new Random();
-            var orderId = random.Next(1, int.MaxValue);
+            OrderTable order = new OrderTable
+            {
+                Status = OrderStatus.Pending,
+                TotalAmount = request.TotalAmount,
+                UserID = "a1234567-b89c-40d4-a123-456789abcdef",
+            };
+
+            _context.OrderTables.Add(order);
+            await _context.SaveChangesAsync();
+
+            int orderId = order.OrderID;
 
             // Chuẩn bị danh sách sản phẩm từ Seats & Foods
             var items = new List<ItemData>();
@@ -39,14 +53,30 @@ namespace Cinema_System.Areas
             // Thêm ghế vào danh sách
             foreach (var seat in request.Seats)
             {
-                items.Add(new ItemData($"Seat {seat}", 80000, 1));
-
+                ShowtimeSeat showtimeSeat = _context.showTimeSeats.Find(seat.showTimeSeatId);
+                items.Add(new ItemData($"Seat {seat.nameSeat}", 1, (int)showtimeSeat.Price));
+                _context.OrderDetails.Add(new OrderDetail
+                {
+                    OrderID = orderId,
+                    ShowtimeSeatID = seat.showTimeSeatId,
+                    Quantity = 1,
+                    Price = showtimeSeat.Price
+                });
+                await _context.SaveChangesAsync();
             }
 
             // Thêm thức ăn vào danh sách
             foreach (var food in request.Items)
             {
-                items.Add(new ItemData(food.name, food.price, food.quantity));
+                items.Add(new ItemData(food.name, food.quantity, food.price));
+                _context.OrderDetails.Add(new OrderDetail
+                {
+                    OrderID = orderId,
+                    ProductID = _context.Products.FirstOrDefault(p => p.Name == food.name).ProductID,
+                    Quantity = food.quantity,
+                    Price = food.price,
+                });
+                await _context.SaveChangesAsync();
 
             }
 
@@ -55,7 +85,7 @@ namespace Cinema_System.Areas
 
             if (response.error == 0)
             {
-                return Redirect(url: ((CreatePaymentResult)response.data).checkoutUrl);
+                return Json(new { paymentUrl = ((CreatePaymentResult)response.data).checkoutUrl });
             }
 
             return BadRequest("Payment failed.");

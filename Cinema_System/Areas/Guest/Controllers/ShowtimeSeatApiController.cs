@@ -41,12 +41,30 @@ namespace Cinema_System.Areas.Guest.Controllers
                 .FirstOrDefaultAsync(s => s.ShowtimeID == request.showTimeId && s.SeatID == seatId);
                 showtimeSeats.Add(stSeat);
             }
-            
-            if (!(showtimeSeats.Count > 0))
-            {
-                return NotFound(new { message = "Không tìm thấy ghế nào trong suất chiếu này." });
-            }
             return Ok(showtimeSeats);
+        }
+
+        [HttpPut("{showTimeSeatId}/{status}")]
+        public async Task<IActionResult> PutSTSeatStatus(int showTimeSeatId, int status)
+        {
+
+            var seat = await _context.showTimeSeats.FindAsync(showTimeSeatId);
+
+            if (seat == null)
+            {
+                return NotFound("Seat not found.");
+            }
+            if (!Enum.IsDefined(typeof(ShowtimeSeatStatus), status))
+            {
+                return BadRequest("Invalid seat status");
+            }
+
+
+            // Cập nhật status
+            seat.Status = (ShowtimeSeatStatus)status;
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }

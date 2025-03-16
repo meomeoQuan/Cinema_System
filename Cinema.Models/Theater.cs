@@ -7,6 +7,7 @@ namespace Cinema.Models
     public class Theater
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CinemaID { get; set; }
 
         [Required]

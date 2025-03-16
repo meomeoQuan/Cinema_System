@@ -11,6 +11,7 @@ namespace Cinema.Models
     public class ShowtimeSeat
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ShowtimeSeatID { get; set; }
 
         [Required]
@@ -39,7 +40,7 @@ namespace Cinema.Models
     public enum ShowtimeSeatStatus
     {
         Available,
-        Booked,
-        CheckedIn
+        Maintenance,
+        Booked
     }
 }
