@@ -11,5 +11,7 @@ namespace Cinema_System.Areas.Request
         public List<ItemData> Items { get; set; } = new List<ItemData>(); // ✅ Danh sách item (đã đổi từ FoodItem)
         public string CancelUrl { get; set; } = string.Empty; // ✅ URL khi hủy
         public string ReturnUrl { get; set; } = string.Empty; // ✅ URL khi thanh toán thành công
+
+        public string Coupon { get; set; } = string.Empty;
     }
 }

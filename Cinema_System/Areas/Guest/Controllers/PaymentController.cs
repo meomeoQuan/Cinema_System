@@ -35,6 +35,8 @@ namespace Cinema_System.Areas
                 return BadRequest("Invalid payment request.");
             }
 
+            Coupon coupon = _context.Coupons.FirstOrDefault(c => c.Code == request.Coupon);
+
             OrderTable order = new OrderTable
             {
                 Status = OrderStatus.Pending,
@@ -42,6 +44,7 @@ namespace Cinema_System.Areas
                 UserID = "a1234567-b89c-40d4-a123-456789abcdef",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
+                CouponID = coupon != null? coupon.CouponID : null,
             };
 
             _context.OrderTables.Add(order);
@@ -82,8 +85,15 @@ namespace Cinema_System.Areas
 
             }
 
+            var couponPrice = 0;
+
+            if (coupon != null)
+            {
+                couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
+                items.Add(new ItemData(coupon.Code, 1, couponPrice));
+            }
             // Gọi dịch vụ PayOS để tạo thanh toán
-            var response = await _payOSService.CreatePaymentAsync(request.TotalAmount, orderId, items, _payOS);
+            var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
 
             if (response.error == 0)
             {
@@ -96,16 +106,42 @@ namespace Cinema_System.Areas
 
         // Trang hủy
         [HttpGet]
-        public IActionResult CancelUrl()
+        public IActionResult CancelUrl(int orderCode)
         {
+            var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
+
+            if (order == null)
+            {
+                return NotFound(new { message = "Order không tồn tại" });
+            }
+
+            // Cập nhật trạng thái đơn hàng thành "Canceled"
+            order.Status = OrderStatus.Cancelled;
+            order.UpdatedAt = DateTime.UtcNow;
+            _context.SaveChanges();
+
             return View();
         }
 
         // Trang thành công
         [HttpGet]
-        public IActionResult ReturnUrl()
+        public IActionResult ReturnUrl(int orderCode)
         {
+            // Tìm đơn hàng trong database
+            var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
+
+            if (order == null)
+            {
+                return NotFound(new { message = "Order không tồn tại" });
+            }
+
+            // Cập nhật trạng thái đơn hàng thành "Completed"
+            order.Status = OrderStatus.Completed;
+            order.UpdatedAt = DateTime.UtcNow;
+            _context.SaveChanges();
+
             return View();
         }
+
     }
 }

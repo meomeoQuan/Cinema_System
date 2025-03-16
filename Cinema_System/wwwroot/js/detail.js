@@ -234,7 +234,10 @@ document.getElementById('book-btn').addEventListener('click', function () {
         }
     })
 
+    let coupon = document.querySelector(".coupon").value;
+
     let bookingData = {
+        Coupon: coupon,
                 Seats: selectedSeats,
         Items: selectedFoods,
         TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, "") // Chuyển đổi số tiền
