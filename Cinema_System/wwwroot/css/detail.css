@@ -74,13 +74,13 @@ background-color: black;
     cursor: pointer;
     border: 1px solid black;
     border-radius: 5px;
+    user-select: none;
 }
 .seat.selected {
     background-color: #ccccff; /* Ghế đã chọn màu tím */
 }
 .seat.booked {
     background-color: #dc3545;
-    cursor: not-allowed;
 }
 
 .seat.maintenance {

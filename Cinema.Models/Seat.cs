@@ -32,6 +32,6 @@ namespace Cinema.Models
     {
         Available,
         Reserved,
-        Blocked
+        Booked
     }
 }
