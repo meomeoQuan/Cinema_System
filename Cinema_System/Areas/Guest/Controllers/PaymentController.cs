@@ -40,6 +40,8 @@ namespace Cinema_System.Areas
                 Status = OrderStatus.Pending,
                 TotalAmount = request.TotalAmount,
                 UserID = "a1234567-b89c-40d4-a123-456789abcdef",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
             };
 
             _context.OrderTables.Add(order);
