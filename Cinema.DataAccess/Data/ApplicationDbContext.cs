@@ -434,6 +434,7 @@ namespace Cinema.DataAccess.Data
                 {
                     OrderDetailID = i,
                     OrderID = random.Next(1, 51), // Assuming 50 orders
+                    pro
                     ProductID = random.Next(1, 3), // Assuming 2 products
                     ShowtimeSeatID = random.Next(1, 51) // Assuming 50 seats
                 });
