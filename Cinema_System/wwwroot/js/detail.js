@@ -13,7 +13,9 @@
         },
         error: handleErrorResponse
     });
-
+    //====================== Populate hidden input fields==================
+    $("#movieID").val(movieID);
+    //====================== Populate hidden input fields==================
     function handleSuccessResponse(response) {
         console.log("Response received:", response);
 
@@ -87,7 +89,7 @@
     }
 
     //====================== Populate hidden input fields==================
-   
+
 
 
     function getActiveDateFilter() {
@@ -110,7 +112,8 @@
             <div class="d-flex flex-wrap gap-2">
                 ${shows.map(show => `
                     <button class="btn sci-fi-btn showtime-btn" 
-                            data-showtime='${JSON.stringify(show)}'>
+                            data-showtime='${JSON.stringify(show)}'
+                            data-showtimeId='${show.showtimeId}'>
                         ${show.showtime}
                     </button>
                 `).join("")}
@@ -130,144 +133,18 @@
         const showtime = JSON.parse($btn.attr("data-showtime"));
 
         //====================== Populate hidden input fields==================
-        $("#selectedCinema").val(showtime.cinemaName);
-        $("#RoomId").val(showtime.roomId);
-        $("#RoomName").val(showtime.roomName);
-        $("#selectedShowtime").val(showtime.showtime);
+        //$("#selectedCinema").val(showtime.cinemaId);
+        //$("#RoomId").val(showtime.roomId);
+        //$("#RoomName").val(showtime.roomName);
+        $("#selectedShowtime").val(showtime.showtimeId);
         //=====================================================================
-        renderSeats(showtime.seatList);
-        renderTicketList(showtime.ticketList);
-    }
-
-
-    function renderTicketList(ticketList) {
-        const ticketContainer = $("#ticketContainer").empty(); // Clear previous tickets
-
-        const ticketRow = $('<div class="d-flex justify-content-center flex-wrap gap-3"></div>'); // Center align and allow wrapping
-
-        ticketList.forEach(ticket => {
-            const ticketHtml = `
-            <div class="product-card d-flex flex-column align-items-center col-4 text-center">
-                <img src="/images/ticketCinema.jpg" alt="${ticket.ticketType}" class="product-img">
-                <div class="product-info">
-                    <h4>${ticket.ticketType} Ticket</h4>
-                    <span class="price" >Price: ${ticket.price.toFixed(2) } VND</span>
-                    <div class="quantity d-flex align-items-center justify-content-center">
-                        <button class="btn minus">-</button>
-                        <span class="count mx-2" data-ticket-type="${ticket.ticketType}">${ticket.selectedQuantity}</span>
-                        <button class="btn plus">+</button>
-                    </div>
-                </div>
-            </div>
-        `;
-            ticketRow.append(ticketHtml);
-        });
-
-        ticketContainer.append(ticketRow);
+        //renderSeats(showtime.seatList);
+        //renderTicketList(showtime.ticketList);
     }
 
 
 
-    function renderSeats(seats) {
-        const seatsContainer = $("#seatsContainer")
-            .empty()
-            .addClass("seat-grid d-flex flex-wrap justify-content-center mx-auto col-6");
 
-        seats.forEach(seat => {
-            const seatClass = `seat ${seat.selected ? 'booked' : ''} ${seat.maintenance ? 'maintenance' : ''}`;
-            const $seat = $(`<div class="${seatClass}" data-seat-id="${seat.seatId}" data-seat-type="${seat.seatType}" data-seat-number="${seat.seatNumber}">${seat.seatNumber}</div>`)
-                .click(function () {
-                    if (!$(this).hasClass("booked") && !$(this).hasClass("maintenance")) {
-                        $(this).toggleClass("selected");
-                        updateBookingSummary(); // Ensure booking bar updates when seat is clicked
-                    }
-                });
-
-            seatsContainer.append($seat);
-        });
-        updateBookingSummary(); // Ensure booking bar updates when seat is clicked
-    }
-
-    // Function to render food items
-    function renderFoodItems(foodItems) {
-        const foodContainer = $("#foodContainer").empty(); // Clear previous food items
-
-        foodItems.forEach(food => {
-            const foodHtml = `
-            <div class="col-md-4 d-flex justify-content-center food-item">
-                <div class="product-card d-flex align-items-center">
-                    <img src="${food.productImage || '/css/images/default-food.png'}" alt="${food.name}" class="product-img">
-                    <div class="product-info">
-                        <h4 class="food-name">${food.name}</h4>
-                        <p>${food.description}</p>
-                        <span class="price">${food.price.toFixed(2)} VND</span>
-                        <div class="quantity">
-                            <button class="btn minus">-</button>
-                            <span class="count" data-product-id="${food.productID}">${food.countProduct}</span>
-                            <button class="btn plus">+</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-            foodContainer.append(foodHtml);
-        });
-    }
-
-    function updateBookingSummary() {
-        let selectedTickets = {};
-        $(".count").each(function () {
-            let ticketType = $(this).data("ticket-type");
-            let quantity = parseInt($(this).text());
-            selectedTickets[ticketType] = quantity;
-        });
-
-        let selectedSeats = $(".seat.selected").map(function () {
-            return {
-                seatId: $(this).data("seat-id"),
-                seatType: $(this).data("seat-type"),
-                seatNumber: $(this).data("seat-number")
-            };
-        }).get();
-
-        let selectedSeatTypes = {};
-        selectedSeats.forEach(seat => {
-            selectedSeatTypes[seat.seatType] = (selectedSeatTypes[seat.seatType] || 0) + 1;
-        });
-
-        let totalTickets = Object.values(selectedTickets).reduce((a, b) => a + b, 0);
-        let totalSelectedSeats = selectedSeats.length;
-
-        // **Show/Hide booking summary**
-        if (totalSelectedSeats > 0) {
-            $('#booking-summary').removeClass('d-none'); // Show booking bar
-        } else {
-            $('#booking-summary').addClass('d-none'); // Hide when no seats are selected
-        }
-
-        // **Validation: Ensure selected seats match ticket purchase**
-        if (totalSelectedSeats > totalTickets) {
-            alert("You have selected more seats than the tickets you purchased.");
-            $(".seat.selected").last().removeClass("selected"); // Remove the last selected seat
-            return;
-        }
-
-        for (let seatType in selectedSeatTypes) {
-            if (selectedSeatTypes[seatType] > (selectedTickets[seatType] || 0)) {
-                alert(`Seat type mismatch! You selected more ${seatType} seats than the tickets you purchased.`);
-                $(".seat.selected").last().removeClass("selected"); // Remove the last selected seat
-                return;
-            }
-        }
-
-        //====================== Populate hidden input fields==================
-        // Populate hidden fields
-        $("#SelectedSeatsJson").val(JSON.stringify(selectedSeats));
-        $("#TicketsJson").val(JSON.stringify(selectedTickets));
-        //====================== Populate hidden input fields==================
-
-    }
 
 
     function handleErrorResponse() {
@@ -280,116 +157,14 @@
 
 
 
- 
+
 
 });
-// ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
-let timeLeft = 300;
-const countdown = setInterval(function () {
-    timeLeft--;
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    $('#countdown').text(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-    if (timeLeft <= 0) {
-        clearInterval(countdown);
-        alert('Hết thời gian giữ vé!');
-        location.reload();
-    }
-}, 1000);
 
 
 
 
-$(document).ready(function () {
-    // Function to update selected food items in summary
-    function updateSelectedFood() {
-        // Collect selected food items
-        let selectedFoodText = $(".count[data-product-id]").map(function () {
-            let quantity = parseInt($(this).text());
-            let foodName = $(this).closest('.food-item').find('.food-name').text();
-            return quantity > 0 ? `${quantity}x ${foodName}` : null;
-        }).get().join(", ") || "None";
 
-        // Collect selected tickets
-        let selectedTicketsText = $(".count[data-ticket-type]").map(function () {
-            let quantity = parseInt($(this).text());
-            let ticketType = $(this).data("ticket-type");
-            return quantity > 0 ? `${quantity}x ${ticketType}` : null;
-        }).get().join(", ") || "None";
-
-        // Combine food and tickets into a single summary
-        let combinedSummary = [selectedTicketsText, selectedFoodText].filter(Boolean).join(", ");
-
-        // Update the display
-        $("#displayFood").text(combinedSummary);
-
-        //====================== Populate hidden input fields==================
-        $("#ItemsJson").val(JSON.stringify(combinedSummary));
-        //====================== Populate hidden input fields==================
-
-    }
-
-    // Event listener for plus button
-    $(document).on("click", ".plus", function () {
-        let countSpan = $(this).siblings(".count");
-        let currentCount = parseInt(countSpan.text());
-        countSpan.text(currentCount + 1);
-        updateSelectedFood(); // Call the function to update the food summary
-        calculateTotalPrice();
-    });
-
-    // Event listener for minus button
-    $(document).on("click", ".minus", function () {
-        let countSpan = $(this).siblings(".count");
-        let currentCount = parseInt(countSpan.text());
-        if (currentCount > 0) {
-            countSpan.text(currentCount - 1);
-            updateSelectedFood(); // Call the function to update the food summary
-            calculateTotalPrice();
-        }
-    });
-
-
-    function calculateTotalPrice() {
-        let totalPrice = 0;
-
-        // Calculate total for food items
-        $(".count[data-product-id]").each(function () {
-            let quantity = parseInt($(this).text());
-            console.log(quantity);
-            let price = parseFloat($(this).closest('.food-item').find('.price').text().replace(' VND', ''));
-            console.log(price);
-            totalPrice += quantity * price;
-            console.log(totalPrice);
-        });
-
-        // Calculate total for tickets
-        $(".count[data-ticket-type]").each(function () {
-            let quantity = parseInt($(this).text());
-            console.log("Quantity:", quantity);
-
-            // Extract the price text and remove non-numeric characters (e.g., "USD", commas)
-            let priceText = $(this).closest('.product-card').find('.price').text();
-            let price = parseFloat(priceText.replace(/[^0-9.]/g, '')); // Remove all non-numeric characters
-            console.log("Price Text:", priceText);
-            console.log("Parsed Price:", price);
-
-            // Add to the total price
-            if (!isNaN(price)) {
-                totalPrice += quantity * price;
-            }
-            console.log("Total Price:", totalPrice);
-        });
-
-        // Update the total price display
-        $("#displayTotalPrice").text(totalPrice.toFixed(2) + " VND");
-
-
-        //====================== Populate hidden input fields==================
-        $("#TotalPrice").val(totalPrice.toFixed(2)); // Store formatted price
-        //====================== Populate hidden input fields==================
-    }
-});
 
 function handleFormSubmission(event) {
     event.preventDefault(); // Prevent normal form submission
@@ -405,10 +180,10 @@ function handleFormSubmission(event) {
 
     // Get seats, tickets, and food
     let selectedSeats = $(".seat.selected").map(function () {
-        return { seatId: $(this).data("seat-id"), seatNumber: $(this).text() };
+        return { seatId: $(this).data("seat-id") }; // showtimeseat
     }).get();
     $("#SelectedSeatsJson").val(JSON.stringify(selectedSeats));
-    $("#TicketsJson").val(JSON.stringify(getSelectedTickets()));
+    //$("#TicketsJson").val(JSON.stringify(getSelectedTickets()));
     $("#FoodItemsJson").val(JSON.stringify(getSelectedFood()));
 
     // Update total price

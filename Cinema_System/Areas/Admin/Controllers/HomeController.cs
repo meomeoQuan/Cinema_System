@@ -49,19 +49,9 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         // POST: HomeController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+
+    }
+}
 
 
 

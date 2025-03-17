@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Cinema.Models.ViewModels
 {
-   public class FoodSelectionVM
+    public class SeatVM
     {
-        public int FoodId { get; set; }
-        public string FoodName { get; set; }
+        public int SeatId { get; set; }
+        public string SeatNumber { get; set; } = string.Empty;
+        public string SeatType { get; set; } = string.Empty;
         public double Price { get; set; }
-        public int Quantity { get; set; }
     }
 }

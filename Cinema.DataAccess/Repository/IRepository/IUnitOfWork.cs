@@ -15,6 +15,9 @@ namespace Cinema.DataAccess.Repository.IRepository
         public IOrderDetailRepository OrderDetail { get;  }
         public IShowTimeRepository showTime { get; }
         public IApplicationUserRepository ApplicationUser { get; }
+
+        public IShoppingCartRepository ShoppingCart { get; }
+        public IOrderTableRepository OrderTable { get; }
         Task SaveAsync();
     }
 }

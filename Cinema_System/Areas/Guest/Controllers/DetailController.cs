@@ -13,6 +13,7 @@ using Cinema_System.Models;
 using System.Diagnostics;
 using System.Reflection.Metadata.Ecma335;
 using Microsoft.AspNetCore.Authorization;
+using System.Net.Sockets;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -29,20 +30,276 @@ namespace Cinema_System.Areas.Guest.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<IActionResult> Index(int? MovieID)
+
+        public async Task<IActionResult> Index(int? movieId, int? showtimeId)
         {
-          
-            MovieDetailVM? Movie = new MovieDetailVM()
+
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (movieId == null)
             {
-                Movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID),
-                OrderDetail = new OrderDetail()
+                return BadRequest("Movie ID is required.");
+            }
 
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == movieId);
 
+            if (movie == null)
+            {
+                return NotFound("Movie not found.");
+            }
+
+            List<ShowtimeSeat> showtimeSeats = new();
+            if (showtimeId != null)
+            {
+                showtimeSeats = (await _unitOfWork.ShowTimeSeat.GetAllAsync(
+                    s => s.ShowtimeID == showtimeId,
+                    includeProperties: "Seat"
+                )).ToList();
+            }
+            List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync();
+            ViewData["MovieID"] = movieId; // Store MovieID using ViewData
+            TempData["ShowtimeID"] = showtimeId;
+            var movieDetailVM = new MovieDetailVM
+            {
+                Movie = movie,
+                ListCart =  _unitOfWork.ShoppingCart.GetAll(u => u.UserID == userId,includeProperties: "Product,ShowtimeSeat").ToList(), // product of person not system
+                OrderTable = new OrderTable(),
+                ShowtimeSeats = showtimeSeats,
+                products = productList,
+               
             };
-            ViewData["MovieID"] = MovieID; // Store MovieID using ViewData
-           
-            return View(Movie);
+
+            //// If AJAX request, return partial view
+            //if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            //{
+            //    return PartialView("_SeatsPartial", movieDetailVM);
+            //}
+
+            return View(movieDetailVM);
         }
+
+        public async Task<IActionResult> SeatChosing(int? seatId, int? movieId, int? showtimeId)
+        {
+            if (seatId == null || movieId == null)
+            {
+                return BadRequest("Invalid seat or movie selection.");
+            }
+
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Retrieve movie details
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == movieId);
+            if (movie == null)
+            {
+                return NotFound("Movie not found.");
+            }
+
+            // Retrieve selected seat details
+            var selectedSeat = await _unitOfWork.ShowTimeSeat.GetAsync(
+                s => s.ShowtimeSeatID == seatId && s.Showtime.ShowTimeID == showtimeId,
+                includeProperties: "Seat"
+            );
+
+            if (selectedSeat == null || selectedSeat.Seat == null)
+            {
+                return NotFound("Seat not found.");
+            }
+
+            // Check if the seat is already booked
+            if (selectedSeat.Status == ShowtimeSeatStatus.Booked)
+            {
+                return BadRequest("This seat is already booked.");
+            }
+
+            // Mark the seat as booked
+            selectedSeat.Status = ShowtimeSeatStatus.Booked;
+            _unitOfWork.ShowTimeSeat.Update(selectedSeat);
+            await _unitOfWork.SaveAsync();
+
+            // Add seat to shopping cart
+            var shoppingCartItem = new ShoppingCart()
+            {
+                UserID = userId,
+                ShowtimeSeatID = seatId,
+                Quantity = 1,
+                Price = selectedSeat.Price
+            };
+
+            _unitOfWork.ShoppingCart.Add(shoppingCartItem);
+            await _unitOfWork.SaveAsync();
+
+            // Retrieve all showtime seats
+            var showtimeSeats = (await _unitOfWork.ShowTimeSeat.GetAllAsync(
+                s => s.ShowtimeID == showtimeId,
+                includeProperties: "Seat"
+            )).ToList();
+
+            // Retrieve updated shopping cart
+            var shoppingCartList = _unitOfWork.ShoppingCart.GetAll(
+                u => u.UserID == userId, includeProperties: "Product,ShowtimeSeat"
+            ).ToList();
+
+            List<Product> productList = (List<Product>)await _unitOfWork.Product.GetAllAsync();
+            // Prepare MovieDetailVM
+            var movieDetailVM = new MovieDetailVM()
+            {
+                Movie = movie,
+                ListCart = shoppingCartList,
+                OrderTable = new OrderTable(),
+                ShowtimeSeats = showtimeSeats,
+                products = productList,
+               
+            };
+
+            ViewData["MovieID"] = movieId; // Store MovieID using ViewData
+            TempData["ShowtimeID"] = showtimeId;
+            return View("Index", movieDetailVM);
+        }
+
+
+        public async Task<IActionResult> IncreaseQuantity(int productId, int? movieId, int? showtimeId)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+      
+
+            // Retrieve movie details
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == movieId);
+            if (movie == null)
+            {
+                return NotFound("Movie not found.");
+            }
+
+            // Retrieve or create a shopping cart item
+            var cartItem = await _unitOfWork.ShoppingCart.GetAsync(c => c.UserID == userId && c.ProductID == productId);
+
+            if (cartItem == null)
+            {
+                cartItem = new ShoppingCart
+                {
+                    UserID = userId,
+                    ProductID = productId,
+                    Quantity = 1
+                };
+                _unitOfWork.ShoppingCart.Add(cartItem);
+            }
+            else
+            {
+               
+                cartItem.Quantity += 1;
+                _unitOfWork.ShoppingCart.Update(cartItem);
+            }
+
+            // Retrieve user's shopping cart items
+            var shoppingCartList = _unitOfWork.ShoppingCart.GetAll(
+                u => u.UserID == userId,
+                includeProperties: "Product,ShowtimeSeat"
+            ).ToList();
+
+            // Retrieve showtime seats
+            var showtimeSeats = (await _unitOfWork.ShowTimeSeat.GetAllAsync(
+                s => s.ShowtimeID == showtimeId,
+                includeProperties: "Seat"
+            )).ToList();
+
+            // Retrieve all products
+            var productList = await _unitOfWork.Product.GetAllAsync();
+
+            var movieDetailVM = new MovieDetailVM
+            {
+                Movie = movie,
+                ListCart = shoppingCartList,
+                OrderTable = new OrderTable(),
+                ShowtimeSeats = showtimeSeats,
+                products = productList.ToList()
+            };
+
+            await _unitOfWork.SaveAsync();
+            ViewData["MovieID"] = movieId; // Store MovieID using ViewData
+            TempData["ShowtimeID"] = showtimeId;
+            return View("Index", movieDetailVM);
+        }
+
+        public async Task<IActionResult> DecreaseQuantity(int productId, int? movieId, int? showtimeId)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+          
+
+            // Retrieve the cart item
+            var cartItem = await _unitOfWork.ShoppingCart.GetAsync(c => c.UserID == userId && c.ProductID == productId);
+
+            if (cartItem != null)
+            {
+                if (cartItem.Quantity > 1)
+                {
+                   
+                    cartItem.Quantity -= 1;
+                    _unitOfWork.ShoppingCart.Update(cartItem);
+
+                }
+                else
+                {
+                    _unitOfWork.ShoppingCart.Remove(cartItem); // Remove item if quantity reaches 0
+                }
+            }
+
+            // Retrieve movie details
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == movieId);
+            if (movie == null)
+            {
+                return NotFound("Movie not found.");
+            }
+
+
+            // Retrieve updated shopping cart
+            var shoppingCartList = _unitOfWork.ShoppingCart.GetAll(
+                u => u.UserID == userId, includeProperties: "Product,ShowtimeSeat"
+            ).ToList();
+
+            // Retrieve all showtime seats
+            var showtimeSeats = (await _unitOfWork.ShowTimeSeat.GetAllAsync(
+                s => s.ShowtimeID == showtimeId,
+                includeProperties: "Seat"
+            )).ToList();
+
+            List<Product> productList = (List<Product>)await _unitOfWork.Product.GetAllAsync();
+
+            var movieDetailVM = new MovieDetailVM()
+            {
+                Movie = movie,
+                ListCart = shoppingCartList,
+                OrderTable = new OrderTable(),
+                ShowtimeSeats = showtimeSeats,
+                products = productList,
+            };
+
+            ViewData["MovieID"] = movieId; // Store MovieID using ViewData
+            TempData["ShowtimeID"] = showtimeId;
+            await _unitOfWork.SaveAsync();
+            return View("Index", movieDetailVM); // Redirect back to the shopping cart page
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //C1
         public async Task<IActionResult> Details(int MovieID, string? targetDate = null, string? targetCity = null, string? targetTime = null)
@@ -93,6 +350,7 @@ namespace Cinema_System.Areas.Guest.Controllers
             // ✅ Get all showtimes (No filtering here, let JS filter)
             var showtimeList = showTimes.Select(show => new
             {
+                ShowtimeId = show.ShowTimeID,
                 date = show.ShowDates,
                 CinemaName = show.Cinema.Name,
                 CinemaId = show.CinemaID,
@@ -101,8 +359,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                 RoomId = show.Room.RoomID,
                 RoomName = show.Room.RoomNumber,
                 Showtime = show.ShowTimes,
-
-                Tickets = showtimeSeats
+                SeatList = showtimeSeats
                     .Where(seat => seat.ShowtimeID == show.ShowTimeID)
                     .Select(seat => new
                     {
@@ -152,38 +409,8 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return Json(new { message = "Success", data = result });
         }
-        [AllowAnonymous]
-        [HttpPost]
-        public IActionResult ConfirmBooking(OrderDetail orderDetail)
-        {
-            if (orderDetail == null)
-            {
-                return BadRequest("Order details are missing.");
-            }
 
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            orderDetail.UserId = userId;
 
-            // Deserialize JSON fields
-            orderDetail.Tickets = string.IsNullOrEmpty(orderDetail.TicketsJson)
-                ? new List<TicketSelectionVM>()
-                : JsonConvert.DeserializeObject<List<TicketSelectionVM>>(orderDetail.TicketsJson);
-
-            orderDetail.SelectedSeats = string.IsNullOrEmpty(orderDetail.SelectedSeatsJson)
-                ? new List<ShowtimeSeat>()
-                : JsonConvert.DeserializeObject<List<ShowtimeSeat>>(orderDetail.SelectedSeatsJson);
-
-            orderDetail.FoodItems = string.IsNullOrEmpty(orderDetail.ItemsJson)
-                ? new List<FoodSelectionVM>()
-                : JsonConvert.DeserializeObject<List<FoodSelectionVM>>(orderDetail.ItemsJson);
-
-            // Save to database
-            _unitOfWork.OrderDetail.Add(orderDetail);
-            _unitOfWork.SaveAsync();
-
-            return RedirectToAction("Confirmation", new { orderId = orderDetail.OrderDetailID });
-        }
 
 
 
@@ -244,3 +471,139 @@ namespace Cinema_System.Areas.Guest.Controllers
 
     }
 }
+//public async Task<IActionResult> Index(int? movieId)
+//{
+//    if (movieId == null)
+//    {
+//        return BadRequest("Movie ID is required.");
+//    }
+
+//    var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == movieId, includeProperties: "Showtimes");
+
+//    if (movie == null)
+//    {
+//        return NotFound("Movie not found.");
+//    }
+
+//    var movieDetailVM = new MovieDetailVM
+//    {
+//        Movie = movie,
+//        OrderDetail = new OrderDetail(),
+//        OrderTable = new OrderTable(),
+//        ShowtimeSeats = new List<ShowtimeSeat>()
+//    };
+
+//    ViewData["MovieID"] = movieId; // Store MovieID
+
+//    return View(movieDetailVM);
+//}
+//[HttpGet]
+//public async Task<IActionResult> GetSeatsPartial(int? showtimeId)
+//{
+//    if (showtimeId == null)
+//    {
+//        return BadRequest("Showtime ID is required.");
+//    }
+
+//    var showtimeSeats = await _unitOfWork.ShowTimeSeat.GetAllAsync(
+//        s => s.ShowtimeID == showtimeId,
+//        includeProperties: "Seat"
+//    );
+
+//    if (showtimeSeats == null || !showtimeSeats.Any())
+//    {
+//        return NotFound("No seats found for this showtime.");
+//    }
+
+//    return PartialView("_SeatsPartial", showtimeSeats);
+//}
+
+//public async Task<IActionResult> Details(int MovieID, string? targetDate = null, string? targetCity = "Danang", string? targetTime = null)
+//{
+//    // ✅ Get User ID from Claims
+//    var claimsIdentity = (ClaimsIdentity)User.Identity;
+//    var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+//    // ✅ Fetch Movie Details
+//    var movie = await _unitOfWork.Movie.GetAsync(u => u.MovieID == MovieID);
+//    if (movie == null)
+//    {
+//        return NotFound("Movie not found.");
+//    }
+
+//    // ✅ Fetch Showtimes for the selected movie
+//    var showTimes = await _unitOfWork.showTime.GetAllAsync(
+//        u => u.MovieID == MovieID, includeProperties: "Cinema,Room"
+//    );
+
+//    // ✅ Fetch Showtime Seats
+//    var showtimeSeats = await _unitOfWork.ShowTimeSeat.GetAllAsync(
+//        includeProperties: "Seat"
+//    );
+
+//    // ✅ Get available cities
+//    var availableCities = showTimes
+//        .Select(show => show.Cinema.CinemaCity)
+//        .Distinct()
+//        .Select(city => new CityVM
+//        {
+//            City = city,
+//            Selected = (!string.IsNullOrEmpty(targetCity) && city.Equals(targetCity, StringComparison.OrdinalIgnoreCase))
+//        })
+//        .ToList();
+
+//    // ✅ Get available dates
+//    var availableDates = showTimes
+//        .Select(show => show.ShowDates)
+//        .Distinct()
+//        .Select(date => new ShowDateVM
+//        {
+//            Date = date,
+//            Selected = (!string.IsNullOrEmpty(targetDate) && date == targetDate)
+//        })
+//        .ToList();
+
+//    // ✅ Get all showtimes
+//    var showtimeList = showTimes.Select(show => new ShowtimeVM
+//    {
+//        Date = show.ShowDates,
+//        CinemaName = show.Cinema.Name,
+//        CinemaId = show.CinemaID,
+//        CinemaAddress = show.Cinema.Address,
+//        City = show.Cinema.CinemaCity,
+//        RoomId = show.Room.RoomID,
+//        RoomName = show.Room.RoomNumber,
+//        Showtime = show.ShowTimes,
+
+//        SeatList = showtimeSeats
+//            .Where(seat => seat.ShowtimeID == show.ShowTimeID)
+//            .Select(seat => new SeatVM
+//            {
+//                SeatId = seat.SeatID,
+//                SeatNumber = seat.Seat.SeatName,
+//                SeatType = seat.SeatType.ToString(),
+//                Price = seat.Price
+//            })
+//            .ToList()
+//    }).ToList();
+
+//    // ✅ Get Food Items
+//    var foodItemsList = await _unitOfWork.Product.GetAllAsync();
+
+//    // ✅ Create ViewModel
+//    MovieDetailVM viewModel = new MovieDetailVM
+//    {
+//      Movie = movie,
+//        AvailableDates = availableDates,
+//        SelectedDate = targetDate,
+//        AvailableCities = availableCities,
+//        SelectedCity = targetCity,
+//        Showtimes = showtimeList,
+//        FoodItems = (List<Product>)foodItemsList,
+//        Selected = false,
+//        TotalPrice = 0
+//    };
+
+//    // ✅ Return View with ViewModel
+//    return View(viewModel);
+//}

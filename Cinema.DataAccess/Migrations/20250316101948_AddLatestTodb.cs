@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Cinema.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddLatestTodbs : Migration
+    public partial class AddLatestTodb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,19 +75,6 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FoodSelectionVM",
-                columns: table => new
-                {
-                    FoodId = table.Column<int>(type: "int", nullable: false),
-                    FoodName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Movies",
                 columns: table => new
                 {
@@ -122,7 +109,8 @@ namespace Cinema.DataAccess.Migrations
                     Price = table.Column<double>(type: "float", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     CountProduct = table.Column<int>(type: "int", nullable: false),
-                    ProductImage = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ProductImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Count = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -271,16 +259,11 @@ namespace Cinema.DataAccess.Migrations
                     UserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CouponID = table.Column<int>(type: "int", nullable: true),
-                    MovieID = table.Column<int>(type: "int", nullable: false),
-                    MovieName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShowDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cinema = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Showtime = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RoomID = table.Column<int>(type: "int", nullable: false),
-                    RoomName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TotalAmount = table.Column<double>(type: "float", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phonenumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -347,36 +330,6 @@ namespace Cinema.DataAccess.Migrations
                         principalTable: "Cinemas",
                         principalColumn: "CinemaID",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderDetails",
-                columns: table => new
-                {
-                    OrderDetailID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderID = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MovieId = table.Column<int>(type: "int", nullable: false),
-                    MovieName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Date = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cinema = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    RoomName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Showtime = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailID);
-                    table.ForeignKey(
-                        name: "FK_OrderDetails_OrderTables_OrderID",
-                        column: x => x.OrderID,
-                        principalTable: "OrderTables",
-                        principalColumn: "OrderID",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -465,6 +418,78 @@ namespace Cinema.DataAccess.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OrderDetails",
+                columns: table => new
+                {
+                    OrderDetailID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderID = table.Column<int>(type: "int", nullable: false),
+                    ProductID = table.Column<int>(type: "int", nullable: false),
+                    ShowtimeSeatID = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailID);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_OrderTables_OrderID",
+                        column: x => x.OrderID,
+                        principalTable: "OrderTables",
+                        principalColumn: "OrderID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_Products_ProductID",
+                        column: x => x.ProductID,
+                        principalTable: "Products",
+                        principalColumn: "ProductID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_showTimeSeats_ShowtimeSeatID",
+                        column: x => x.ShowtimeSeatID,
+                        principalTable: "showTimeSeats",
+                        principalColumn: "ShowtimeSeatID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShoppingCarts",
+                columns: table => new
+                {
+                    ShoppingCartID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductID = table.Column<int>(type: "int", nullable: true),
+                    ShowtimeSeatID = table.Column<int>(type: "int", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShoppingCarts", x => x.ShoppingCartID);
+                    table.ForeignKey(
+                        name: "FK_ShoppingCarts_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ShoppingCarts_Products_ProductID",
+                        column: x => x.ProductID,
+                        principalTable: "Products",
+                        principalColumn: "ProductID");
+                    table.ForeignKey(
+                        name: "FK_ShoppingCarts_showTimeSeats_ShowtimeSeatID",
+                        column: x => x.ShowtimeSeatID,
+                        principalTable: "showTimeSeats",
+                        principalColumn: "ShowtimeSeatID");
+                });
+
             migrationBuilder.InsertData(
                 table: "Cinemas",
                 columns: new[] { "CinemaID", "Address", "AdminID", "CinemaCity", "ClosingTime", "CreatedAt", "Name", "NumberOfRooms", "OpeningTime", "Status", "UpdatedAt" },
@@ -504,11 +529,11 @@ namespace Cinema.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Products",
-                columns: new[] { "ProductID", "CountProduct", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
+                columns: new[] { "ProductID", "Count", "CountProduct", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
                 values: new object[,]
                 {
-                    { 1, 0, "A large bucket of buttered popcorn.", "Popcorn", 5.9900000000000002, "", 0, 50 },
-                    { 2, 0, "Refreshing cold soda, 500ml.", "Soda", 2.9900000000000002, "", 1, 100 }
+                    { 1, 0, 0, "A large bucket of buttered popcorn.", "Popcorn", 5.9900000000000002, "", 0, 50 },
+                    { 2, 0, 0, "Refreshing cold soda, 500ml.", "Soda", 2.9900000000000002, "", 1, 100 }
                 });
 
             migrationBuilder.InsertData(
@@ -597,56 +622,56 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ShowtimeSeatID", "Price", "SeatID", "SeatType", "ShowtimeID", "Status" },
                 values: new object[,]
                 {
-                    { 1, 10.0, 1, 1, 1, 0 },
-                    { 2, 10.0, 2, 1, 1, 0 },
-                    { 3, 10.0, 3, 1, 1, 0 },
-                    { 4, 10.0, 4, 1, 1, 0 },
-                    { 5, 10.0, 5, 1, 1, 0 },
-                    { 6, 10.0, 6, 1, 1, 0 },
-                    { 7, 10.0, 7, 1, 1, 0 },
-                    { 8, 10.0, 8, 1, 1, 0 },
-                    { 9, 10.0, 9, 1, 1, 0 },
-                    { 10, 10.0, 10, 1, 1, 0 },
-                    { 11, 10.0, 11, 1, 1, 0 },
-                    { 12, 10.0, 12, 1, 1, 0 },
+                    { 1, 10.0, 1, 0, 1, 0 },
+                    { 2, 10.0, 2, 0, 1, 0 },
+                    { 3, 10.0, 3, 0, 1, 0 },
+                    { 4, 10.0, 4, 0, 1, 0 },
+                    { 5, 10.0, 5, 0, 1, 0 },
+                    { 6, 10.0, 6, 0, 1, 0 },
+                    { 7, 10.0, 7, 0, 1, 0 },
+                    { 8, 10.0, 8, 0, 1, 0 },
+                    { 9, 10.0, 9, 0, 1, 0 },
+                    { 10, 10.0, 10, 0, 1, 0 },
+                    { 11, 10.0, 11, 0, 1, 0 },
+                    { 12, 10.0, 12, 0, 1, 0 },
                     { 13, 20.0, 13, 0, 1, 0 },
                     { 14, 20.0, 14, 0, 1, 0 },
                     { 15, 20.0, 15, 0, 1, 0 },
                     { 16, 20.0, 16, 0, 1, 0 },
                     { 17, 20.0, 17, 0, 1, 0 },
                     { 18, 20.0, 18, 0, 1, 0 },
-                    { 19, 10.0, 19, 1, 1, 0 },
-                    { 20, 10.0, 20, 1, 1, 0 },
-                    { 21, 10.0, 21, 1, 1, 0 },
-                    { 22, 10.0, 22, 1, 1, 0 },
+                    { 19, 10.0, 19, 0, 1, 0 },
+                    { 20, 10.0, 20, 0, 1, 0 },
+                    { 21, 10.0, 21, 0, 1, 0 },
+                    { 22, 10.0, 22, 0, 1, 0 },
                     { 23, 20.0, 23, 0, 1, 0 },
                     { 24, 20.0, 24, 0, 1, 0 },
                     { 25, 20.0, 25, 0, 1, 0 },
                     { 26, 20.0, 26, 0, 1, 0 },
                     { 27, 20.0, 27, 0, 1, 0 },
                     { 28, 20.0, 28, 0, 1, 0 },
-                    { 29, 10.0, 29, 1, 1, 0 },
-                    { 30, 10.0, 30, 1, 1, 0 },
-                    { 31, 10.0, 31, 1, 1, 0 },
-                    { 32, 10.0, 32, 1, 1, 0 },
+                    { 29, 10.0, 29, 0, 1, 0 },
+                    { 30, 10.0, 30, 0, 1, 0 },
+                    { 31, 10.0, 31, 0, 1, 0 },
+                    { 32, 10.0, 32, 0, 1, 0 },
                     { 33, 20.0, 33, 0, 1, 0 },
                     { 34, 20.0, 34, 0, 1, 0 },
                     { 35, 20.0, 35, 0, 1, 0 },
                     { 36, 20.0, 36, 0, 1, 0 },
                     { 37, 20.0, 37, 0, 1, 0 },
                     { 38, 20.0, 38, 0, 1, 0 },
-                    { 39, 10.0, 39, 1, 1, 0 },
-                    { 40, 10.0, 40, 1, 1, 0 },
-                    { 41, 10.0, 41, 1, 1, 0 },
-                    { 42, 10.0, 42, 1, 1, 0 },
-                    { 43, 10.0, 43, 1, 1, 0 },
-                    { 44, 10.0, 44, 1, 1, 0 },
-                    { 45, 10.0, 45, 1, 1, 0 },
-                    { 46, 10.0, 46, 1, 1, 0 },
-                    { 47, 10.0, 47, 1, 1, 0 },
-                    { 48, 10.0, 48, 1, 1, 0 },
-                    { 49, 10.0, 49, 1, 1, 0 },
-                    { 50, 10.0, 50, 1, 1, 0 }
+                    { 39, 10.0, 39, 0, 1, 0 },
+                    { 40, 10.0, 40, 0, 1, 0 },
+                    { 41, 10.0, 41, 0, 1, 0 },
+                    { 42, 10.0, 42, 0, 1, 0 },
+                    { 43, 10.0, 43, 0, 1, 0 },
+                    { 44, 10.0, 44, 0, 1, 0 },
+                    { 45, 10.0, 45, 0, 1, 0 },
+                    { 46, 10.0, 46, 0, 1, 0 },
+                    { 47, 10.0, 47, 0, 1, 0 },
+                    { 48, 10.0, 48, 0, 1, 0 },
+                    { 49, 10.0, 49, 0, 1, 0 },
+                    { 50, 10.0, 50, 0, 1, 0 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -699,6 +724,21 @@ namespace Cinema.DataAccess.Migrations
                 column: "OrderID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_ProductID",
+                table: "OrderDetails",
+                column: "ProductID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_ShowtimeSeatID",
+                table: "OrderDetails",
+                column: "ShowtimeSeatID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_UserID",
+                table: "OrderDetails",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderTables_CouponID",
                 table: "OrderTables",
                 column: "CouponID");
@@ -717,6 +757,21 @@ namespace Cinema.DataAccess.Migrations
                 name: "IX_Seats_RoomID",
                 table: "Seats",
                 column: "RoomID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShoppingCarts_ProductID",
+                table: "ShoppingCarts",
+                column: "ProductID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShoppingCarts_ShowtimeSeatID",
+                table: "ShoppingCarts",
+                column: "ShowtimeSeatID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShoppingCarts_UserID",
+                table: "ShoppingCarts",
+                column: "UserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_showTimes_CinemaID",
@@ -773,16 +828,10 @@ namespace Cinema.DataAccess.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "FoodSelectionVM");
-
-            migrationBuilder.DropTable(
                 name: "OrderDetails");
 
             migrationBuilder.DropTable(
-                name: "Products");
-
-            migrationBuilder.DropTable(
-                name: "showTimeSeats");
+                name: "ShoppingCarts");
 
             migrationBuilder.DropTable(
                 name: "UserCoupon");
@@ -794,13 +843,19 @@ namespace Cinema.DataAccess.Migrations
                 name: "OrderTables");
 
             migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
+                name: "showTimeSeats");
+
+            migrationBuilder.DropTable(
+                name: "Coupons");
+
+            migrationBuilder.DropTable(
                 name: "Seats");
 
             migrationBuilder.DropTable(
                 name: "showTimes");
-
-            migrationBuilder.DropTable(
-                name: "Coupons");
 
             migrationBuilder.DropTable(
                 name: "Movies");

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 public class ShowtimeSeat
 {
     [Key]
-    public int ShowtimeSeatID { get; set; }
+    public int ShowtimeSeatID { get; set; } // seat
 
     [Required]
     public int ShowtimeID { get; set; } // Foreign key
@@ -43,9 +43,9 @@ public class ShowtimeSeat
 // Enum for different ticket types
 public enum TicketType
 {
-   Vip,
-   Standard,
-   Double
+  
+   Standard
+  
 }
 
 // Enum for seat booking status
@@ -53,5 +53,5 @@ public enum ShowtimeSeatStatus
 {
     Available,
     Booked,
-    CheckedIn
+    Maintenance
 }

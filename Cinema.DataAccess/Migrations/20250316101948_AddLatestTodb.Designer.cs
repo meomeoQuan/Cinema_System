@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250314152756_AddLatestTodbs")]
-    partial class AddLatestTodbs
+    [Migration("20250316101948_AddLatestTodb")]
+    partial class AddLatestTodb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -312,52 +312,33 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
-                    b.Property<string>("Cinema")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MovieId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MovieName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("OrderID")
                         .HasColumnType("int");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int>("ShowtimeSeatID")
                         .HasColumnType("int");
 
-                    b.Property<string>("RoomName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Showtime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("UserID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("OrderDetailID");
 
                     b.HasIndex("OrderID");
+
+                    b.HasIndex("ProductID");
+
+                    b.HasIndex("ShowtimeSeatID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("OrderDetails");
                 });
@@ -370,44 +351,26 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderID"));
 
-                    b.Property<string>("Cinema")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("CouponID")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("MovieID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MovieName")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoomID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RoomName")
+                    b.Property<string>("Phonenumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ShowDate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Showtime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<double>("TotalAmount")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -432,6 +395,9 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductID"));
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
 
                     b.Property<int>("CountProduct")
                         .HasColumnType("int");
@@ -463,6 +429,7 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 1,
+                            Count = 0,
                             CountProduct = 0,
                             Description = "A large bucket of buttered popcorn.",
                             Name = "Popcorn",
@@ -474,6 +441,7 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 2,
+                            Count = 0,
                             CountProduct = 0,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Soda",
@@ -967,6 +935,37 @@ namespace Cinema.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Cinema.Models.ShoppingCart", b =>
+                {
+                    b.Property<int>("ShoppingCartID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShoppingCartID"));
+
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ShowtimeSeatID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ShoppingCartID");
+
+                    b.HasIndex("ProductID");
+
+                    b.HasIndex("ShowtimeSeatID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("ShoppingCarts");
+                });
+
             modelBuilder.Entity("Cinema.Models.ShowTime", b =>
                 {
                     b.Property<int>("ShowTimeID")
@@ -1198,24 +1197,6 @@ namespace Cinema.DataAccess.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("UserCoupon");
-                });
-
-            modelBuilder.Entity("Cinema.Models.ViewModels.FoodSelectionVM", b =>
-                {
-                    b.Property<int>("FoodId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FoodName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.ToTable("FoodSelectionVM");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1462,7 +1443,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 1,
                             Price = 10.0,
                             SeatID = 1,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1471,7 +1452,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 2,
                             Price = 10.0,
                             SeatID = 2,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1480,7 +1461,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 3,
                             Price = 10.0,
                             SeatID = 3,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1489,7 +1470,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 4,
                             Price = 10.0,
                             SeatID = 4,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1498,7 +1479,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 5,
                             Price = 10.0,
                             SeatID = 5,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1507,7 +1488,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 6,
                             Price = 10.0,
                             SeatID = 6,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1516,7 +1497,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 7,
                             Price = 10.0,
                             SeatID = 7,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1525,7 +1506,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 8,
                             Price = 10.0,
                             SeatID = 8,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1534,7 +1515,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 9,
                             Price = 10.0,
                             SeatID = 9,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1543,7 +1524,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 10,
                             Price = 10.0,
                             SeatID = 10,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1552,7 +1533,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 11,
                             Price = 10.0,
                             SeatID = 11,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1561,7 +1542,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 12,
                             Price = 10.0,
                             SeatID = 12,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1624,7 +1605,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 19,
                             Price = 10.0,
                             SeatID = 19,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1633,7 +1614,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 20,
                             Price = 10.0,
                             SeatID = 20,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1642,7 +1623,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 21,
                             Price = 10.0,
                             SeatID = 21,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1651,7 +1632,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 22,
                             Price = 10.0,
                             SeatID = 22,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1714,7 +1695,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 29,
                             Price = 10.0,
                             SeatID = 29,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1723,7 +1704,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 30,
                             Price = 10.0,
                             SeatID = 30,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1732,7 +1713,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 31,
                             Price = 10.0,
                             SeatID = 31,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1741,7 +1722,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 32,
                             Price = 10.0,
                             SeatID = 32,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1804,7 +1785,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 39,
                             Price = 10.0,
                             SeatID = 39,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1813,7 +1794,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 40,
                             Price = 10.0,
                             SeatID = 40,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1822,7 +1803,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 41,
                             Price = 10.0,
                             SeatID = 41,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1831,7 +1812,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 42,
                             Price = 10.0,
                             SeatID = 42,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1840,7 +1821,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 43,
                             Price = 10.0,
                             SeatID = 43,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1849,7 +1830,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 44,
                             Price = 10.0,
                             SeatID = 44,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1858,7 +1839,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 45,
                             Price = 10.0,
                             SeatID = 45,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1867,7 +1848,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 46,
                             Price = 10.0,
                             SeatID = 46,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1876,7 +1857,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 47,
                             Price = 10.0,
                             SeatID = 47,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1885,7 +1866,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 48,
                             Price = 10.0,
                             SeatID = 48,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1894,7 +1875,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 49,
                             Price = 10.0,
                             SeatID = 49,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         },
@@ -1903,7 +1884,7 @@ namespace Cinema.DataAccess.Migrations
                             ShowtimeSeatID = 50,
                             Price = 10.0,
                             SeatID = 50,
-                            SeatType = 1,
+                            SeatType = 0,
                             ShowtimeID = 1,
                             Status = 0
                         });
@@ -1931,12 +1912,34 @@ namespace Cinema.DataAccess.Migrations
             modelBuilder.Entity("Cinema.Models.OrderDetail", b =>
                 {
                     b.HasOne("Cinema.Models.OrderTable", "Order")
-                        .WithMany("OrderDetails")
+                        .WithMany()
                         .HasForeignKey("OrderID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Cinema.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShowtimeSeat", "ShowtimeSeat")
+                        .WithMany()
+                        .HasForeignKey("ShowtimeSeatID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cinema.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
                     b.Navigation("Order");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ShowtimeSeat");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Cinema.Models.OrderTable", b =>
@@ -1976,6 +1979,27 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Cinema.Models.ShoppingCart", b =>
+                {
+                    b.HasOne("Cinema.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID");
+
+                    b.HasOne("ShowtimeSeat", "ShowtimeSeat")
+                        .WithMany()
+                        .HasForeignKey("ShowtimeSeatID");
+
+                    b.HasOne("Cinema.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ShowtimeSeat");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Cinema.Models.ShowTime", b =>
@@ -2111,11 +2135,6 @@ namespace Cinema.DataAccess.Migrations
             modelBuilder.Entity("Cinema.Models.Movie", b =>
                 {
                     b.Navigation("ShowTimes");
-                });
-
-            modelBuilder.Entity("Cinema.Models.OrderTable", b =>
-                {
-                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Cinema.Models.Room", b =>

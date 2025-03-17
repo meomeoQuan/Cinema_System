@@ -18,6 +18,7 @@ namespace Cinema.DataAccess.Data
         {
         }
 
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<OrderTable> OrderTables { get; set; }
         public DbSet<Room> Rooms { get; set; }
@@ -33,7 +34,7 @@ namespace Cinema.DataAccess.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FoodSelectionVM>().HasNoKey();
+            //modelBuilder.Entity<FoodSelectionVM>().HasNoKey();
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
@@ -385,7 +386,7 @@ namespace Cinema.DataAccess.Data
          SeatID = seatId,          // Each seat (1-50)
          Price = (IsVipSeat(seatId) ? 20.0 : 10.0), // VIP seats cost more
          Status = ShowtimeSeatStatus.Available,
-         SeatType = IsVipSeat(seatId) ? TicketType.Vip : TicketType.Standard,
+         SeatType =  TicketType.Standard,
      }).ToArray()
  );
 

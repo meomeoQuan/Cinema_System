@@ -11,6 +11,12 @@ namespace Cinema.Models.ViewModels
     public class MovieDetailVM
     {
         public Movie Movie { get; set; }
-        public OrderDetail OrderDetail { get; set; }
+        public OrderTable OrderTable { get; set; }
+        // List to store multiple seats
+        public List<ShoppingCart> ListCart { get; set; }
+        public List<ShowtimeSeat> ShowtimeSeats { get; set; }
+
+        //public ShoppingCart ShoppingCart { get; set; }
+        public List<Product> products { get; set; }
     }
 }

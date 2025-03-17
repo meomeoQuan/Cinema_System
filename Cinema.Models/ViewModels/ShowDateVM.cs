@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Cinema.Models.ViewModels
 {
-    public class TicketSelectionVM
+    public class ShowDateVM
     {
-        public string Category { get; set; }
-        public int Quantity { get; set; }
+        public string Date { get; set; } = string.Empty;
+        public bool Selected { get; set; }
     }
-
 }

@@ -41,44 +41,112 @@
 
 	<div class="container mt-3 mb-4">
 		<div class="row mb-3">
-			<div class="text-center fw-bold"><h3>Lịch Chiếu</h3></div>
+            <h2 class="text-center">Lịch Chiếu</h2>
 			
 			<div id="filterDates" class="col-12 d-flex justify-content-evenly flex-wrap mb-2"></div>
 
 			<div class="d-flex justify-content-between align-items-center mb-2">
-				<div class="fw-bold"><h3>Danh sách Rạp</h3></div>
+               <h2 class="text-center">Danh sách Rạp</h2>
 				<div id="filterCities" class="small"></div>
 			</div>
 
 			<div id="movieDetails" class="col-8 mb-2 mx-auto"></div>
-			<h3 class="category-title text-center fw-bold">Chọn loại vé</h3>
-			<div id="ticketContainer" class="row justify-content-center">
-				<!-- Ticket types will be inserted dynamically here -->
-			</div>
 
+            <form asp-action="Index" method="get">
+                <input type="hidden" name="showtimeId" id="selectedShowtime" value="0" />
+                <input type="hidden" name="movieId" id="movieID" value="@ViewData["MovieID"]" />
+                <button type="submit" class="btn btn-success">Render Seat</button>
+            </form>
+
+
+
+		
 			</div>
 
 		</div>
-	<div id="seatsContainer" class="mb-4 mx-auto col-8"></div>
+    <div class="mb-5"><h3 class="category-title text-center fw-bold">Seat Selection</h3></div>
+    <div class="screen text-center mb-5 ">Screen</div>
 
+    @if (Model.ShowtimeSeats.Any())
+    {
+        <div id="seatsContainer" class="mx-auto seat-grid-container">
+            <form method="post" asp-action="SeatChosing">
+                <input type="hidden" name="movieId" id="movieID" value="@ViewData["MovieID"]" />
+                <input type="hidden" name="showtimeId" id="selectedShowtime" value="@TempData["ShowtimeID"]" />
 
+                @foreach (var row in Model.ShowtimeSeats.GroupBy(seat => seat.Seat.SeatName.Substring(0, 1))) // Group by letter
+                {
+                    <div class="seat-row">
+                        @foreach (var seat in row.OrderBy(s => int.Parse(s.Seat.SeatName.Substring(1)))) // Sort numerically
+                        {
+                            <div class="seat @(seat.Status == ShowtimeSeatStatus.Booked ? "booked" : "") @(seat.Status == ShowtimeSeatStatus.Maintenance ? "maintenance" : "")"
+                                 data-seat-id="@seat.Seat.SeatID"
+                                 data-seat-number="@seat.Seat.ColumnNumber"
+                                 data-price="@seat.Price"
+                                 data-seat-type="@seat.SeatType">
 
-
-
-
-
-
-
-
-    <!-- Section 4: Food Selection -->
-    <section id="food-selection" class="mb-5">
-        <h2 class="text-center">Food</h2>
-        <h3 class="category-title text-center">Combo Food</h3>
-        <div class="row justify-content-center" id="foodContainer">
-          
-          
+                                <button class="seat-button" type="submit" name="seatId" value="@seat.ShowtimeSeatID">
+                                    <span>@seat.Seat.SeatName</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </form>
         </div>
-    </section>
+    }
+    else
+    {
+        <p class="text-center">Please select a showtime to view available seats.</p>
+    }
+
+
+    <div class="seat-guideline d-flex justify-content-center my-3">
+        <div class="seat-legend">
+            <div class="seat-example available"></div> <span>Available</span>
+        </div>
+        <div class="seat-legend">
+            <div class="seat-example booked"></div> <span>Booked</span>
+        </div>
+        <div class="seat-legend">
+            <div class="seat-example maintenance"></div> <span>Maintenance</span>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <div class="row justify-content-center mt-5">
+        <h2 class="text-center">Food</h2>
+
+        @foreach (var item in Model.products)
+        {
+            <div class="col-md-4 d-flex justify-content-center">
+                <div class="product-card d-flex align-items-center">
+                    <img src="@(item.ProductImage ?? "/css/images/default-food.png")"
+                         alt="@item.Name" class="product-img">
+                    <div class="product-info">
+                        <h4 class="food-name">@item.Name</h4>
+                        <p>@item.Description</p>
+                        <span class="price">@item.Price.ToString("N2") VND</span>
+                        <div class="quantity d-flex justify-content-end">
+                            <a asp-action="DecreaseQuantity" asp-route-productId="@item.ProductID" asp-route-movieId="@ViewData["MovieID"]" asp-route-showtimeId="@TempData["ShowtimeID"]" class="btn minus">-</a>
+                            @* <span class="count mx-2">@item.Count</span> <!--  count not mapped in product --> *@
+                            <a asp-action="IncreaseQuantity" asp-route-productId="@item.ProductID" asp-route-movieId="@ViewData["MovieID"]" asp-route-showtimeId="@TempData["ShowtimeID"]" class="btn plus">+</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+  
 
    
         <div class="row align-items-center">
@@ -110,91 +178,143 @@
 
 
 
-   <form method="post" class="mb-5 ">
-    <input type="hidden" name="MovieId" id="movieID" />
-    <input type="hidden" name="MovieName" id="MovieName" />
-    <input type="hidden" name="Date" id="selectedDate" />
-    <input type="hidden" name="City" id="selectedCity" />
-    <input type="hidden" name="Cinema" id="selectedCinema" />
-    <input type="hidden" name="RoomId" id="RoomId" />
-    <input type="hidden" name="RoomName" id="RoomName" />
-    <input type="hidden" name="Showtime" id="selectedShowtime" />
-    <input type="hidden" name="TotalPrice" id="TotalPrice" />
-
-    <!-- Serialize JSON data before submission -->
-    <input type="hidden" name="TicketsJson" id="TicketsJson" />
-    <input type="hidden" name="SelectedSeatsJson" id="SelectedSeatsJson" />
-    <input type="hidden" name="ItemsJson" id="ItemsJson" />
-
-    <button type="submit" asp-controller="Detail" asp-action="ConfirmBooking" class="btn btn-success">Confirm Booking</button>
-</form>
-
-
    
 
-
-
-	
 
 
 @section Scripts {
 	<script src="~/js/detail.js"></script>
 	<link rel="stylesheet" href="~/css/detail.css" />
         <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // Example of setting JSON values dynamically
-                document.getElementById("TicketsJson").value = JSON.stringify(selectedTickets);
-                document.getElementById("SelectedSeatsJson").value = JSON.stringify(selectedSeats);
-                document.getElementById("ItemsJson").value = JSON.stringify(selectedFoodItems);
-            });
+          
             document.getElementById("booking-summary")?.classList.remove("d-none");
-                    <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // Example: Setting values when the user selects options
-                document.getElementById("MovieName").value = "Inception";
-                document.getElementById("selectedDate").value = "2025-03-15";
-                document.getElementById("selectedCity").value = "Tokyo";
-                document.getElementById("selectedCinema").value = "Shibuya IMAX";
-                document.getElementById("RoomId").value = "101";
-                document.getElementById("RoomName").value = "VIP Room";
-                document.getElementById("selectedShowtime").value = "18:00";
-                document.getElementById("TotalPrice").value = "3500";
-
-                // Example: Storing ticket selections in JSON
-                let selectedTickets = [
-                    { "Category": "Standard", "Quantity": 2 },
-                    { "Category": "VIP", "Quantity": 1 }
-                ];
-                document.getElementById("TicketsJson").value = JSON.stringify(selectedTickets);
-
-                // Example: Storing seat selections in JSON
-                let selectedSeats = [
-                    { "SeatNumber": "A1" },
-                    { "SeatNumber": "A2" }
-                ];
-                document.getElementById("SelectedSeatsJson").value = JSON.stringify(selectedSeats);
-
-                // Example: Storing food selections in JSON
-                let selectedFood = [
-                    { "Item": "Popcorn", "Quantity": 1 },
-                    { "Item": "Soda", "Quantity": 1 }
-                ];
-                document.getElementById("ItemsJson").value = JSON.stringify(selectedFood);
-            });
-
-            // Ensure values are set before submitting
-            document.getElementById("bookingForm").addEventListener("submit", function () {
-                console.log("Submitting form with:");
-                console.log("Movie Name:", document.getElementById("MovieName").value);
-                console.log("Tickets:", document.getElementById("TicketsJson").value);
-                console.log("Seats:", document.getElementById("SelectedSeatsJson").value);
-                console.log("Food:", document.getElementById("ItemsJson").value);
-            });
-        </script>
-
+                   
+           
         </script>
 }
 
 
 
+<style>
 
+        /* Container to align rows properly */
+        .seat-grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Each row (A, B, C...) is displayed on one line */
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Seat container */
+        .seat {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Seat button */
+        /* Seat button with radial gradient */
+        .seat-button {
+            width: 100%;
+            height: 100%;
+            /* font-size: 1.4rem; */
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            background: radial-gradient(circle at center, #001f3f, #001f3f); /* Dark blue to black gradient */
+            color: white;
+            border-radius: 10px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            /* Hover effect */
+            .seat-button:hover {
+                background: radial-gradient(circle at center, #003366, #001f3f); /* Slightly lighter gradient */
+            }
+
+
+            /* Consistent button width */
+            .seat-button span {
+                display: inline-block;
+                min-width: 35px;
+                text-align: center;
+            }
+
+        /* Booked & Maintenance Seats */
+        .booked .seat-button {
+            background-color: #dc3545;
+            cursor: not-allowed;
+        }
+
+        .maintenance .seat-button {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Styling for quantity buttons */
+        .quantity .btn {
+            background-color: #6c757d; /* Bootstrap gray */
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+            /* Hover effect */
+            .quantity .btn:hover {
+                background-color: #5a6268; /* Slightly darker gray */
+            }
+
+            /* Active (pressed) effect */
+            .quantity .btn:active {
+                background-color: #495057; /* Darker gray */
+                transform: scale(0.95);
+            }
+
+        /* Seat Guideline (Legend) */
+        .seat-guideline {
+            display: flex;
+            gap: 20px;
+        }
+
+        .seat-legend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .seat-example {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+        }
+
+            /* Colors matching seat buttons */
+            .seat-example.available {
+                background: radial-gradient(circle at center, #001f3f, #001f3f); /* Dark blue to black gradient */
+            }
+
+            .seat-example.booked {
+                background-color: #dc3545;
+            }
+
+            .seat-example.maintenance {
+                background-color: #6c757d;
+            }
+
+</style>
