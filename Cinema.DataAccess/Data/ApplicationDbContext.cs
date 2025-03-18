@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cinema.DataAccess.Repository;
 using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +15,10 @@ namespace Cinema.DataAccess.Data
     public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     {
+        //public readonly ApplicationUserRepository _applicationUserRepository;
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
+            //_applicationUserRepository = new ApplicationUserRepository(this);
         }
 
         public DbSet<OrderDetail> OrderDetails { get; set; }
@@ -163,6 +166,7 @@ namespace Cinema.DataAccess.Data
                 }
             );
             // Seed Sample Theaters
+            //var adminUser = _applicationUserRepository.FindAdminUserByName("Admin");
             modelBuilder.Entity<Theater>().HasData(
                 new Theater
                 {
@@ -174,8 +178,8 @@ namespace Cinema.DataAccess.Data
                     Status = CinemaStatus.Open,
                     OpeningTime = "09:00",  // Changed from TimeSpan to string
                     ClosingTime = "23:00",  // Changed from TimeSpan to string
-               
-                 
+                    //AdminID = adminUser.Id
+
                 },
                 new Theater
                 {
@@ -218,23 +222,23 @@ namespace Cinema.DataAccess.Data
                     }
             );
             modelBuilder.Entity<Room>().HasData(
-    new Room
-    {
-        RoomID = 1,
-        RoomNumber = "A1",
-        Capacity = 100,
-        Status = RoomStatus.Available,
-        CinemaID = 1 // Matches existing Theater
-    },
-    new Room
-    {
-        RoomID = 2,
-        RoomNumber = "B1",
-        Capacity = 150,
-        Status = RoomStatus.Available,
-        CinemaID = 2 // Matches existing Theater
-    }
-);
+                new Room
+                {
+                    RoomID = 1,
+                    RoomNumber = "A1",
+                    Capacity = 100,
+                    Status = RoomStatus.Available,
+                    CinemaID = 1 // Matches existing Theater
+                },
+                new Room
+                {
+                    RoomID = 2,
+                    RoomNumber = "B1",
+                    Capacity = 150,
+                    Status = RoomStatus.Available,
+                    CinemaID = 2 // Matches existing Theater
+                }
+            );
             // Seed Seats for RoomID = 1 (5 rows x 10 columns = 50 seats)
             modelBuilder.Entity<Seat>().HasData(
                 // Row A

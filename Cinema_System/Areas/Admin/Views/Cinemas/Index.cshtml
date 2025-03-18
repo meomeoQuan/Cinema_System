@@ -2,27 +2,31 @@
 @model IEnumerable<Theater>
 
 @{
-    ViewData["Title"] = "Cinema Management";
+	ViewData["Title"] = "Cinema Management";
 }
 
 <div class="container-fluid mt-4">
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 fw-bold">Cinema Management</h3>
-            <button id="addTheaterBtn" class="btn btn-primary">Add Cinema</button>
+            <h3 class="card-title mb-0 fw-bold">
+                <i class=""></i> Cinema Management
+            </h3>
+            <button id="addTheaterBtn" class="btn btn-primary">
+                <i class=""></i> Add 
+            </button>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table id="tblData" class="table table-bordered table-hover table-striped">
                     <thead class="thead-light">
                         <tr>
-                            <th style="width: 20%;">Name</th>
-                            <th style="width: 20%;">Address</th>
-                            <th style="width: 5%;">Admin</th>
+                            <th style="width: 15%;">Name</th>
+                            <th style="width: 15%;">Address</th>
+                            <th style="width: 13%;">Admin</th>
                             <th style="width: 5%;">Space</th>
                             <th style="width: 5%;">Status</th>
-                            <th style="width: 13%;">Opening Time</th>
-                            <th style="width: 13%;">Closing Time</th>
+                            <th style="width: 11%;">Opening Time</th>
+                            <th style="width: 11%;">Closing Time</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -34,16 +38,25 @@
                                 <td>@theater.Address</td>
                                 <td>@theater.AdminID</td>
                                 <td>@theater.NumberOfRooms</td>
-                                <td>
+                                <td class="text-center">
                                     <span class="badge @(theater.Status == CinemaStatus.Open ? "bg-success" : "bg-danger")">
+                                        <i class="bi @(theater.Status == CinemaStatus.Open ? "bi-door-open" : "bi-door-closed")"></i>
                                         @theater.Status
                                     </span>
                                 </td>
                                 <td>@theater.OpeningTime</td>
                                 <td>@theater.ClosingTime</td>
                                 <td class="text-center">
-                                    <button onclick="editTheater('@theater.CinemaID')" class="btn btn-primary btn-sm">Edit</button>
-                                    <a href="/Admin/Rooms/Index?cinemaId=@theater.CinemaID" class="btn btn-secondary btn-sm">Room Management</a>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button onclick="editTheater('@theater.CinemaID')"
+                                                class="btn btn-primary btn-sm">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </button>
+                                        <a href="/Admin/Rooms/Index?cinemaId=@theater.CinemaID"
+                                           class="btn btn-secondary btn-sm">
+                                            <i class=""></i> Manage Room 
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -59,7 +72,7 @@
         </div>
     </div>
 
-    <!-- Add/Edit Theater Form -->
+    <!-- AddTheater Form -->
     <div class="card shadow-sm mt-3 d-none" id="theater-form">
         <div class="card-header bg-primary text-white text-center">
             <h4 class="mb-0">Add Cinema</h4>
@@ -76,6 +89,10 @@
                     <input type="text" class="form-control" id="theaterAddress" required>
                 </div>
                 <div class="mb-3">
+                    <label class="form-label">Admin</label>
+                    <input type="text" class="form-control" id="theaterAdmin" required>
+                </div>
+                <div class="mb-3">
                     <label class="form-label">Space</label>
                     <input type="number" class="form-control" id="theaterRooms" required>
                 </div>
@@ -87,63 +104,65 @@
                     <label class="form-label">Closing Time</label>
                     <input type="time" class="form-control" id="theaterClosingTime" required>
                 </div>
-                <button type="submit" class="btn btn-secondary w-100">Submit</button>
+                <button type="submit" class="btn btn-secondary w-100">
+                    <i class="bi bi-check-circle"></i> Submit
+                </button>
             </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-             $('#tblData').DataTable({
-                "pageLength": 10,
-                "lengthMenu": [5, 10, 25, 50],
-                "searching": true,
-                "ordering": true,
-                "info": true
-            });
+	<script>
+		$(document).ready(function () {
+			 $('#tblData').DataTable({
+				"pageLength": 10,
+				"lengthMenu": [5, 10, 25, 50],
+				"searching": true,
+				"ordering": true,
+				"info": true
+			});
 
-            // Cập nhật lại DataTable khi mở sidebar
-            function adjustTableWidth() {
-                setTimeout(function () {
-                    dataTable.columns.adjust().responsive.recalc();
-                }, 300);
-            }
+			// Cập nhật lại DataTable khi mở sidebar
+			function adjustTableWidth() {
+				setTimeout(function () {
+					dataTable.columns.adjust().responsive.recalc();
+				}, 300);
+			}
 
-            // Toggle form Add Cinema
-            $('#addTheaterBtn').click(function () {
-                $('#theater-form').toggleClass('d-none');
-                if (!$('#theater-form').hasClass('d-none')) {
-                    $('html, body').animate({ scrollTop: $('#theater-form').offset().top }, 300);
-                }
-            });
+			// Toggle form Add Cinema
+			$('#addTheaterBtn').click(function () {
+				$('#theater-form').toggleClass('d-none');
+				if (!$('#theater-form').hasClass('d-none')) {
+					$('html, body').animate({ scrollTop: $('#theater-form').offset().top }, 300);
+				}
+			});
 
-            // Edit Cinema
-            function editTheater(cinemaID) {
-                $.get('/Admin/Theaters/Get/' + cinemaID, function (data) {
-                    $('#cinemaID').val(data.CinemaID);
-                    $('#theaterName').val(data.Name);
-                    $('#theaterAddress').val(data.Address);
-                    $('#theaterRooms').val(data.Space);
-                    $('#theaterOpeningTime').val(data.OpeningTime);
-                    $('#theaterClosingTime').val(data.ClosingTime);
-                    $('#theater-form').removeClass('d-none');
+			// Edit Cinema
+			function editTheater(cinemaID) {
+				$.get('/Admin/Theaters/Get/' + cinemaID, function (data) {
+					$('#cinemaID').val(data.CinemaID);
+					$('#theaterName').val(data.Name);
+					$('#theaterAddress').val(data.Address);
+					$('#theaterRooms').val(data.Space);
+					$('#theaterOpeningTime').val(data.OpeningTime);
+					$('#theaterClosingTime').val(data.ClosingTime);
+					$('#theater-form').removeClass('d-none');
 
-                    // Cuộn trang xuống form
-                    $('html, body').animate({ scrollTop: $('#theater-form').offset().top }, 300);
-                });
-            }
+					// Cuộn trang xuống form
+					$('html, body').animate({ scrollTop: $('#theater-form').offset().top }, 300);
+				});
+			}
 
-            // Khi mở sidebar, cập nhật lại DataTable
-            $('.sidebar-toggle').on('click', function () {
-                adjustTableWidth();
-            });
+			// Khi mở sidebar, cập nhật lại DataTable
+			$('.sidebar-toggle').on('click', function () {
+				adjustTableWidth();
+			});
 
-            // Khi resize cửa sổ, cập nhật lại DataTable
-            $(window).resize(function () {
-                adjustTableWidth();
-            });
-        });
-    </script>
+			// Khi resize cửa sổ, cập nhật lại DataTable
+			$(window).resize(function () {
+				adjustTableWidth();
+			});
+		});
+	</script>
 }

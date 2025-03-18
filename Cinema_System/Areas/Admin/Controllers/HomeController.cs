@@ -1,4 +1,5 @@
-using Cinema.DataAccess.Data;
+
+﻿using Cinema.DataAccess.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

@@ -22,5 +22,10 @@ namespace Cinema.DataAccess.Repository
         {
            _db.Update(applicationUser);
         }
-    }
+        public ApplicationUser? FindAdminUserByName(string name)
+        {
+            var users = _db.ApplicationUsers.ToList();
+            return users.FirstOrDefault(u => u.FullName == name);
+        }
+    } 
 }
