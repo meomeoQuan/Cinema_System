@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Reflection.Metadata.Ecma335;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Sockets;
+using Microsoft.CodeAnalysis;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -36,6 +37,7 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userName = claimsIdentity.FindFirst(ClaimTypes.Name).Subject;
 
             if (movieId == null)
             {
@@ -58,12 +60,14 @@ namespace Cinema_System.Areas.Guest.Controllers
                 )).ToList();
             }
             List<Product> productList = (List<Product>) await _unitOfWork.Product.GetAllAsync();
+
             ViewData["MovieID"] = movieId; // Store MovieID using ViewData
             TempData["ShowtimeID"] = showtimeId;
+            TempData["UserName"] = userName;
             var movieDetailVM = new MovieDetailVM
             {
                 Movie = movie,
-                ListCart =  _unitOfWork.ShoppingCart.GetAll(u => u.UserID == userId,includeProperties: "Product,ShowtimeSeat").ToList(), // product of person not system
+                ListCart =  _unitOfWork.ShoppingCart.GetAll(u => u.UserID == userId,includeProperties: "Product,ShowtimeSeat.Seat,User").ToList(), // product of person not system
                 OrderTable = new OrderTable(),
                 ShowtimeSeats = showtimeSeats,
                 products = productList,
@@ -155,6 +159,7 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             ViewData["MovieID"] = movieId; // Store MovieID using ViewData
             TempData["ShowtimeID"] = showtimeId;
+            TempData["UserID"] = userId;
             return View("Index", movieDetailVM);
         }
 
@@ -220,6 +225,7 @@ namespace Cinema_System.Areas.Guest.Controllers
             await _unitOfWork.SaveAsync();
             ViewData["MovieID"] = movieId; // Store MovieID using ViewData
             TempData["ShowtimeID"] = showtimeId;
+            TempData["UserID"] = userId;
             return View("Index", movieDetailVM);
         }
 
@@ -280,6 +286,7 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             ViewData["MovieID"] = movieId; // Store MovieID using ViewData
             TempData["ShowtimeID"] = showtimeId;
+            TempData["UserID"] = userId;
             await _unitOfWork.SaveAsync();
             return View("Index", movieDetailVM); // Redirect back to the shopping cart page
         }
@@ -288,7 +295,7 @@ namespace Cinema_System.Areas.Guest.Controllers
 
 
 
-
+      
 
 
 
