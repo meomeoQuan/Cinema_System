@@ -161,7 +161,7 @@ app.Use(async (context, next) =>
         {
             if (isAdmin && !path.StartsWith("/admin"))
             {
-                context.Response.Redirect("/Admin/Users/Index");
+                context.Response.Redirect("/Admin/Home/Revenue");
                 return;
             }
             else if (!isAdmin && path.StartsWith("/admin"))

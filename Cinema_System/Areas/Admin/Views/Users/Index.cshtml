@@ -1,9 +1,11 @@
 ﻿@using Cinema.Utility
+@using Cinema_System.Areas.Admin.Controllers
 @model IEnumerable<ApplicationUser>
 
 @{
     ViewData["Title"] = "User Management";
     // Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    // var checkUser = Cinema_System.Areas.Admin.Controllers.UsersController.CurrentUser();
 }
 
 <div class="container-fluid mt-4">
@@ -56,10 +58,13 @@
                                     <div class="d-flex gap-2 justify-content-center">
                                         @if (user.LockoutEnd == null || user.LockoutEnd < DateTime.Now)
                                         {
-                                            <button onclick="lockUser('@user.Id', this)"
-                                                    class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
-                                                <i class="bi bi-lock-fill me-1"></i>LOCK
-                                            </button>
+                                         
+                                                <button onclick="lockUser('@user.Id', this)"
+                                                        class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
+                                                    <i class="bi bi-lock-fill me-1"></i>LOCK
+                                                </button>
+                                            
+                                            
                                         }
                                         else
                                         {

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
@@ -193,26 +194,47 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Lock(string id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Lock(string id)
         {
-            var user = _unitOfWork.ApplicationUser.Get(u => u.Id == id);
+            var currentUserId = _userManager.GetUserId(User); // Lấy ID của người dùng hiện tại
+            if (id == currentUserId)
+            {
+                return Json(new { success = false, message = "You cannot lock your own account." });
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
-                return Json(new { success = false, message = "User not found." });
+                return Json(new { success = false, message = "User not found" });
+            }
+
+            if (await _userManager.IsInRoleAsync(user, SD.Role_Admin) ||
+                await _userManager.IsInRoleAsync(user, SD.Role_Staff))
+            {
+                return Json(new { success = false, message = "Cannot modify Admin or Staff accounts" });
             }
 
             try
             {
-                user.LockoutEnd = DateTime.Now.AddYears(1000);
-                _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "User locked successfully." });
+                // Khóa user bằng cách set LockoutEnd đến tương lai xa
+                user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "User has been locked successfully" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to lock user" });
+                }
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = $"Error locking user: {ex.Message}" });
             }
         }
-
         [HttpPost]
         public IActionResult Unlock(string id)
         {
@@ -236,6 +258,16 @@ namespace Cinema_System.Areas.Admin.Controllers
         public ApplicationUser SearchUserById(string id)
         {
             return _unitOfWork.ApplicationUser.Get(u => u.Id == id);
+        }
+
+        public bool CurrentUser(string idEditing)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine("Current user id: " + userId);
+            return userId == idEditing;
+            //var user = await _userManager.FindByIdAsync(id);
+            //return View(user);
         }
     }
 }
