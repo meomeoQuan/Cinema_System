@@ -1,13 +1,11 @@
 ﻿using Cinema.DataAccess.Data;
+using Cinema.DataAccess.Repository;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.X509;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Cinema_System.Areas.Admin.Controllers
 {
@@ -36,26 +34,29 @@ namespace Cinema_System.Areas.Admin.Controllers
         //     return Ok(revenueData);
         // }
 
-        public async Task<IActionResult> Revenue()
+           
+
+   public async Task<IActionResult> Revenue()
+    {
+        // Fetch monthly revenue data from the database
+        var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
+        var monthlyRevenue = revenueData
+            .GroupBy(o => o.CreatedAt.Month)
+            .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+            .OrderBy(r => r.Month)
+            .Select(r => r.Amount)
+            .ToList();
+
+        // Create the view model
+        var viewModel = new RevenueViewModel
         {
-            // Fetch monthly revenue data from the database
-            var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
-            var monthlyRevenue = revenueData
-                .GroupBy(o => o.CreatedAt.Month)
-                .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
-                .OrderBy(r => r.Month)
-                .Select(r => r.Amount)
-                .ToList();
+            MonthlyRevenue = monthlyRevenue
+        };
 
-            // Create the view model
-            var viewModel = new RevenueViewModel
-            {
-                MonthlyRevenue = monthlyRevenue
-            };
+        // Pass the view model to the view
+        return View(viewModel);
+    }
 
-            // Pass the view model to the view
-            return View(viewModel);
-        }
 
     //public async Task<IActionResult> Index()
     //{
@@ -79,5 +80,5 @@ namespace Cinema_System.Areas.Admin.Controllers
 
     //    return View(dashboardViewModel);
     //}
-    }
+}
 }

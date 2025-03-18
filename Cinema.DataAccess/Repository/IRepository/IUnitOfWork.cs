@@ -17,7 +17,7 @@ namespace Cinema.DataAccess.Repository.IRepository
         public IShowTimeRepository showTime { get; }
         public IApplicationUserRepository ApplicationUser { get; }
         public ICinemaRepository Cinema { get; }
-
+        public IRoomRepository Room { get; }
 
         Task SaveAsync();
     }
