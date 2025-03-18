@@ -1,85 +1,29 @@
-
-
+using Cinema.DataAccess.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
-
+using Microsoft.EntityFrameworkCore;
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    //[Authorize(Roles = "Admin")] 
+    //[Authorize(Roles = SD.Role_Admin)]
     public class HomeController : Controller
     {
-        // GET: HomeController
-        public ActionResult Index()
+        private readonly ApplicationDbContext _db;
+        public HomeController(ApplicationDbContext context)
         {
-            return View();
+            _db = context;
         }
-
-        // GET: HomeController/Details/5
-        public ActionResult Details(int id)
+        [HttpGet]
+        public IActionResult GetMonthlyRevenue()
         {
-            return View();
-        }
-
-        // GET: HomeController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: HomeController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: HomeController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: HomeController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var revenueData = _db.OrderTables
+                .GroupBy(o => o.CreatedAt.Month)
+                .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+                .OrderBy(r => r.Month)
+                .Select(r => r.Amount)
+                .ToArray();
+            return Ok(revenueData);
         }
     }
 }
-
-
-//        // POST: HomeController/Delete/5
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public ActionResult Delete(int id, IFormCollection collection)
-//        {
-//            try
-//            {
-//                return RedirectToAction(nameof(Index));
-//            }
-//            catch
-//            {
-//                return View();
-//            }
-
-//        }
-//    }
-//}
