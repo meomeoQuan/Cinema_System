@@ -2,17 +2,15 @@
 @model IEnumerable<Theater>
 
 @{
-	ViewData["Title"] = "Cinema Management";
+    ViewData["Title"] = "Cinema Management";
 }
 
 <div class="container-fluid mt-4">
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 fw-bold">
-                <i class=""></i> Cinema Management
-            </h3>
+            <h3 class="card-title mb-0 fw-bold">Cinema Management</h3>
             <button id="addTheaterBtn" class="btn btn-primary">
-                <i class=""></i> Add 
+                <i class=""></i> Add
             </button>
         </div>
         <div class="card-body">
@@ -24,7 +22,6 @@
                             <th style="width: 15%;">Address</th>
                             <th style="width: 13%;">Admin</th>
                             <th style="width: 5%;">Space</th>
-                            <th style="width: 5%;">Status</th>
                             <th style="width: 11%;">Opening Time</th>
                             <th style="width: 11%;">Closing Time</th>
                             <th class="text-center">Actions</th>
@@ -33,37 +30,28 @@
                     <tbody>
                         @foreach (var theater in Model)
                         {
-                            <tr>
-                                <td>@theater.Name</td>
-                                <td>@theater.Address</td>
-                                <td>@theater.AdminID</td>
-                                <td>@theater.NumberOfRooms</td>
-                                <td class="text-center">
-                                    <span class="badge @(theater.Status == CinemaStatus.Open ? "bg-success" : "bg-danger")">
-                                        <i class="bi @(theater.Status == CinemaStatus.Open ? "bi-door-open" : "bi-door-closed")"></i>
-                                        @theater.Status
-                                    </span>
-                                </td>
-                                <td>@theater.OpeningTime</td>
-                                <td>@theater.ClosingTime</td>
+                            <tr data-id="@theater.CinemaID">
+                                <td data-field="Name">@theater.Name</td>
+                                <td data-field="Address">@theater.Address</td>
+                                <td data-field="AdminID">@theater.AdminID</td>
+                                <td data-field="NumberOfRooms">@theater.NumberOfRooms</td>
+                                <td data-field="OpeningTime">@theater.OpeningTime</td>
+                                <td data-field="ClosingTime">@theater.ClosingTime</td>
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <button onclick="editTheater('@theater.CinemaID')"
-                                                class="btn btn-primary btn-sm">
+                                        <button class="btn btn-sm toggle-status-btn @(theater.Status == CinemaStatus.Open ? "btn-danger" : "btn-success")">
+                                            <i class="bi @(theater.Status == CinemaStatus.Open ? "bi-lock-fill" : "bi-unlock-fill")"></i>
+                                            @(theater.Status == CinemaStatus.Open ? "Block" : "Unlock")
+                                        </button>
+                                        <button class="btn btn-primary btn-sm edit-btn">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </button>
                                         <a href="/Admin/Rooms/Index?cinemaId=@theater.CinemaID"
                                            class="btn btn-secondary btn-sm">
-                                            <i class=""></i> Manage Room 
+                                            Manage Room
                                         </a>
                                     </div>
                                 </td>
-                            </tr>
-                        }
-                        @if (!Model.Any())
-                        {
-                            <tr>
-                                <td colspan="8" class="text-center">No cinemas found.</td>
                             </tr>
                         }
                     </tbody>
@@ -72,7 +60,7 @@
         </div>
     </div>
 
-    <!-- AddTheater Form -->
+    <!-- Add Theater Form -->
     <div class="card shadow-sm mt-3 d-none" id="theater-form">
         <div class="card-header bg-primary text-white text-center">
             <h4 class="mb-0">Add Cinema</h4>
@@ -115,7 +103,7 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			 $('#tblData').DataTable({
+			$('#tblData').DataTable({
 				"pageLength": 10,
 				"lengthMenu": [5, 10, 25, 50],
 				"searching": true,
@@ -123,46 +111,121 @@
 				"info": true
 			});
 
-			// Cập nhật lại DataTable khi mở sidebar
-			function adjustTableWidth() {
-				setTimeout(function () {
-					dataTable.columns.adjust().responsive.recalc();
-				}, 300);
-			}
-
-			// Toggle form Add Cinema
+			// Hiển thị / Ẩn form khi nhấn "Add"
 			$('#addTheaterBtn').click(function () {
 				$('#theater-form').toggleClass('d-none');
-				if (!$('#theater-form').hasClass('d-none')) {
-					$('html, body').animate({ scrollTop: $('#theater-form').offset().top }, 300);
+			});
+
+
+			$('#createCinemaForm').submit(function(e) {
+			 e.preventDefault();
+
+				var theaterData = {
+					Name: $('#theaterName').val().trim(),
+					Address: $('#theaterAddress').val().trim(),
+					AdminID: $('#theaterAdmin').val().trim(),
+					NumberOfRooms: $('#theaterRooms').val().trim(),
+					OpeningTime: $('#theaterOpeningTime').val().trim(),
+					ClosingTime: $('#theaterClosingTime').val().trim(),
+					__RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+				};
+
+				// Validate required fields
+				if (Object.values(theaterData).some(value => !value)) {
+					toastr.error('All fields are required.');
+					return;
 				}
+
+				$.ajax({
+					url: '/Admin/Cinemas/Create',
+					type: 'POST',
+					data: theaterData,
+					success: function (response) {
+						if (response.success) {
+							toastr.success(response.message);
+							alert('Cinema added successfully.');
+							location.reload();
+						} else {
+							toastr.error(response.message);
+						}
+					},
+					error: function (xhr) {
+						var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+						toastr.error(errorMessage);
+					}
 			});
+		});
 
-			// Edit Cinema
-			function editTheater(cinemaID) {
-				$.get('/Admin/Theaters/Get/' + cinemaID, function (data) {
-					$('#cinemaID').val(data.CinemaID);
-					$('#theaterName').val(data.Name);
-					$('#theaterAddress').val(data.Address);
-					$('#theaterRooms').val(data.Space);
-					$('#theaterOpeningTime').val(data.OpeningTime);
-					$('#theaterClosingTime').val(data.ClosingTime);
-					$('#theater-form').removeClass('d-none');
 
-					// Cuộn trang xuống form
-					$('html, body').animate({ scrollTop: $('#theater-form').offset().top }, 300);
+			// Xử lý khi nhấn "Edit"
+			$('#tblData').on('click', '.edit-btn', function () {
+				var row = $(this).closest('tr');
+				row.find('td[data-field]').each(function () {
+					$(this).attr('contenteditable', 'true').addClass('editable');
 				});
-			}
 
-			// Khi mở sidebar, cập nhật lại DataTable
-			$('.sidebar-toggle').on('click', function () {
-				adjustTableWidth();
+				$(this).removeClass('btn-primary edit-btn').addClass('btn-success save-btn').html('<i class="bi bi-check-circle"></i> Save');
 			});
 
-			// Khi resize cửa sổ, cập nhật lại DataTable
-			$(window).resize(function () {
-				adjustTableWidth();
+			// Xử lý khi nhấn "Save"
+			$('#tblData').on('click', '.save-btn', function () {
+				var row = $(this).closest('tr');
+				var id = row.data('id');
+				var updates = [];
+
+				row.find('td[contenteditable="true"]').each(function () {
+					var field = $(this).data('field');
+					var value = $(this).text().trim();
+					updates.push({ field, value });
+					$(this).removeAttr('contenteditable').removeClass('editable');
+				});
+
+				$.ajax({
+					url: '/Admin/Cinemas/UpdateFields',
+					type: 'POST',
+					data: { id, updates, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+					success: function (response) {
+						if (response.success) {
+							toastr.success('Updated successfully');
+						} else {
+							toastr.error('Update failed');
+						}
+					},
+					error: function () {
+						toastr.error('An error occurred');
+					}
+				});
+
+				$(this).removeClass('btn-success save-btn').addClass('btn-primary edit-btn').html('<i class="bi bi-pencil-square"></i> Edit');
 			});
+
+             // Toggle Block/Unlock Status
+            $('.toggle-status-btn').click(function () {
+                var row = $(this).closest('tr');
+                var cinemaId = row.data('id');
+                var button = $(this);
+                var isBlocking = button.hasClass('btn-danger');
+
+                $.ajax({
+                    url: '/Admin/Cinemas/ToggleStatus/' + cinemaId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            button.toggleClass('btn-danger btn-success')
+                                .html('<i class="bi ' + (isBlocking ? 'bi-unlock-fill' : 'bi-lock-fill') + '"></i> ' + (isBlocking ? 'Unlock' : 'Block'));
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('An error occurred while processing your request.');
+                    }
+                });
+            });
 		});
 	</script>
 }
