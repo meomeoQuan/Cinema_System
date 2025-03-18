@@ -11,35 +11,35 @@ namespace Cinema.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ShowtimeSeatID { get; set; }
 
-    [Required]
-    public int ShowtimeID { get; set; } // Foreign key
+        [Required]
+        public int ShowtimeID { get; set; } // Foreign key
 
-    [Required]
-    public int SeatID { get; set; } // Foreign key
+        [Required]
+        public int SeatID { get; set; } // Foreign key
 
-   
 
-    [Required]
-    [Range(0.00, 9999.99, ErrorMessage = "Price must be a positive value.")]
-    public double Price { get; set; }  // Default price
 
-    [Required]
-    [EnumDataType(typeof(TicketType))]
-    public TicketType SeatType { get; set; } = TicketType.Standard; // Default to Standard
+        [Required]
+        [Range(0.00, 9999.99, ErrorMessage = "Price must be a positive value.")]
+        public double Price { get; set; }  // Default price
 
-    [Required]
-    [EnumDataType(typeof(ShowtimeSeatStatus))]
-    public ShowtimeSeatStatus Status { get; set; } = ShowtimeSeatStatus.Available;
+        [Required]
+        [EnumDataType(typeof(TicketType))]
+        public TicketType SeatType { get; set; } = TicketType.Standard; // Default to Standard
 
-    // Navigation properties
-    [ForeignKey("ShowtimeID")]
-    [ValidateNever]
-    public virtual ShowTime Showtime { get; set; }
+        [Required]
+        [EnumDataType(typeof(ShowtimeSeatStatus))]
+        public ShowtimeSeatStatus Status { get; set; } = ShowtimeSeatStatus.Available;
 
-    [ForeignKey("SeatID")]
-    [ValidateNever]
-    public virtual Seat Seat { get; set; }
-}
+        // Navigation properties
+        [ForeignKey("ShowtimeID")]
+        [ValidateNever]
+        public virtual ShowTime Showtime { get; set; }
+
+        [ForeignKey("SeatID")]
+        [ValidateNever]
+        public virtual Seat Seat { get; set; }
+    }
 
     public enum ShowtimeSeatStatus
     {
@@ -49,18 +49,11 @@ namespace Cinema.Models
     }
 
 
-// Enum for different ticket types
-public enum TicketType
-{
-  
-   Standard
-  
-}
+    // Enum for different ticket types
+    public enum TicketType
+    {
 
-// Enum for seat booking status
-public enum ShowtimeSeatStatus
-{
-    Available,
-    Booked,
-    Maintenance
+        Standard
+
+    }
 }

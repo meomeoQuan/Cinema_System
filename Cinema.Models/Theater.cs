@@ -31,8 +31,8 @@ namespace Cinema.Models
         public CinemaStatus Status { get; set; } = CinemaStatus.Open;
 
         [Required]
-        //public TimeSpan OpeningTime { get; set; }
-        public string OpeningTime { get; set; }
+        public TimeSpan OpeningTime { get; set; }
+        //public string OpeningTime { get; set; }
 
         [Required]
         public TimeSpan ClosingTime { get; set; }

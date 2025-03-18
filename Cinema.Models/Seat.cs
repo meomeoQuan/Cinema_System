@@ -36,7 +36,7 @@ namespace Cinema.Models
     public enum SeatStatus
     {
         Available,
-        Maintenance
+        Maintenance,
         Blocked,
         
     }

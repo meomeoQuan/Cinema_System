@@ -13,13 +13,13 @@ namespace Cinema.Models.ViewModels
         public Movie Movie { get; set; } // hien thi movie
         public OrderTable OrderTable { get; set; } // de tien toi trang thanh toan 
         // List to store multiple seats
-        public IEnumerable<ShoppingCart> ListCart { get; set; } // hien thi gio hang
+      
         public List<ShowtimeSeat> ShowtimeSeats { get; set; } // hien thi ghe
 
-        public Movie Movie { get; set; }
-        [ValidateNever]
-        public IEnumerable<SelectListItem> ShowTimes { get; set; }
-        public List<ShowtimeSeat> ShowtimeSeats { get; set; }
+        
+        //[ValidateNever]
+        //public IEnumerable<SelectListItem> ShowTimes { get; set; }
+        //public List<ShowtimeSeat> ShowtimeSeats { get; set; }
         public List<Seat> Seats { get; set; }
         public List<Product> Products { get; set; }
         public List<Theater> Cinemas { get; set; }

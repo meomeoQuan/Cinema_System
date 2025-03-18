@@ -20,7 +20,7 @@ namespace Cinema.DataAccess.Repository
             OrderDetail = new OrderDetailRepository(_db);
             ShowTimeSeat = new ShowTimeSeatRepository(_db);
             OrderTable = new OrderTableRepository(_db);
-            ShoppingCart = new ShoppingCartRepository(_db); 
+           
         }
 
         public IMovieRepository Movie { get; private set; }
@@ -34,7 +34,7 @@ namespace Cinema.DataAccess.Repository
 
         public IOrderTableRepository OrderTable { get; private set; }
 
-        public IShoppingCartRepository ShoppingCart { get; private set; }
+       
 
         public async Task SaveAsync()
         {

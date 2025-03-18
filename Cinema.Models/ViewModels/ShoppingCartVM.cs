@@ -8,7 +8,7 @@ namespace Cinema.Models.ViewModels
 {
     public class ShoppingCartVM
     {
-        public IEnumerable<ShoppingCart> ListCart { get; set; }
+        //public IEnumerable<ShoppingCart> ListCart { get; set; }
         public OrderTable OrderHeader { get; set; }
     }
 }

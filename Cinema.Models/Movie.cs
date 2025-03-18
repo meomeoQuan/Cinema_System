@@ -43,8 +43,7 @@ namespace Cinema.Models
         [ValidateNever]
         public string MovieImage { get; set; } // validate never as it does not treat as normal input property
 
-        // Navigation property: One Room has many ShowTimes
-        public virtual ICollection<ShowTime> ShowTimes { get; set; } = new List<ShowTime>();
+       
 
     }
 }

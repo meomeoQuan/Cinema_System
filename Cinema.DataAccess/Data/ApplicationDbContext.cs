@@ -37,7 +37,7 @@ namespace Cinema.DataAccess.Data
             modelBuilder.Entity<FoodSelectionVM>().HasNoKey();
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
+            //modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
 
             // Room → ShowTime (Disable Cascade Delete)
             modelBuilder.Entity<ShowTime>()
