@@ -6,11 +6,11 @@ using Newtonsoft.Json;
 
 namespace Cinema.Models
 {
-  
-        public class OrderDetail // shopping cart
-        {
-            [Key]
-            public int OrderDetailID { get; set; }
+    public class OrderDetail
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int OrderDetailID { get; set; }
 
             [Required]
             public int OrderID { get; set; } // Foreign key

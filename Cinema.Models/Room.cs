@@ -14,6 +14,7 @@ namespace Cinema.Models
     public class Room
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RoomID { get; set; }
         [Required]
         public string RoomNumber { get; set; } = string.Empty;
@@ -41,7 +42,6 @@ namespace Cinema.Models
         public Theater Cinema { get; set; }
 
         public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
-        // Navigation property: One Room has many ShowTimes
         public virtual ICollection<ShowTime> ShowTimes { get; set; } = new List<ShowTime>();
 
 

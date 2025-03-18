@@ -3,10 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-public class ShowtimeSeat
+namespace Cinema.Models
 {
-    [Key]
-    public int ShowtimeSeatID { get; set; } // seat
+    public class ShowtimeSeat
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ShowtimeSeatID { get; set; }
 
     [Required]
     public int ShowtimeID { get; set; } // Foreign key
@@ -38,6 +41,12 @@ public class ShowtimeSeat
     public virtual Seat Seat { get; set; }
 }
 
+    public enum ShowtimeSeatStatus
+    {
+        Available,
+        Maintenance,
+        Booked
+    }
 
 
 // Enum for different ticket types

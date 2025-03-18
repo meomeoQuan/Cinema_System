@@ -6,6 +6,7 @@ namespace Cinema.Models
     public class Seat
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SeatID { get; set; }
 
         [Required]
@@ -35,6 +36,7 @@ namespace Cinema.Models
     public enum SeatStatus
     {
         Available,
+        Maintenance
         Blocked,
         
     }
