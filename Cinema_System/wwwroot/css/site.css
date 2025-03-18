@@ -17,6 +17,66 @@ for details on configuring this project to bundle and minify static web assets. 
     box-shadow: 0 -2px;
 }
 
+.header{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.booking-nav {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    margin-bottom: 20px;
+    width: 100vw; /* Đảm bảo chiều rộng 100% */
+}
+
+.booking-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(to right, #e0e5f5, #ffffff);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    width: 100%; /* Đảm bảo full màn hình */
+    flex-wrap: wrap; /* Nếu màn hình nhỏ, tự động xuống dòng */
+}
+
+.booking-title {
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    margin-right: 10px;
+}
+
+.booking-select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.booking-button {
+    background-color: #6b2cc3;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.booking-button:hover {
+    background-color: #5022a5;
+}
+
 a.navbar-brand {
     white-space: normal;
     text-align: center;
@@ -108,7 +168,9 @@ bg-success {
 
 /* btn-outline-primary */
 
-
+.nav-link:hover {
+    color: #E6D1F2 !important;
+}
 
 .btn-outline-primary {
     color: #192E2F;

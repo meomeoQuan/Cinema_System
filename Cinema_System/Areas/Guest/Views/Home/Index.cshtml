@@ -5,35 +5,65 @@
         <!-- Advertisement Banner -->
         <div class="row mb-4">
             <div class="col-12">
-                <img src="https://placehold.co/1200x300/png" class="img-fluid w-100" alt="Advertisement Banner">
+                <img src="~/css/images/banner2.jpg " class="img-fluid w-100" alt="Advertisement Banner">
             </div>
         </div>
 
         <!-- Navigation Bar -->
-        <nav class="navbar navbar-expand-lg bg-light mt-4 mb-4" data-bs-theme="light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">Navbar</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarColor03">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">
-                                Home
-                                <span class="visually-hidden">(current)</span>
-                            </a>
-                        </li>
-                        <!-- additional nav items -->
-                    </ul>
-                    <form class="d-flex">
-                        <input class="form-control me-sm-2" type="search" placeholder="Search">
-                        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-                    </form>
-                </div>
-            </div>
-        </nav>
+        @* <nav class="navbar navbar-expand-lg bg-light mt-4 mb-4" data-bs-theme="light"> *@
+        @*     <div class="container-fluid"> *@
+        @*         <a class="navbar-brand" href="#">Navbar</a> *@
+        @*         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation"> *@
+        @*             <span class="navbar-toggler-icon"></span> *@
+        @*         </button> *@
+        @*         <div class="collapse navbar-collapse" id="navbarColor03"> *@
+        @*             <ul class="navbar-nav me-auto"> *@
+        @*                 <li class="nav-item"> *@
+        @*                     <a class="nav-link active" href="#"> *@
+        @*                         Home *@
+        @*                         <span class="visually-hidden">(current)</span> *@
+        @*                     </a> *@
+        @*                 </li> *@
+        @*                 <!-- additional nav items --> *@
+        @*             </ul> *@
+        @*             <form class="d-flex"> *@
+        @*                 <input class="form-control me-sm-2" type="search" placeholder="Search"> *@
+        @*                 <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button> *@
+        @*             </form> *@
+        @*         </div> *@
+        @*     </div> *@
+        @* </nav> *@
 
+        <section class="booking-nav" style="width: 1275px;">
+        <div class="booking-container">
+            <span class="booking-title">Book Ticket</span>
+            <select class="booking-select" id="cinema">
+                <option value="">1. Chọn Rạp</option>
+                <option value="rap1">Rạp 1</option>
+                <option value="rap2">Rạp 2</option>
+            </select>
+
+            <select class="booking-select" id="movie">
+                <option value="">2. Chọn Phim</option>
+                <option value="phim1">Phim 1</option>
+                <option value="phim2">Phim 2</option>
+            </select>
+
+            <select class="booking-select" id="date">
+                <option value="">3. Chọn Ngày</option>
+                <option value="ngay1">20/02/2025</option>
+                <option value="ngay2">21/02/2025</option>
+            </select>
+
+            <select class="booking-select" id="showtime">
+                <option value="">4. Chọn Suất</option>
+                <option value="suat1">10:00</option>
+                <option value="suat2">14:00</option>
+            </select>
+
+            <button class="booking-button" onclick="bookTicket()">BOOK</button>
+        </div>
+        </section>
         <!-- Now Showing Movies -->
         <div id="showing-movies"></div>
         <!-- Hidden element to track current page -->
