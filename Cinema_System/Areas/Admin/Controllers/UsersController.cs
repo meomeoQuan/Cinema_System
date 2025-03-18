@@ -239,6 +239,10 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return Json(new { success = false, message = $"Error unlocking user: {ex.Message}" });
             }
         }
+        public ApplicationUser SearchUserById(string id)
+        {
+            return _unitOfWork.ApplicationUser.Get(u => u.Id == id);
+        }
     }
 }
 

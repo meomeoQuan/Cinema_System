@@ -178,7 +178,7 @@ namespace Cinema.DataAccess.Data
                     Status = CinemaStatus.Open,
                     OpeningTime = "09:00",  // Changed from TimeSpan to string
                     ClosingTime = "23:00",  // Changed from TimeSpan to string
-                    //AdminID = adminUser.Id
+                    AdminID = "15380246-860c-4ebc-bed4-4d74a1cf45a6"
 
                 },
                 new Theater

@@ -19,7 +19,6 @@ namespace Cinema_System.Areas.Admin.Controllers
     public class CinemasController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -30,7 +29,6 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
-
         }
 
         public async Task<IActionResult> Index()
@@ -72,7 +70,6 @@ namespace Cinema_System.Areas.Admin.Controllers
                 c.NumberOfRooms,
                 c.OpeningTime,
                 c.ClosingTime
-
             }).ToList();
 
             return Json(new { data = cinemasList });
