@@ -239,11 +239,33 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return Json(new { success = false, message = $"Error unlocking user: {ex.Message}" });
             }
         }
+        //Search admin for Cinemas
         public ApplicationUser SearchUserById(string id)
         {
             return _unitOfWork.ApplicationUser.Get(u => u.Id == id);
         }
+
+        internal static async Task<IEnumerable<ApplicationUser>> GetUsersByRole(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, string role_Admin)
         {
+            var role = await roleManager.FindByNameAsync(role_Admin);
+            if (role == null)
+            {
+                throw new ArgumentException("Role not found.");
+            }
+
+            var usersInRole = await userManager.GetUsersInRoleAsync(role_Admin);
+            var applicationUsers = usersInRole.Select(user => new ApplicationUser
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FullName = user.UserName, // Assuming FullName is stored in UserName
+                Role = role_Admin
+            });
+
+            return applicationUsers;
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿@using Cinema.Utility
+@using Cinema_System.Areas.Admin.Controllers
 @model IEnumerable<Theater>
 
 @{
@@ -39,6 +40,10 @@
                                 <td data-field="ClosingTime">@theater.ClosingTime</td>
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
+                                        <a href="/Admin/Rooms/Index?cinemaId=@theater.CinemaID"
+                                           class="btn btn-secondary btn-sm">
+                                            Manage Room
+                                        </a>
                                         <button class="btn btn-sm toggle-status-btn @(theater.Status == CinemaStatus.Open ? "btn-danger" : "btn-success")">
                                             <i class="bi @(theater.Status == CinemaStatus.Open ? "bi-lock-fill" : "bi-unlock-fill")"></i>
                                             @(theater.Status == CinemaStatus.Open ? "Block" : "Unlock")
@@ -46,10 +51,6 @@
                                         <button class="btn btn-primary btn-sm edit-btn">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </button>
-                                        <a href="/Admin/Rooms/Index?cinemaId=@theater.CinemaID"
-                                           class="btn btn-secondary btn-sm">
-                                            Manage Room
-                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -66,7 +67,7 @@
             <h4 class="mb-0">Add Cinema</h4>
         </div>
         <div class="card-body">
-            <form id="theaterForm">
+            <form id="createCinemaForm">
                 <input type="hidden" id="cinemaID">
                 <div class="mb-3">
                     <label class="form-label">Name</label>
@@ -78,7 +79,19 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Admin</label>
-                    <input type="text" class="form-control" id="theaterAdmin" required>
+                    <select class="form-select" id="adminId" required>
+                        @if (ViewBag.Admins != null && ViewBag.Admins.Count > 0)
+                        {
+                            @foreach (var admin in ViewBag.Admins)
+                            {
+                                <option value="@admin.Id">@admin.FullName</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">No admins available</option>
+                        }
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Space</label>
@@ -123,7 +136,7 @@
 				var theaterData = {
 					Name: $('#theaterName').val().trim(),
 					Address: $('#theaterAddress').val().trim(),
-					AdminID: $('#theaterAdmin').val().trim(),
+                    AdminID: $('#adminId').val().trim(),
 					NumberOfRooms: $('#theaterRooms').val().trim(),
 					OpeningTime: $('#theaterOpeningTime').val().trim(),
 					ClosingTime: $('#theaterClosingTime').val().trim(),

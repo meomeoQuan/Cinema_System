@@ -1,20 +1,13 @@
-﻿
-using System.Text;
-using System.Text.RegularExpressions;
-using Cinema.DataAccess.Data;
+﻿using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
-
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = "Admin")]
     public class CinemasController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -32,8 +25,15 @@ namespace Cinema_System.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Lấy danh sách rạp chiếu phim
             var cinemas = await _unitOfWork.Cinema.GetAllAsync();
-            return View(cinemas); 
+
+            // Lấy danh sách admin và gán vào ViewBag
+            var admins = await UsersController.GetUsersByRole(_userManager, _roleManager, SD.Role_Admin);
+
+            ViewBag.Admins = admins.Select(a => new { Id = a.Id, FullName = a.FullName, Role = a.Role }).ToList();
+
+            return View(cinemas);
         }
 
         public async Task<IActionResult> Create(Theater theater)
@@ -42,36 +42,27 @@ namespace Cinema_System.Areas.Admin.Controllers
             {
                 try
                 {
-                    Console.WriteLine($"Received Theater: Name={theater.Name}, Status={theater.Status}");
-
-                    // Check if Theater Name already exists
+                    // Kiểm tra tên rạp đã tồn tại chưa
                     if (_unitOfWork.Cinema.Get(c => c.Name == theater.Name) != null)
                     {
                         return Json(new { success = false, message = "Theater name already exists." });
                     }
 
-                    // Check if Address already exists
+                    // Kiểm tra địa chỉ rạp đã tồn tại chưa
                     if (_unitOfWork.Cinema.Get(c => c.Address == theater.Address) != null)
                     {
                         return Json(new { success = false, message = "Theater address already exists." });
                     }
 
-                    // Validate Number of Rooms
+                    // Kiểm tra số phòng hợp lệ
                     if (theater.NumberOfRooms <= 0)
                     {
                         return Json(new { success = false, message = "Number of rooms must be greater than 0." });
                     }
 
-
-                    Console.WriteLine($"Saving Theater with Status: {theater.Status}");
-
-                    // Add Theater to Database
+                    // Thêm rạp chiếu phim vào database
                     _unitOfWork.Cinema.Add(theater);
-
-                    // Save changes
                     await _unitOfWork.SaveAsync();
-
-                    Console.WriteLine("Theater saved successfully.");
 
                     return Json(new { success = true, message = "Theater created successfully." });
                 }
@@ -83,8 +74,6 @@ namespace Cinema_System.Areas.Admin.Controllers
             return Json(new { success = false, message = "Invalid theater data." });
         }
 
-
-
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
@@ -94,7 +83,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 c.CinemaID,
                 c.Name,
                 c.Address,
-                c.AdminID,
+                AdminName = c.Admin?.FullName ?? "Unknown",
                 c.NumberOfRooms,
                 c.OpeningTime,
                 c.ClosingTime
@@ -102,15 +91,5 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             return Json(new { data = cinemasList });
         }
-    
     }
-   
 }
-
-
-
-
-
-
-
-
