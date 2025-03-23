@@ -243,6 +243,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         {
             return _unitOfWork.ApplicationUser.Get(u => u.Id == id);
         }
+        {
     }
 }
 
