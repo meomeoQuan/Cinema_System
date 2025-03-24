@@ -19,6 +19,7 @@ namespace Cinema.DataAccess.Repository
             showTime = new ShowTimeRepository(_db);
             OrderDetail = new OrderDetailRepository(_db);
             ShowTimeSeat = new ShowTimeSeatRepository(_db);
+            Cinema = new CinemaRepository(_db);
             OrderTable = new OrderTableRepository(_db);
            
         }
@@ -31,6 +32,7 @@ namespace Cinema.DataAccess.Repository
         public IShowTimeRepository showTime { get; private set; }
         public IOrderDetailRepository OrderDetail { get; private set; }
         public IShowTimeSeatRepository ShowTimeSeat { get; private set; }
+        public ICinemaRepository Cinema { get; private set; }
 
         public IOrderTableRepository OrderTable { get; private set; }
 

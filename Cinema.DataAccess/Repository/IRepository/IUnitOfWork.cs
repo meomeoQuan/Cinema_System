@@ -18,6 +18,9 @@ namespace Cinema.DataAccess.Repository.IRepository
 
        
         public IOrderTableRepository OrderTable { get; }
+        public ICinemaRepository Cinema { get; }
+
+
         Task SaveAsync();
     }
 }

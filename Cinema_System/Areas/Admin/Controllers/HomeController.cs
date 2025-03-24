@@ -72,3 +72,12 @@ namespace Cinema_System.Areas.Admin.Controllers
 //        }
 //    }
 //}
+//                return RedirectToAction(nameof(Index));
+//            }
+//            catch
+//            {
+//                return View();
+//            }
+//        }
+//    }
+//}
