@@ -13,8 +13,8 @@ namespace Cinema.Models
         [Required]
         public int OrderID { get; set; } // Foreign key
 
-        [Required]
-        public int UserId { get; set; }
+        //[Required]
+        //public string UserId { get; set; }
 
         [Required]
         public int MovieId { get; set; }
