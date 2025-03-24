@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 using Cinema.Models;
 using SQLitePCL;
 using Cinema.DataAccess.Data;
+using QRCoder;
+using System.Drawing.Imaging;
+using System.Drawing;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
+using Cinema.DataAccess.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_System.Areas
 {
@@ -19,12 +28,17 @@ namespace Cinema_System.Areas
         private readonly PayOSService _payOSService;
         private readonly PayOS _payOS;
         private readonly ApplicationDbContext _context;
-
-        public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailSender _emailSender;
+        //private readonly UserManager<IdentityUser> _userManager;
+        public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context,
+            IEmailSender emailSender)
         {
             _payOSService = payOSService;
             _payOS = payOS;
             _context = context;
+            _emailSender = emailSender;
+            //_userManager = userManager;
         }
 
         [HttpPost]
@@ -45,6 +59,8 @@ namespace Cinema_System.Areas
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 CouponID = coupon != null? coupon.CouponID : null,
+                Email = "",
+                Phonenumber = ""
             };
 
             _context.OrderTables.Add(order);
@@ -65,7 +81,8 @@ namespace Cinema_System.Areas
                     OrderID = orderId,
                     ShowtimeSeatID = seat.showTimeSeatId,
                     Quantity = 1,
-                    Price = showtimeSeat.Price
+                    Price = showtimeSeat.Price,
+                   
                 });
                 await _context.SaveChangesAsync();
             }
@@ -123,25 +140,78 @@ namespace Cinema_System.Areas
             return View();
         }
 
-        // Trang thành công
         [HttpGet]
-        public IActionResult ReturnUrl(int orderCode)
+        public async Task<IActionResult> ReturnUrl(int orderCode)
         {
-            // Tìm đơn hàng trong database
-            var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
+            // Tìm đơn hàng trong database với User
+            var order = await _context.OrderTables
+                .Include(o => o.User) // Ensure User is loaded
+                .FirstOrDefaultAsync(o => o.OrderID == 2);
 
             if (order == null)
             {
                 return NotFound(new { message = "Order không tồn tại" });
             }
 
+            if (order.User == null)
+            {
+                return NotFound(new { message = "User không tồn tại trong đơn hàng" });
+            }
+
+          
+
             // Cập nhật trạng thái đơn hàng thành "Completed"
             order.Status = OrderStatus.Completed;
             order.UpdatedAt = DateTime.UtcNow;
-            _context.SaveChanges();
+
+            await _context.SaveChangesAsync(); // Ensure async save
+
+
+
+            // Gửi QR code qua email
+            await GenerateTicket(order);
 
             return View();
         }
+
+        public async Task GenerateTicket(OrderTable order)
+        {
+            // Generate Ticket Validation URL
+            string validationUrl = Url.Action("ValidAuthentication", "Staff",
+                new { area = "Staff", OrderID = order.OrderID }, Request.Scheme);
+
+        https://localhost:7251/Staff/Staff/ValidAuthentication?ticketId=ds#Staff
+            // Generate QR Code
+            using (MemoryStream ms = new MemoryStream())
+            using (QRCodeGenerator codeGenerator = new QRCodeGenerator())
+            {
+                QRCodeData qrCodeData = codeGenerator.CreateQrCode(validationUrl, QRCodeGenerator.ECCLevel.Q);
+                using (QRCode qrCoder = new QRCode(qrCodeData))
+                using (Bitmap bitMap = qrCoder.GetGraphic(20))
+                {
+                    bitMap.Save(ms, ImageFormat.Png);
+                }
+
+                // Convert QR Code to Base64
+                string qrCodeBase64 = Convert.ToBase64String(ms.ToArray());
+
+                // Email Content
+                string emailBody = $@"
+            <p>Your ticket has been generated. Please show the QR code below when entering the venue.</p>
+            <p>Scan this QR code to validate your ticket:</p>
+            <img src='data:image/png;base64,{qrCodeBase64}' alt='QR Code' />
+        ";
+
+                // Send Email
+                //order.User.Email
+                await _emailSender.SendEmailAsync("ngoanhquan0806@gmail.com", "Your Ticket QR Code", emailBody);
+
+
+            }
+        }
+
+
+
 
     }
 }

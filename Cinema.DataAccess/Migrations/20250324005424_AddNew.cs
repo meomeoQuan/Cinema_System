@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Cinema.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddlatestTodbs : Migration
+    public partial class AddNew : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -122,8 +122,7 @@ namespace Cinema.DataAccess.Migrations
                     Price = table.Column<double>(type: "float", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     CountProduct = table.Column<int>(type: "int", nullable: false),
-                    ProductImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Count = table.Column<int>(type: "int", nullable: false)
+                    ProductImage = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -275,8 +274,8 @@ namespace Cinema.DataAccess.Migrations
                     TotalAmount = table.Column<double>(type: "float", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Phonenumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phonenumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -430,7 +429,7 @@ namespace Cinema.DataAccess.Migrations
                     OrderDetailID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderID = table.Column<int>(type: "int", nullable: false),
-                    ProductID = table.Column<int>(type: "int", nullable: false),
+                    ProductID = table.Column<int>(type: "int", nullable: true),
                     ShowtimeSeatID = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
@@ -454,8 +453,7 @@ namespace Cinema.DataAccess.Migrations
                         name: "FK_OrderDetails_Products_ProductID",
                         column: x => x.ProductID,
                         principalTable: "Products",
-                        principalColumn: "ProductID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ProductID");
                     table.ForeignKey(
                         name: "FK_OrderDetails_showTimeSeats_ShowtimeSeatID",
                         column: x => x.ShowtimeSeatID,
@@ -463,6 +461,11 @@ namespace Cinema.DataAccess.Migrations
                         principalColumn: "ShowtimeSeatID",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Discriminator", "Email", "EmailConfirmed", "FullName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Points", "SecurityStamp", "TwoFactorEnabled", "UserImage", "UserName" },
+                values: new object[] { "a1234567-b89c-40d4-a123-456789abcdef", 0, "a1234567-b89c-40d4-a123-456789abcdef", "ApplicationUser", "daoduyquylop97@gmail.com", true, "Đào Duy Quý", true, null, "daoduyquylop97@gmail.com", "Đào Duy Quý", "AQAAAAEAACcQAAAAEJ9", "0123456789", true, 0, "a1234567-b89c-40d4-a123-456789abcdef", false, "/css/images/user.png", "Đào Duy Quý" });
 
             migrationBuilder.InsertData(
                 table: "Coupons",
@@ -492,15 +495,15 @@ namespace Cinema.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Products",
-                columns: new[] { "ProductID", "Count", "CountProduct", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
+                columns: new[] { "ProductID", "CountProduct", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
                 values: new object[,]
                 {
-                    { 1, 0, 0, "A large bucket of buttered popcorn.", "Popcorn", 89000.0, "/css/images/popcorn.png", 0, 50 },
-                    { 2, 0, 0, "Refreshing cold soda, 500ml.", "Soda", 39000.0, "/css/images/soda.png", 1, 100 },
-                    { 3, 0, 0, "Refreshing cold soda, 500ml.", "Coca", 39000.0, "/css/images/drink2.png", 1, 100 },
-                    { 4, 0, 0, "Refreshing cold soda, 500ml.", "Sprite", 39000.0, "/css/images/drink1.png", 1, 100 },
-                    { 5, 0, 0, "Refreshing cold soda, 500ml.", "Combo Couple", 129000.0, "/css/images/popcorn1.png", 2, 100 },
-                    { 6, 0, 0, "Refreshing cold soda, 500ml.", "Combo Full", 229000.0, "/css/images/popcorn2.png", 2, 100 }
+                    { 1, 0, "A large bucket of buttered popcorn.", "Popcorn", 89000.0, "/css/images/popcorn.png", 0, 50 },
+                    { 2, 0, "Refreshing cold soda, 500ml.", "Soda", 39000.0, "/css/images/soda.png", 1, 100 },
+                    { 3, 0, "Refreshing cold soda, 500ml.", "Coca", 39000.0, "/css/images/drink2.png", 1, 100 },
+                    { 4, 0, "Refreshing cold soda, 500ml.", "Sprite", 39000.0, "/css/images/drink1.png", 1, 100 },
+                    { 5, 0, "Refreshing cold soda, 500ml.", "Combo Couple", 129000.0, "/css/images/popcorn1.png", 2, 100 },
+                    { 6, 0, "Refreshing cold soda, 500ml.", "Combo Full", 229000.0, "/css/images/popcorn2.png", 2, 100 }
                 });
 
             migrationBuilder.InsertData(

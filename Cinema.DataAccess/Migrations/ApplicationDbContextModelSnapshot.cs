@@ -315,7 +315,7 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<int>("ProductID")
+                    b.Property<int?>("ProductID")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -355,11 +355,9 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phonenumber")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
@@ -393,9 +391,6 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductID"));
 
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
                     b.Property<int>("CountProduct")
                         .HasColumnType("int");
 
@@ -426,7 +421,6 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 1,
-                            Count = 0,
                             CountProduct = 0,
                             Description = "A large bucket of buttered popcorn.",
                             Name = "Popcorn",
@@ -438,7 +432,6 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 2,
-                            Count = 0,
                             CountProduct = 0,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Soda",
@@ -450,7 +443,6 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 3,
-                            Count = 0,
                             CountProduct = 0,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Coca",
@@ -462,7 +454,6 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 4,
-                            Count = 0,
                             CountProduct = 0,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Sprite",
@@ -474,7 +465,6 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 5,
-                            Count = 0,
                             CountProduct = 0,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Combo Couple",
@@ -486,7 +476,6 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 6,
-                            Count = 0,
                             CountProduct = 0,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Combo Full",
@@ -1917,6 +1906,28 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "a1234567-b89c-40d4-a123-456789abcdef",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef",
+                            Email = "daoduyquylop97@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = true,
+                            NormalizedEmail = "daoduyquylop97@gmail.com",
+                            NormalizedUserName = "Đào Duy Quý",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJ9",
+                            PhoneNumber = "0123456789",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef",
+                            TwoFactorEnabled = false,
+                            UserName = "Đào Duy Quý",
+                            FullName = "Đào Duy Quý",
+                            Points = 0,
+                            UserImage = "/css/images/user.png"
+                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.OrderDetail", b =>
@@ -1929,9 +1940,7 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasOne("Cinema.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProductID");
 
                     b.HasOne("Cinema.Models.ShowtimeSeat", "ShowtimeSeat")
                         .WithMany()

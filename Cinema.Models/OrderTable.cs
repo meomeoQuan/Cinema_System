@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 
 namespace Cinema.Models
@@ -32,19 +33,21 @@ namespace Cinema.Models
 
         // Navigation properties
         [ForeignKey("UserID")]
+        [ValidateNever]
         public virtual ApplicationUser User { get; set; }
 
         [ForeignKey("CouponID")]
+        [ValidateNever]
         public virtual Coupon? Coupon { get; set; }
 
 
-        [Required]
-        public string Email { get; set; }
+        
+        public string ? Email { get; set; }
 
-        [Required]
+       
         [StringLength(10, MinimumLength = 10, ErrorMessage = "Phone number must be exactly 10 digits.")]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be numeric and 10 digits long.")]
-        public string Phonenumber { get; set; }
+        public string ? Phonenumber { get; set; }
 
 
 

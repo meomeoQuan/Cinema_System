@@ -37,9 +37,7 @@ namespace Cinema.Models
         [ValidateNever]
         public string? ProductImage { get; set; }
 
-        //================
-       
-        public int Count { get; set; } = 0;
+      
     }
     public enum ProductType
     {

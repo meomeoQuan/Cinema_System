@@ -200,8 +200,8 @@
 				video.style.display = 'none';
 				// If the scanned QR code is a URL
 				if(isUrl(qrData)) {
-					// Open the URL in a new tab
-					window.open(qrData, '_blank');
+					// Open the URL in current tab
+					window.open(qrData, '_self');
 				}
 			}
 		}, 100); // Adjust the interval as needed (milliseconds)

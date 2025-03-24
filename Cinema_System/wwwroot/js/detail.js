@@ -261,10 +261,10 @@ document.getElementById('book-btn').addEventListener('click', function () {
 })
 
 $(document).ready(function () {
-
     // Submit the form
     $("#booking-summary").submit();
-}
+});
+
 
 document.addEventListener("DOMContentLoaded", function () {
     // Load danh sách thành phố khi vào trang
