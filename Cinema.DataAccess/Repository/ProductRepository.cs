@@ -13,8 +13,6 @@ namespace Cinema.DataAccess.Repository
     {
         private ApplicationDbContext _db;
 
-
-
         public ProductRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
@@ -22,6 +20,10 @@ namespace Cinema.DataAccess.Repository
         public void Update(Product product)
         {
           _db.Update(product);
+        }
+        public IEnumerable<Product> GetProductsByType(ProductType type)
+        {
+            return _db.Products.Where(p => p.ProductType == type).ToList();
         }
     }
 }
