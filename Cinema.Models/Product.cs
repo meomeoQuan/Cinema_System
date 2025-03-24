@@ -12,6 +12,7 @@ namespace Cinema.Models
     public class Product
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProductID { get; set; }
 
         [Required]
@@ -35,6 +36,8 @@ namespace Cinema.Models
 
         [ValidateNever]
         public string? ProductImage { get; set; }
+
+      
     }
     public enum ProductType
     {

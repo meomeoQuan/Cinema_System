@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Cinema.DataAccess.Repository;
@@ -27,7 +28,7 @@ namespace Cinema.DataAccess.Data
         public DbSet<Seat> Seats { get; set; }
 
         public DbSet<ShowtimeSeat> showTimeSeats { get; set; }
-        public DbSet<Theater> Cinemas { get; set; } 
+        public DbSet<Theater> Theaters { get; set; }
         public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
@@ -39,7 +40,7 @@ namespace Cinema.DataAccess.Data
             modelBuilder.Entity<FoodSelectionVM>().HasNoKey();
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
+            //modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
 
             // Room → ShowTime (Disable Cascade Delete)
             modelBuilder.Entity<ShowTime>()
@@ -66,6 +67,30 @@ namespace Cinema.DataAccess.Data
             modelBuilder.Entity<Theater>()
                 .Property(t => t.Status)
                 .HasConversion<string>(); // Store enum as string
+
+            modelBuilder.Entity<ApplicationUser>().HasData(
+              new ApplicationUser
+              {
+                  FullName = "Đào Duy Quý",
+                  Role = "Admin",
+                  Id = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                  AccessFailedCount = 0,
+                  ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                  Email = "daoduyquylop97@gmail.com",
+                  EmailConfirmed = true,
+                  LockoutEnabled = true,
+                  NormalizedEmail = "daoduyquylop97@gmail.com",
+                  NormalizedUserName = "Đào Duy Quý",
+                  PasswordHash = "AQAAAAEAACcQAAAAEJ9",
+                  PhoneNumber = "0123456789",
+                  PhoneNumberConfirmed = true,
+                  SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                  TwoFactorEnabled = false,
+                  UserName = "Đào Duy Quý",
+                  UserImage = "/css/images/user.png",
+                  Points = 0
+              }
+              );
 
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
@@ -150,9 +175,9 @@ namespace Cinema.DataAccess.Data
                     Name = "Popcorn",
                     Description = "A large bucket of buttered popcorn.",
                     ProductType = ProductType.Snack,
-                    Price = 5.99,
+                    Price = 89000,
                     Quantity = 50,
-                    ProductImage = ""
+                    ProductImage = "/css/images/popcorn.png"
                 },
                 new Product
                 {
@@ -160,9 +185,49 @@ namespace Cinema.DataAccess.Data
                     Name = "Soda",
                     Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Drink,
-                    Price = 2.99,
+                    Price = 39000,
                     Quantity = 100,
-                    ProductImage = ""
+                    ProductImage = "/css/images/soda.png"
+                },
+                new Product
+                {
+                    ProductID = 3,
+                    Name = "Coca",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Drink,
+                    Price = 39000,
+                    Quantity = 100,
+                    ProductImage = "/css/images/drink2.png"
+                },
+                new Product
+                {
+                    ProductID = 4,
+                    Name = "Sprite",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Drink,
+                    Price = 39000,
+                    Quantity = 100,
+                    ProductImage = "/css/images/drink1.png"
+                },
+                new Product
+                {
+                    ProductID = 5,
+                    Name = "Combo Couple",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Gift,
+                    Price = 129000,
+                    Quantity = 100,
+                    ProductImage = "/css/images/popcorn1.png"
+                },
+                new Product
+                {
+                    ProductID = 6,
+                    Name = "Combo Full",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Gift,
+                    Price = 229000,
+                    Quantity = 100,
+                    ProductImage = "/css/images/popcorn2.png"
                 }
             );
             // Seed Sample Theaters
@@ -176,9 +241,11 @@ namespace Cinema.DataAccess.Data
                     CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
-                    OpeningTime = "09:00",  // Changed from TimeSpan to string
-                    ClosingTime = "23:00",  // Changed from TimeSpan to string
-                    //AdminID = "15380246-860c-4ebc-bed4-4d74a1cf45a6"
+
+                    OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                    ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+
+
 
                 },
                 new Theater
@@ -189,34 +256,34 @@ namespace Cinema.DataAccess.Data
                     CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 7,
                     Status = CinemaStatus.Open,
-                    OpeningTime = "10:00",  // Changed from TimeSpan to string
-                    ClosingTime = "22:30",  // Changed from TimeSpan to string
-                  
-                   
-                },
-                new Theater
-                {
-                    CinemaID = 3,
-                    Name = "CGV Cinema",
-                    Address = "124 Main St, Danang City",
-                    CinemaCity = "Danang",
-                    NumberOfRooms = 5,
-                    Status = CinemaStatus.Open,
-                    OpeningTime = "09:00",  // Changed from TimeSpan to string
-                    ClosingTime = "23:00",  // Changed from TimeSpan to string
+                    OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                    ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
 
 
                 },
-                new Theater
-                {
-                    CinemaID = 4,
-                    Name = "HCM Cinestar Cinema",
-                    Address = "124 Main St, HCM City",
-                    CinemaCity = "Ho Chi Minh",
-                    NumberOfRooms = 5,
-                    Status = CinemaStatus.Open,
-                    OpeningTime = "09:00",  // Changed from TimeSpan to string
-                    ClosingTime = "23:00",  // Changed from TimeSpan to string
+                   new Theater
+                   {
+                       CinemaID = 3,
+                       Name = "CGV Cinema",
+                       Address = "124 Main St, Danang City",
+                       CinemaCity = "Danang",
+                       NumberOfRooms = 5,
+                       Status = CinemaStatus.Open,
+                       OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                       ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+
+
+                   },
+                    new Theater
+                    {
+                        CinemaID = 4,
+                        Name = "HCM Cinestar Cinema",
+                        Address = "124 Main St, HCM City",
+                        CinemaCity = "Ho Chi Minh",
+                        NumberOfRooms = 5,
+                        Status = CinemaStatus.Open,
+                        OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                        ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
 
 
                 }
@@ -242,7 +309,7 @@ namespace Cinema.DataAccess.Data
             // Seed Seats for RoomID = 1 (5 rows x 10 columns = 50 seats)
             modelBuilder.Entity<Seat>().HasData(
                 // Row A
-                new Seat { SeatID = 1, Row = "A", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Available },
+                new Seat { SeatID = 1, Row = "A", ColumnNumber = 1, RoomID = 1, Status = SeatStatus.Maintenance },
                 new Seat { SeatID = 2, Row = "A", ColumnNumber = 2, RoomID = 1, Status = SeatStatus.Available },
                 new Seat { SeatID = 3, Row = "A", ColumnNumber = 3, RoomID = 1, Status = SeatStatus.Available },
                 new Seat { SeatID = 4, Row = "A", ColumnNumber = 4, RoomID = 1, Status = SeatStatus.Available },
@@ -308,76 +375,62 @@ namespace Cinema.DataAccess.Data
                 new ShowTime
                 {
                     ShowTimeID = 1,
-                    ShowDates = "01/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "18:30", // Changed from TimeSpan to string
-                    CinemaID = 1,
+                    ShowDate = new DateTime(2025, 3, 10, 7, 30, 0), // Ensure a valid date is assigned
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 2,
-                    ShowDates = "01/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "20:15", // Changed from TimeSpan to string
-                    CinemaID = 2,
+                    ShowDate = new DateTime(2025, 3, 10, 9, 30, 0), // Ensure a valid date is assigned
                     RoomID = 2,
                     MovieID = 2
                 }
                 ,
-                new ShowTime
-                {
-                    ShowTimeID = 3,
-                    ShowDates = "01/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "23:00", // Changed from TimeSpan to string
-                    CinemaID = 1,
-                    RoomID = 1,
-                    MovieID = 1
-                },
-                new ShowTime
-                {
-                    ShowTimeID = 4,
-                    ShowDates = "08/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "21:00", // Changed from TimeSpan to string
-                    CinemaID = 3,
-                    RoomID = 1,
-                    MovieID = 1
-                },
-                new ShowTime
-                {
-                    ShowTimeID = 5,
-                    ShowDates = "10/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "23:00", // Changed from TimeSpan to string
-                    CinemaID = 3,
-                    RoomID = 1,
-                    MovieID = 1
-                },
-                new ShowTime
-                {
-                    ShowTimeID = 6,
-                    ShowDates = "19/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "17:00", // Changed from TimeSpan to string
-                    CinemaID = 4,
-                    RoomID = 2,
-                    MovieID = 1
-                },
-                new ShowTime
-                {
-                    ShowTimeID = 7,
-                    ShowDates = "01/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "17:00", // Changed from TimeSpan to string
-                    CinemaID = 3,
-                    RoomID = 2,
-                    MovieID = 1
-                },
-                new ShowTime
-                {
-                    ShowTimeID = 8,
-                    ShowDates = "01/03/2025", // Ensure a valid date is assigned
-                    ShowTimes = "19:00", // Changed from TimeSpan to string
-                    CinemaID = 4,
-                    RoomID = 1,
-                    MovieID = 1
-                }
+
+                  new ShowTime
+                  {
+                      ShowTimeID = 3,
+                      ShowDate = new DateTime(2025, 3, 10, 11, 30, 0), // Ensure a valid date is assigned
+                      RoomID = 1,
+                      MovieID = 1
+                  },
+                       new ShowTime
+                       {
+                           ShowTimeID = 4,
+                           ShowDate = new DateTime(2025, 3, 10, 13, 30, 0), // Ensure a valid date is assigned
+                           RoomID = 1,
+                           MovieID = 1
+                       },
+                          new ShowTime
+                          {
+                              ShowTimeID = 5,
+                              ShowDate = new DateTime(2025, 3, 11, 7, 30, 0), // Ensure a valid date is assigned
+                              RoomID = 1,
+                              MovieID = 1
+                          },
+                           new ShowTime
+                           {
+                               ShowTimeID = 6,
+                               ShowDate = new DateTime(2025, 3, 11, 9, 30, 0), // Ensure a valid date is assigned
+                               RoomID = 2,
+                               MovieID = 1
+                           },
+                            new ShowTime
+                            {
+                                ShowTimeID = 7,
+                                ShowDate = new DateTime(2025, 3, 11, 11, 30, 0), // Ensure a valid date is assigned
+                                RoomID = 2,
+                                MovieID = 1
+                            },
+                             new ShowTime
+                             {
+                                 ShowTimeID = 8,
+                                 ShowDate = new DateTime(2025, 3, 12, 9, 30, 0), // Ensure a valid date is assigned
+                                 RoomID = 1,
+                                 MovieID = 1
+                             }
+
 
             );
             // Seed ShowtimeSeats for RoomID = 1 and ShowTimeID = 1
@@ -387,9 +440,8 @@ namespace Cinema.DataAccess.Data
          ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
          ShowtimeID = 1,           // Link to ShowTimeID = 1
          SeatID = seatId,          // Each seat (1-50)
-         Price = (IsVipSeat(seatId) ? 20.0 : 10.0), // VIP seats cost more
+         Price = 80000,            // Fixed price for all seats
          Status = ShowtimeSeatStatus.Available,
-         SeatType = IsVipSeat(seatId) ? TicketType.Vip : TicketType.Standard,
      }).ToArray()
  );
 

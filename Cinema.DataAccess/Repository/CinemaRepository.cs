@@ -1,9 +1,12 @@
 ﻿using System;
+
 using System.Linq.Expressions;
+
 using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.DataAccess.Repository
@@ -12,10 +15,12 @@ namespace Cinema.DataAccess.Repository
     {
         private readonly ApplicationDbContext _db;
 
+
         public CinemaRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
         }
+
 
         public async Task<Theater> FindByIdAsync(int cinemaId)
         {
@@ -33,4 +38,5 @@ namespace Cinema.DataAccess.Repository
             _db.Cinemas.Update(theater);
         }
     }
+
 }

@@ -16,10 +16,11 @@ namespace Cinema.DataAccess.Repository.IRepository
         public IOrderDetailRepository OrderDetail { get;  }
         public IShowTimeRepository showTime { get; }
         public IApplicationUserRepository ApplicationUser { get; }
+
         public ICinemaRepository Cinema { get; }
         public IRoomRepository Room { get; }
         public ISeatRepository Seat { get; }
 
-        Task SaveAsync();
+            Task SaveAsync();
+        }
     }
-}

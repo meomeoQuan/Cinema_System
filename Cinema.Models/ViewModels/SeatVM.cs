@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Cinema.Models.ViewModels
 {
-    public class TicketSelectionVM
+    public class SeatVM
     {
-        public int SeatId { get; set; }   // Unique seat ID
-        public string SeatNumber { get; set; } // e.g., A1, B3
-        public TicketType SeatType { get; set; }
+        public int SeatId { get; set; }
+        public string SeatNumber { get; set; } = string.Empty;
+        public string SeatType { get; set; } = string.Empty;
         public double Price { get; set; }
     }
 }

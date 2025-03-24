@@ -2,16 +2,24 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Cinema.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Newtonsoft.Json;
 
 namespace Cinema.Models
 {
     public class OrderDetail
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
 
+            [Required]
+            public int OrderID { get; set; } // Foreign key
+        
+            public int? ProductID { get; set; } // Nullable if the order is for tickets only
         [Required]
-        public int OrderID { get; set; } // Foreign key
+            public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
+
 
         //[Required]
         //public string UserId { get; set; }
@@ -49,20 +57,27 @@ namespace Cinema.Models
         [Range(0.00, 999999.99, ErrorMessage = "Price must be a positive value.")]
         public double Price { get; set; } // Price per unit
 
-        // List of selected tickets (multiple seats possible)
-        [NotMapped]
-        public List<TicketSelectionVM> Tickets { get; set; } = new List<TicketSelectionVM>();
 
-        // List of selected food items (multiple items possible)
-        [NotMapped]
-        public List<FoodSelectionVM> FoodItems { get; set; } = new List<FoodSelectionVM>();
+      
+            public double Price { get; set; }
 
-        // 🟢 **Now, TotalPrice makes sense**
-        [NotMapped]
-        public double TotalPrice { get; set; } = 0;// **Subtotal for this item**
 
+        public string? UserID { get; set; }
+        [ForeignKey("UserID")]
+        [ValidateNever]
+        public virtual ApplicationUser User { get; set; }
         // Navigation properties
         [ForeignKey("OrderID")]
+        [ValidateNever]
         public virtual OrderTable Order { get; set; }
+
+
+            [ForeignKey("ProductID")]
+        [ValidateNever]
+            public virtual Product? Product { get; set; }   
+
+            [ForeignKey("ShowtimeSeatID")]
+        [ValidateNever]
+        public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
+        }
     }
-}

@@ -74,6 +74,7 @@ background-color: black;
     cursor: pointer;
     border: 1px solid black;
     border-radius: 5px;
+    user-select: none;
 }
 .seat.selected {
     background-color: #ccccff; /* Ghế đã chọn màu tím */
