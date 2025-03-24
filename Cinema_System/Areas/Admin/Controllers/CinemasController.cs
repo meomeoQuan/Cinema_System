@@ -26,7 +26,9 @@ namespace Cinema_System.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             // Lấy danh sách rạp chiếu phim
-            var cinemas = await _unitOfWork.Cinema.GetAllAsync();
+            var cinemas = await _unitOfWork.Cinema
+                                //.Include(t => t.Admin)
+                                .GetAllAsync(includeProperties: "Admin");
 
             // Lấy danh sách admin và gán vào ViewBag
             var admins = await UsersController.GetUsersByRole(_userManager, _roleManager, SD.Role_Admin);
