@@ -18,6 +18,10 @@ namespace Cinema_System.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var schedules = await _unitOfWork.showTime.GetAllAsync("Movie,Cinema");
+            var movies = await _unitOfWork.Movie.GetAllAsync();
+            var cinemas = await _unitOfWork.Cinema.GetAllAsync();
+            ViewBag.Movies = movies.Select(m => new { Id = m.MovieID, Title = m.Title }).ToList();
+            ViewBag.Cinemas = cinemas.Select(c => new { Id = c.CinemaID, Name = c.Name }).ToList();
             return View(schedules);
         }
 
@@ -39,6 +43,13 @@ namespace Cinema_System.Areas.Admin.Controllers
             }).ToList();
 
             return Json(new { data = schedulesList });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
+        {
+            var rooms = await _unitOfWork.Room.GetRoomsByCinemaIdAsync(cinemaId);
+            return Json(rooms);
         }
     }
 }

@@ -194,32 +194,32 @@ namespace Cinema.DataAccess.Data
                   
                    
                 },
-                   new Theater
-                   {
-                       CinemaID = 3,
-                       Name = "CGV Cinema",
-                       Address = "124 Main St, Danang City",
-                       CinemaCity = "Danang",
-                       NumberOfRooms = 5,
-                       Status = CinemaStatus.Open,
-                       OpeningTime = "09:00",  // Changed from TimeSpan to string
-                       ClosingTime = "23:00",  // Changed from TimeSpan to string
+                new Theater
+                {
+                    CinemaID = 3,
+                    Name = "CGV Cinema",
+                    Address = "124 Main St, Danang City",
+                    CinemaCity = "Danang",
+                    NumberOfRooms = 5,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = "09:00",  // Changed from TimeSpan to string
+                    ClosingTime = "23:00",  // Changed from TimeSpan to string
 
 
-                   },
-                    new Theater
-                    {
-                        CinemaID = 4,
-                        Name = "HCM Cinestar Cinema",
-                        Address = "124 Main St, HCM City",
-                        CinemaCity = "Ho Chi Minh",
-                        NumberOfRooms = 5,
-                        Status = CinemaStatus.Open,
-                        OpeningTime = "09:00",  // Changed from TimeSpan to string
-                        ClosingTime = "23:00",  // Changed from TimeSpan to string
+                },
+                new Theater
+                {
+                    CinemaID = 4,
+                    Name = "HCM Cinestar Cinema",
+                    Address = "124 Main St, HCM City",
+                    CinemaCity = "Ho Chi Minh",
+                    NumberOfRooms = 5,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = "09:00",  // Changed from TimeSpan to string
+                    ClosingTime = "23:00",  // Changed from TimeSpan to string
 
 
-                    }
+                }
             );
             modelBuilder.Entity<Room>().HasData(
                 new Room

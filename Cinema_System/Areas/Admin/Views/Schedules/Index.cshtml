@@ -35,7 +35,7 @@
 							<tr data-id="@showtime.ShowTimeID">
 								<td data-field="Title">@showtime.Movie.Title</td>
 								<td data-field="Cinema">@showtime.Cinema.Name</td>
-								<td data-field="RoomNumber">@showtime.RoomID</td>
+                                <td data-field="RoomNumber">@showtime.RoomID</td>
 								<td data-field="Showdate">@showtime.ShowDates</td>
 								<td data-field="Showtime">@showtime.ShowTimes</td>
 								<td data-field="TicketPrice">@showtime.AvailableTicketQuantity</td>
@@ -63,15 +63,44 @@
 			<form id="scheduleForm">
 				<div class="mb-3">
 					<label class="form-label">Title</label>
-					<input type="text" class="form-control" id="scheduleTitle" required>
+					@* <input type="text" class="form-control" id="scheduleTitle" required> *@
+                    <select class="form-select" id="scheduleTitle" required>
+                        @if (ViewBag.Movies != null && ViewBag.Movies.Count > 0)
+                        {
+                            @foreach (var movie in ViewBag.Movies)
+                            {
+                                <option value="@movie.Id">@movie.Title</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">No movies available</option>
+                        }
+                    </select>
 				</div>
-				<div class="mb-3">
-					<label class="form-label">Cinema</label>
-					<input type="text" class="form-control" id="scheduleCinema" required>
-				</div>
-				<div class="mb-3">
-					<label class="form-label">Room Number</label>
-					<input type="text" class="form-control" id="scheduleRoomNumber" required>
+				<div class="row mb-3">
+					<div class="col-md-6">
+						<label class="form-label">Cinema</label>
+						<select class="form-select" id="scheduleCinema" onchange="loadRooms(this.value)" required>
+							@if (ViewBag.Cinemas != null && ViewBag.Cinemas.Count > 0)
+							{
+								@foreach (var cinema in ViewBag.Cinemas)
+								{
+									<option value="@cinema.Id">@cinema.Name</option>
+								}
+							}
+							else
+							{
+								<option value="">No cinemas available</option>
+							}
+						</select>
+					</div>
+					<div class="col-md-6">
+						<label class="form-label">Room Number</label>
+						<select class="form-select" id="scheduleRoomNumber" required>
+							<option value="">Select Cinema First</option>
+						</select>
+					</div>
 				</div>
 				<div class="mb-3">
 					<label class="form-label">Showdate</label>
@@ -90,6 +119,8 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function () {
             // Initialize DataTable
@@ -184,6 +215,42 @@
                     .removeClass('btn-success save-btn')
                     .addClass('btn-primary edit-btn')
                     .html('<i class="bi bi-pencil-square"></i> Edit');
+            });
+
+            function loadRooms(cinemaId) {
+                if (cinemaId) {
+                    $.ajax({
+                        url: '/Admin/Schedules/GetRoomsByCinema',
+                        type: 'GET',
+                        data: { cinemaId: cinemaId },
+                        success: function (rooms) {
+                            var roomSelect = $('#scheduleRoomNumber');
+                            roomSelect.empty();
+                            if (rooms && rooms.length > 0) {
+                                rooms.forEach(function (room) {
+                                    roomSelect.append($('<option></option>')
+                                        .attr('value', room.id)
+                                        .text(room.roomNumber));
+                                });
+                            } else {
+                                roomSelect.append($('<option></option>')
+                                    .attr('value', '')
+                                    .text('No rooms available'));
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Error loading rooms');
+                        }
+                    });
+                }
+            }
+
+            // Load rooms for initially selected cinema
+            $(document).ready(function() {
+                var selectedCinema = $('#scheduleCinema').val();
+                if (selectedCinema) {
+                    loadRooms(selectedCinema);
+                }
             });
         });
     </script>

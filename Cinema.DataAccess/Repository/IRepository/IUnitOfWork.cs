@@ -1,8 +1,8 @@
-﻿    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Cinema.DataAccess.Repository.IRepository
 {
@@ -18,7 +18,8 @@ namespace Cinema.DataAccess.Repository.IRepository
         public IApplicationUserRepository ApplicationUser { get; }
         public ICinemaRepository Cinema { get; }
         public IRoomRepository Room { get; }
+        public ISeatRepository Seat { get; }
 
-            Task SaveAsync();
-        }
+        Task SaveAsync();
     }
+}
