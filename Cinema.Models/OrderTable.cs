@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 
+
 namespace Cinema.Models
 {
     public class OrderTable
@@ -13,8 +14,10 @@ namespace Cinema.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderID { get; set; }
 
+
         [Required]
         public string  UserID { get; set; } // IdentityUser uses string as primary key
+
 
         [Required]
         [EnumDataType(typeof(OrderStatus))]
@@ -41,6 +44,7 @@ namespace Cinema.Models
         public virtual Coupon? Coupon { get; set; }
 
 
+
         
         public string ? Email { get; set; }
 
@@ -50,8 +54,8 @@ namespace Cinema.Models
         public string ? Phonenumber { get; set; }
 
 
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
-        //public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 
     public enum OrderStatus
@@ -61,5 +65,7 @@ namespace Cinema.Models
         Cancelled,
         Refunded
     }
+
 }
+
 

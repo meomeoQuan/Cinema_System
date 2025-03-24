@@ -20,9 +20,42 @@ namespace Cinema.Models
         [Required]
             public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
-            
-           
-            public int Quantity { get; set; } = 1;
+
+        //[Required]
+        //public string UserId { get; set; }
+
+        [Required]
+        public int MovieId { get; set; }
+
+        [Required]
+        public string MovieName { get; set; }
+
+        [Required]
+        public string Date { get; set; }
+
+        [Required]
+        public string City { get; set; }
+
+        [Required]
+        public string Cinema { get; set; }
+
+        [Required]
+        public int RoomId { get; set; } // Added RoomId
+
+        [Required]
+        public string RoomName { get; set; } // Added RoomName
+
+        [Required]
+        public string Showtime { get; set; }
+
+        // 🟢 **Added fields**
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
+        public int Quantity { get; set; } = 1;
+
+        [Required]
+        [Range(0.00, 999999.99, ErrorMessage = "Price must be a positive value.")]
+        public double Price { get; set; } // Price per unit
 
 
       
