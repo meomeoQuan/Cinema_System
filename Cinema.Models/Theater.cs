@@ -32,7 +32,6 @@ namespace Cinema.Models
 
         [Required]
         public TimeSpan OpeningTime { get; set; }
-        //public string OpeningTime { get; set; }
 
         [Required]
         public TimeSpan ClosingTime { get; set; }
