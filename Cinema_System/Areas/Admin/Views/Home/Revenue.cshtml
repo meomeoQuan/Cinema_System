@@ -1,8 +1,10 @@
 ﻿@page
+
 @model Cinema.Models.ViewModels.RevenueViewModel
 
 @{
     // ViewData["Title"] = "Admin Dashboard";
+
     // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -23,7 +25,9 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+
         const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue));
+
         const ctx = document.getElementById('revenueChart').getContext('2d');
 
         const revenueChart = new Chart(ctx, {
@@ -31,12 +35,14 @@
             data: {
                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                 datasets: [{
+
                     label: 'Revenue (VND)',
                     data: revenueData,
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
+
             },
             options: {
                 scales: {

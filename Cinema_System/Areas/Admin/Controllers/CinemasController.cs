@@ -1,3 +1,4 @@
+
 ﻿using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
@@ -5,12 +6,15 @@ using Cinema.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
+
     public class CinemasController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -21,10 +25,13 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
+
+
         }
 
         public async Task<IActionResult> Index()
         {
+
             // Lấy danh sách rạp chiếu phim
             var cinemas = await _unitOfWork.Cinema
                                 //.Include(t => t.Admin)
@@ -74,6 +81,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 }
             }
             return Json(new { success = false, message = "Invalid theater data." });
+
         }
 
         [HttpGet("GetAll")]
@@ -85,13 +93,17 @@ namespace Cinema_System.Areas.Admin.Controllers
                 c.CinemaID,
                 c.Name,
                 c.Address,
+
                 AdminName = c.Admin?.FullName ?? "Unknown",
                 c.NumberOfRooms,
                 c.OpeningTime,
                 c.ClosingTime
+
             }).ToList();
 
             return Json(new { data = cinemasList });
         }
+
     }
 }
+

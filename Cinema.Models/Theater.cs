@@ -12,6 +12,7 @@ namespace Cinema.Models
     public class Theater
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CinemaID { get; set; }
 
         [Required]
@@ -30,18 +31,15 @@ namespace Cinema.Models
         public CinemaStatus Status { get; set; } = CinemaStatus.Open;
 
         [Required]
-        //public TimeSpan OpeningTime { get; set; }
-        public string OpeningTime { get; set; }
+        public TimeSpan OpeningTime { get; set; }
+        //public string OpeningTime { get; set; }
 
         [Required]
-        //public TimeSpan ClosingTime { get; set; }
-        public string ClosingTime { get; set; }
-        public DateTime ? CreatedAt { get; set; }
-        public DateTime ? UpdatedAt { get; set; }
-
+        public TimeSpan ClosingTime { get; set; }
+        public DateTime CreatedAt { get; set; } 
+        public DateTime UpdatedAt { get; set; }
         public string? CinemaCity { get; set; }
-        public string ? AdminID { get; set; } // Foreign key
-
+        public string? AdminID { get; set; } // Foreign key
         // Navigation property
         [ForeignKey("AdminID")]
         [ValidateNever]

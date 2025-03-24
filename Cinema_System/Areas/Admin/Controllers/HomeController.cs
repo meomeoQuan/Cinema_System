@@ -34,6 +34,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         //     return Ok(revenueData);
         // }
 
+
            
 
    public async Task<IActionResult> Revenue()
@@ -81,4 +82,5 @@ namespace Cinema_System.Areas.Admin.Controllers
     //    return View(dashboardViewModel);
     //}
 }
+
 }

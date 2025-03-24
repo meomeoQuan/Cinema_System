@@ -75,7 +75,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
       // Cấu hình cookie
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Cookie tồn tại 30 ngày
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Cookie tồn tại 30 p
     options.SlidingExpiration = true; // Tự động gia hạn khi user active
 });
 
