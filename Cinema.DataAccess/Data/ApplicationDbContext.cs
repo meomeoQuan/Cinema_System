@@ -28,7 +28,7 @@ namespace Cinema.DataAccess.Data
         public DbSet<Seat> Seats { get; set; }
 
         public DbSet<ShowtimeSeat> showTimeSeats { get; set; }
-        public DbSet<Theater> Theaters { get; set; }
+        public DbSet<Theater> Cinemas { get; set; }
         public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
@@ -582,7 +582,7 @@ namespace Cinema.DataAccess.Data
                     Showtime = "18:30",
                     Quantity = 2,
                     Price = 10.0,
-                    TotalPrice = 20.0
+                   
                 },
                 new OrderDetail
                 {
@@ -598,7 +598,7 @@ namespace Cinema.DataAccess.Data
                     Showtime = "20:15",
                     Quantity = 3,
                     Price = 15.0,
-                    TotalPrice = 45.0
+                   
                 }
             );
         }

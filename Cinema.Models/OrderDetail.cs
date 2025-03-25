@@ -59,7 +59,7 @@ namespace Cinema.Models
 
 
       
-            public double Price { get; set; }
+        
 
 
         public string? UserID { get; set; }

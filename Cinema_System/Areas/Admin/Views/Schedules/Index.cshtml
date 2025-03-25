@@ -34,10 +34,12 @@
 						{
 							<tr data-id="@showtime.ShowTimeID">
 								<td data-field="Title">@showtime.Movie.Title</td>
-								<td data-field="Cinema">@showtime.Cinema.Name</td>
+								@* <td data-field="Cinema">@showtime.Cinema.Name</td> --old Cinema access via Room quan fix *@ 
+                                        <td data-field="Cinema">@showtime?.Room?.Cinema.Name</td>  
 								<td data-field="RoomNumber">@showtime.RoomID</td>
-								<td data-field="Showdate">@showtime.ShowDates</td>
-								<td data-field="Showtime">@showtime.ShowTimes</td>
+								@* <td data-field="Showdate">@showtime.ShowDates</td> -- old Showdate include showtime, showDate not showDates quan fix *@
+								@* <td data-field="Showtime">@showtime.ShowTimes</td> *@
+                                <td data-field="Showdate">@showtime.ShowDate</td>
 								<td data-field="TicketPrice">@showtime.AvailableTicketQuantity</td>
 								<td class="text-center">
 									<div class="d-flex gap-2 justify-content-center">

@@ -11,12 +11,9 @@
     var firstOrder = cinemaGroup.FirstOrDefault();
     var cinemaName = cinemaGroup.Key ;
     var cinemaAddress = firstOrder?.ShowtimeSeat?.Showtime?.Room?.Cinema?.Address;
-    @* var MovieGenre = firstOrder?.ShowtimeSeat?.Showtime?.Movie?.Genre; *@
-    @* var MovieDuration = firstOrder?.ShowtimeSeat?.Showtime?.Movie?.Duration; *@
     <h3>@cinemaName</h3>
     <p>@cinemaAddress</p>
-    @* <p>@MovieGenre</p> *@
-    @* <p>@MovieDuration + "mins"</p> *@
+   
 
     @foreach (var movieGroup in cinemaGroup.GroupBy(o => o.ShowtimeSeat?.Showtime?.Movie?.Title))
     {
