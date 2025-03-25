@@ -17,7 +17,7 @@ namespace Cinema.Models
             public int OrderID { get; set; } // Foreign key
         
             public int? ProductID { get; set; } // Nullable if the order is for tickets only
-        [Required]
+        
             public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
             

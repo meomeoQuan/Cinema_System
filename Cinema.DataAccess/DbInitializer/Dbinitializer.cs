@@ -75,9 +75,18 @@ namespace Cinema.DataAccess.DbInitializer
                     PhoneNumberConfirmed = true
                 }, "Staff@123").GetAwaiter().GetResult();
 
-               
+                _userManager.CreateAsync(new ApplicationUser
+                {
+                    UserName = "meo@gmail.com",
+                    Email = "meo@gmail.com",
+                    FullName = "nekochan",
+                    PhoneNumber = "1112223333",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true
+                }, "Meo@123").GetAwaiter().GetResult();
 
-           
+
+
 
                 //"123*" is too weak (many ASP.NET Identity systems require at least one 
                 //    uppercase letter, one lowercase letter, a number, and a special character). -> can not create user
