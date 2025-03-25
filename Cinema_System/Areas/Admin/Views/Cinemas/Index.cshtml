@@ -133,6 +133,13 @@
 				$('#theater-form').toggleClass('d-none');
 			});
 
+            $('#theaterRooms').on('input', function () {
+                let value = $(this).val();
+                if (value < 1) {
+                    $(this).val(1); // Tự động đặt giá trị về 1 nếu nhập số âm hoặc 0
+                }
+            });
+
 
 			$('#createCinemaForm').submit(function(e) {
 			 e.preventDefault();
