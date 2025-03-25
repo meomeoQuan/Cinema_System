@@ -13,12 +13,12 @@ namespace Cinema.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
 
-            [Required]
-            public int OrderID { get; set; } // Foreign key
-        
-            public int? ProductID { get; set; } // Nullable if the order is for tickets only
         [Required]
-            public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
+        public int OrderID { get; set; } // Foreign key
+        
+        public int? ProductID { get; set; } // Nullable if the order is for tickets only
+        [Required]
+         public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
 
         //[Required]
@@ -57,11 +57,6 @@ namespace Cinema.Models
         [Range(0.00, 999999.99, ErrorMessage = "Price must be a positive value.")]
         public double Price { get; set; } // Price per unit
 
-
-      
-            public double Price { get; set; }
-
-
         public string? UserID { get; set; }
         [ForeignKey("UserID")]
         [ValidateNever]
@@ -72,12 +67,12 @@ namespace Cinema.Models
         public virtual OrderTable Order { get; set; }
 
 
-            [ForeignKey("ProductID")]
+        [ForeignKey("ProductID")]
         [ValidateNever]
-            public virtual Product? Product { get; set; }   
+        public virtual Product? Product { get; set; }   
 
-            [ForeignKey("ShowtimeSeatID")]
+        [ForeignKey("ShowtimeSeatID")]
         [ValidateNever]
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
-        }
     }
+}
