@@ -35,18 +35,10 @@ namespace Cinema.Models
         public int MovieID { get; set; }
         [ForeignKey(nameof(MovieID))]
         [ValidateNever]
-        public Movie ? Movie { get; set; }
+        public Movie? Movie { get; set; }
 
-        // Navigation property for seats
         public virtual ICollection<ShowtimeSeat> ShowtimeSeats { get; set; } = new List<ShowtimeSeat>();
 
-
-
-//        This is a navigation property that tells EF that one ShowTime can have multiple ShowtimeSeat records.
-//Since ShowtimeSeat already has ShowtimeID as a foreign key, EF automatically understands this as a one-to-many relationship.
-//Now, from ShowTime, you can access all seats that belong to it using ShowtimeSeats.
-
-        // Computed property to get the available ticket quantity
         [NotMapped]
         public int AvailableTicketQuantity => ShowtimeSeats.Count(s => s.Status == ShowtimeSeatStatus.Available);
 

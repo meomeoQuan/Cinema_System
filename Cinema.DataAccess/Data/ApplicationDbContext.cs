@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Cinema.DataAccess.Repository;
 using Cinema.Models;
 using Cinema.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -15,8 +16,10 @@ namespace Cinema.DataAccess.Data
     public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     {
+        //public readonly ApplicationUserRepository _applicationUserRepository;
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
+            //_applicationUserRepository = new ApplicationUserRepository(this);
         }
 
         public DbSet<OrderDetail> OrderDetails { get; set; }
@@ -227,6 +230,7 @@ namespace Cinema.DataAccess.Data
                 }
             );
             // Seed Sample Theaters
+            //var adminUser = _applicationUserRepository.FindAdminUserByName("Admin");
             modelBuilder.Entity<Theater>().HasData(
                 new Theater
                 {
@@ -236,8 +240,10 @@ namespace Cinema.DataAccess.Data
                     CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
+
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
                     ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+
 
 
                 },
@@ -282,23 +288,23 @@ namespace Cinema.DataAccess.Data
                     }
             );
             modelBuilder.Entity<Room>().HasData(
-    new Room
-    {
-        RoomID = 1,
-        RoomNumber = "A1",
-        Capacity = 100,
-        Status = RoomStatus.Available,
-        CinemaID = 1 // Matches existing Theater
-    },
-    new Room
-    {
-        RoomID = 2,
-        RoomNumber = "B1",
-        Capacity = 150,
-        Status = RoomStatus.Available,
-        CinemaID = 2 // Matches existing Theater
-    }
-);
+                new Room
+                {
+                    RoomID = 1,
+                    RoomNumber = "A1",
+                    Capacity = 100,
+                    Status = RoomStatus.Available,
+                    CinemaID = 1 // Matches existing Theater
+                },
+                new Room
+                {
+                    RoomID = 2,
+                    RoomNumber = "B1",
+                    Capacity = 150,
+                    Status = RoomStatus.Available,
+                    CinemaID = 2 // Matches existing Theater
+                }
+            );
             // Seed Seats for RoomID = 1 (5 rows x 10 columns = 50 seats)
             modelBuilder.Entity<Seat>().HasData(
                 // Row A
@@ -380,6 +386,7 @@ namespace Cinema.DataAccess.Data
                     MovieID = 2
                 }
                 ,
+
                   new ShowTime
                   {
                       ShowTimeID = 3,
@@ -423,6 +430,7 @@ namespace Cinema.DataAccess.Data
                                  MovieID = 1
                              }
 
+
             );
             // Seed ShowtimeSeats for RoomID = 1 and ShowTimeID = 1
             modelBuilder.Entity<ShowtimeSeat>().HasData(
@@ -453,7 +461,146 @@ namespace Cinema.DataAccess.Data
             }
 
 
+            // Seed OrderTables
+            modelBuilder.Entity<OrderTable>().HasData(
+                new OrderTable
+                {
+                    OrderID = 1,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 124235,
+                    CreatedAt = new DateTime(2025, 1, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 2,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 747237.654,
+                    CreatedAt = new DateTime(2025, 2, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 3,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 50000,
+                    CreatedAt = new DateTime(2025, 3, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 4,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 60000,
+                    CreatedAt = new DateTime(2025, 4, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 5,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 70000,
+                    CreatedAt = new DateTime(2025, 5, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 6,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 80000,
+                    CreatedAt = new DateTime(2025, 6, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 7,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 90000,
+                    CreatedAt = new DateTime(2025, 7, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 8,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 100000,
+                    CreatedAt = new DateTime(2025, 8, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 9,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 110000,
+                    CreatedAt = new DateTime(2025, 9, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 10,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 120000,
+                    CreatedAt = new DateTime(2025, 10, 1)
 
+                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                },
+                new OrderTable
+                {
+                    OrderID = 11,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 130000,
+                    CreatedAt = new DateTime(2025, 11, 1)
+
+                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                },
+                new OrderTable
+                {
+                    OrderID = 12,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 140000,
+                    CreatedAt = new DateTime(2025, 12, 1)
+
+                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                }
+            );
+
+
+            //Seed OrderDetails
+            modelBuilder.Entity<OrderDetail>().HasData(
+                new OrderDetail
+                {
+                    OrderDetailID = 1,
+                    OrderID = 1,
+                    
+                    MovieId = 1,
+                    MovieName = "Inception",
+                    Date = "01/03/2025",
+                    City = "Danang",
+                    Cinema = "Grand Cinema",
+                    RoomId = 1,
+                    RoomName = "A1",
+                    Showtime = "18:30",
+                    Quantity = 2,
+                    Price = 10.0,
+                    TotalPrice = 20.0
+                },
+                new OrderDetail
+                {
+                    OrderDetailID = 2,
+                    OrderID = 2,
+                    MovieId = 2,
+                    MovieName = "The Dark Knight",
+                    Date = "01/03/2025",
+                    City = "Ho Chi Minh",
+                    Cinema = "Skyline Theater",
+                    RoomId = 2,
+                    RoomName = "B1",
+                    Showtime = "20:15",
+                    Quantity = 3,
+                    Price = 15.0,
+                    TotalPrice = 45.0
+                }
+            );
         }
     }
 }
