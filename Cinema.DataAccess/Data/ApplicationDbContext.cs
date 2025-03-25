@@ -582,7 +582,8 @@ namespace Cinema.DataAccess.Data
                     RoomName = "A1",
                     Showtime = "18:30",
                     Quantity = 2,
-                    Price = 10.0
+                    Price = 10.0,
+                    TotalPrice = 20.0
                 },
                 new OrderDetail
                 {
@@ -597,7 +598,8 @@ namespace Cinema.DataAccess.Data
                     RoomName = "B1",
                     Showtime = "20:15",
                     Quantity = 3,
-                    Price = 15.0
+                    Price = 15.0,
+                    TotalPrice = 45.0
                 }
             );
         }
