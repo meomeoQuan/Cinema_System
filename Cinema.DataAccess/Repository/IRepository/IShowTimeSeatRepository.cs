@@ -1,4 +1,7 @@
-﻿namespace Cinema.DataAccess.Repository.IRepository
+﻿
+using Cinema.Models;
+
+namespace Cinema.DataAccess.Repository.IRepository
 {
     public interface IShowTimeSeatRepository : IRepository<ShowtimeSeat>
     {

@@ -17,9 +17,11 @@ namespace Cinema_System.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var schedules = await _unitOfWork.showTime.GetAllAsync("Movie,Cinema");
+            var schedules = await _unitOfWork.showTime.GetAllAsync("Movie,Room.Theater");
             var movies = await _unitOfWork.Movie.GetAllAsync();
             var cinemas = await _unitOfWork.Cinema.GetAllAsync();
+            //var
+            //var Showtime
             ViewBag.Movies = movies.Select(m => new { Id = m.MovieID, Title = m.Title }).ToList();
             ViewBag.Cinemas = cinemas.Select(c => new { Id = c.CinemaID, Name = c.Name }).ToList();
             return View(schedules);

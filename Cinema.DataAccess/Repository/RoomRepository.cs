@@ -26,7 +26,7 @@ namespace Cinema.DataAccess.Repository
         public async Task<IEnumerable<Room>> GetRoomsByCinemaIdAsync(int cinemaId)
         {
             return await _db.Rooms
-                .Include(r => r.Cinema)
+                .Include(r => r.Theater)
                 .Where(r => r.CinemaID == cinemaId)
                 .ToListAsync();
         }

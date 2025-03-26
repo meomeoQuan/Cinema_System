@@ -70,7 +70,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 u.RoomNumber,
                 u.Status,
                 u.Capacity,
-                u.Cinema
+                u.Theater
 
             }).ToList();
 

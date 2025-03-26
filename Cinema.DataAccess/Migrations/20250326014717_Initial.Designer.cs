@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250318133345_Initial")]
+    [Migration("20250326014717_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -39,7 +39,6 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CouponImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("DiscountPercentage")
@@ -96,7 +95,6 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("MovieImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ReleaseDate")
@@ -312,48 +310,28 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
-                    b.Property<string>("Cinema")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MovieId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MovieName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("OrderID")
                         .HasColumnType("int");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("ShowtimeSeatID")
                         .HasColumnType("int");
-
-                    b.Property<string>("RoomName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Showtime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("OrderDetailID");
 
                     b.HasIndex("OrderID");
+
+                    b.HasIndex("ProductID");
+
+                    b.HasIndex("ShowtimeSeatID");
 
                     b.ToTable("OrderDetails");
 
@@ -361,32 +339,42 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             OrderDetailID = 1,
-                            Cinema = "Grand Cinema",
-                            City = "Danang",
-                            Date = "01/03/2025",
-                            MovieId = 1,
-                            MovieName = "Inception",
                             OrderID = 1,
                             Price = 10.0,
-                            Quantity = 2,
-                            RoomId = 1,
-                            RoomName = "A1",
-                            Showtime = "18:30"
+                            ProductID = 1,
+                            Quantity = 2
                         },
                         new
                         {
                             OrderDetailID = 2,
-                            Cinema = "Skyline Theater",
-                            City = "Ho Chi Minh",
-                            Date = "01/03/2025",
-                            MovieId = 2,
-                            MovieName = "The Dark Knight",
-                            OrderID = 2,
+                            OrderID = 1,
                             Price = 15.0,
-                            Quantity = 3,
-                            RoomId = 2,
-                            RoomName = "B1",
-                            Showtime = "20:15"
+                            Quantity = 1,
+                            ShowtimeSeatID = 1
+                        },
+                        new
+                        {
+                            OrderDetailID = 3,
+                            OrderID = 2,
+                            Price = 20.0,
+                            ProductID = 2,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            OrderDetailID = 4,
+                            OrderID = 2,
+                            Price = 25.0,
+                            Quantity = 1,
+                            ShowtimeSeatID = 2
+                        },
+                        new
+                        {
+                            OrderDetailID = 5,
+                            OrderID = 3,
+                            Price = 30.0,
+                            ProductID = 3,
+                            Quantity = 3
                         });
                 });
 
@@ -560,8 +548,8 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 1,
                             Description = "A large bucket of buttered popcorn.",
                             Name = "Popcorn",
-                            Price = 5.9900000000000002,
-                            ProductImage = "",
+                            Price = 89000.0,
+                            ProductImage = "/css/images/popcorn.png",
                             ProductType = 0,
                             Quantity = 50
                         },
@@ -570,9 +558,49 @@ namespace Cinema.DataAccess.Migrations
                             ProductID = 2,
                             Description = "Refreshing cold soda, 500ml.",
                             Name = "Soda",
-                            Price = 2.9900000000000002,
-                            ProductImage = "",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/soda.png",
                             ProductType = 1,
+                            Quantity = 100
+                        },
+                        new
+                        {
+                            ProductID = 3,
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Coca",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/drink2.png",
+                            ProductType = 1,
+                            Quantity = 100
+                        },
+                        new
+                        {
+                            ProductID = 4,
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Sprite",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/drink1.png",
+                            ProductType = 1,
+                            Quantity = 100
+                        },
+                        new
+                        {
+                            ProductID = 5,
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Combo Couple",
+                            Price = 129000.0,
+                            ProductImage = "/css/images/popcorn1.png",
+                            ProductType = 2,
+                            Quantity = 100
+                        },
+                        new
+                        {
+                            ProductID = 6,
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Combo Full",
+                            Price = 229000.0,
+                            ProductImage = "/css/images/popcorn2.png",
+                            ProductType = 2,
                             Quantity = 100
                         });
                 });
@@ -664,7 +692,7 @@ namespace Cinema.DataAccess.Migrations
                             ColumnNumber = 1,
                             RoomID = 1,
                             Row = "A",
-                            Status = 0
+                            Status = 1
                         },
                         new
                         {
@@ -1068,26 +1096,19 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShowTimeID"));
 
-                    b.Property<int>("CinemaID")
-                        .HasColumnType("int");
-
                     b.Property<int>("MovieID")
                         .HasColumnType("int");
 
                     b.Property<int>("RoomID")
                         .HasColumnType("int");
 
-                    b.Property<string>("ShowDates")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("ShowDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ShowTimes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<TimeSpan>("ShowTimes")
+                        .HasColumnType("time");
 
                     b.HasKey("ShowTimeID");
-
-                    b.HasIndex("CinemaID");
 
                     b.HasIndex("MovieID");
 
@@ -1099,74 +1120,497 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ShowTimeID = 1,
-                            CinemaID = 1,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDates = "01/03/2025",
-                            ShowTimes = "18:30"
+                            ShowDate = new DateTime(2025, 3, 10, 7, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 2,
-                            CinemaID = 2,
-                            MovieID = 2,
+                            MovieID = 3,
                             RoomID = 2,
-                            ShowDates = "01/03/2025",
-                            ShowTimes = "20:15"
+                            ShowDate = new DateTime(2025, 3, 10, 9, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 3,
-                            CinemaID = 1,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDates = "01/03/2025",
-                            ShowTimes = "23:00"
+                            ShowDate = new DateTime(2025, 3, 10, 11, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 4,
-                            CinemaID = 3,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDates = "08/03/2025",
-                            ShowTimes = "21:00"
+                            ShowDate = new DateTime(2025, 3, 10, 13, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 5,
-                            CinemaID = 3,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDates = "10/03/2025",
-                            ShowTimes = "23:00"
+                            ShowDate = new DateTime(2025, 3, 11, 7, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 6,
-                            CinemaID = 4,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDates = "19/03/2025",
-                            ShowTimes = "17:00"
+                            ShowDate = new DateTime(2025, 3, 11, 9, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 7,
-                            CinemaID = 3,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDates = "01/03/2025",
-                            ShowTimes = "17:00"
+                            ShowDate = new DateTime(2025, 3, 11, 11, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 8,
-                            CinemaID = 4,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDates = "01/03/2025",
-                            ShowTimes = "19:00"
+                            ShowDate = new DateTime(2025, 3, 12, 9, 30, 0, 0, DateTimeKind.Unspecified),
+                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                        });
+                });
+
+            modelBuilder.Entity("Cinema.Models.ShowtimeSeat", b =>
+                {
+                    b.Property<int>("ShowtimeSeatID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShowtimeSeatID"));
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SeatID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShowtimeID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("ShowtimeSeatID");
+
+                    b.HasIndex("SeatID");
+
+                    b.HasIndex("ShowtimeID");
+
+                    b.ToTable("showTimeSeats");
+
+                    b.HasData(
+                        new
+                        {
+                            ShowtimeSeatID = 1,
+                            Price = 80000.0,
+                            SeatID = 1,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 2,
+                            Price = 80000.0,
+                            SeatID = 2,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 3,
+                            Price = 80000.0,
+                            SeatID = 3,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 4,
+                            Price = 80000.0,
+                            SeatID = 4,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 5,
+                            Price = 80000.0,
+                            SeatID = 5,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 6,
+                            Price = 80000.0,
+                            SeatID = 6,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 7,
+                            Price = 80000.0,
+                            SeatID = 7,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 8,
+                            Price = 80000.0,
+                            SeatID = 8,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 9,
+                            Price = 80000.0,
+                            SeatID = 9,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 10,
+                            Price = 80000.0,
+                            SeatID = 10,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 11,
+                            Price = 80000.0,
+                            SeatID = 11,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 12,
+                            Price = 80000.0,
+                            SeatID = 12,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 13,
+                            Price = 80000.0,
+                            SeatID = 13,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 14,
+                            Price = 80000.0,
+                            SeatID = 14,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 15,
+                            Price = 80000.0,
+                            SeatID = 15,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 16,
+                            Price = 80000.0,
+                            SeatID = 16,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 17,
+                            Price = 80000.0,
+                            SeatID = 17,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 18,
+                            Price = 80000.0,
+                            SeatID = 18,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 19,
+                            Price = 80000.0,
+                            SeatID = 19,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 20,
+                            Price = 80000.0,
+                            SeatID = 20,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 21,
+                            Price = 80000.0,
+                            SeatID = 21,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 22,
+                            Price = 80000.0,
+                            SeatID = 22,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 23,
+                            Price = 80000.0,
+                            SeatID = 23,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 24,
+                            Price = 80000.0,
+                            SeatID = 24,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 25,
+                            Price = 80000.0,
+                            SeatID = 25,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 26,
+                            Price = 80000.0,
+                            SeatID = 26,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 27,
+                            Price = 80000.0,
+                            SeatID = 27,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 28,
+                            Price = 80000.0,
+                            SeatID = 28,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 29,
+                            Price = 80000.0,
+                            SeatID = 29,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 30,
+                            Price = 80000.0,
+                            SeatID = 30,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 31,
+                            Price = 80000.0,
+                            SeatID = 31,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 32,
+                            Price = 80000.0,
+                            SeatID = 32,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 33,
+                            Price = 80000.0,
+                            SeatID = 33,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 34,
+                            Price = 80000.0,
+                            SeatID = 34,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 35,
+                            Price = 80000.0,
+                            SeatID = 35,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 36,
+                            Price = 80000.0,
+                            SeatID = 36,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 37,
+                            Price = 80000.0,
+                            SeatID = 37,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 38,
+                            Price = 80000.0,
+                            SeatID = 38,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 39,
+                            Price = 80000.0,
+                            SeatID = 39,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 40,
+                            Price = 80000.0,
+                            SeatID = 40,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 41,
+                            Price = 80000.0,
+                            SeatID = 41,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 42,
+                            Price = 80000.0,
+                            SeatID = 42,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 43,
+                            Price = 80000.0,
+                            SeatID = 43,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 44,
+                            Price = 80000.0,
+                            SeatID = 44,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 45,
+                            Price = 80000.0,
+                            SeatID = 45,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 46,
+                            Price = 80000.0,
+                            SeatID = 46,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 47,
+                            Price = 80000.0,
+                            SeatID = 47,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 48,
+                            Price = 80000.0,
+                            SeatID = 48,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 49,
+                            Price = 80000.0,
+                            SeatID = 49,
+                            ShowtimeID = 1,
+                            Status = 0
+                        },
+                        new
+                        {
+                            ShowtimeSeatID = 50,
+                            Price = 80000.0,
+                            SeatID = 50,
+                            ShowtimeID = 1,
+                            Status = 0
                         });
                 });
 
@@ -1188,11 +1632,10 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<string>("CinemaCity")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ClosingTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<TimeSpan>("ClosingTime")
+                        .HasColumnType("time");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -1202,67 +1645,75 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<int>("NumberOfRooms")
                         .HasColumnType("int");
 
-                    b.Property<string>("OpeningTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<TimeSpan>("OpeningTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("CinemaID");
 
                     b.HasIndex("AdminID");
 
-                    b.ToTable("Cinemas");
+                    b.ToTable("Theaters");
 
                     b.HasData(
                         new
                         {
                             CinemaID = 1,
                             Address = "123 Main St, Da Nang City",
+                            AdminID = "a1234567-b89c-40d4-a123-456789abcdef",
                             CinemaCity = "Danang",
-                            ClosingTime = "23:00",
+                            ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Grand Cinema",
                             NumberOfRooms = 5,
-                            OpeningTime = "09:00",
-                            Status = "Open"
+                            OpeningTime = new TimeSpan(0, 9, 0, 0, 0),
+                            Status = "Open",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             CinemaID = 2,
                             Address = "456 Broadway Ave, HCM City",
                             CinemaCity = "Ho Chi Minh",
-                            ClosingTime = "22:30",
+                            ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Skyline Theater",
                             NumberOfRooms = 7,
-                            OpeningTime = "10:00",
-                            Status = "Open"
+                            OpeningTime = new TimeSpan(0, 9, 0, 0, 0),
+                            Status = "Open",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             CinemaID = 3,
                             Address = "124 Main St, Danang City",
                             CinemaCity = "Danang",
-                            ClosingTime = "23:00",
+                            ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CGV Cinema",
                             NumberOfRooms = 5,
-                            OpeningTime = "09:00",
-                            Status = "Open"
+                            OpeningTime = new TimeSpan(0, 9, 0, 0, 0),
+                            Status = "Open",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             CinemaID = 4,
                             Address = "124 Main St, HCM City",
                             CinemaCity = "Ho Chi Minh",
-                            ClosingTime = "23:00",
+                            ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "HCM Cinestar Cinema",
                             NumberOfRooms = 5,
-                            OpeningTime = "09:00",
-                            Status = "Open"
+                            OpeningTime = new TimeSpan(0, 9, 0, 0, 0),
+                            Status = "Open",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -1518,490 +1969,6 @@ namespace Cinema.DataAccess.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ShowtimeSeat", b =>
-                {
-                    b.Property<int>("ShowtimeSeatID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShowtimeSeatID"));
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
-                    b.Property<int>("SeatID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SeatType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShowtimeID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("ShowtimeSeatID");
-
-                    b.HasIndex("SeatID");
-
-                    b.HasIndex("ShowtimeID");
-
-                    b.ToTable("showTimeSeats");
-
-                    b.HasData(
-                        new
-                        {
-                            ShowtimeSeatID = 1,
-                            Price = 10.0,
-                            SeatID = 1,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 2,
-                            Price = 10.0,
-                            SeatID = 2,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 3,
-                            Price = 10.0,
-                            SeatID = 3,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 4,
-                            Price = 10.0,
-                            SeatID = 4,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 5,
-                            Price = 10.0,
-                            SeatID = 5,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 6,
-                            Price = 10.0,
-                            SeatID = 6,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 7,
-                            Price = 10.0,
-                            SeatID = 7,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 8,
-                            Price = 10.0,
-                            SeatID = 8,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 9,
-                            Price = 10.0,
-                            SeatID = 9,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 10,
-                            Price = 10.0,
-                            SeatID = 10,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 11,
-                            Price = 10.0,
-                            SeatID = 11,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 12,
-                            Price = 10.0,
-                            SeatID = 12,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 13,
-                            Price = 10.0,
-                            SeatID = 13,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 14,
-                            Price = 10.0,
-                            SeatID = 14,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 15,
-                            Price = 10.0,
-                            SeatID = 15,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 16,
-                            Price = 10.0,
-                            SeatID = 16,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 17,
-                            Price = 10.0,
-                            SeatID = 17,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 18,
-                            Price = 10.0,
-                            SeatID = 18,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 19,
-                            Price = 10.0,
-                            SeatID = 19,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 20,
-                            Price = 10.0,
-                            SeatID = 20,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 21,
-                            Price = 10.0,
-                            SeatID = 21,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 22,
-                            Price = 10.0,
-                            SeatID = 22,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 23,
-                            Price = 10.0,
-                            SeatID = 23,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 24,
-                            Price = 10.0,
-                            SeatID = 24,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 25,
-                            Price = 10.0,
-                            SeatID = 25,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 26,
-                            Price = 10.0,
-                            SeatID = 26,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 27,
-                            Price = 10.0,
-                            SeatID = 27,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 28,
-                            Price = 10.0,
-                            SeatID = 28,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 29,
-                            Price = 10.0,
-                            SeatID = 29,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 30,
-                            Price = 10.0,
-                            SeatID = 30,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 31,
-                            Price = 10.0,
-                            SeatID = 31,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 32,
-                            Price = 10.0,
-                            SeatID = 32,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 33,
-                            Price = 10.0,
-                            SeatID = 33,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 34,
-                            Price = 10.0,
-                            SeatID = 34,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 35,
-                            Price = 10.0,
-                            SeatID = 35,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 36,
-                            Price = 10.0,
-                            SeatID = 36,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 37,
-                            Price = 10.0,
-                            SeatID = 37,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 38,
-                            Price = 10.0,
-                            SeatID = 38,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 39,
-                            Price = 10.0,
-                            SeatID = 39,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 40,
-                            Price = 10.0,
-                            SeatID = 40,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 41,
-                            Price = 10.0,
-                            SeatID = 41,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 42,
-                            Price = 10.0,
-                            SeatID = 42,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 43,
-                            Price = 10.0,
-                            SeatID = 43,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 44,
-                            Price = 10.0,
-                            SeatID = 44,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 45,
-                            Price = 10.0,
-                            SeatID = 45,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 46,
-                            Price = 10.0,
-                            SeatID = 46,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 47,
-                            Price = 10.0,
-                            SeatID = 47,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 48,
-                            Price = 10.0,
-                            SeatID = 48,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 49,
-                            Price = 10.0,
-                            SeatID = 49,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        },
-                        new
-                        {
-                            ShowtimeSeatID = 50,
-                            Price = 10.0,
-                            SeatID = 50,
-                            SeatType = 0,
-                            ShowtimeID = 1,
-                            Status = 0
-                        });
-                });
-
             modelBuilder.Entity("Cinema.Models.ApplicationUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -2016,9 +1983,29 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<string>("UserImage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("AspNetUsers", (string)null);
-
                     b.HasDiscriminator().HasValue("ApplicationUser");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "a1234567-b89c-40d4-a123-456789abcdef",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef",
+                            Email = "daoduyquylop97@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = true,
+                            NormalizedEmail = "daoduyquylop97@gmail.com",
+                            NormalizedUserName = "Đào Duy Quý",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJ9",
+                            PhoneNumber = "0123456789",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef",
+                            TwoFactorEnabled = false,
+                            UserName = "Đào Duy Quý",
+                            FullName = "Đào Duy Quý",
+                            Points = 0,
+                            UserImage = "/css/images/user.png"
+                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.OrderDetail", b =>
@@ -2029,13 +2016,25 @@ namespace Cinema.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Cinema.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID");
+
+                    b.HasOne("Cinema.Models.ShowtimeSeat", "ShowtimeSeat")
+                        .WithMany()
+                        .HasForeignKey("ShowtimeSeatID");
+
                     b.Navigation("Order");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ShowtimeSeat");
                 });
 
             modelBuilder.Entity("Cinema.Models.OrderTable", b =>
                 {
                     b.HasOne("Cinema.Models.Coupon", "Coupon")
-                        .WithMany()
+                        .WithMany("OrderTables")
                         .HasForeignKey("CouponID");
 
                     b.HasOne("Cinema.Models.ApplicationUser", "User")
@@ -2049,13 +2048,13 @@ namespace Cinema.DataAccess.Migrations
 
             modelBuilder.Entity("Cinema.Models.Room", b =>
                 {
-                    b.HasOne("Cinema.Models.Theater", "Cinema")
+                    b.HasOne("Cinema.Models.Theater", "Theater")
                         .WithMany("Rooms")
                         .HasForeignKey("CinemaID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Cinema");
+                    b.Navigation("Theater");
                 });
 
             modelBuilder.Entity("Cinema.Models.Seat", b =>
@@ -2071,12 +2070,6 @@ namespace Cinema.DataAccess.Migrations
 
             modelBuilder.Entity("Cinema.Models.ShowTime", b =>
                 {
-                    b.HasOne("Cinema.Models.Theater", "Cinema")
-                        .WithMany()
-                        .HasForeignKey("CinemaID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Cinema.Models.Movie", "Movie")
                         .WithMany("ShowTimes")
                         .HasForeignKey("MovieID")
@@ -2089,17 +2082,34 @@ namespace Cinema.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Cinema");
-
                     b.Navigation("Movie");
 
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("Cinema.Models.ShowtimeSeat", b =>
+                {
+                    b.HasOne("Cinema.Models.Seat", "Seat")
+                        .WithMany("ShowtimeSeats")
+                        .HasForeignKey("SeatID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cinema.Models.ShowTime", "Showtime")
+                        .WithMany("ShowTimeSeats")
+                        .HasForeignKey("ShowtimeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Seat");
+
+                    b.Navigation("Showtime");
+                });
+
             modelBuilder.Entity("Cinema.Models.Theater", b =>
                 {
                     b.HasOne("Cinema.Models.ApplicationUser", "Admin")
-                        .WithMany()
+                        .WithMany("Theaters")
                         .HasForeignKey("AdminID");
 
                     b.Navigation("Admin");
@@ -2114,7 +2124,7 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("Cinema.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("UserCoupons")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2175,27 +2185,10 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ShowtimeSeat", b =>
-                {
-                    b.HasOne("Cinema.Models.Seat", "Seat")
-                        .WithMany()
-                        .HasForeignKey("SeatID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Cinema.Models.ShowTime", "Showtime")
-                        .WithMany()
-                        .HasForeignKey("ShowtimeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Seat");
-
-                    b.Navigation("Showtime");
-                });
-
             modelBuilder.Entity("Cinema.Models.Coupon", b =>
                 {
+                    b.Navigation("OrderTables");
+
                     b.Navigation("UserCoupons");
                 });
 
@@ -2216,9 +2209,26 @@ namespace Cinema.DataAccess.Migrations
                     b.Navigation("ShowTimes");
                 });
 
+            modelBuilder.Entity("Cinema.Models.Seat", b =>
+                {
+                    b.Navigation("ShowtimeSeats");
+                });
+
+            modelBuilder.Entity("Cinema.Models.ShowTime", b =>
+                {
+                    b.Navigation("ShowTimeSeats");
+                });
+
             modelBuilder.Entity("Cinema.Models.Theater", b =>
                 {
                     b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("Cinema.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Theaters");
+
+                    b.Navigation("UserCoupons");
                 });
 #pragma warning restore 612, 618
         }

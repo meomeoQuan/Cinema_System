@@ -37,7 +37,7 @@ namespace Cinema_System.Areas.Admin.Controllers
 
            
 
-   public async Task<IActionResult> Revenue()
+    public async Task<IActionResult> Revenue()
     {
         // Fetch monthly revenue data from the database
         var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
@@ -48,15 +48,20 @@ namespace Cinema_System.Areas.Admin.Controllers
             .Select(r => r.Amount)
             .ToList();
 
+        if(monthlyRevenue is List<double>)
+        {
+            Console.WriteLine("ok");
+        }
         // Create the view model
         var viewModel = new RevenueViewModel
         {
             MonthlyRevenue = monthlyRevenue
         };
+        
 
         // Pass the view model to the view
         return View(viewModel);
-    }
+        }
 
 
     //public async Task<IActionResult> Index()

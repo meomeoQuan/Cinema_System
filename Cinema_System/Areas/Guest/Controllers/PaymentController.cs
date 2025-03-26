@@ -58,9 +58,7 @@ namespace Cinema_System.Areas
                 UserID = "a1234567-b89c-40d4-a123-456789abcdef",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CouponID = coupon != null? coupon.CouponID : null,
-                Email = "",
-                Phonenumber = ""
+                CouponID = coupon != null? coupon.CouponID : null
             };
 
             _context.OrderTables.Add(order);
