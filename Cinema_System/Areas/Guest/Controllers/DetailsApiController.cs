@@ -17,7 +17,7 @@ namespace Cinema_System.Areas.Guest.Controllers
         [HttpGet("cities")]
         public async Task<IActionResult> getListCity()
         {
-            var cities = _context.Theaters
+            var cities = _context.Cinemas
                                 .Where(t => !string.IsNullOrEmpty(t.CinemaCity))
                                 .Select(t => t.CinemaCity)
                                 .Distinct()

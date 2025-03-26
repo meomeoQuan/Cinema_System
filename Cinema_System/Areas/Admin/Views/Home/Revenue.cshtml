@@ -1,0 +1,58 @@
+
+﻿@page
+
+@model Cinema.Models.ViewModels.RevenueViewModel
+
+@{
+    // ViewData["Title"] = "Admin Dashboard";
+    // ViewBag.Title = "Revenue";
+    // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+<div class="flex flex-1 p-6">
+    Main Section
+    <main class="flex-1">
+        Example content
+        <div class="bg-white p-6 rounded shadow-md">
+            <h2 class="text-xl font-bold mb-4">
+                Monthly Revenue
+            </h2>
+            <canvas height="200" id="revenueChart" width="400">
+            </canvas>
+        </div>
+    </main>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+        const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue));
+
+//          const revenueData = @Html.Raw(Json.Serialize(Model.MonthlyRevenue));
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+
+        const revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                datasets: [{
+
+                    label: 'Revenue (VND)',
+                    data: revenueData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

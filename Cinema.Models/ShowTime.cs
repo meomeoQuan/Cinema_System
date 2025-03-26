@@ -6,6 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Cinema.Models
 {
@@ -17,21 +21,36 @@ namespace Cinema.Models
 
         [Required]
         public DateTime ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
-        //public string ShowDates { get; set; }
-
-
-
-
+        public TimeSpan ShowTimes { get; set; }
+        //public int CinemaID { get; set; }
         public int RoomID { get; set; }
-        [ForeignKey(nameof(RoomID))]
-        [ValidateNever]
-        public Room Room { get; set; }
-
-
         public int MovieID { get; set; }
-        [ForeignKey(nameof(MovieID))]
+
+        //[ForeignKey("CinemaId")]
+        //[InverseProperty("Showtimes")]
+        //public virtual Theater Theater { get; set; } = null!;
+        //[ForeignKey("CinemaID")]
+        //[InverseProperty("ShowTimes")]
+        //[ValidateNever] 
+        //public virtual Theater Theater { get; set; } = null!;
+
+
+        [ForeignKey("MovieID")]
+        [InverseProperty("ShowTimes")]
         [ValidateNever]
-        public Movie Movie { get; set; }
+        public virtual Movie Movie { get; set; } = null!;
+
+        [ForeignKey("RoomID")]
+        [InverseProperty("ShowTimes")]
+        [ValidateNever]
+        public virtual Room Room { get; set; } = null!;
+
+        [InverseProperty("Showtime")] // Ensure it matches the navigation property in `ShowtimeSeat`
+        public virtual ICollection<ShowtimeSeat> ShowTimeSeats { get; set; } = new List<ShowtimeSeat>();
+
+
+        //[NotMapped]
+        //public int AvailableTicketQuantity => ShowtimeSeats.Count(s => s.Status == ShowtimeSeatStatus.Available);
 
     }
 }

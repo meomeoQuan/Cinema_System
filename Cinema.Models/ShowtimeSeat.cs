@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+﻿using Cinema.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Cinema.Models
 {
@@ -15,13 +12,12 @@ namespace Cinema.Models
         public int ShowtimeSeatID { get; set; }
 
         [Required]
-        public int ShowtimeID { get; set; } // Foreign key
+        public int ShowtimeID { get; set; }
 
         [Required]
-        public int SeatID { get; set; } // Foreign key
+        public int SeatID { get; set; }
 
         [Required]
-        
         [Range(0.00, 9999.99, ErrorMessage = "Price must be a positive value.")]
         public double Price { get; set; }  // Default price
 
@@ -31,9 +27,13 @@ namespace Cinema.Models
 
         // Navigation properties
         [ForeignKey("ShowtimeID")]
+        [InverseProperty("ShowTimeSeats")] 
         public virtual ShowTime Showtime { get; set; }
 
+
         [ForeignKey("SeatID")]
+        [ValidateNever]
+        [InverseProperty("ShowtimeSeats")] 
         public virtual Seat Seat { get; set; }
     }
 

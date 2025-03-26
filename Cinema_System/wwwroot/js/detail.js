@@ -267,21 +267,10 @@ document.getElementById('book-btn').addEventListener('click', function () {
 })
 
 $(document).ready(function () {
-
- // ĐẾM NGƯỢC 5 PHÚT GIỮ VÉ
-    let timeLeft = 300;
-    const countdown = setInterval(function () {
-        timeLeft--;
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        $('#countdown').text(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            alert('Hết thời gian giữ vé!');
-            location.reload();
-        }
-    }, 1000);
+    // Submit the form
+    $("#booking-summary").submit();
 });
+
 
 document.addEventListener("DOMContentLoaded", function () {
     // Load danh sách thành phố khi vào trang

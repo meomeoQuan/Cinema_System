@@ -1,0 +1,42 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<aside class="w-25 bg-white shadow-sm">
+    <nav class="bg-white shadow-sm min-vh-100 p-3 d-none d-md-block">
+        <ul class="list-unstyled">
+            <li class="text-secondary font-weight-bold text-uppercase mb-2">Navigation</li>
+            <li>
+                <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="d-flex align-items-center p-2 text-secondary hover-bg-light rounded">
+                    <i class="fas fa-users"></i>
+                    <span class="ml-2">Manage Users</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="d-flex align-items-center p-2 text-secondary hover-bg-light rounded">
+                    <i class="fas fa-film"></i>
+                    <span class="ml-2">Manage Movies</span>
+                </a>
+            </li>
+            <li>
+                <a asp-area="Admin" asp-controller="Cinemas" asp-action="Index" class="d-flex align-items-center p-2 text-secondary hover-bg-light rounded">
+                    <i class="fas fa-cinema"></i>
+                    <span class="ml-2">Manage Cinemas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="d-flex align-items-center p-2 text-secondary hover-bg-light rounded">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span class="ml-2">Manage Coupons</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="d-flex align-items-center p-2 text-secondary hover-bg-light rounded">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="ml-2">Statistics</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>
