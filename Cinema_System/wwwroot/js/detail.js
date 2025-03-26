@@ -85,10 +85,11 @@ document.getElementById("seats").addEventListener("click", function (event) {
         fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/${status}`, {
             method: "PUT",
             headers: {
-                contentType: "application/json",
+                "Content-Type": "application/json",
             }
         })
-
+        console.log(document.querySelectorAll(".seat.selected").length);
+        console.log(document.getElementById("booking-summary"));
         if (document.querySelectorAll(".seat.selected").length > 0) {
             document.getElementById("booking-summary").classList.remove("d-none");
         } else {
@@ -153,6 +154,11 @@ async function updateTotal() {
 
     // Cập nhật giá trị của input hidden
     $('#totalAmountInput').val(total);
+    if (total > 0) {
+        document.getElementById("booking-summary").classList.remove("d-none");
+    } else {
+        document.getElementById("booking-summary").classList.add("d-none");
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
