@@ -21,9 +21,8 @@ namespace Cinema.DataAccess.Data
         {
             //_applicationUserRepository = new ApplicationUserRepository(this);
         }
-
-        public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<OrderTable> OrderTables { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Seat> Seats { get; set; }
 
@@ -635,6 +634,7 @@ namespace Cinema.DataAccess.Data
             );
 
 
+            modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
         }
     }
 }

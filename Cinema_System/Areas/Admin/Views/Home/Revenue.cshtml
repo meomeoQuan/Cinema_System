@@ -1,11 +1,13 @@
+
 ﻿@page
 
 @model Cinema.Models.ViewModels.RevenueViewModel
 
 @{
     // ViewData["Title"] = "Admin Dashboard";
-
+    // ViewBag.Title = "Revenue";
     // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
 }
 
 <div class="flex flex-1 p-6">
@@ -28,6 +30,7 @@
 
         const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue));
 
+//          const revenueData = @Html.Raw(Json.Serialize(Model.MonthlyRevenue));
         const ctx = document.getElementById('revenueChart').getContext('2d');
 
         const revenueChart = new Chart(ctx, {
@@ -42,7 +45,6 @@
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
-
             },
             options: {
                 scales: {
