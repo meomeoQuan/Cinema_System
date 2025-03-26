@@ -12,7 +12,6 @@ namespace Cinema.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
-
         [Required]
         public int OrderID { get; set; } // Foreign key
         
