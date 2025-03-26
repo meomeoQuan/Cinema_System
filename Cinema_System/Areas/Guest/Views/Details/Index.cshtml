@@ -1,0 +1,150 @@
+﻿@model MovieDetailVM
+
+	
+	<body>
+		<input asp-for="Movie.MovieID" hidden/>
+		<div class="container">
+			<!-- Section 1: Movie Information -->
+			<section id="movie-info" class="row mb-5">
+
+				<div class="col-md-4">
+					<img src="@Model.Movie.MovieImage" alt="Movie Poster" class="img-fluid" />
+				</div> 
+				<div class="col-md-8">
+					<h1>@Model.Movie.Title</h1>
+					<!--<p><strong>Director:</strong> Director Name</p> -->
+					<!--<p><strong>Cast:</strong> Actor 1, Actor 2, Actor 3</p> -->
+					<p><strong>Genre:</strong>  @Model.Movie.Genre</p>
+					<p><strong>Duration:</strong>  @Model.Movie.Duration</p>
+					<p><strong>Release Date:</strong>  @Model.Movie.ReleaseDate</p>
+					<p>
+						<strong>Synopsis:</strong> @Model.Movie.Synopsis
+					</p>
+					<p>
+						<a href="@Model.Movie.TrailerLink"><i class="fa-solid fa-circle-play" style="color: white;"></i></a> Watch Trailer
+					</p>
+
+				</div>
+			</section>
+
+			<!-- Section 2: Booking Options -->
+			<section id="booking-options" class="mb-5">
+				<h2 class="text-center">SHOWTIMES</h2>
+			<!-- Chọn thành phố -->
+					<div class="col-md-4">
+						<label for="cinemaCity">Choose city</label>
+						<select id="cinemaCity" class="form-control">
+							<option value="">-- Select a City --</option>
+						</select>
+					</div>
+
+					<!-- Chọn rạp -->
+					<div class="col-md-4">
+						<label for="cinema">Choose cinema</label>
+						<select id="cinema" class="form-control">
+							<option value="">-- Select a Theater --</option>
+						</select>
+					</div>
+
+					<!-- Chọn ngày -->
+					<div class="col-md-4">
+						<label for="date">Choose date</label>
+						<input asp-for="Movie.MovieID" hidden />
+						<select id="date" class="form-control">
+							<option value="">-- Select a Date --</option>
+						</select>
+					</div>
+
+					<!-- Chọn giờ -->
+					<div class="col-md-4 mt-3">
+						<label for="time">Choose time</label>
+						<select id="time" class="form-control">
+							<option>-- Select a Time --</option>
+						</select>
+					</div>
+				</div>
+			</section>
+
+
+			
+			<!-- Section 3: Seat Selection -->
+			<section id="seat-selection" class="mb-5 d-none">
+				<h2 class="text-center">Seat Booking</h2>
+				<div class="screen text-center mb-3">Screen</div>
+				<div id="seats" class="text-center"></div>
+
+				<!-- Chú thích các loại ghế -->
+				<div class="seat-legend text-center mt-4">
+					<div class="legend-item">
+						<div class="seat available"></div>
+						<span>Available</span>
+					</div>
+					<div class="legend-item">
+						<div class="seat selected note"></div>
+						<span>Selected</span>
+					</div>
+					<div class="legend-item">
+						<div class="seat maintenance"></div>
+						<span>Maintenance</span>
+					</div>
+					<div class="legend-item">
+						<div class="seat reserved"></div>
+						<span>Booked</span>
+					</div>
+				</div>
+			</section>
+
+			<!-- Section 4: Food Selection -->
+			<section id="food-selection" class="mb-5">
+
+				<!-- COMBO 2 NGĂN -->
+				<h3 class="category-title text-center">FOOD</h3>
+				<div class="row justify-content-center food">
+				</div>
+
+				<!-- NƯỚC NGỌT -->
+				<h3 class="category-title text-center">DRINK</h3>
+				<div class="row justify-content-center drink">
+				</div>
+				
+				<!-- Gift -->
+				<h3 class="category-title text-center">COMBO</h3>
+				<div class="row justify-content-center gift">
+				</div>
+			</section>
+
+			<!-- Section 5: Booking Summary -->
+			<section id="booking-summary" class="mb-5 d-none">
+				<!--<h2>Booking Summary</h2>-->
+				<div class="row align-items-center">
+					<div class="col-md-2">
+					<p><strong>Movie:</strong> @Model.Movie.Title</p>
+					</div>
+					<div class="col-md-3">
+						<p><strong>Food:</strong> <span id="selected-foods">No food selected</span></p>
+					</div>
+					<div class="col-md-2">
+						<p><strong>Time expired:</strong> <span id="countdown">05:00</span></p>
+					</div>	
+					<div class="col-md-2">
+					<p><strong>Total:</strong> <span id="total-price">0 VND</span></p>
+					</div>
+					<div class="col-md-2">
+					<p><strong>Coupon:</strong> <input style="width: 70px" class="coupon" type="text"/></p>
+					</div>
+					<div class="col-md-1">
+					<button type="button" id="book-btn" class="btn btn-success">Book</button>
+					</div>
+				</div>
+			</section>
+
+			
+			
+			</div>
+	</body>
+
+
+	@section Scripts{
+	<script src="~/js/detail.js"></script>
+	<link rel="stylesheet" href="~/css/detail.css" />
+	}

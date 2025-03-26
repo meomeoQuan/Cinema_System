@@ -1,17 +1,13 @@
-﻿@* @page *@
-@using Cinema.Utility
-@* @model IndexModel *@
+﻿@using Cinema.Utility
+@using Cinema_System.Areas.Admin.Controllers
+
 @model IEnumerable<ApplicationUser>
 
 
 @{
     ViewData["Title"] = "User Management";
-    // var currentUserId = Model.CurrentUserId;
-    // Console.WriteLine("abc    "+currentUserId );
-}
-@* @(user.Id == @currentUserId ? "disabled opacity-50" : "") *@
-    // Sử dụng layout Admin
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    // Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    // var checkUser = Cinema_System.Areas.Admin.Controllers.UsersController.CurrentUser();
 }
 
             <h3 class="card-title mb-0 text-center fw-bold">User Management</h3>
@@ -56,6 +52,43 @@
                                     {
                                         <span class="badge badge-secondary">@user.Role</span>
                                     }
+                                    <span class="badge @GetBadgeClass(user.Role) text-white rounded-pill">
+                                        <i class="bi bi-person-fill me-1"></i>
+                                        @user.Role
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        @if (user.LockoutEnd == null || user.LockoutEnd < DateTime.Now)
+                                        {
+                                         
+                                                <button onclick="lockUser('@user.Id', this)"
+                                                        class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
+                                                    <i class="bi bi-lock-fill me-1"></i>LOCK
+                                                </button>
+                                            
+                                            
+                                        }
+                                        else
+                                        {
+                                            <button onclick="unlockUser('@user.Id', this)"
+                                                    class="btn btn-success btn-sm rounded-3 text-uppercase fw-semibold">
+                                                <i class="bi bi-unlock-fill me-1"></i>UNLOCK
+                                            </button>
+                                        }
+                                        @if (user.Role != "Guest")
+                                        {
+                                            <button onclick="enableEdit(this)"
+                                                    class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold">
+                                                <i class="bi bi-pencil-square me-1"></i>Edit
+                                            </button>
+                                        } else {
+                                            <button
+                                                    class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold disabled opacity-50">
+                                                <i class="bi bi-pencil-square me-1"></i>Edit
+                                            </button>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
