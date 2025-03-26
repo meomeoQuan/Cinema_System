@@ -40,9 +40,10 @@
 
                             <tr data-id="@theater.CinemaID">
                                 <td data-field="Name">@theater.Name</td>
-                                <td data-field="Address">@theater.Address</td>
+                                <td data-field="Address">@theater.Name</td>
                                 <td data-field="AdminID">
                                     @(theater.Admin != null ? theater.Admin.FullName : "Not Assigned")
+
                                 </td>
                                 <td data-field="NumberOfRooms">@theater.NumberOfRooms</td>
                                 <td data-field="OpeningTime">@theater.OpeningTime</td>

@@ -17,36 +17,41 @@ namespace Cinema_System.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            //var schedules = await _unitOfWork.showTime.GetAllAsync("Movie,Cinema"); old 
-            var schedules = await _unitOfWork.showTime.GetAllAsync(includeProperties: "Movie,Room.Cinema"); // quan fix new
+            var schedules = await _unitOfWork.showTime.GetAllAsync("Movie,Room.Theater");
+            var movies = await _unitOfWork.Movie.GetAllAsync();
+            var cinemas = await _unitOfWork.Cinema.GetAllAsync();
+            //var
+            //var Showtime
+            ViewBag.Movies = movies.Select(m => new { Id = m.MovieID, Title = m.Title }).ToList();
+            ViewBag.Cinemas = cinemas.Select(c => new { Id = c.CinemaID, Name = c.Name }).ToList();
             return View(schedules);
         }
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        //[HttpGet("GetAll")]
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    // Sử dụng includeProperties để load dữ liệu từ các bảng liên quan
+        //    var schedules = await _unitOfWork.showTime.GetAllAsync(includeProperties: "Movie,Cinema");
+
+        //    // Kiểm tra xem dữ liệu đã được load đúng cách chưa
+        //    var schedulesList = schedules.Select(s => new
+        //    {
+        //        MovieName = s.Movie?.Title ?? "Unknown", // Kiểm tra null
+        //        CinemaName = s.Cinema?.Name ?? "Unknown", // Kiểm tra null
+        //        s.RoomID,
+        //        s.ShowDates,
+        //        s.ShowTimes,
+        //        s.AvailableTicketQuantity
+        //    }).ToList();
+
+        //    return Json(new { data = schedulesList });
+        //}
+
+        [HttpGet]
+        public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
         {
-            // Sử dụng includeProperties để load dữ liệu từ các bảng liên quan
-            var schedules = await _unitOfWork.showTime.GetAllAsync(includeProperties: "Movie,Room.Cinema");// new
-
-            //var schedules = await _unitOfWork.showTime.GetAllAsync(includeProperties: "Movie,Cinema"); old
-
-
-            // Kiểm tra xem dữ liệu đã được load đúng cách chưa
-            var schedulesList = schedules.Select(s => new
-            {
-                MovieName = s.Movie?.Title ?? "Unknown", // Kiểm tra null
-                //CinemaName = s.Cinema?.Name ?? "Unknown", // Kiểm tra null  old 
-                CinemaName = s?.Room?.Cinema?.Name ?? "Unknown",
-                s.RoomID,
-
-                //s.ShowDates, // old
-                //s.ShowTimes,// old 
-
-                s.ShowDate, // new -> contains both date and time ex : 2025-03-10 07:30:00.0000000
-                s.AvailableTicketQuantity
-            }).ToList();
-
-            return Json(new { data = schedulesList });
+            var rooms = await _unitOfWork.Room.GetRoomsByCinemaIdAsync(cinemaId);
+            return Json(rooms);
         }
-    }// quan fix
+    }
 }

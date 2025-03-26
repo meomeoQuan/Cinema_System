@@ -92,7 +92,7 @@ namespace Cinema_System.Areas
                 UserID = userId, // Now userId will never be null
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CouponID = coupon != null ? coupon.CouponID : null,
+                CouponID = coupon != null? coupon.CouponID : null
             };
 
             _context.OrderTables.Add(order);

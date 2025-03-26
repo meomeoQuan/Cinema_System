@@ -168,21 +168,24 @@ app.MapControllerRoute(
 // Add middleware to handle role-based redirects
 app.Use(async (context, next) =>
 {
-    if (context.User.Identity.IsAuthenticated)
+    // 1. Check if context.User and context.User.Identity are not null, and user is authenticated
+    if (context.User?.Identity != null && context.User.Identity.IsAuthenticated)
     {
         var isAdmin = context.User.IsInRole(SD.Role_Admin);
         var path = context.Request.Path.ToString().ToLower();
 
-        // Skip redirect for static files, API calls, and Identity pages
+        // 2. Skip redirect for static files, API calls, and Identity pages
         if (!path.StartsWith("/lib/") &&
             !path.StartsWith("/api/") &&
             !path.StartsWith("/identity/"))
         {
+            // 3. Redirect Admin users to admin area if not already in admin path
             if (isAdmin && !path.StartsWith("/admin"))
             {
                 context.Response.Redirect("/Admin/Users/Index");
                 return;
             }
+            // 4. Redirect non-Admin users out of admin path
             else if (!isAdmin && path.StartsWith("/admin"))
             {
                 context.Response.Redirect("/Guest/Home/Index");
@@ -190,6 +193,8 @@ app.Use(async (context, next) =>
             }
         }
     }
+
+    // 5. Continue to the next middleware
     await next();
 });
 

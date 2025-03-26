@@ -12,20 +12,14 @@ namespace Cinema.Models
         public int ShowtimeSeatID { get; set; }
 
         [Required]
-        public int ShowtimeID { get; set; } // Foreign key
+        public int ShowtimeID { get; set; }
 
         [Required]
-        public int SeatID { get; set; } // Foreign key
-
-
+        public int SeatID { get; set; }
 
         [Required]
         [Range(0.00, 9999.99, ErrorMessage = "Price must be a positive value.")]
         public double Price { get; set; }  // Default price
-
-        [Required]
-        [EnumDataType(typeof(TicketType))]
-        public TicketType SeatType { get; set; } = TicketType.Standard; // Default to Standard
 
         [Required]
         [EnumDataType(typeof(ShowtimeSeatStatus))]
@@ -33,11 +27,13 @@ namespace Cinema.Models
 
         // Navigation properties
         [ForeignKey("ShowtimeID")]
-        [ValidateNever]
+        [InverseProperty("ShowTimeSeats")] 
         public virtual ShowTime Showtime { get; set; }
+
 
         [ForeignKey("SeatID")]
         [ValidateNever]
+        [InverseProperty("ShowtimeSeats")] 
         public virtual Seat Seat { get; set; }
     }
 
@@ -46,14 +42,5 @@ namespace Cinema.Models
         Available,
         Maintenance,
         Booked
-    }
-
-
-    // Enum for different ticket types
-    public enum TicketType
-    {
-
-        Standard
-
     }
 }

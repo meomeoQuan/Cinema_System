@@ -19,3 +19,4 @@ namespace Cinema_System.Areas.Admin.Views.Home
         }
     }
 }
+

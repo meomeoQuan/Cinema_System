@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Newtonsoft.Json;
 
 namespace Cinema.Models
 {
@@ -17,11 +18,8 @@ namespace Cinema.Models
 
         [Required]
         public string Name { get; set; } = string.Empty;
-        //public string CinemaName { get; set; }
-
         [Required]
         public string Address { get; set; } = string.Empty;
-        //public string CinemaAddress { get; set; }
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Number of rooms must be at least 1.")]
         public int NumberOfRooms { get; set; } = 1;
@@ -32,7 +30,6 @@ namespace Cinema.Models
 
         [Required]
         public TimeSpan OpeningTime { get; set; }
-        //public string OpeningTime { get; set; }
 
         [Required]
         public TimeSpan ClosingTime { get; set; }
@@ -43,8 +40,16 @@ namespace Cinema.Models
         // Navigation property
         [ForeignKey("AdminID")]
         [ValidateNever]
+        [InverseProperty("Theaters")]
         public virtual ApplicationUser Admin { get; set; }
-        public virtual ICollection<Room> Rooms { get; set; }
+
+        [JsonIgnore]
+        //[InverseProperty("Theater")]
+        [ValidateNever]
+        public virtual ICollection<Room> Rooms { get; set; } = new List<Room>();
+
+        //[InverseProperty("Theater")]
+        //public virtual ICollection<ShowTime> ShowTimes { get; set; } = new List<ShowTime>();
 
     }
 
