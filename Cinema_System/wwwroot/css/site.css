@@ -7,6 +7,10 @@ for details on configuring this project to bundle and minify static web assets. 
     /*object-fit: cover;*/ /* Ensures the image covers the entire area without distortion */
 /*}*/
 
+
+
+
+
 .divider-text:before,
 .divider-text:after {
     color: white;
@@ -23,6 +27,8 @@ for details on configuring this project to bundle and minify static web assets. 
     z-index: 2;
 }
 
+
+/*CSS cho thanh navbar đặt vé, tìm kiếm*/
 .booking-nav {
     font-family: Arial, sans-serif;
     display: flex;
@@ -30,38 +36,73 @@ for details on configuring this project to bundle and minify static web assets. 
     align-items: center;
     margin: 0;
     margin-bottom: 20px;
-    width: 100vw; /* Đảm bảo chiều rộng 100% */
+    width: 100vw;
 }
 
+/* Định dạng container chứa các thành phần */
 .booking-container {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     background: linear-gradient(to right, #e0e5f5, #ffffff);
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-    width: 100%; /* Đảm bảo full màn hình */
-    flex-wrap: wrap; /* Nếu màn hình nhỏ, tự động xuống dòng */
+    width: 100%;
+    max-width: 1400px; /* Giới hạn chiều rộng */
+    flex-wrap: nowrap; /* Đảm bảo không xuống dòng */
 }
 
+/* Thanh tìm kiếm */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.booking-search {
+    padding: 8px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    width: 180px;
+}
+
+.search-button {
+    background-color: #6b2cc3;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.search-button:hover {
+        background-color: #5022a5;
+}
+
+/* Tiêu đề */
 .booking-title {
     font-weight: bold;
     font-size: 18px;
     color: #333;
-    margin-right: 10px;
 }
 
+/* Các select dropdown */
 .booking-select {
     padding: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 16px;
     cursor: pointer;
+    width: 160px;
 }
 
+
+/* Nút BOOK */
 .booking-button {
     background-color: #6b2cc3;
     color: white;
@@ -74,7 +115,7 @@ for details on configuring this project to bundle and minify static web assets. 
 }
 
 .booking-button:hover {
-    background-color: #5022a5;
+        background-color: #5022a5;
 }
 
 a.navbar-brand {

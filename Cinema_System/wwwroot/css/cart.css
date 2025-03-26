@@ -2,7 +2,12 @@
     padding-top: 10px;
 }*/
 
-#cart-container{
+h2.font-weight-bold.pt-5.cart-title {
+    color: white;
+}
+
+
+#cart-container {
     overflow-x: auto;
 }
 
