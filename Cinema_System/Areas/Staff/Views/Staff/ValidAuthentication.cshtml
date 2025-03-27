@@ -6,11 +6,11 @@
 
 <h2>Your Ticket Includes:</h2>
 
-@foreach (var cinemaGroup in Model.GroupBy(o => o.ShowtimeSeat?.Showtime?.Room?.Cinema?.Name))
+@foreach (var cinemaGroup in Model.GroupBy(o => o.ShowtimeSeat?.Showtime?.Room?.Theater?.Name))
 {
     var firstOrder = cinemaGroup.FirstOrDefault();
     var cinemaName = cinemaGroup.Key ;
-    var cinemaAddress = firstOrder?.ShowtimeSeat?.Showtime?.Room?.Cinema?.Address;
+    var cinemaAddress = firstOrder?.ShowtimeSeat?.Showtime?.Room?.Theater?.Address;
     <h3>@cinemaName</h3>
     <p>@cinemaAddress</p>
    

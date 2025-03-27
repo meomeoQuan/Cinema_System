@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Cinema.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Addnew : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -428,11 +428,17 @@ namespace Cinema.DataAccess.Migrations
                     ProductID = table.Column<int>(type: "int", nullable: true),
                     ShowtimeSeatID = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false)
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailID);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OrderDetails_OrderTables_OrderID",
                         column: x => x.OrderID,
@@ -526,12 +532,12 @@ namespace Cinema.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "OrderDetails",
-                columns: new[] { "OrderDetailID", "OrderID", "Price", "ProductID", "Quantity", "ShowtimeSeatID" },
+                columns: new[] { "OrderDetailID", "OrderID", "Price", "ProductID", "Quantity", "ShowtimeSeatID", "UserID" },
                 values: new object[,]
                 {
-                    { 1, 1, 10.0, 1, 2, null },
-                    { 3, 2, 20.0, 2, 1, null },
-                    { 5, 3, 30.0, 3, 3, null }
+                    { 1, 1, 10.0, 1, 2, null, null },
+                    { 3, 2, 20.0, 2, 1, null, null },
+                    { 5, 3, 30.0, 3, 3, null, null }
                 });
 
             migrationBuilder.InsertData(
@@ -687,11 +693,11 @@ namespace Cinema.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "OrderDetails",
-                columns: new[] { "OrderDetailID", "OrderID", "Price", "ProductID", "Quantity", "ShowtimeSeatID" },
+                columns: new[] { "OrderDetailID", "OrderID", "Price", "ProductID", "Quantity", "ShowtimeSeatID", "UserID" },
                 values: new object[,]
                 {
-                    { 2, 1, 15.0, null, 1, 1 },
-                    { 4, 2, 25.0, null, 1, 2 }
+                    { 2, 1, 15.0, null, 1, 1, null },
+                    { 4, 2, 25.0, null, 1, 2, null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -747,6 +753,11 @@ namespace Cinema.DataAccess.Migrations
                 name: "IX_OrderDetails_ShowtimeSeatID",
                 table: "OrderDetails",
                 column: "ShowtimeSeatID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_UserID",
+                table: "OrderDetails",
+                column: "UserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderTables_CouponID",

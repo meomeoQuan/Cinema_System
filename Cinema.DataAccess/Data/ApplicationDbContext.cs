@@ -27,7 +27,7 @@ namespace Cinema.DataAccess.Data
         public DbSet<Seat> Seats { get; set; }
 
         public DbSet<ShowtimeSeat> showTimeSeats { get; set; }
-        public DbSet<Theater> Cinemas { get; set; }
+        public DbSet<Theater> Theaters { get; set; }
         public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
@@ -635,7 +635,7 @@ namespace Cinema.DataAccess.Data
             );
 
 
-            modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
+            //modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
         }
     }
 }
