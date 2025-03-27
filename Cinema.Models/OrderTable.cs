@@ -14,10 +14,8 @@ namespace Cinema.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderID { get; set; }
 
-
         [Required]
-        public string  UserID { get; set; } // IdentityUser uses string as primary key
-
+        public string UserID { get; set; } // IdentityUser uses string as primary key
 
         [Required]
         [EnumDataType(typeof(OrderStatus))]
@@ -36,26 +34,24 @@ namespace Cinema.Models
 
         // Navigation properties
         [ForeignKey("UserID")]
-        [ValidateNever]
         public virtual ApplicationUser User { get; set; }
 
         [ForeignKey("CouponID")]
-        [ValidateNever]
         public virtual Coupon? Coupon { get; set; }
 
 
-
-        
+       
         public string ? Email { get; set; }
 
-       
+        
         [StringLength(10, MinimumLength = 10, ErrorMessage = "Phone number must be exactly 10 digits.")]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be numeric and 10 digits long.")]
-        public string ? Phonenumber { get; set; }
+       
+        public string? Phonenumber { get; set; }
 
 
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
+        //public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 
     public enum OrderStatus
