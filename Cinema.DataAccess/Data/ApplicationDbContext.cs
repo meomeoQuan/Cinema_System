@@ -21,9 +21,8 @@ namespace Cinema.DataAccess.Data
         {
             //_applicationUserRepository = new ApplicationUserRepository(this);
         }
-
-        public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<OrderTable> OrderTables { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Seat> Seats { get; set; }
 
@@ -58,7 +57,7 @@ namespace Cinema.DataAccess.Data
 
             // Cinema → Room (Disable Cascade Delete)
             modelBuilder.Entity<Room>()
-                .HasOne(r => r.Cinema)
+                .HasOne(r => r.Theater)
                 .WithMany(c => c.Rooms)
                 .HasForeignKey(r => r.CinemaID)
                 .OnDelete(DeleteBehavior.Restrict); // Restrict deletion
@@ -68,28 +67,31 @@ namespace Cinema.DataAccess.Data
                 .Property(t => t.Status)
                 .HasConversion<string>(); // Store enum as string
 
-            //modelBuilder.Entity<ApplicationUser>().HasData(
-            //  new ApplicationUser
-            //  {
-            //      FullName = "hehe",
-            //      Id = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-            //      AccessFailedCount = 0,
-            //      ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-            //      Email = "daoduyquylop97@gmail.com",
-            //      EmailConfirmed = true,
-            //      LockoutEnabled = true,
-            //      NormalizedEmail = "daoduyquylop97@gmail.com",
-            //      NormalizedUserName = "hehe",
-            //      PasswordHash = "Meo@123",
-            //      PhoneNumber = "0123456789",
-            //      PhoneNumberConfirmed = true,
-            //      SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-            //      TwoFactorEnabled = false,
-            //      UserName = "daoduyquylop97@gmail.com",
-            //      UserImage = "/css/images/user.png",
-            //      Points = 0
-            //  }
-            //  );
+            modelBuilder.Entity<ApplicationUser>().HasData(
+                 new ApplicationUser
+                 {
+                      FullName = "Đào Duy Quý",
+                      Role = "Admin",
+                      Id = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                      AccessFailedCount = 0,
+                      ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                      Email = "daoduyquylop97@gmail.com",
+                      EmailConfirmed = true,
+                      LockoutEnabled = true,
+                      NormalizedEmail = "daoduyquylop97@gmail.com",
+                      NormalizedUserName = "Đào Duy Quý",
+                      PasswordHash = "AQAAAAEAACcQAAAAEJ9",
+                      PhoneNumber = "0123456789",
+                      PhoneNumberConfirmed = true,
+                      SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                      TwoFactorEnabled = false,
+                      UserName = "Đào Duy Quý",
+                      UserImage = "/css/images/user.png",
+                      Points = 0
+                  }
+
+             );
+
 
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
@@ -229,6 +231,7 @@ namespace Cinema.DataAccess.Data
                     ProductImage = "/css/images/popcorn2.png"
                 }
             );
+
             // Seed Sample Theaters
             //var adminUser = _applicationUserRepository.FindAdminUserByName("Admin");
             modelBuilder.Entity<Theater>().HasData(
@@ -244,8 +247,7 @@ namespace Cinema.DataAccess.Data
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
                     ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
 
-
-
+                    AdminID = "a1234567-b89c-40d4-a123-456789abcdef"
                 },
                 new Theater
                 {
@@ -260,32 +262,32 @@ namespace Cinema.DataAccess.Data
 
 
                 },
-                   new Theater
-                   {
-                       CinemaID = 3,
-                       Name = "CGV Cinema",
-                       Address = "124 Main St, Danang City",
-                       CinemaCity = "Danang",
-                       NumberOfRooms = 5,
-                       Status = CinemaStatus.Open,
-                       OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
-                       ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+                new Theater
+                {
+                    CinemaID = 3,
+                    Name = "CGV Cinema",
+                    Address = "124 Main St, Danang City",
+                    CinemaCity = "Danang",
+                    NumberOfRooms = 5,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                    ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
 
 
-                   },
-                    new Theater
-                    {
-                        CinemaID = 4,
-                        Name = "HCM Cinestar Cinema",
-                        Address = "124 Main St, HCM City",
-                        CinemaCity = "Ho Chi Minh",
-                        NumberOfRooms = 5,
-                        Status = CinemaStatus.Open,
-                        OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
-                        ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
+                },
+                new Theater
+                {
+                    CinemaID = 4,
+                    Name = "HCM Cinestar Cinema",
+                    Address = "124 Main St, HCM City",
+                    CinemaCity = "Ho Chi Minh",
+                    NumberOfRooms = 5,
+                    Status = CinemaStatus.Open,
+                    OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
+                    ClosingTime = new TimeSpan(23, 0, 0),  // Changed from TimeSpan to string
 
 
-                    }
+                }
             );
             modelBuilder.Entity<Room>().HasData(
                 new Room
@@ -369,99 +371,271 @@ namespace Cinema.DataAccess.Data
             );
 
 
-            // Seed Sample ShowTimes
+            // Seed ShowTimes
             modelBuilder.Entity<ShowTime>().HasData(
                 new ShowTime
                 {
                     ShowTimeID = 1,
-                    ShowDate = new DateTime(2025, 3, 10, 7, 30, 0), // Ensure a valid date is assigned
+                    ShowDate = new DateTime(2025, 3, 10, 7, 30, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 2,
-                    ShowDate = new DateTime(2025, 3, 10, 9, 30, 0), // Ensure a valid date is assigned
+                    ShowDate = new DateTime(2025, 3, 10, 9, 30, 0),
                     RoomID = 2,
-                    MovieID = 2
+                    MovieID = 3
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 3,
+                    ShowDate = new DateTime(2025, 3, 10, 11, 30, 0),
+                    RoomID = 1,
+                    MovieID = 1
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 4,
+                    ShowDate = new DateTime(2025, 3, 10, 13, 30, 0),
+                    RoomID = 1,
+                    MovieID = 1
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 5,
+                    ShowDate = new DateTime(2025, 3, 11, 7, 30, 0),
+                    RoomID = 1,
+                    MovieID = 1
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 6,
+                    ShowDate = new DateTime(2025, 3, 11, 9, 30, 0),
+                    RoomID = 2,
+                    MovieID = 1
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 7,
+                    ShowDate = new DateTime(2025, 3, 11, 11, 30, 0),
+                    RoomID = 2,
+                    MovieID = 1
+                },
+                new ShowTime
+                {
+                    ShowTimeID = 8,
+                    ShowDate = new DateTime(2025, 3, 12, 9, 30, 0),
+                    RoomID = 1,
+                    MovieID = 1
                 }
-                ,
-
-                  new ShowTime
-                  {
-                      ShowTimeID = 3,
-                      ShowDate = new DateTime(2025, 3, 10, 11, 30, 0), // Ensure a valid date is assigned
-                      RoomID = 1,
-                      MovieID = 1
-                  },
-                       new ShowTime
-                       {
-                           ShowTimeID = 4,
-                           ShowDate = new DateTime(2025, 3, 10, 13, 30, 0), // Ensure a valid date is assigned
-                           RoomID = 1,
-                           MovieID = 1
-                       },
-                          new ShowTime
-                          {
-                              ShowTimeID = 5,
-                              ShowDate = new DateTime(2025, 3, 11, 7, 30, 0), // Ensure a valid date is assigned
-                              RoomID = 1,
-                              MovieID = 1
-                          },
-                           new ShowTime
-                           {
-                               ShowTimeID = 6,
-                               ShowDate = new DateTime(2025, 3, 11, 9, 30, 0), // Ensure a valid date is assigned
-                               RoomID = 2,
-                               MovieID = 1
-                           },
-                            new ShowTime
-                            {
-                                ShowTimeID = 7,
-                                ShowDate = new DateTime(2025, 3, 11, 11, 30, 0), // Ensure a valid date is assigned
-                                RoomID = 2,
-                                MovieID = 1
-                            },
-                             new ShowTime
-                             {
-                                 ShowTimeID = 8,
-                                 ShowDate = new DateTime(2025, 3, 12, 9, 30, 0), // Ensure a valid date is assigned
-                                 RoomID = 1,
-                                 MovieID = 1
-                             }
-
-
             );
+
             // Seed ShowtimeSeats for RoomID = 1 and ShowTimeID = 1
             modelBuilder.Entity<ShowtimeSeat>().HasData(
-     Enumerable.Range(1, 50).Select(seatId => new ShowtimeSeat
-     {
-         ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
-         ShowtimeID = 1,           // Link to ShowTimeID = 1
-         SeatID = seatId,          // Each seat (1-50)
-         Price = 80000,            // Fixed price for all seats
-         Status = ShowtimeSeatStatus.Available,
-     }).ToArray()
- );
+                 Enumerable.Range(1, 50).Select(seatId => new ShowtimeSeat
+                 {
+                     ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
+                     ShowtimeID = 1,           // Link to ShowTimeID = 1
+                     SeatID = seatId,          // Each seat (1-50)
+                     Price = 80000,            // Fixed price for all seats
+                     Status = ShowtimeSeatStatus.Available,
+                 }).ToArray()
+             );
 
             // Helper method to check if a seat falls within the VIP area
             bool IsVipSeat(int seatId)
             {
                 var vipSeats = new HashSet<int>
-    {
-        // B3 to B8
-        13, 14, 15, 16, 17, 18,
-        // C3 to C8
-        23, 24, 25, 26, 27, 28,
-        // D3 to D8
-        33, 34, 35, 36, 37, 38
-    };
+                {
+                    // B3 to B8
+                    13, 14, 15, 16, 17, 18,
+                    // C3 to C8
+                    23, 24, 25, 26, 27, 28,
+                    // D3 to D8
+                    33, 34, 35, 36, 37, 38
+                };
 
                 return vipSeats.Contains(seatId);
             }
 
 
-        
+            // Seed OrderTables
+            modelBuilder.Entity<OrderTable>().HasData(
+                new OrderTable
+                {
+                    OrderID = 1,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 124235,
+                    CreatedAt = new DateTime(2025, 1, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 2,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 747237.654,
+                    CreatedAt = new DateTime(2025, 2, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 3,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 50000,
+                    CreatedAt = new DateTime(2025, 3, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 4,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 60000,
+                    CreatedAt = new DateTime(2025, 4, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 5,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 70000,
+                    CreatedAt = new DateTime(2025, 5, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 6,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 80000,
+                    CreatedAt = new DateTime(2025, 6, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 7,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 90000,
+                    CreatedAt = new DateTime(2025, 7, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 8,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 100000,
+                    CreatedAt = new DateTime(2025, 8, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 9,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 110000,
+                    CreatedAt = new DateTime(2025, 9, 1)
+                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                },
+                new OrderTable
+                {
+                    OrderID = 10,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 120000,
+                    CreatedAt = new DateTime(2025, 10, 1)
+
+                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                },
+                new OrderTable
+                {
+                    OrderID = 11,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 130000,
+                    CreatedAt = new DateTime(2025, 11, 1)
+
+                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                },
+                new OrderTable
+                {
+                    OrderID = 12,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 140000,
+                    CreatedAt = new DateTime(2025, 12, 1)
+
+                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                }
+            );
+
+
+            //Seed OrderDetails
+            //modelBuilder.Entity<OrderDetail>().HasData(
+            //    new OrderDetail
+            //    {
+            //        OrderDetailID = 1,
+            //        OrderID = 1,
+            //        Quantity = 2,
+            //        Price = 10.0,
+            //        ProductID = 1,
+
+
+            //    },
+            //    new OrderDetail
+            //    {
+            //        OrderDetailID = 2,
+            //        OrderID = 1,
+            //        Price = 15.0,
+            //        ShowtimeSeatID = 1
+
+            //    }
+            //);
+            // Seed OrderDetails
+            modelBuilder.Entity<OrderDetail>().HasData(
+                new OrderDetail
+                {
+                    OrderDetailID = 1,
+                    OrderID = 1,
+                    Quantity = 2,
+                    Price = 10.0,
+                    ProductID = 1,
+                    ShowtimeSeatID = null // Explicitly set to null
+                },
+                new OrderDetail
+                {
+                    OrderDetailID = 2,
+                    OrderID = 1,
+                    Quantity = 1,
+                    Price = 15.0,
+                    ProductID = null,
+                    ShowtimeSeatID = 1
+                },
+                new OrderDetail
+                {
+                    OrderDetailID = 3,
+                    OrderID = 2,
+                    Quantity = 1,
+                    Price = 20.0,
+                    ProductID = 2,
+                    ShowtimeSeatID = null
+                },
+                new OrderDetail
+                {
+                    OrderDetailID = 4,
+                    OrderID = 2,
+                    Quantity = 1,
+                    Price = 25.0,
+                    ProductID = null,
+                    ShowtimeSeatID = 2
+                },
+                new OrderDetail
+                {
+                    OrderDetailID = 5,
+                    OrderID = 3,
+                    Quantity = 3,
+                    Price = 30.0,
+                    ProductID = 3,
+                    ShowtimeSeatID = null
+                }
+            );
+
+
+            modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
         }
     }
 }

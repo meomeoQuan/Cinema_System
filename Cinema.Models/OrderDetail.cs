@@ -12,16 +12,15 @@ namespace Cinema.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
-
         [Required]
         public int OrderID { get; set; } // Foreign key
-        [Required]
+        
         public int? ProductID { get; set; } // Nullable if the order is for tickets only
-        [Required]
+   
         public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
-
-
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; } = 1;
 
 
@@ -34,12 +33,17 @@ namespace Cinema.Models
         public virtual ApplicationUser User { get; set; }
         // Navigation properties
         [ForeignKey("OrderID")]
+        [ValidateNever]
+        [InverseProperty("OrderDetails")]
         public virtual OrderTable Order { get; set; }
 
+
         [ForeignKey("ProductID")]
-        public virtual Product? Product { get; set; }
+        [ValidateNever]
+        public virtual Product? Product { get; set; }   
 
         [ForeignKey("ShowtimeSeatID")]
+        [ValidateNever]
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
     }
     }

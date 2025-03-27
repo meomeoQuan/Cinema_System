@@ -33,4 +33,9 @@
     <Folder Include="Areas\Admin\Views\Cinemas\" />
   </ItemGroup>
 
+ 
+  <ItemGroup>
+    <ProjectReference Include="..\Cinema.DataAccess\Cinema.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

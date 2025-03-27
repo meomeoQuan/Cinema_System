@@ -24,14 +24,13 @@ namespace Cinema.DataAccess.Repository
             Cinema = new CinemaRepository(_db);
 
             Room = new RoomRepository(_db);
-
+            Seat = new SeatRepository(_db);
         }
 
         public IMovieRepository Movie { get; private set; }
         public IProductRepository Product { get; private set; }
         public ICouponRepository Coupon { get; private set; }
         public IApplicationUserRepository ApplicationUser { get; private set; }
-
         public IShowTimeRepository showTime { get; private set; }
         public IOrderRepository OrderTable { get; private set; }   
         public IOrderDetailRepository OrderDetail { get; private set; }
@@ -39,7 +38,8 @@ namespace Cinema.DataAccess.Repository
         public ICinemaRepository Cinema { get; private set; }
 
         public IRoomRepository Room { get; private set; }
-
+        public ISeatRepository Seat { get; private set; }
+        //public IScheduleRepository Schedule { get; private set; }
         public async Task SaveAsync()
         {
             await _db.SaveChangesAsync();

@@ -20,25 +20,28 @@ namespace Cinema.Models
         [Required]
         public int RoomID { get; set; } // Foreign key
 
-                [Required]
+        [Required]
+
         [EnumDataType(typeof(SeatStatus))]
         public SeatStatus Status { get; set; } = SeatStatus.Available;
 
         // Navigation property
         [ForeignKey("RoomID")]
+        [InverseProperty("Seats")]
         public virtual Room Room { get; set; }
 
         // Computed property
         [NotMapped]
         public string SeatName => $"{Row}{ColumnNumber}";
+        [InverseProperty("Seat")]
+        public virtual ICollection<ShowtimeSeat> ShowtimeSeats { get; set; } = new List<ShowtimeSeat>();
+
     }
 
     public enum SeatStatus
     {
         Available,
-        Maintenance,
-        Blocked,
-        
+        Maintenance
     }
 }
 
