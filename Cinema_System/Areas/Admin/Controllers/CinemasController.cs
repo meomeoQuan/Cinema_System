@@ -1,20 +1,16 @@
-
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-
     public class CinemasController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -25,13 +21,10 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
-
-
         }
 
         public async Task<IActionResult> Index()
         {
-
             // Lấy danh sách rạp chiếu phim
             var cinemas = await _unitOfWork.Cinema
                                 //.Include(t => t.Admin)
@@ -81,7 +74,6 @@ namespace Cinema_System.Areas.Admin.Controllers
                 }
             }
             return Json(new { success = false, message = "Invalid theater data." });
-
         }
 
         [HttpPost]
@@ -146,19 +138,25 @@ namespace Cinema_System.Areas.Admin.Controllers
                         break;
 
                     case "OpeningTime":
-                        if (string.IsNullOrWhiteSpace(value))
+                        if (TimeSpan.TryParse(value, out TimeSpan openingTime))
                         {
-                            return Json(new { success = false, message = "Opening time cannot be empty." });
+                            theater.OpeningTime = openingTime;
                         }
-                        theater.OpeningTime = value;
+                        else
+                        {
+                            return Json(new { success = false, message = "Invalid opening time format. Please use HH:mm." });
+                        }
                         break;
 
                     case "ClosingTime":
-                        if (string.IsNullOrWhiteSpace(value))
+                        if (TimeSpan.TryParse(value, out TimeSpan closingTime))
                         {
-                            return Json(new { success = false, message = "Closing time cannot be empty." });
+                            theater.ClosingTime = closingTime;
                         }
-                        theater.ClosingTime = value;
+                        else
+                        {
+                            return Json(new { success = false, message = "Invalid closing time format. Please use HH:mm." });
+                        }
                         break;
 
                     case "AdminID":
@@ -220,17 +218,13 @@ namespace Cinema_System.Areas.Admin.Controllers
                 c.CinemaID,
                 c.Name,
                 c.Address,
-
                 AdminName = c.Admin?.FullName ?? "Unknown",
                 c.NumberOfRooms,
                 c.OpeningTime,
                 c.ClosingTime
-
             }).ToList();
 
             return Json(new { data = cinemasList });
         }
-
     }
 }
-
