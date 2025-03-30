@@ -103,27 +103,51 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Room room, int cinemaId, int numberOfRows, int seatsPerRow)
+        public async Task<IActionResult> Create([FromBody] Room room)
         {
             if (!ModelState.IsValid)
-                return Json(new { success = false, message = "Invalid room data." });
+            {
+                var errors = ModelState.Values
+                                       .SelectMany(v => v.Errors)
+                                       .Select(e => e.ErrorMessage)
+                                       .ToList();
+                return Json(new { success = false, message = "Invalid room data.", errors });
+            }
 
             try
             {
-                if (!await ValidateRoomCreation(room, numberOfRows, seatsPerRow))
-                    return Json(new { success = false, message = "Validation failed." });
+                var existingRoom = await _unitOfWork.Room.GetAsync(r => r.RoomNumber == room.RoomNumber);
 
-                // Tạo phòng
-                var newRoom = await CreateRoom(room, cinemaId);
+                var existingCinema = await _unitOfWork.Cinema.GetAsync(r => r.CinemaID == room.CinemaID, includeProperties: "Rooms");
 
-                // Tạo ghế
-                await CreateSeats(newRoom.RoomID, numberOfRows, seatsPerRow);
+                int totalRooms = existingCinema.Rooms.Count;
 
-                return Json(new { 
-                    success = true, 
-                    message = "Room and seats created successfully.",
-                    roomId = newRoom.RoomID 
-                });
+                if (totalRooms >= existingCinema.NumberOfRooms)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Cannot add more rooms. Cinema can only have {existingCinema.NumberOfRooms} rooms. \nCurrent rooms: {totalRooms}."
+                    });
+                }
+
+
+                if (existingRoom != null)
+                {
+                    return Json(new { success = false, message = "Room number already exists." });
+                }
+
+                if (room.Capacity < 10 || room.Capacity % 10 != 0)
+                {
+                    return Json(new { success = false, message = "Capacity must be at least 10 and a multiple of 10." });
+                }
+
+                int numberOfRows = room.Capacity / 10;
+
+                var newRoom = await CreateRoom(room, room.CinemaID);
+                await CreateSeats(newRoom.RoomID, numberOfRows, 10);
+
+                return Json(new { success = true, message = "Room created successfully." });
             }
             catch (Exception ex)
             {
@@ -131,22 +155,32 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
         }
 
-        // Phương thức kiểm tra tính hợp lệ
-        private async Task<bool> ValidateRoomCreation(Room room, int numberOfRows, int seatsPerRow)
-        {
-            // Kiểm tra phòng tồn tại
-            if (_unitOfWork.Room.Get(u => u.RoomNumber == room.RoomNumber) != null)
-                return false;
 
-            // Kiểm tra số ghế hợp lệ
+
+
+
+
+
+        private async Task<string> ValidateRoomCreation(Room room, int numberOfRows, int seatsPerRow)
+        {
+            // Check if the room number already exists
+            var existingRoom = _unitOfWork.Room.Get(u => u.RoomNumber == room.RoomNumber);
+            if (existingRoom != null)
+            {
+                return "Room number already exists. Please choose another.";
+            }
+
+            // Ensure the total number of seats matches capacity
             int totalSeats = numberOfRows * seatsPerRow;
             if (totalSeats != room.Capacity)
-                return false;
+            {
+                return $"Invalid capacity. Expected {totalSeats} seats based on row configuration, but got {room.Capacity}.";
+            }
 
-            return true;
+            return null; // No validation errors
         }
 
-        // Phương thức tạo phòng
+
         private async Task<Room> CreateRoom(Room room, int cinemaId)
         {
             room.CreatedAt = DateTime.Now;
@@ -176,16 +210,17 @@ namespace Cinema_System.Areas.Admin.Controllers
         private List<Seat> GenerateSeatList(int roomId, int numberOfRows, int seatsPerRow)
         {
             var seats = new List<Seat>();
-            char[] rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 
             for (int row = 0; row < numberOfRows; row++)
             {
+                string rowLabel = ConvertToLetter(row); // Convert index to A-Z, AA, AB, etc.
+
                 for (int seatNum = 1; seatNum <= seatsPerRow; seatNum++)
                 {
                     seats.Add(new Seat
                     {
                         RoomID = roomId,
-                        Row = row.ToString(),
+                        Row = rowLabel,
                         ColumnNumber = seatNum,
                         Status = SeatStatus.Available
                     });
@@ -194,6 +229,19 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             return seats;
         }
+
+        private string ConvertToLetter(int index)
+        {
+            string result = "";
+            while (index >= 0)
+            {
+                result = (char)('A' + (index % 26)) + result;
+                index = (index / 26) - 1;
+            }
+            return result;
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateField(int id, string field, string value)
