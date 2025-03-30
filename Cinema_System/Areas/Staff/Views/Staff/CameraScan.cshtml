@@ -185,6 +185,9 @@
 			if(code) {
 				// Extract the data encoded in the QR code
 				const qrData = code.data;
+
+
+				//https://localhost:7115/Staff/Staff/ValidAuthentication?OrderID=3
 				// Display the QR code data
 				qrDataLabel.textContent = 'QR Code Data: ' + qrData;
 				qrDataLabel.style.display = 'block';
@@ -200,8 +203,8 @@
 				video.style.display = 'none';
 				// If the scanned QR code is a URL
 				if(isUrl(qrData)) {
-					// Open the URL in a new tab
-					window.open(qrData, '_blank');
+					// Open the URL in current tab
+					window.open(qrData, '_self');// _blank to other tab  _self to current tab	
 				}
 			}
 		}, 100); // Adjust the interval as needed (milliseconds)

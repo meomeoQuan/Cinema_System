@@ -1,83 +1,111 @@
-﻿//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
+using Cinema.DataAccess.Data;
+using Cinema.DataAccess.Repository;
+using Cinema.DataAccess.Repository.IRepository;
+using Cinema.Models;
+using Cinema.Models.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-//namespace Cinema_System.Areas.Admin.Controllers
-//{
-//    public class HomeController : Controller
-//    {
-//        // GET: HomeController
-//        public ActionResult Index()
-//        {
-//            return View();
-//        }
+namespace Cinema_System.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    //[Authorize(Roles = "Admin")] 
+    //[Authorize(Roles = SD.Role_Admin)]
+    public class HomeController : Controller
+    {
+        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
+        public HomeController(IUnitOfWork unitOfWork,
+                              ApplicationDbContext context)
+        {
+            _db = context;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        }
+        // [HttpGet]
+        // public IActionResult GetMonthlyRevenue()
+        // {
+        //     var revenueData = _db.OrderTables
+        //         .GroupBy(o => o.CreatedAt.Month)
+        //         .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+        //         .OrderBy(r => r.Month)
+        //         .Select(r => r.Amount)
+        //         .ToArray();
+        //     return Ok(revenueData);
+        // }
 
-//        // GET: HomeController/Details/5
-//        public ActionResult Details(int id)
-//        {
-//            return View();
-//        }
 
-//        // GET: HomeController/Create
-//        public ActionResult Create()
-//        {
-//            return View();
-//        }
+           
 
-//        // POST: HomeController/Create
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public ActionResult Create(IFormCollection collection)
-//        {
-//            try
-//            {
-//                return RedirectToAction(nameof(Index));
-//            }
-//            catch
-//            {
-//                return View();
-//            }
-//        }
+    public async Task<IActionResult> Revenue()
+    {
+        // Fetch monthly revenue data from the database
+        var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
+        var monthlyRevenue = revenueData
+            .GroupBy(o => o.CreatedAt.Month)
+            .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+            .OrderBy(r => r.Month)
+            .Select(r => r.Amount)
+            .ToList();
 
-//        // GET: HomeController/Edit/5
-//        public ActionResult Edit(int id)
-//        {
-//            return View();
-//        }
+        if(monthlyRevenue is List<double>)
+        {
+            Console.WriteLine("ok");
+        }
+        // Create the view model
+        var viewModel = new RevenueViewModel
+        {
+            MonthlyRevenue = monthlyRevenue
+        };
+        
 
-//        // POST: HomeController/Edit/5
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public ActionResult Edit(int id, IFormCollection collection)
-//        {
-//            try
-//            {
-//                return RedirectToAction(nameof(Index));
-//            }
-//            catch
-//            {
-//                return View();
-//            }
-//        }
+        // Pass the view model to the view
+        return View(viewModel);
+        }
 
-//        // GET: HomeController/Delete/5
-//        public ActionResult Delete(int id)
-//        {
-//            return View();
-//        }
 
-//        // POST: HomeController/Delete/5
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public ActionResult Delete(int id, IFormCollection collection)
-//        {
-//            try
-//            {
-//                return RedirectToAction(nameof(Index));
-//            }
-//            catch
-//            {
-//                return View();
-//            }
-//        }
-//    }
-//}
+    //public async Task<IActionResult> Index()
+    //{
+    //    // Giả sử bạn có một phương thức để lấy tổng doanh thu
+    //    var revenue = await _unitOfWork.OrderTable.GetTotalRevenueAsync();
+
+    //    // Giả sử bạn có một phương thức để lấy số lượng người dùng
+    //    //var userCount = await _unitOfWork.ApplicationUser.GetCountAsync();
+
+    //    // Giả sử bạn có một phương thức để lấy số lượng đơn hàng
+    //    //var orderCount = await _unitOfWork.Order.GetCountAsync();
+
+    //    // Tạo một ViewModel để truyền dữ liệu đến view
+    //    var dashboardViewModel = new DashboardViewModel
+    //    {
+    //        TotalRevenue = revenue
+
+    //        //UserCount = userCount,
+    //        //OrderCount = orderCount
+    //    };
+
+    //    return View(dashboardViewModel);
+    //}
+
+//         [HttpGet]
+//         public IActionResult GetMonthlyRevenue()
+//         {
+//             var revenueData = _db.OrderTables
+//                 .GroupBy(o => o.CreatedAt.Month)
+//                 .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+//                 .OrderBy(r => r.Month)
+//                 .Select(r => r.Amount)
+//                 .ToArray();
+//             return Ok(revenueData);
+//         }
+
+
+        //[HttpGet]
+        //public IActionResult GetMonthlyRevenue()
+        //{
+        //    var revenueData = new[] { 12000, 15000, 10000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000 };
+        //    return Ok(revenueData);
+        //}
+    }
+}
+

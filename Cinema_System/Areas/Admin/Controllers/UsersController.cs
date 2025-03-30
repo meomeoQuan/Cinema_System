@@ -1,9 +1,11 @@
-﻿using System.Text;
+using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +19,7 @@ namespace Cinema_System.Areas.Admin.Controllers
     public class UsersController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -27,15 +30,18 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
+
         }
 
         public async Task<IActionResult> Index()
         {
+
             var users = await _unitOfWork.ApplicationUser.GetAllAsync();
             foreach (var user in users)
             {
                 user.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Guest";
             }
+
             return View(users);
         }
 
@@ -193,26 +199,47 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Lock(string id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Lock(string id)
         {
-            var user = _unitOfWork.ApplicationUser.Get(u => u.Id == id);
+            var currentUserId = _userManager.GetUserId(User); // Lấy ID của người dùng hiện tại
+            if (id == currentUserId)
+            {
+                return Json(new { success = false, message = "You cannot lock your own account." });
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
-                return Json(new { success = false, message = "User not found." });
+                return Json(new { success = false, message = "User not found" });
+            }
+
+            if (await _userManager.IsInRoleAsync(user, SD.Role_Admin) ||
+                await _userManager.IsInRoleAsync(user, SD.Role_Staff))
+            {
+                return Json(new { success = false, message = "Cannot modify Admin or Staff accounts" });
             }
 
             try
             {
-                user.LockoutEnd = DateTime.Now.AddYears(1000);
-                _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "User locked successfully." });
+                // Khóa user bằng cách set LockoutEnd đến tương lai xa
+                user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "User has been locked successfully" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to lock user" });
+                }
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = $"Error locking user: {ex.Message}" });
             }
         }
-
         [HttpPost]
         public IActionResult Unlock(string id)
         {
@@ -233,6 +260,45 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return Json(new { success = false, message = $"Error unlocking user: {ex.Message}" });
             }
         }
+        //Search admin for Cinemas
+        public ApplicationUser SearchUserById(string id)
+        {
+            return _unitOfWork.ApplicationUser.Get(u => u.Id == id);
+        }
+
+        internal static async Task<IEnumerable<ApplicationUser>> GetUsersByRole(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, string role_Admin)
+        {
+            var role = await roleManager.FindByNameAsync(role_Admin);
+            if (role == null)
+            {
+                throw new ArgumentException("Role not found.");
+            }
+
+            var usersInRole = await userManager.GetUsersInRoleAsync(role_Admin);
+            var applicationUsers = usersInRole.Select(user => new ApplicationUser
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FullName = user.UserName, // Assuming FullName is stored in UserName
+                Role = role_Admin
+            });
+
+            return applicationUsers;
+        }
+
+        public bool CurrentUser(string idEditing)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine("Current user id: " + userId);
+            return userId == idEditing;
+            //var user = await _userManager.FindByIdAsync(id);
+            //return View(user);
+        }
+
+
     }
 }
 

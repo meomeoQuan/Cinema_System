@@ -12,6 +12,7 @@ namespace Cinema.Models
     public class Product
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProductID { get; set; }
 
         [Required]
@@ -30,7 +31,6 @@ namespace Cinema.Models
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative.")]
         public int Quantity { get; set; } = 0;
-
 
         [ValidateNever]
         public string? ProductImage { get; set; }

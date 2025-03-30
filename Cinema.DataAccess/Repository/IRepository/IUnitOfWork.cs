@@ -12,9 +12,15 @@ namespace Cinema.DataAccess.Repository.IRepository
         public ICouponRepository Coupon { get; }
         public IProductRepository Product { get; }
         public IShowTimeSeatRepository ShowTimeSeat { get; }
+        public IOrderRepository OrderTable { get; }
         public IOrderDetailRepository OrderDetail { get;  }
         public IShowTimeRepository showTime { get; }
         public IApplicationUserRepository ApplicationUser { get; }
-        Task SaveAsync();
+
+        public ICinemaRepository Cinema { get; }
+        public IRoomRepository Room { get; }
+        public ISeatRepository Seat { get; }
+
+            Task SaveAsync();
+        }
     }
-}

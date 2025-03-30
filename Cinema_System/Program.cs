@@ -8,8 +8,26 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Cinema.Utility;
 using Cinema.DbInitializer;
 using Cinema.DataAccess.DbInitializer;
+using Net.payOS;
+using Cinema_System.Areas.Service;
 
 var builder = WebApplication.CreateBuilder(args);
+
+IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+PayOS payOs = new PayOS(
+    configuration["PayOs:ClientId"] ?? throw new Exception("Cannot find environment"),
+    configuration["PayOs:ApiKey"] ?? throw new Exception("Cannot find environment"),
+    configuration["PayOs:CheckSumKey"] ?? throw new Exception("Cannot find environment"));
+
+builder.Services.AddSingleton(payOs);
+
+// Đăng ký PayOSService vào DI container
+builder.Services.AddScoped<PayOSService>();  // Hoặc AddSingleton nếu bạn muốn dùng singleton
+
+// Đăng ký các dịch vụ khác
+builder.Services.AddControllersWithViews();
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -59,7 +77,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
       // Cấu hình cookie
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Cookie tồn tại 30 ngày
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Cookie tồn tại 30 p
     options.SlidingExpiration = true; // Tự động gia hạn khi user active
 });
 
@@ -148,24 +166,28 @@ app.MapControllerRoute(
     name: "areas",
     pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
 // Add middleware to handle role-based redirects
 app.Use(async (context, next) =>
 {
-    if (context.User.Identity.IsAuthenticated)
+    // 1. Check if context.User and context.User.Identity are not null, and user is authenticated
+    if (context.User?.Identity != null && context.User.Identity.IsAuthenticated)
     {
         var isAdmin = context.User.IsInRole(SD.Role_Admin);
         var path = context.Request.Path.ToString().ToLower();
 
-        // Skip redirect for static files, API calls, and Identity pages
+        // 2. Skip redirect for static files, API calls, and Identity pages
         if (!path.StartsWith("/lib/") &&
             !path.StartsWith("/api/") &&
             !path.StartsWith("/identity/"))
         {
+            // 3. Redirect Admin users to admin area if not already in admin path
             if (isAdmin && !path.StartsWith("/admin"))
             {
                 context.Response.Redirect("/Admin/Users/Index");
                 return;
             }
+            // 4. Redirect non-Admin users out of admin path
             else if (!isAdmin && path.StartsWith("/admin"))
             {
                 context.Response.Redirect("/Guest/Home/Index");
@@ -173,8 +195,11 @@ app.Use(async (context, next) =>
             }
         }
     }
+
+    // 5. Continue to the next middleware
     await next();
 });
+
 
 // Add middleware to handle admin redirects
 //app.Use(async (context, next) =>
