@@ -92,6 +92,7 @@ namespace Cinema.DataAccess.Data
 
              );
 
+
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
                 new Movie
