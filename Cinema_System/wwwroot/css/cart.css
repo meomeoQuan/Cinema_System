@@ -7,6 +7,26 @@ h2.font-weight-bold.pt-5.cart-title {
 }
 
 
+.text-table h5 {
+    color: white !important;
+}
+
+input[type="number"] {
+    width: 50px;
+    height: 30px; 
+    padding: 5px; 
+    margin: auto;
+}
+
+.text-div h5{
+    color: black !important;
+}
+
+.text-div h6,
+.text-div p {
+    color: white !important;
+}
+
 #cart-container {
     overflow-x: auto;
 }
@@ -68,7 +88,12 @@ h2.font-weight-bold.pt-5.cart-title {
 }
 
 #cart-container table tbody i{
-    color: #8d8c89;
+    color: black !important;
+}
+
+.icon-trash {
+    background-color: #e1d4fa !important;
+    border: none;
 }
 
 #cart-bottom .coupon>div,
@@ -121,4 +146,10 @@ h2.font-weight-bold.pt-5.cart-title {
 
 .btn-hover:hover {
     background-color: #e1d4fa;
+}
+
+.btn btn-danger .btn-sm {
+    background-color: #e1d4fa !important;
+    border: none !important;
+    color: black !important;
 }

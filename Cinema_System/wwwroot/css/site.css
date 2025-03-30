@@ -24,7 +24,7 @@ for details on configuring this project to bundle and minify static web assets. 
 .header{
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 4;
 }
 
 
@@ -301,16 +301,17 @@ bg-success {
 
 
 .btn-outline-secondary {
-    color: #134b5f;
-    border-color: #134b5f;
+    color: white;
+    border: none;
+    background-color: #6b2cc3;
 }
 
 
 
     .btn-outline-secondary:hover {
-        color: #fff;
-        background-color: #134b5f;
-        border-color: #134b5f;
+        color: white;
+        background-color: #5022a5;
+        border: none;
     }
 
 
@@ -455,17 +456,14 @@ bg-success {
 
 
 .btn-secondary {
-    color: #fff;
-    background-color: #134b5f;
-    border-color: #134b5f;
+    color: white;
+    background-color: #6b2cc3;
+    border: none;
 }
 
-
-
     .btn-secondary:hover {
-        color: #fff;
-        background-color: #1a6985;
-        border-color: #1a6985;
+        color: white;
+        background-color: #5022a5;
     }
 
 

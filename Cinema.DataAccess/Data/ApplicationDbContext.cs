@@ -169,7 +169,7 @@ namespace Cinema.DataAccess.Data
                     ProductType = ProductType.Snack,
                     Price = 50000,
                     Quantity = 20,
-                    ProductImage = "/css/images/pro3.jpg"
+                    ProductImage = "/css/images/pro6.jpg"
                 },
                 new Product
                 {

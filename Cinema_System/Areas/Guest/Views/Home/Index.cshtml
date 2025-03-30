@@ -1,4 +1,5 @@
-﻿
+﻿@model IEnumerable<Movie>
+
 
 <body>
 	<div class="container mt-4">
@@ -37,10 +38,17 @@
 		<section class="booking-nav" style="width: 1275px;">
 			<div class="booking-container">
 
-				<div class="search-container">
-					<input type="text" class="booking-search" id="searchMovie" placeholder="Search for a movie..." onkeyup="searchMovie()">
-					<button class="search-button">Search</button>
-				</div>
+				<form asp-action="Index" asp-controller="Home" asp-area="Guest" method="get">
+					<div class="search-container">
+						<input type="text" class="booking-search" name="term"
+							   placeholder="Search movie" value="@ViewBag.SearchTerm">
+						<button type="submit" class="search-button">Search</button>
+						@if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+						{
+							<a asp-action="Index" class="btn btn-secondary ml-2">Clear</a>
+						}
+					</div>
+				</form>
 
 				<span class="booking-title">BOOK TICKET</span>
 				<select class="booking-select" id="cinema">
@@ -70,6 +78,69 @@
 				<button class="booking-button" onclick="bookTicket()">BOOK</button>
 			</div>
 		</section>
+
+		<!--Ket qua tim kiem-->
+		@if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+		{
+			<div class="container mt-4">
+				<h4 class="mb-4">Search Results for "@ViewBag.SearchTerm"</h4>
+
+				@if (Model.Any())
+				{
+					<div class="row justify-content-center">
+						@foreach (var movie in Model)
+						{
+							<div class="col-lg-3 col-sm-6 mb-4">
+								<div class="row p-2">
+									<div class="col-12 p-1">
+										<div class="card rounded">
+											<img src="@(movie.MovieImage ?? "https://placehold.co/500x700/png")"
+												 class="card-img-top rounded"
+												 alt="@movie.Title">
+										</div>
+									</div>
+									<div class="col-12">
+										<p class="pt-2 h5 text-dark opacity-75 text-uppercase text-center mb-3">@movie.Title</p>
+									</div>
+									<div class="col-6">
+										@if (!string.IsNullOrEmpty(movie.TrailerLink))
+										{
+											<a href="@movie.TrailerLink" class="text-dark" target="_blank" style="font-size:20px">
+												See Trailer
+											</a>
+										}
+										else if (movie.IsUpcomingMovie)
+										{
+											<a href="@movie.TrailerLink" class="text-dark" target="_blank" style="font-size:20px">
+												See Trailer
+											</a>
+										}
+									</div>
+									<div class="col-6"><a asp-area="Guest" asp-controller="Detail" asp-action="Details" asp-route-id="@movie.MovieID"
+										   class="btn btn-outline-warning">	Book Ticket	</a>
+									</div>
+								</div>
+							</div>
+						}
+					</div>
+				}
+				else
+				{
+					<div class="col-12 text-center py-5">
+						<i class="fas fa-film fa-3x text-muted mb-3"></i>
+						<p class="text-muted">No movies found for "@ViewBag.SearchTerm"</p>
+						<a asp-action="Index" class="btn btn-outline-secondary mt-2">
+							<i class="fas fa-undo"></i> Clear Search
+						</a>
+					</div>
+				}
+
+			</div>
+		}
+
+
+
+
 		<!-- Now Showing Movies -->
 		<div id="showing-movies"></div>
 		<!-- Hidden element to track current page -->
@@ -115,6 +186,6 @@
 
 @section Scripts {
 	<!-- Make sure jQuery is loaded before your HomePage.js -->
-
 	<script src="~/js/HomePage.js"></script>
 }
+

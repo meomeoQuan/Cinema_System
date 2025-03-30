@@ -10,11 +10,26 @@ namespace Cinema.Models
         [Key]
         public int OrderDetailID { get; set; }
 
-        [Required]
-        public int OrderID { get; set; } // Foreign key
+        public int ? OrderID { get; set; } // Foreign key
+
+        [NotMapped] // Không lưu vào database
+        public string TempId { get; set; } // Dùng cho session
+
+        public string UserId { get; set; } // Nullable cho khách
+
+        [NotMapped]
+        public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
 
         [Required]
-        public int UserId { get; set; }
+        [Column("ProductId")] // Đảm bảo tên cột khớp với database
+        public int ProductId { get; set; }
+
+        [Required]
+        [Column("ProductName")]
+        public string ProductName { get; set; }
+
+        //[Required]
+        //public int UserId { get; set; }
 
         [Required]
         public int MovieId { get; set; }
@@ -32,13 +47,14 @@ namespace Cinema.Models
         public string Cinema { get; set; }
 
         [Required]
+        public string Showtime { get; set; }
+
+        [Required]
         public int RoomId { get; set; } // Added RoomId
 
         [Required]
         public string RoomName { get; set; } // Added RoomName
 
-        [Required]
-        public string Showtime { get; set; }
 
         // 🟢 **Added fields**
         [Required]
@@ -57,12 +73,16 @@ namespace Cinema.Models
         [NotMapped]
         public List<FoodSelectionVM> FoodItems { get; set; } = new List<FoodSelectionVM>();
 
-        // 🟢 **Now, TotalPrice makes sense**
-        [NotMapped]
-        public double TotalPrice { get; set; } = 0;// **Subtotal for this item**
+        public double TotalPrice
+        {
+            get { return Price * Quantity; }
+            set { } 
+        }
 
         // Navigation properties
         [ForeignKey("OrderID")]
         public virtual OrderTable Order { get; set; }
+        [ForeignKey("ProductId")]
+        public virtual Product Product { get; set; }
     }
 }

@@ -12,5 +12,9 @@ namespace Cinema.Models.ViewModels
         public IEnumerable<Product> Drinks { get; set; }
         public IEnumerable<Product> Combos { get; set; }
         public IEnumerable<Product> Gifts { get; set; }
+        public string SearchString { get; set; }
+        public ProductType? SelectedProductType { get; set; }
+        public IEnumerable<ProductType> ProductTypes => Enum.GetValues<ProductType>();
+
     }
 }
