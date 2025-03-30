@@ -32,9 +32,34 @@ namespace Cinema_System.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int cinemaId)
         {
             ViewData["CinemaId"] = cinemaId;
-            var list = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId);
+            var list = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
             
             return View(list);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
+        {
+            if (cinemaId <= 0)
+            {
+                return Json(new { success = false, message = "Invalid cinema ID" });
+            }
+
+            try
+            {
+                var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId);
+
+                if (rooms == null || !rooms.Any())
+                {
+                    return Json(new { success = false, message = "No rooms found", rooms = new List<object>() });
+                }
+
+                return Json(new { success = true, rooms = rooms.Select(r => new { r.RoomID, r.RoomNumber }) });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error retrieving rooms: {ex.Message}" });
+            }
         }
 
         [HttpPost]
@@ -70,7 +95,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 u.RoomNumber,
                 u.Status,
                 u.Capacity,
-                u.Cinema
+                u.Theater
 
             }).ToList();
 
@@ -78,36 +103,97 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Room room, int cinemaId)
+        public async Task<IActionResult> Create(Room room, int cinemaId, int numberOfRows, int seatsPerRow)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Invalid room data." });
+
+            try
             {
-                try
+                if (!await ValidateRoomCreation(room, numberOfRows, seatsPerRow))
+                    return Json(new { success = false, message = "Validation failed." });
+
+                // Tạo phòng
+                var newRoom = await CreateRoom(room, cinemaId);
+
+                // Tạo ghế
+                await CreateSeats(newRoom.RoomID, numberOfRows, seatsPerRow);
+
+                return Json(new { 
+                    success = true, 
+                    message = "Room and seats created successfully.",
+                    roomId = newRoom.RoomID 
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error creating room: {ex.Message}" });
+            }
+        }
+
+        // Phương thức kiểm tra tính hợp lệ
+        private async Task<bool> ValidateRoomCreation(Room room, int numberOfRows, int seatsPerRow)
+        {
+            // Kiểm tra phòng tồn tại
+            if (_unitOfWork.Room.Get(u => u.RoomNumber == room.RoomNumber) != null)
+                return false;
+
+            // Kiểm tra số ghế hợp lệ
+            int totalSeats = numberOfRows * seatsPerRow;
+            if (totalSeats != room.Capacity)
+                return false;
+
+            return true;
+        }
+
+        // Phương thức tạo phòng
+        private async Task<Room> CreateRoom(Room room, int cinemaId)
+        {
+            room.CreatedAt = DateTime.Now;
+            room.UpdatedAt = DateTime.Now;
+            room.CinemaID = cinemaId;
+            room.Status = RoomStatus.Available;
+
+            _unitOfWork.Room.Add(room);
+            await _unitOfWork.SaveAsync();
+
+            return room;
+        }
+
+        // Phương thức tạo ghế
+        private async Task CreateSeats(int roomId, int numberOfRows, int seatsPerRow)
+        {
+            var seats = GenerateSeatList(roomId, numberOfRows, seatsPerRow);
+            
+            foreach (var seat in seats)
+            {
+                _unitOfWork.Seat.Add(seat);
+            }
+            await _unitOfWork.SaveAsync();
+        }
+
+        // Phương thức tạo danh sách ghế
+        private List<Seat> GenerateSeatList(int roomId, int numberOfRows, int seatsPerRow)
+        {
+            var seats = new List<Seat>();
+            char[] rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+
+            for (int row = 0; row < numberOfRows; row++)
+            {
+                for (int seatNum = 1; seatNum <= seatsPerRow; seatNum++)
                 {
-                    if (_unitOfWork.Room.Get(u => u.RoomNumber == room.RoomNumber) != null)
+                    seats.Add(new Seat
                     {
-                        return Json(new { success = false, message = "Room already exists." });
-                    }
-
-                    
-
-                    room.CreatedAt = DateTime.Now;
-                    room.UpdatedAt = DateTime.Now;
-                    room.CinemaID = cinemaId;
-
-                    _unitOfWork.Room.Add(room);
-                    await _unitOfWork.SaveAsync();
-
-                    return Json(new { success = true, message = "Room created successfully." });
-                }
-                catch (Exception ex)
-                {
-                    return Json(new { success = false, message = $"Error creating room: {ex.Message}" });
+                        RoomID = roomId,
+                        Row = row.ToString(),
+                        ColumnNumber = seatNum,
+                        Status = SeatStatus.Available
+                    });
                 }
             }
-            return Json(new { success = false, message = "Invalid room data." });
+
+            return seats;
         }
-        
 
         [HttpPost]
         public async Task<IActionResult> UpdateField(int id, string field, string value)

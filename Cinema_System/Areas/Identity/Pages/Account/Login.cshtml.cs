@@ -111,78 +111,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
-        // public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-        // {
-        //     returnUrl ??= Url.Content("~/");
-
-        //     ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-        //     if (ModelState.IsValid)
-        //     {
-        //         var user = await _userManager.FindByEmailAsync(Input.Email);
-        //         if (user != null)
-        //         {
-        //             // Attempt login
-        //             var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-
-        //             if (result.Succeeded)
-        //             {
-        //                 _logger.LogInformation("User logged in.");
-        //                 await _userManager.ResetAccessFailedCountAsync(user); // Reset access failed count
-
-        //                 // Retrieve updated user details
-        //                 var appUser = user as ApplicationUser;
-        //                 var userImage = appUser?.UserImage ?? "/images/default-avatar.png";
-        //                 var userFullName = appUser?.FullName ?? "User";
-
-        //                 // Remove old claims and add updated ones
-        //                 var existingClaims = await _userManager.GetClaimsAsync(user);
-        //                 await _userManager.RemoveClaimsAsync(user, existingClaims);
-
-        //                 var claims = new List<Claim>
-        //         {
-        //             new Claim("FullName", userFullName),
-        //             new Claim("UserImage", userImage)
-        //         };
-        //                 await _userManager.AddClaimsAsync(user, claims);
-
-        //                 // Refresh authentication session ------------------------------
-        //                 await _signInManager.SignInAsync(user, isPersistent: false);
-        //                 var roles = await _userManager.GetRolesAsync(user);
-        //                 if (roles.Contains(SD.Role_Admin))
-        //                 {
-        //                     return RedirectToAction("Index", "Home", new { area = "Admin" });
-        //                 }
-        //                 else
-        //                 {
-        //                     return RedirectToAction("Index", "Home", new { area = "Guest" });
-        //                 }
-                       
-        //                 //------------------- Allow information loading even it is first login , if not first login in4 is null !
-        //                 //                        When a user logs in, ASP.NET Identity creates an authentication cookie that stores user claims.
-        //                 //However, if claims are updated after login, the authentication cookie is not refreshed automatically.
-        //                 //SignInAsync(user, false) forces a re - authentication, updating the session cookie immediately with the new claims.
-        //                 //As a result, the UI can access the correct FullName and UserImage right after login, instead of showing outdated or null values.
-        //                 return LocalRedirect(returnUrl);
-        //             }
-
-        //             if (result.RequiresTwoFactor)
-        //             {
-        //                 return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-        //             }
-        //             if (result.IsLockedOut)
-        //             {
-        //                 _logger.LogWarning("User account locked out.");
-        //                 return RedirectToPage("./Lockout", new  { userId = user.Id});
-        //             }
-        //         }
-
-        //         ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-        //         return Page();
-        //     }
-
-        //     return Page();
-        // }
+      
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
@@ -215,6 +144,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
 
                         // Đăng nhập lại để refresh claims
                         await _signInManager.SignInAsync(user, Input.RememberMe);
+
 
                         // Chuyển hướng dựa trên role
                         var roles = await _userManager.GetRolesAsync(user);

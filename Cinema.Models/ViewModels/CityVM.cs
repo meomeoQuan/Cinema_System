@@ -8,7 +8,7 @@ namespace Cinema.Models.ViewModels
 {
     public class CityVM
     {
-        public string CityName { get; set; }
-        public List<TimeScheduleVM> Cinemas { get; set; }
+        public string City { get; set; } = string.Empty;
+        public bool Selected { get; set; }
     }
 }

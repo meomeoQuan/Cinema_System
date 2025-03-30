@@ -11,5 +11,6 @@ namespace Cinema.DataAccess.Repository.IRepository
     public interface IRoomRepository : IRepository<Room>
     {
         void Update(Room room);
+        Task<IEnumerable<Room>> GetRoomsByCinemaIdAsync(int cinemaId);
     }
 }

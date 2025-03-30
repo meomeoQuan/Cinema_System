@@ -16,36 +16,41 @@ namespace Cinema.Models
     public class ShowTime
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ShowTimeID { get; set; }
 
         [Required]
-        //public DateTime ? ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
-        public string ShowDates { get; set; }
-        [Required]
-        //public TimeSpan ShowTimes { get; set; } // SQL `TIME` maps to `TimeSpan`
-        public string ShowTimes { get; set; }
-
-        public int CinemaID { get; set; }
-        [ForeignKey(nameof(CinemaID))]
-        [ValidateNever]
-        public Theater? Cinema { get; set; }
-
-
+        public DateTime ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
+        public TimeSpan ShowTimes { get; set; }
+        //public int CinemaID { get; set; }
         public int RoomID { get; set; }
-        [ForeignKey(nameof(RoomID))]
-        [ValidateNever]
-        public Room ? Room { get; set; }
-
-
         public int MovieID { get; set; }
-        [ForeignKey(nameof(MovieID))]
+
+        //[ForeignKey("CinemaId")]
+        //[InverseProperty("Showtimes")]
+        //public virtual Theater Theater { get; set; } = null!;
+        //[ForeignKey("CinemaID")]
+        //[InverseProperty("ShowTimes")]
+        //[ValidateNever] 
+        //public virtual Theater Theater { get; set; } = null!;
+
+
+        [ForeignKey("MovieID")]
+        [InverseProperty("ShowTimes")]
         [ValidateNever]
-        public Movie? Movie { get; set; }
+        public virtual Movie Movie { get; set; } = null!;
 
-        public virtual ICollection<ShowtimeSeat> ShowtimeSeats { get; set; } = new List<ShowtimeSeat>();
+        [ForeignKey("RoomID")]
+        [InverseProperty("ShowTimes")]
+        [ValidateNever]
+        public virtual Room Room { get; set; } = null!;
 
-        [NotMapped]
-        public int AvailableTicketQuantity => ShowtimeSeats.Count(s => s.Status == ShowtimeSeatStatus.Available);
+        [InverseProperty("Showtime")] // Ensure it matches the navigation property in `ShowtimeSeat`
+        public virtual ICollection<ShowtimeSeat> ShowTimeSeats { get; set; } = new List<ShowtimeSeat>();
+
+
+        //[NotMapped]
+        //public int AvailableTicketQuantity => ShowtimeSeats.Count(s => s.Status == ShowtimeSeatStatus.Available);
 
     }
 }
