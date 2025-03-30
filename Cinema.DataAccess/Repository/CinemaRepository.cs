@@ -24,18 +24,18 @@ namespace Cinema.DataAccess.Repository
 
         public async Task<Theater> FindByIdAsync(int cinemaId)
         {
-            return await _db.Theaters.FindAsync(cinemaId);
+            return await _db.Cinemas.FindAsync(cinemaId);
         }
         // Thêm rạp mới vào database
         public async Task AddAsync(Theater theater)
         {
-            await _db.Theaters.AddAsync(theater);
+            await _db.Cinemas.AddAsync(theater);
         }
 
         // Cập nhật thông tin rạp
         public void Update(Theater theater)
         {
-            _db.Theaters.Update(theater);
+            _db.Cinemas.Update(theater);
         }
     }
 
