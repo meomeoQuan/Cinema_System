@@ -27,7 +27,7 @@ namespace Cinema.DataAccess.Data
         public DbSet<Seat> Seats { get; set; }
 
         public DbSet<ShowtimeSeat> showTimeSeats { get; set; }
-        public DbSet<Theater> Cinemas { get; set; }
+        public DbSet<Theater> Theaters { get; set; }
         public DbSet<ShowTime> showTimes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Movie> Movies { get; set; }
@@ -240,7 +240,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 1,
                     Name = "Grand Cinema",
                     Address = "123 Main St, Da Nang City",
-                    CinemaCity = "Danang",
+                    //CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
 
@@ -254,7 +254,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 2,
                     Name = "Skyline Theater",
                     Address = "456 Broadway Ave, HCM City",
-                    CinemaCity = "Ho Chi Minh",
+                    //CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 7,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -267,7 +267,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 3,
                     Name = "CGV Cinema",
                     Address = "124 Main St, Danang City",
-                    CinemaCity = "Danang",
+                    //CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -280,7 +280,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 4,
                     Name = "HCM Cinestar Cinema",
                     Address = "124 Main St, HCM City",
-                    CinemaCity = "Ho Chi Minh",
+                    //CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -635,7 +635,7 @@ namespace Cinema.DataAccess.Data
             );
 
 
-            modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
+            //modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
         }
     }
 }

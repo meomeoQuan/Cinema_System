@@ -21,7 +21,7 @@ namespace Cinema_System.Areas.Guest.Controllers
         [HttpGet("{cityName}")]
         public async Task<IActionResult> GetCinemasByCity(string cityName)
         {
-            var cinemas = await _context.Cinemas
+            var cinemas = await _context.Theaters
                 .Where(t => t.CinemaCity.Equals(cityName) && t.Status == CinemaStatus.Open)
                 .ToListAsync();
 
