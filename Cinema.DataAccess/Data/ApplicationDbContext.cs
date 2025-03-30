@@ -92,6 +92,7 @@ namespace Cinema.DataAccess.Data
 
              );
 
+
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
                 new Movie
@@ -239,7 +240,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 1,
                     Name = "Grand Cinema",
                     Address = "123 Main St, Da Nang City",
-                    CinemaCity = "Danang",
+                    //CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
 
@@ -253,7 +254,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 2,
                     Name = "Skyline Theater",
                     Address = "456 Broadway Ave, HCM City",
-                    CinemaCity = "Ho Chi Minh",
+                    //CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 7,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -266,7 +267,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 3,
                     Name = "CGV Cinema",
                     Address = "124 Main St, Danang City",
-                    CinemaCity = "Danang",
+                    //CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -279,7 +280,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 4,
                     Name = "HCM Cinestar Cinema",
                     Address = "124 Main St, HCM City",
-                    CinemaCity = "Ho Chi Minh",
+                    //CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -634,7 +635,7 @@ namespace Cinema.DataAccess.Data
             );
 
 
-            modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
+            //modelBuilder.Entity<OrderDetail>().HasData(orderDetails.ToArray());
         }
     }
 }

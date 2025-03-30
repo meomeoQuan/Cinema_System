@@ -12,7 +12,6 @@ namespace Cinema.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
-
         [Required]
         public int OrderID { get; set; } // Foreign key
         
@@ -24,10 +23,14 @@ namespace Cinema.Models
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; } = 1;
 
-        [Required]
-        [Range(0.00, 999999.99, ErrorMessage = "Price must be a positive value.")]
-        public double Price { get; set; } // Price per unit
 
+
+        public double Price { get; set; }
+
+
+        public string? UserID { get; set; }
+        [ForeignKey("UserID")]
+        public virtual ApplicationUser User { get; set; }
         // Navigation properties
         [ForeignKey("OrderID")]
         [ValidateNever]
@@ -42,5 +45,5 @@ namespace Cinema.Models
         [ForeignKey("ShowtimeSeatID")]
         [ValidateNever]
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
-        }
+    }
     }

@@ -75,6 +75,7 @@ namespace Cinema.DataAccess.DbInitializer
                     PhoneNumberConfirmed = true
                 }, "Staff@123").GetAwaiter().GetResult();
 
+
                 var users = new List<ApplicationUser>
                  {
                      new ApplicationUser { UserName = "user1@gmail.com", Email = "user1@gmail.com", FullName = "User One", PhoneNumber = "1112223334", EmailConfirmed = true, PhoneNumberConfirmed = true },

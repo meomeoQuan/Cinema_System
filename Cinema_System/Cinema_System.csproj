@@ -30,10 +30,6 @@
 	  <ProjectReference Include="..\Cinema.Models\Cinema.Models.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Areas\Admin\Views\Cinemas\" />
-  </ItemGroup>
-
  
   <ItemGroup>
     <ProjectReference Include="..\Cinema.DataAccess\Cinema.DataAccess.csproj" />
