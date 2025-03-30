@@ -33,7 +33,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         {
 
             // Lấy danh sách rạp chiếu phim
-            var cinemas = await _unitOfWork.Cinema
+            var cinemas = await _unitOfWork.
                                 //.Include(t => t.Admin)
                                 .GetAllAsync(includeProperties: "Admin");
 
