@@ -47,7 +47,7 @@ namespace Cinema_System.Areas.Staff.Controllers
                 //    return Unauthorized("QR Code Expired");
                 //}
                 IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderID == OrderID,
-                includeProperties: "User,Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Cinema,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order");
+                includeProperties: "User,Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order");
 
                 // i want to take (Product): Name, Price, Quantity . (ShowtimeSeat.Showtime) : ShowDate (DateTime -> string). (ShowtimeSeat.Showtime.Movie) : Title, Genre, Duration(int -> string ) (ShowtimeSeat.Showtime.Room) : RoomNumber
                 // ShowtimeSeat.Showtime.Room.Cinema -> Name, Address
