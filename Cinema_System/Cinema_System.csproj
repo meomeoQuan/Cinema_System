@@ -29,10 +29,6 @@
     <ProjectReference Include="..\Cinema.Utility\Cinema.Utility.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Areas\Admin\Views\Cinemas\" />
-  </ItemGroup>
-
  
   <ItemGroup>
     <ProjectReference Include="..\Cinema.DataAccess\Cinema.DataAccess.csproj" />
