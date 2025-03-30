@@ -10,7 +10,21 @@ namespace Cinema.Models.ViewModels
 {
     public class MovieDetailVM
     {
-        public Movie Movie { get; set; }
-        public OrderDetail OrderDetail { get; set; }
+        public Movie Movie { get; set; } // hien thi movie
+        public OrderTable OrderTable { get; set; } // de tien toi trang thanh toan 
+        // List to store multiple seats
+      
+        public List<ShowtimeSeat> ShowtimeSeats { get; set; } // hien thi ghe
+
+        
+        //[ValidateNever]
+        //public IEnumerable<SelectListItem> ShowTimes { get; set; }
+        //public List<ShowtimeSeat> ShowtimeSeats { get; set; }
+        public List<Seat> Seats { get; set; }
+        public List<Product> Products { get; set; }
+        public List<Theater> Cinemas { get; set; }
+        public IEnumerable<OrderDetail> orderDetails { get; set; } // this is shopping cart 
+        //public ShoppingCart ShoppingCart { get; set; }
+        public List<Product> products { get; set; } // hien thi food 
     }
 }

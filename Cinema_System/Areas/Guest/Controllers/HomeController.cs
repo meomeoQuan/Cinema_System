@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.Security.Claims;
@@ -9,8 +9,7 @@ using Cinema.Models.ViewModels;
 using Cinema_System.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using QRCoder;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -26,6 +25,9 @@ namespace Cinema_System.Areas.Guest.Controllers
             _unitOfWork = unitOfWork;
           
         }
+        
+
+
         public IActionResult Index()
         {
             
@@ -71,12 +73,10 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
-   
-
-
-
-
-      
+        public async Task<IActionResult> Cart()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Showing()
         {

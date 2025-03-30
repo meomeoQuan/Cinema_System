@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Cinema.Models.ViewModels
 {
-    public class TicketSelectionVM
+    public class ShoppingCartVM
     {
-        public string Category { get; set; }
-        public int Quantity { get; set; }
+        //public IEnumerable<ShoppingCart> ListCart { get; set; }
+        public OrderTable OrderHeader { get; set; }
     }
-
 }

@@ -1,5 +1,267 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Cinema.Utility
+
+@using Cinema_System.Areas.Admin.Controllers
+
+@model IEnumerable<Theater>
+
 @{
+    ViewData["Title"] = "Cinema Management";
 }
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <h3 class="card-title mb-0 text-center fw-bold">Cinema Management</h3>
+            <button id="addTheaterBtn" class="btn btn-primary">
+                <i class=""></i> Add
+            </button>
+
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblData" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+
+                            <th style="width: 15%;">Name</th>
+                            <th style="width: 15%;">Address</th>
+                            <th style="width: 13%;">Admin</th>
+                            <th style="width: 5%;">Space</th>
+                            <th style="width: 11%;">Opening Time</th>
+                            <th style="width: 11%;">Closing Time</th>
+
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var theater in Model)
+                        {
+
+                            <tr data-id="@theater.CinemaID">
+                                <td data-field="Name">@theater.Name</td>
+                                <td data-field="Address">@theater.Name</td>
+                                <td data-field="AdminID">
+                                    @(theater.Admin != null ? theater.Admin.FullName : "Not Assigned")
+
+                                </td>
+                                <td data-field="NumberOfRooms">@theater.NumberOfRooms</td>
+                                <td data-field="OpeningTime">@theater.OpeningTime</td>
+                                <td data-field="ClosingTime">@theater.ClosingTime</td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <a href="/Admin/Rooms/Index?cinemaId=@theater.CinemaID"
+                                           class="btn btn-secondary btn-sm">
+                                            Manage Room
+                                        </a>
+                                        <button class="btn btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn @(theater.Status == CinemaStatus.Open ? "btn-danger" : "btn-success")">
+                                            <i class="bi me-1 @(theater.Status == CinemaStatus.Open ? "bi-lock-fill" : "bi-unlock-fill")"></i>
+                                            @(theater.Status == CinemaStatus.Open ? "Lock" : "Unlock")
+                                        </button>
+                                        <button class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Add Theater Form -->
+
+    <div class="card shadow-sm mt-3 d-none" id="theater-form">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">Add Cinema</h4>
+        </div>
+        <div class="card-body">
+
+            <form id="createCinemaForm">
+
+                <input type="hidden" id="cinemaID">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" id="theaterName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" id="theaterAddress" required>
+                </div>
+                <div class="mb-3">
+
+                    <label class="form-label">Admin</label>
+                    <select class="form-select" id="adminId" required>
+                        @if (ViewBag.Admins != null && ViewBag.Admins.Count > 0)
+                        {
+                            @foreach (var admin in ViewBag.Admins)
+                            {
+                                <option value="@admin.Id">@admin.FullName</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">No admins available</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+
+                    <label class="form-label">Space</label>
+                    <input type="number" class="form-control" id="theaterRooms" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Opening Time</label>
+                    <input type="time" class="form-control" id="theaterOpeningTime" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Closing Time</label>
+                    <input type="time" class="form-control" id="theaterClosingTime" required>
+                </div>
+
+                <button type="submit" class="btn btn-secondary w-100">
+                    <i class="bi bi-check-circle"></i> Submit
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+		$(document).ready(function () {
+			$('#tblData').DataTable({
+				"pageLength": 10,
+				"lengthMenu": [5, 10, 25, 50],
+				"searching": true,
+				"ordering": true,
+				"info": true
+			});
+
+			// Hiển thị / Ẩn form khi nhấn "Add"
+			$('#addTheaterBtn').click(function () {
+				$('#theater-form').toggleClass('d-none');
+			});
+
+
+			$('#createCinemaForm').submit(function(e) {
+			 e.preventDefault();
+
+				var theaterData = {
+					Name: $('#theaterName').val().trim(),
+					Address: $('#theaterAddress').val().trim(),
+                    AdminID: $('#adminId').val().trim(),
+					NumberOfRooms: $('#theaterRooms').val().trim(),
+					OpeningTime: $('#theaterOpeningTime').val().trim(),
+					ClosingTime: $('#theaterClosingTime').val().trim(),
+					__RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+				};
+
+				// Validate required fields
+				if (Object.values(theaterData).some(value => !value)) {
+					toastr.error('All fields are required.');
+					return;
+				}
+
+				$.ajax({
+					url: '/Admin/Cinemas/Create',
+					type: 'POST',
+					data: theaterData,
+					success: function (response) {
+						if (response.success) {
+							toastr.success(response.message);
+							alert('Cinema added successfully.');
+							location.reload();
+						} else {
+							toastr.error(response.message);
+						}
+					},
+					error: function (xhr) {
+						var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+						toastr.error(errorMessage);
+					}
+			});
+		});
+
+
+			// Xử lý khi nhấn "Edit"
+			$('#tblData').on('click', '.edit-btn', function () {
+				var row = $(this).closest('tr');
+				row.find('td[data-field]').each(function () {
+					$(this).attr('contenteditable', 'true').addClass('editable');
+				});
+
+				$(this).removeClass('btn-primary edit-btn').addClass('btn-success save-btn').html('<i class="bi bi-check-circle"></i> Save');
+			});
+
+			// Xử lý khi nhấn "Save"
+			$('#tblData').on('click', '.save-btn', function () {
+				var row = $(this).closest('tr');
+				var id = row.data('id');
+				var updates = [];
+
+				row.find('td[contenteditable="true"]').each(function () {
+					var field = $(this).data('field');
+					var value = $(this).text().trim();
+					updates.push({ field, value });
+					$(this).removeAttr('contenteditable').removeClass('editable');
+				});
+
+				$.ajax({
+					url: '/Admin/Cinemas/UpdateFields',
+					type: 'POST',
+					data: { id, updates, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+					success: function (response) {
+						if (response.success) {
+							toastr.success('Updated successfully');
+						} else {
+							toastr.error('Update failed');
+						}
+					},
+					error: function () {
+						toastr.error('An error occurred');
+					}
+				});
+
+				$(this).removeClass('btn-success save-btn').addClass('btn-primary edit-btn').html('<i class="bi bi-pencil-square"></i> Edit');
+			});
+
+             // Toggle Block/Unlock Status
+            $('.toggle-status-btn').click(function () {
+                var row = $(this).closest('tr');
+                var cinemaId = row.data('id');
+                var button = $(this);
+                var isBlocking = button.hasClass('btn-danger');
+
+                $.ajax({
+                    url: '/Admin/Cinemas/ToggleStatus/' + cinemaId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            button.toggleClass('btn-danger btn-success')
+                                .html('<i class="bi ' + (isBlocking ? 'bi-unlock-fill' : 'bi-lock-fill') + '"></i> ' + (isBlocking ? 'Unlock' : 'Block'));
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('An error occurred while processing your request.');
+                    }
+                });
+            });
+		});
+	</script>
+}
+

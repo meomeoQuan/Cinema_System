@@ -13,7 +13,7 @@ namespace Cinema_System.Areas.Admin.Views.Home
         {
             using (var client = new HttpClient())
             {
-                var response = await client.GetStringAsync("https://localhost:7115/api/home/getmonthlyrevenue");
+                var response = await client.GetStringAsync("https://localhost:7115/api/admin/home/getmonthlyrevenue");
                 MonthlyRevenue = JsonConvert.DeserializeObject<decimal[]>(response);
             }
         }

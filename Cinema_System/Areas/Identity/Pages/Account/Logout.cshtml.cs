@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,21 +23,40 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
         }
-
+        //original code // remmove both authenticate and persistent cookies
+        //public async Task<IActionResult> OnPost(string returnUrl = null)
+        //{
+        //    await _signInManager.SignOutAsync();
+        //    _logger.LogInformation("User logged out.");
+        //    if (returnUrl != null)
+        //    {
+        //        return LocalRedirect(returnUrl);
+        //    }
+        //    else
+        //    {
+        //        // This needs to be a redirect so that the browser performs a new
+        //        // request and the identity for the user gets updated.
+        //        return RedirectToPage();
+        //    }
+        //}
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation("User logged out.");
-            if (returnUrl != null)
+            if (User.Identity.IsAuthenticated)
+            {
+                // Remove only session authentication but keep persistent cookies
+                await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme,
+                    new AuthenticationProperties { IsPersistent = true });
+
+                _logger.LogInformation("User logged out but persistent cookie remains.");
+            }
+
+            if (!string.IsNullOrEmpty(returnUrl))
             {
                 return LocalRedirect(returnUrl);
             }
-            else
-            {
-                // This needs to be a redirect so that the browser performs a new
-                // request and the identity for the user gets updated.
-                return RedirectToPage();
-            }
+
+            return RedirectToPage();
         }
+
     }
 }

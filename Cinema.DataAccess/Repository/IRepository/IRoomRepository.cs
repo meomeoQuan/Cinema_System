@@ -7,10 +7,10 @@ using Cinema.Models;
 
 namespace Cinema.DataAccess.Repository.IRepository
 {
-    public interface IShowTimeSeatRepository : IRepository<ShowtimeSeat>
-        
+
+    public interface IRoomRepository : IRepository<Room>
     {
-       
-        void Update(ShowtimeSeat showtimeSeat);
+        void Update(Room room);
+        Task<IEnumerable<Room>> GetRoomsByCinemaIdAsync(int cinemaId);
     }
 }

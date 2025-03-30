@@ -1,0 +1,163 @@
+﻿@using Cinema_System.Areas.Admin.Controllers
+@model IEnumerable<Room>
+
+@{
+    ViewData["Title"] = "Room Management";
+    int cinemaId = (int)ViewData["CinemaId"];
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 fw-bold">Room Management</h3>
+            <button id="addRoomBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roomModal">Add Room</button>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblData" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Room Number</th>
+                            <th>Cinema</th>
+                            <th>Capacity</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var room in Model)
+                        {
+                            <tr>
+                                <td data-id="@room.RoomID">@room.RoomNumber</td>
+                                <td>@room.Theater?.Address</td>
+                                <td>@room.Capacity</td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <a href="/Admin/Seats/Index?roomId=@room.RoomID" class="btn btn-secondary btn-sm">Manage Seats</a>
+                                        @if (room.Status.ToString() == "Available")
+                                        {
+                                            <button onclick="toggleRoomStatus(@room.RoomID, 'lock')" class="btn btn-danger btn-sm">Lock</button>
+                                        }
+                                        else
+                                        {
+                                            <button onclick="toggleRoomStatus(@room.RoomID, 'unlock')" class="btn btn-success btn-sm">Unlock</button>
+                                        }
+                                        <button onclick="editRoom(@room.RoomID)" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#roomModal">Edit</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">No rooms found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Room Modal -->
+<div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roomModalLabel">Add/Edit Room</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="roomForm">
+                    <input type="hidden" id="roomId" />
+                    <div class="mb-3">
+                        <label class="form-label">Room Number</label>
+                        <input type="text" class="form-control" id="roomNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Capacity</label>
+                        <input type="number" class="form-control" id="roomCapacity" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tblData').DataTable();
+        });
+
+        function editRoom(roomId) {
+            $.ajax({
+                url: `/Admin/Rooms/GetRoom/${roomId}`,
+                type: 'GET',
+                success: function (room) {
+                    $('#roomId').val(room.roomID);
+                    $('#roomNumber').val(room.roomNumber);
+                    $('#roomCapacity').val(room.capacity);
+                    $('#roomModalLabel').text('Edit Room');
+                },
+                error: function () {
+                    alert("Error retrieving room details.");
+                }
+            });
+        }
+
+        $('#roomForm').submit(function (e) {
+            e.preventDefault();
+            let roomData = {
+                RoomID: $('#roomId').val(),
+                RoomNumber: $('#roomNumber').val(),
+                Capacity: $('#roomCapacity').val(),
+                CinemaId: @cinemaId
+            };
+
+            $.ajax({
+                url: '/Admin/Rooms/Save',
+                type: 'POST',
+                data: JSON.stringify(roomData),
+                contentType: 'application/json',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("Error saving room.");
+                }
+            });
+        });
+
+        function toggleRoomStatus(roomId, action) {
+            if (!confirm(`Are you sure you want to ${action} this room?`)) return;
+
+            $.ajax({
+                url: `/Admin/Rooms/${action}/${roomId}`,
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert(`Error trying to ${action} the room.`);
+                }
+            });
+        }
+    </script>
+}
