@@ -41,6 +41,7 @@ namespace Cinema_System.Areas.Admin.Controllers
     {
         // Fetch monthly revenue data from the database
         var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
+            
         var monthlyRevenue = revenueData
             .GroupBy(o => o.CreatedAt.Month)
             .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
