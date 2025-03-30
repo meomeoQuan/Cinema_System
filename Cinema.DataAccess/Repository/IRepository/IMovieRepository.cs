@@ -11,5 +11,6 @@ namespace Cinema.DataAccess.Repository.IRepository
     {
       
         void Update(Movie movie);
+        Task<IEnumerable<Movie>> SearchAsync(string searchTerm, bool? isUpcoming = null);
     }
 }

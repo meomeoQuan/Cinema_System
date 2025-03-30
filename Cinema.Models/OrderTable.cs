@@ -15,7 +15,8 @@ namespace Cinema.Models
         public int OrderID { get; set; }
 
 
-        //[Required]
+
+        [Required]
         public string? UserID { get; set; } // IdentityUser uses string as primary key
 
         [Required]
