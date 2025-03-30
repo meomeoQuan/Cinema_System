@@ -13,8 +13,8 @@ namespace Cinema.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
 
-        [Required]
-        public int ? OrderID { get; set; } // Foreign key
+        public int? OrderID { get; set; } // 
+
 
         [NotMapped] // Không lưu vào database
         public string TempId { get; set; } // Dùng cho session
@@ -38,36 +38,6 @@ namespace Cinema.Models
         //public int UserId { get; set; }
 
         [Required]
-        public int MovieId { get; set; }
-
-        [Required]
-        public string MovieName { get; set; }
-
-        [Required]
-        public string Date { get; set; }
-
-        [Required]
-        public string City { get; set; }
-
-        [Required]
-        public string Cinema { get; set; }
-
-        [Required]
-        public string Showtime { get; set; }
-
-        [Required]
-        public int RoomId { get; set; } // Added RoomId
-
-        [Required]
-        public string RoomName { get; set; } // Added RoomName
-
-
-
-
-   
-
-
-        [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; } = 1;
 
@@ -77,8 +47,9 @@ namespace Cinema.Models
 
 
         // List of selected tickets (multiple seats possible)
-        [NotMapped]
-        public List<TicketSelectionVM> Tickets { get; set; } = new List<TicketSelectionVM>();
+
+        //[NotMapped]
+        //public List<TicketSelectionVM> Tickets { get; set; } = new List<TicketSelectionVM>();
 
         // List of selected food items (multiple items possible)
         [NotMapped]
@@ -94,7 +65,7 @@ namespace Cinema.Models
         [ForeignKey("OrderID")]
         [ValidateNever]
         [InverseProperty("OrderDetails")]
-        public virtual OrderTable Order { get; set; }
+        public virtual OrderTable? Order { get; set; }
 
         [ForeignKey("ProductId")]
         [ValidateNever]
