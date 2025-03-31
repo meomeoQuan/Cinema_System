@@ -1,0 +1,166 @@
+﻿@using Cinema.Utility
+@using Cinema_System.Areas.Admin.Controllers
+@model IEnumerable<Seat>
+
+@{
+    ViewData["Title"] = "Seat Management";
+    int roomId = ViewData["RoomId"] as int? ?? 0;
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 fw-bold">Seat Management</h3>
+            <button id="addSeatBtn" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add Seat</button>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblData" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Seat Number</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            @foreach (var seat in Model)
+                            {
+                                <tr>
+                                    <td>@(seat?.Row)@(seat?.ColumnNumber)</td>
+                                    <td class="text-center">
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            @if (seat?.Status == SeatStatus.Available)
+                                            {
+                                                <button onclick="toggleSeatStatus(@seat.SeatID, 'lock')"
+                                                        class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-lock"></i> Lock
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button onclick="toggleSeatStatus(@seat.SeatID, 'unlock')"
+                                                        class="btn btn-outline-success btn-sm">
+                                                    <i class="fas fa-unlock"></i> Unlock
+                                                </button>
+                                            }
+                                            <button onclick="editSeat(@seat.SeatID)"
+                                                    class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center">No seats found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Seat Form (Ẩn ban đầu) -->
+<div class="card shadow-sm mt-3 d-none" id="seat-form">
+    <div class="card-header bg-primary text-white text-center">
+        <h4 class="mb-0">Add Seat</h4>
+    </div>
+    <div class="card-body">
+        <form id="createSeatForm">
+            <input type="hidden" id="seatId">
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Row</label>
+                    <input type="text" class="form-control" id="seatRow" required maxlength="1" pattern="[A-Za-z]">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Column Number</label>
+                    <input type="number" class="form-control" id="seatColumn" required min="1">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-secondary w-100 mt-3">
+                <i class="bi bi-check-circle"></i> Submit
+            </button>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "info": true
+            });
+
+            $('#addSeatBtn').click(function () {
+                $('#seat-form').toggleClass('d-none'); // Hiển thị hoặc ẩn form nhập ghế
+            });
+        });
+
+        function toggleSeatStatus(seatId, action) {
+            fetch(`/Admin/Seat/ToggleStatus?seatId=${seatId}&action=${action}`, {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+
+        function editSeat(seatId) {
+            fetch(`/Admin/Seat/GetSeatById?seatId=${seatId}`)
+                .then(response => response.json())
+                .then(data => {
+                    $('#seatId').val(data.seatId);
+                    $('#seatRow').val(data.row);
+                    $('#seatColumn').val(data.columnNumber);
+                    $('#seat-form').removeClass('d-none'); // Hiển thị form để sửa
+                });
+        }
+
+        $('#createSeatForm').submit(function(e) {
+            e.preventDefault();
+
+            var seatData = {
+                SeatID: $('#seatId').val() || 0,
+                Row: $('#seatRow').val(),
+                ColumnNumber: $('#seatColumn').val(),
+                RoomID: @roomId
+            };
+
+            $.ajax({
+                url: '/Admin/Seat/SaveSeat',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(seatData),
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        location.reload();
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                    toastr.error(errorMessage);
+                }
+            });
+        });
+    </script>
+}
