@@ -54,10 +54,20 @@
                                            class="btn btn-secondary btn-sm">
                                             Manage Room
                                         </a>
-                                        <button class="btn btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn @(theater.Status == CinemaStatus.Open ? "btn-danger" : "btn-success")">
-                                            <i class="bi me-1 @(theater.Status == CinemaStatus.Open ? "bi-lock-fill" : "bi-unlock-fill")"></i>
-                                            @(theater.Status == CinemaStatus.Open ? "Lock" : "Unlock")
-                                        </button>
+                                        @if (theater.Status == CinemaStatus.Open)
+                                        {
+                                            <button class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn"
+                                                    data-id="@theater.CinemaID">
+                                                <i class="bi bi-lock-fill me-1"></i>CLOSE
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-success btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn"
+                                                    data-id="@theater.CinemaID">
+                                                <i class="bi bi-unlock-fill me-1"></i>OPEN
+                                            </button>
+                                        }
                                         <button class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
                                             <i class="bi bi-pencil-square me-1"></i> Edit
                                         </button>
@@ -146,22 +156,28 @@
 				"info": true
 			});
 
-			// Hiển thị / Ẩn form khi nhấn "Add"
+            // Show user form on Add button click
 			$('#addTheaterBtn').click(function () {
 				$('#theater-form').toggleClass('d-none');
 			});
 
-
+            $('#theaterRooms').on('input', function () {
+                let value = $(this).val();
+                if (value < 1) {
+                    $(this).val(1); // Tự động đặt giá trị về 1 nếu nhập số âm hoặc 0
+                }
+            });
+            // Handle form submission
 			$('#createCinemaForm').submit(function(e) {
 			 e.preventDefault();
 
 				var theaterData = {
-					Name: $('#theaterName').val().trim(),
-					Address: $('#theaterAddress').val().trim(),
-                    AdminID: $('#adminId').val().trim(),
-					NumberOfRooms: $('#theaterRooms').val().trim(),
-					OpeningTime: $('#theaterOpeningTime').val().trim(),
-					ClosingTime: $('#theaterClosingTime').val().trim(),
+					Name: $('#theaterName').val(),
+					Address: $('#theaterAddress').val(),
+                    AdminID: $('#adminId').val(),
+					NumberOfRooms: $('#theaterRooms').val(),
+					OpeningTime: $('#theaterOpeningTime').val(),
+					ClosingTime: $('#theaterClosingTime').val(),
 					__RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
 				};
 
@@ -202,65 +218,82 @@
 				$(this).removeClass('btn-primary edit-btn').addClass('btn-success save-btn').html('<i class="bi bi-check-circle"></i> Save');
 			});
 
-			// Xử lý khi nhấn "Save"
-			$('#tblData').on('click', '.save-btn', function () {
-				var row = $(this).closest('tr');
-				var id = row.data('id');
-				var updates = [];
+            // Inline editing
+            $('#tblData').on('click', '.save-btn', function () {
+            var row = $(this).closest('tr');
+            var id = row.data('id');
+            var token = $('input[name="__RequestVerificationToken"]').val();
 
-				row.find('td[contenteditable="true"]').each(function () {
-					var field = $(this).data('field');
-					var value = $(this).text().trim();
-					updates.push({ field, value });
-					$(this).removeAttr('contenteditable').removeClass('editable');
-				});
-
-				$.ajax({
-					url: '/Admin/Cinemas/UpdateFields',
-					type: 'POST',
-					data: { id, updates, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
-					success: function (response) {
-						if (response.success) {
-							toastr.success('Updated successfully');
-						} else {
-							toastr.error('Update failed');
-						}
-					},
-					error: function () {
-						toastr.error('An error occurred');
-					}
-				});
-
-				$(this).removeClass('btn-success save-btn').addClass('btn-primary edit-btn').html('<i class="bi bi-pencil-square"></i> Edit');
-			});
-
-             // Toggle Block/Unlock Status
-            $('.toggle-status-btn').click(function () {
-                var row = $(this).closest('tr');
-                var cinemaId = row.data('id');
-                var button = $(this);
-                var isBlocking = button.hasClass('btn-danger');
+            row.find('td[contenteditable="true"]').each(function () {
+                var field = $(this).data('field');
+                var value = $(this).text().trim();
 
                 $.ajax({
-                    url: '/Admin/Cinemas/ToggleStatus/' + cinemaId,
+                    url: '/Admin/Cinemas/UpdateTheaterField',
                     type: 'POST',
-                    headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    data: {
+                        id: id,
+                        field: field,
+                        value: value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                     },
                     success: function (response) {
                         if (response.success) {
+                            toastr.success(`Updated successfully`);
+                        } else {
+                            toastr.error(`Failed to update ${field}: ${response.message}`);
+                        }
+                    },
+                    error: function () {
+                        toastr.error(`Error updating ${field}`);
+                    }
+                });
+            });
+
+            // Đổi nút về trạng thái "Edit"
+            row.find('td[contenteditable="true"]').removeAttr('contenteditable').removeClass('editable');
+            $(this).removeClass('btn-success save-btn').addClass('btn-primary edit-btn').html('<i class="bi bi-pencil-square"></i> Edit');
+        });
+
+
+                    $(document).ready(function () {
+            $('#tblData').on('click', '.toggle-status-btn', function () {
+                var button = $(this);
+                var cinemaId = button.data('id');
+                var isClosing = button.hasClass("btn-danger");
+                var confirmMessage = isClosing ? "Are you sure you want to close this cinema?" : "Are you sure you want to open this cinema?";
+
+                if (!confirm(confirmMessage)) return;
+
+                $.ajax({
+                    url: '/Admin/Cinemas/ToggleCinemaStatus',
+                    type: 'POST',
+                    data: { id: cinemaId, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (response) {
+                        if (response.success) {
                             toastr.success(response.message);
-                            button.toggleClass('btn-danger btn-success')
-                                .html('<i class="bi ' + (isBlocking ? 'bi-unlock-fill' : 'bi-lock-fill') + '"></i> ' + (isBlocking ? 'Unlock' : 'Block'));
+
+                            // Đổi class và nội dung nút
+                            if (isClosing) {
+                                button.removeClass('btn-danger').addClass('btn-success')
+                                      .html('<i class="bi bi-unlock-fill me-1"></i>OPEN');
+                            } else {
+                                button.removeClass('btn-success').addClass('btn-danger')
+                                      .html('<i class="bi bi-lock-fill me-1"></i>CLOSE');
+                            }
                         } else {
                             toastr.error(response.message);
                         }
                     },
-                    error: function () {
-                        toastr.error('An error occurred while processing your request.');
+                    error: function (xhr) {
+                        var errorMessage = xhr.responseJSON?.message || "An error occurred while processing your request.";
+                        toastr.error(errorMessage);
                     }
                 });
             });
+        });
+
+
 		});
 	</script>
 }
