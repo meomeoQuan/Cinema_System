@@ -9,48 +9,45 @@
 <div class="container-fluid mt-4">
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 fw-bold">Room Management</h3>
-            <button id="addRoomBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roomModal">Add Room</button>
+            <h3 class="card-title mb-0 text-center fw-bold">Room Management</h3>
+            <button id="addRoomBtn" class="btn btn-primary">Add Room</button>
         </div>
 
         <div class="card-body">
+
             <div class="table-responsive">
                 <table id="tblData" class="table table-bordered table-hover table-striped">
                     <thead class="thead-light">
                         <tr>
-                            <th>Room Number</th>
-                            <th>Cinema</th>
-                            <th>Capacity</th>
-                            <th class="text-center">Actions</th>
+                            <th style="width: 15%;">Room Number</th>
+                            <th style="width: 30%;">Cinema</th>
+                            <th style="width: 10%;">Capacity</th>
+                            <th style="width: 45%;" class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var room in Model)
                         {
                             <tr>
-                                <td data-id="@room.RoomID">@room.RoomNumber</td>
-                                <td>@room.Theater?.Address</td>
+                                <td>@room.RoomNumber</td>
+                                <td>@room.Theater.Address</td>
                                 <td>@room.Capacity</td>
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <a href="/Admin/Seats/Index?roomId=@room.RoomID" class="btn btn-secondary btn-sm">Manage Seats</a>
-                                        @if (room.Status.ToString() == "Available")
-                                        {
-                                            <button onclick="toggleRoomStatus(@room.RoomID, 'lock')" class="btn btn-danger btn-sm">Lock</button>
-                                        }
-                                        else
-                                        {
-                                            <button onclick="toggleRoomStatus(@room.RoomID, 'unlock')" class="btn btn-success btn-sm">Unlock</button>
-                                        }
-                                        <button onclick="editRoom(@room.RoomID)" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#roomModal">Edit</button>
-                                    </div>
+                                        <button onclick="manageSeats('@room.RoomID')" class="btn btn-secondary btn-sm rounded-3">Manage Seat</button>
+       
+                                        <button class="btn btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn @(room.Status == RoomStatus.Available ? "btn-danger" : "btn-success")">
+                                            <i class="bi me-1 @(room.Status == RoomStatus.Available ? "bi-lock-fill" : "bi-unlock-fill")"></i>
+                                            @(room.Status == RoomStatus.Available ? "Lock" : "Unlock")
+                                        </button>
+                                        <button class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </button>
+
                                 </td>
-                            </tr>
-                        }
-                        @if (!Model.Any())
-                        {
-                            <tr>
-                                <td colspan="4" class="text-center">No rooms found.</td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        
                             </tr>
                         }
                     </tbody>
@@ -58,106 +55,94 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Room Modal -->
-<div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="roomModalLabel">Add/Edit Room</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="roomForm">
-                    <input type="hidden" id="roomId" />
-                    <div class="mb-3">
-                        <label class="form-label">Room Number</label>
-                        <input type="text" class="form-control" id="roomNumber" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Capacity</label>
-                        <input type="number" class="form-control" id="roomCapacity" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Save</button>
-                </form>
-            </div>
+    <!-- Room Form (Hidden by Default) -->
+    <div class="card shadow-sm mt-3 d-none" id="room-form">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">Add New Room</h4>
+        </div>
+        <div class="card-body">
+            <form id="createRoomForm">
+                <div class="mb-3">
+                    <label class="form-label">Room Number</label>
+                    <input type="text" class="form-control" id="roomNumber" name="RoomNumber" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Capacity</label>
+                    <input type="number" class="form-control" id="roomCapacity" name="Capacity" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Create Room</button>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#tblData').DataTable();
-        });
-
-        function editRoom(roomId) {
-            $.ajax({
-                url: `/Admin/Rooms/GetRoom/${roomId}`,
-                type: 'GET',
-                success: function (room) {
-                    $('#roomId').val(room.roomID);
-                    $('#roomNumber').val(room.roomNumber);
-                    $('#roomCapacity').val(room.capacity);
-                    $('#roomModalLabel').text('Edit Room');
-                },
-                error: function () {
-                    alert("Error retrieving room details.");
-                }
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "info": true
             });
-        }
 
-        $('#roomForm').submit(function (e) {
-            e.preventDefault();
-            let roomData = {
-                RoomID: $('#roomId').val(),
-                RoomNumber: $('#roomNumber').val(),
-                Capacity: $('#roomCapacity').val(),
-                CinemaId: @cinemaId
-            };
 
-            $.ajax({
-                url: '/Admin/Rooms/Save',
-                type: 'POST',
-                data: JSON.stringify(roomData),
-                contentType: 'application/json',
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert(response.message);
+
+
+            $('#addRoomBtn').click(function () {
+                $('#room-form').toggleClass('d-none');
+            });
+
+            $('#createRoomForm').submit(function (e) {
+                e.preventDefault();
+
+                let roomNumber = $('#roomNumber').val().trim();
+                let roomCapacity = parseInt($('#roomCapacity').val(), 10);
+
+                if (!roomNumber) {
+                    toastr.error("Room Number is required.");
+                    return;
+                }
+                if (isNaN(roomCapacity) || roomCapacity < 10 || roomCapacity % 10 !== 0) {
+                    toastr.error("Capacity must be at least 10 and a multiple of 10.");
+                    return;
+                }
+
+                const roomData = {
+                    RoomNumber: roomNumber,
+                    Capacity: roomCapacity,
+                    CinemaID: @Html.Raw(Json.Serialize(cinemaId))
+                };
+
+                $.ajax({
+                    url: '/Admin/Rooms/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(roomData),
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success('Room created successfully');
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message);
+                            if (response.errors) {
+                                response.errors.forEach(err => toastr.error(err));
+                            }
+                        }
+                    },
+                    error: function (xhr) {
+                        toastr.error('Error creating room.');
+                        console.error(xhr.responseText);
                     }
-                },
-                error: function () {
-                    alert("Error saving room.");
-                }
+                });
             });
         });
-
-        function toggleRoomStatus(roomId, action) {
-            if (!confirm(`Are you sure you want to ${action} this room?`)) return;
-
-            $.ajax({
-                url: `/Admin/Rooms/${action}/${roomId}`,
-                type: 'POST',
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert(response.message);
-                    }
-                },
-                error: function () {
-                    alert(`Error trying to ${action} the room.`);
-                }
-            });
-        }
     </script>
 }
+@Html.AntiForgeryToken()
