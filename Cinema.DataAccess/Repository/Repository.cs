@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1;
 
 namespace Cinema.DataAccess.Repository
 {
@@ -169,8 +170,10 @@ namespace Cinema.DataAccess.Repository
             return query.ToList();
         }
 
-     
-
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await dbSet.AnyAsync(predicate);
+        }
     }
 
 }

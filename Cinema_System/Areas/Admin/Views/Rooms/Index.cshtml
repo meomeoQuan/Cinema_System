@@ -10,7 +10,7 @@
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title mb-0 text-center fw-bold">Room Management</h3>
-            <button id="addRoomBtn" class="btn btn-primary">Add Room</button>
+            <button id="addRoomBtn" class="btn btn-primary">Add</button>
         </div>
 
         <div class="card-body">
@@ -26,27 +26,27 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @* onclick="manageSeats('@room.RoomID')" *@
                         @foreach (var room in Model)
                         {
                             <tr>
-                                <td>@room.RoomNumber</td>
+                                <td data-id="@room.RoomID" data-field="RoomNumber">@room.RoomNumber</td>
                                 <td>@room.Theater.Address</td>
-                                <td>@room.Capacity</td>
+                                <td data-id="@room.RoomID" data-field="Capacity">@room.Capacity</td>
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <button onclick="manageSeats('@room.RoomID')" class="btn btn-secondary btn-sm rounded-3">Manage Seat</button>
-       
-                                        <button class="btn btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn @(room.Status == RoomStatus.Available ? "btn-danger" : "btn-success")">
+                                        <a href="/Admin/Seats/Index?roomId=@room.RoomID" class="btn btn-secondary btn-sm rounded-3">Manage Seat</a>
+
+                                        <button onclick="lockRoom('@room.RoomID', this)" class="btn btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn @(room.Status == RoomStatus.Available ? "btn-danger" : "btn-success")">
                                             <i class="bi me-1 @(room.Status == RoomStatus.Available ? "bi-lock-fill" : "bi-unlock-fill")"></i>
                                             @(room.Status == RoomStatus.Available ? "Lock" : "Unlock")
                                         </button>
-                                        <button class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
+                                        <button onclick="enableEdit(this)" class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
                                             <i class="bi bi-pencil-square me-1"></i> Edit
                                         </button>
-
+                                     </div>
                                 </td>
-                                <td class="text-center">
-                                    <div class="d-flex gap-2 justify-content-center">
+
                                         
                             </tr>
                         }
@@ -71,7 +71,7 @@
                     <label class="form-label">Capacity</label>
                     <input type="number" class="form-control" id="roomCapacity" name="Capacity" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Create Room</button>
+                <button type="submit" class="btn btn-secondary w-100 mt-3"> Submit </button>
             </form>
         </div>
     </div>
@@ -82,42 +82,64 @@
     <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/natural.js"></script>
     <script>
         $(document).ready(function () {
             $('#tblData').DataTable({
                 "pageLength": 10,
-                "lengthMenu": [5, 10, 25, 50],
                 "searching": true,
                 "ordering": true,
-                "info": true
+                "columnDefs": [
+                    { "type": "natural", "targets": 0 } // Apply natural sorting to RoomNumber (column index 0)
+                ]
             });
-
-
-
 
             $('#addRoomBtn').click(function () {
                 $('#room-form').toggleClass('d-none');
             });
 
+            // Inline editing
+            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
+                var id = $(this).data('id');
+                var field = $(this).data('field');
+                var value = $(this).text().trim();
+
+                if (!value) {
+                    toastr.error('Field cannot be empty.');
+                    return;
+                }
+
+                // $.post('/Admin/Rooms/UpdateField', data, function (response) {
+                //     response.success ? toastr.success(response.message) : toastr.error(response.message);
+                //     if (response.success) setTimeout(() => location.reload(), 1000);
+                // }, 'json');
+                $.ajax({
+                    url: '/Admin/Rooms/UpdateField',
+                    type: 'POST',
+                    data: {
+                        id,
+                        field,
+                        value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    }, 
+                    success: function(response) {
+                        response.success ? toastr.success(response.message) : toastr.error(response.message);
+                        if (response.success) setTimeout(() => location.reload(), 1000);
+                    },
+                    error: function(xhr) {
+                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
+                    }
+                });
+
+            });            
+
             $('#createRoomForm').submit(function (e) {
                 e.preventDefault();
-
-                let roomNumber = $('#roomNumber').val().trim();
-                let roomCapacity = parseInt($('#roomCapacity').val(), 10);
-
-                if (!roomNumber) {
-                    toastr.error("Room Number is required.");
-                    return;
-                }
-                if (isNaN(roomCapacity) || roomCapacity < 10 || roomCapacity % 10 !== 0) {
-                    toastr.error("Capacity must be at least 10 and a multiple of 10.");
-                    return;
-                }
-
-                const roomData = {
-                    RoomNumber: roomNumber,
-                    Capacity: roomCapacity,
-                    CinemaID: @Html.Raw(Json.Serialize(cinemaId))
+                let roomData = {
+                    RoomNumber: $('#roomNumber').val().trim(),
+                    Capacity: parseInt($('#roomCapacity').val(), 10),
+                    // CinemaID: @Html.Raw(Json.Serialize(cinemaId))
+					CinemaID: @cinemaId
                 };
 
                 $.ajax({
@@ -125,24 +147,81 @@
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(roomData),
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
                     success: function (response) {
                         if (response.success) {
-                            toastr.success('Room created successfully');
-                            setTimeout(() => location.reload(), 1500);
+                            toastr.success(response.message);
+                            setTimeout(() => location.reload(), 1000);
                         } else {
                             toastr.error(response.message);
-                            if (response.errors) {
-                                response.errors.forEach(err => toastr.error(err));
-                            }
                         }
                     },
                     error: function (xhr) {
-                        toastr.error('Error creating room.');
-                        console.error(xhr.responseText);
+                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
                     }
                 });
             });
         });
+
+        function lockRoom(roomId, button) {
+            if (confirm('Are you sure you want to lock this room and update maintenance status?')) {
+                $.ajax({
+                    url: '/Admin/Rooms/Lock/' + roomId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $(button).removeClass('btn-danger').addClass('btn-success').html('<i class="bi bi-unlock-fill me-1"></i>UNLOCK').attr('onclick', 'unlockRoom(\'' + roomId + '\', this)');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
+        }
+        function unlockRoom(roomId, button) {
+            if (confirm('Are you sure you want to unlock this this room and update available status?')) {
+                $.ajax({
+                    url: '/Admin/Rooms/Unlock/' + roomId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $(button).removeClass('btn-success').addClass('btn-danger').html('<i class="bi bi-lock-fill me-1"></i>LOCK').attr('onclick', 'lockRoom(\'' + roomId + '\', this)');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
+        }
+        function enableEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
+            $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
+        }
+
+        function saveEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
+            $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
+        }
     </script>
 }
 @Html.AntiForgeryToken()
