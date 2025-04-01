@@ -96,6 +96,7 @@
 					<div class="col-md-6">
 						<label class="form-label">Room Number</label>
 						<select class="form-select" id="scheduleRoomNumber" required>
+                         
 							<option value="">Select Cinema First</option>
 						</select>
 					</div>
@@ -213,7 +214,6 @@
                     .html('<i class="bi bi-pencil-square"></i> Edit');
             });
 
-            // Load Rooms Based on Selected Cinema
             function loadRooms(cinemaId) {
                 if (!cinemaId) {
                     $('#scheduleRoomNumber').html('<option value="">Select Cinema First</option>');

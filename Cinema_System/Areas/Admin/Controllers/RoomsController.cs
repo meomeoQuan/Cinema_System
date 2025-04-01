@@ -18,16 +18,10 @@ namespace Cinema_System.Areas.Admin.Controllers
     public class RoomsController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public RoomsController(IUnitOfWork unitOfWork,
-                               UserManager<IdentityUser> userManager,
-                               RoleManager<IdentityRole> roleManager)
+        public RoomsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _userManager = userManager;
-            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> Index(int cinemaId)
