@@ -63,13 +63,13 @@ namespace Cinema_System.Areas.Admin.Controllers
                 try
                 {
                     // Kiểm tra tên rạp đã tồn tại chưa
-                    if (_unitOfWork.Cinema.GetAllAsync(c => c.Name == theater.Name) != null)
+                    if (_unitOfWork.Cinema.Get(c => c.Name == theater.Name) != null)
                     {
                         return Json(new { success = false, message = "Theater name already exists." });
                     }
 
                     // Kiểm tra địa chỉ rạp đã tồn tại chưa
-                    if (_unitOfWork.Cinema.GetAllAsync(c => c.Address == theater.Address) != null)
+                    if (_unitOfWork.Cinema.Get(c => c.Address == theater.Address) != null)
                     {
                         return Json(new { success = false, message = "Theater address already exists." });
                     }

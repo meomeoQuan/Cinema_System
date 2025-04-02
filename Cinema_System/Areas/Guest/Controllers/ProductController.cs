@@ -55,7 +55,7 @@ namespace Cinema_System.Areas.Guest.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
-            var product = await _productRepo.GetFirstOrDefaultAsync(p => p.ProductID == productId);
+            var product = await _productRepo.GetAsync(p => p.ProductID == productId);
             if (product == null || product.Quantity < quantity)
             {
                 TempData["Error"] = "Sản phẩm không có sẵn hoặc không đủ số lượng";
@@ -70,7 +70,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                 var cartItem = await _context.OrderDetails
                     .FirstOrDefaultAsync(od =>
                         od.UserId == userId &&
-                        od.ProductId == productId &&
+                        od.ProductID == productId &&
                         od.OrderID == null);
 
                 if (cartItem != null)
@@ -86,24 +86,13 @@ namespace Cinema_System.Areas.Guest.Controllers
                     {
                         OrderID = null,
                         UserId = userId,
-                        ProductId = product.ProductID,
-                        ProductName = product.Name,
+                        ProductID = product.ProductID,
                         Price = product.Price,
                         Quantity = quantity,
                         TotalPrice = product.Price * quantity,
 
-                        // Các trường bắt buộc về thông tin phim
-                        MovieId = defaultShowInfo.MovieId,
-                        MovieName = defaultShowInfo.MovieName,
-                        Date = defaultShowInfo.Date,
-                        City = defaultShowInfo.City,
-                        Cinema = defaultShowInfo.Cinema,
-                        Showtime = defaultShowInfo.Showtime,
-                        RoomId = defaultShowInfo.RoomId,
-                        RoomName = defaultShowInfo.RoomName,
-
                         // Các trường NotMapped sẽ không được lưu vào database
-                        Tickets = new List<TicketSelectionVM>(),
+        
                         FoodItems = new List<FoodSelectionVM>()
                     });
                 }
@@ -113,7 +102,7 @@ namespace Cinema_System.Areas.Guest.Controllers
             {
                 // Chưa đăng nhập - lưu vào session
                 var cartItems = GetSessionCart();
-                var existingItem = cartItems.FirstOrDefault(i => i.ProductId == productId);
+                var existingItem = cartItems.FirstOrDefault(i => i.ProductID == productId);
 
                 if (existingItem != null)
                 {
@@ -125,8 +114,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                     cartItems.Add(new OrderDetail
                     {
                         TempId = Guid.NewGuid().ToString(),
-                        ProductId = productId,
-                        ProductName = product.Name,
+                        ProductID = productId,
                         Price = product.Price,
                         Quantity = quantity,
                         TotalPrice = product.Price * quantity,
@@ -229,14 +217,14 @@ namespace Cinema_System.Areas.Guest.Controllers
                 viewModel.SessionItems = GetSessionCart();
 
                 // Lấy thông tin Product cho session items
-                var productIds = viewModel.SessionItems.Select(i => i.ProductId).ToList();
+                var productIds = viewModel.SessionItems.Select(i => i.ProductID).ToList();
                 var products = _productRepo.GetAll()
                     .Where(p => productIds.Contains(p.ProductID))
                     .ToList();
 
                 foreach (var item in viewModel.SessionItems)
                 {
-                    item.Product = products.FirstOrDefault(p => p.ProductID == item.ProductId);
+                    item.Product = products.FirstOrDefault(p => p.ProductID == item.ProductID);
                 }
             }
 

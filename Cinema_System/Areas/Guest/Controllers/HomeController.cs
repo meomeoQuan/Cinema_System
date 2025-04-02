@@ -46,18 +46,18 @@ namespace Cinema_System.Areas.Guest.Controllers
         //    return View(movies);
         //}
 
-        [HttpGet]
-        public async Task<IActionResult> Index(string term)
-        {
-            // nhap tu khoa tim kim
-            if (!string.IsNullOrEmpty(term))
-            {
-                var movies = await _unitOfWork.Movie.SearchAsync(term);
-                ViewBag.SearchTerm = term; // giu lai tu khoa tim kiem
-                return View(movies);
-            }
-            return View(new List<Movie>());
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> Index(string term)
+        //{
+        //    // nhap tu khoa tim kim
+        //    if (!string.IsNullOrEmpty(term))
+        //    {
+        //        var movies = await _unitOfWork.Movie.SearchAsync(term);
+        //        ViewBag.SearchTerm = term; // giu lai tu khoa tim kiem
+        //        return View(movies);
+        //    }
+        //    return View(new List<Movie>());
+        //}
 
         //[HttpGet]
         //public async Task<IActionResult> Index(string term)

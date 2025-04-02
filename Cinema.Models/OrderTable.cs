@@ -17,7 +17,7 @@ namespace Cinema.Models
 
 
         [Required]
-        public string? UserID { get; set; } // IdentityUser uses string as primary key
+        public string UserID { get; set; } // IdentityUser uses string as primary key
 
         [Required]
         [EnumDataType(typeof(OrderStatus))]
