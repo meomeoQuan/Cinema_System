@@ -24,8 +24,8 @@ namespace Cinema.Models
         public string? AgeLimit { get; set; }
         public bool IsUpcomingMovie { get; set; }
         //public string Actor { get; set; }
-        public DateTime ? CreatedAt { get; set; } 
-        public DateTime ? UpdatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         [InverseProperty("Movie")]
         public virtual ICollection<ShowTime> ShowTimes { get; set; } = new List<ShowTime>();
         [ValidateNever]

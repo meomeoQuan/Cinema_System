@@ -34,7 +34,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             ViewData["CinemaId"] = cinemaId;
 
             var list = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
-            
+
             return View(list);
         }
 
@@ -161,7 +161,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         private async Task CreateSeats(int roomId, int numberOfRows, int seatsPerRow)
         {
             var seats = GenerateSeatList(roomId, numberOfRows, seatsPerRow);
-            
+
             foreach (var seat in seats)
             {
                 _unitOfWork.Seat.Add(seat);
@@ -169,7 +169,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             await _unitOfWork.SaveAsync();
         }
 
-        
+
         private List<Seat> GenerateSeatList(int roomId, int numberOfRows, int seatsPerRow)
         {
             var seats = new List<Seat>();
@@ -191,6 +191,17 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
 
             return seats;
+        }
+
+        private string ConvertToLetter(int index)
+        {
+            string result = "";
+            while (index >= 0)
+            {
+                result = (char)('A' + (index % 26)) + result;
+                index = (index / 26) - 1;
+            }
+            return result;
         }
 
         private async Task AddSeats(int roomId, int seatsToAdd)
@@ -228,18 +239,6 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork.Seat.RemoveRange(seatsToDelete);
 
             await _unitOfWork.SaveAsync();
-        }
-
-
-        private string ConvertToLetter(int index)
-        {
-            string result = "";
-            while (index >= 0)
-            {
-                result = (char)('A' + (index % 26)) + result;
-                index = (index / 26) - 1;
-            }
-            return result;
         }
 
         [HttpPost]
@@ -385,7 +384,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return $"Cannot add more rooms. Cinema can only have {existingCinema.NumberOfRooms} rooms.";
             }
 
-            return null; 
+            return null;
         }
 
 

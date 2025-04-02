@@ -22,9 +22,9 @@ namespace Cinema.Models
         [EnumDataType(typeof(ProductType))]
         public ProductType ProductType { get; set; }
         [Required]
-        
+
         [Range(0.00, 9999999.99, ErrorMessage = "Price must be a positive value.")]
-        public double Price { get; set; } 
+        public double Price { get; set; }
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative.")]
         public int Quantity { get; set; } = 0;
@@ -36,6 +36,7 @@ namespace Cinema.Models
     {
         Snack,
         Drink,
-        Gift
+        Gift,
+        Combo
     }
 }

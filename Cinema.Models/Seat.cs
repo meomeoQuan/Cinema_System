@@ -18,7 +18,7 @@ namespace Cinema.Models
         public int ColumnNumber { get; set; }
 
         [Required]
-        public int RoomID { get; set; } 
+        public int RoomID { get; set; }
 
         [Required]
 

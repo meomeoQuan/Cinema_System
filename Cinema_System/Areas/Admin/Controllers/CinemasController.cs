@@ -5,12 +5,15 @@ using Cinema.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
+
     public class CinemasController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -21,10 +24,13 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
+
+
         }
 
         public async Task<IActionResult> Index()
         {
+
             // Lấy danh sách rạp chiếu phim
             var cinemas = await _unitOfWork.Cinema
                                 //.Include(t => t.Admin)
@@ -63,13 +69,13 @@ namespace Cinema_System.Areas.Admin.Controllers
                 try
                 {
                     // Kiểm tra tên rạp đã tồn tại chưa
-                    if (_unitOfWork.Cinema.GetAllAsync(c => c.Name == theater.Name) != null)
+                    if (_unitOfWork.Cinema.Get(c => c.Name == theater.Name) != null)
                     {
                         return Json(new { success = false, message = "Theater name already exists." });
                     }
 
                     // Kiểm tra địa chỉ rạp đã tồn tại chưa
-                    if (_unitOfWork.Cinema.GetAllAsync(c => c.Address == theater.Address) != null)
+                    if (_unitOfWork.Cinema.Get(c => c.Address == theater.Address) != null)
                     {
                         return Json(new { success = false, message = "Theater address already exists." });
                     }
@@ -112,7 +118,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                         {
                             return Json(new { success = false, message = "Theater name cannot be empty." });
                         }
-                        if (_unitOfWork.Cinema.Get(c => c.Name == value && c.CinemaID != id) != null)
+                        if (_unitOfWork.Cinema.GetAllAsync(c => c.Name == value && c.CinemaID != id) != null)
                         {
                             return Json(new { success = false, message = "Theater name already exists." });
                         }
@@ -124,7 +130,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                         {
                             return Json(new { success = false, message = "Address cannot be empty." });
                         }
-                        if (_unitOfWork.Cinema.Get(c => c.Address == value && c.CinemaID != id) != null)
+                        if (_unitOfWork.Cinema.GetAllAsync(c => c.Address == value && c.CinemaID != id) != null)
                         {
                             return Json(new { success = false, message = "Theater address already exists." });
                         }
@@ -227,6 +233,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
 
-        
+
     }
 }
+

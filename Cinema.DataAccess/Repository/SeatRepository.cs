@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.DataAccess.Repository
 {
-    public class SeatRepository : Repository<Seat>, ISeatRepository 
+    public class SeatRepository : Repository<Seat>, ISeatRepository
     {
         private ApplicationDbContext _db;
 
@@ -40,6 +40,6 @@ namespace Cinema.DataAccess.Repository
                .ToListAsync();
         }
     }
- }
+}
 
 
