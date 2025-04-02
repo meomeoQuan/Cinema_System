@@ -1,207 +1,83 @@
-﻿using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
-using Cinema.DataAccess.Data;
+﻿using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = SD.Role_Admin)] 
+    [Authorize(Roles = SD.Role_Admin)]
     public class SeatsController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public SeatsController(IUnitOfWork unitOfWork,
-                               UserManager<IdentityUser> userManager,
-                               RoleManager<IdentityRole> roleManager)
+        public SeatsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _userManager = userManager;
-            _roleManager = roleManager;
         }
 
-        public async Task<IActionResult> Index(int roomId)
+        public async Task<IActionResult> Index(int? roomId)
         {
-            ViewData["RoomId"] = roomId;
-            var list = await _unitOfWork.Seat.GetAllAsync(r => r.RoomID == roomId);
-            
-            return View(list);
+            if (!roomId.HasValue || roomId <= 0)
+            {
+                return NotFound("Room ID is required.");
+            }
+
+            var seats = await _unitOfWork.Seat.GetSeatsByRoomIdAsync(roomId.Value);
+            ViewData["RoomId"] = roomId.Value;
+            return View(seats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSeatById(int seatId)
+        {
+            if (seatId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid Seat ID." });
+            }
+
+            var seat = await _unitOfWork.Seat.GetByIdAsync(seatId);
+            if (seat == null)
+            {
+                return NotFound(new { success = false, message = "Seat not found." });
+            }
+
+            return Json(new { success = true, data = seat });
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Room updatedRoom)
+        public async Task<IActionResult> ToggleStatus(int seatId, string action)
         {
-            if (!ModelState.IsValid) return View(updatedRoom);
-
-            var room = await _unitOfWork.Room.GetAsync(r => r.RoomID == id);
-            if (room == null)
+            if (seatId <= 0)
             {
-                return NotFound();
+                return BadRequest(new { success = false, message = "Invalid Seat ID." });
             }
 
-            room.RoomNumber = updatedRoom.RoomNumber;
-            room.Capacity = updatedRoom.Capacity;
-            room.Status = updatedRoom.Status;
-            room.UpdatedAt = DateTime.Now;
+            var seat = await _unitOfWork.Seat.GetByIdAsync(seatId);
+            if (seat == null)
+            {
+                return NotFound(new { success = false, message = "Seat not found." });
+            }
 
-            _unitOfWork.Room.Update(room);
+            if (action == "lock")
+            {
+                seat.Status = SeatStatus.Maintenance;
+            }
+            else if (action == "unlock")
+            {
+                seat.Status = SeatStatus.Available;
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Invalid action." });
+            }
+
+            _unitOfWork.Seat.Update(seat);
             await _unitOfWork.SaveAsync();
 
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
-        {
-            var list = await _unitOfWork.Room.GetAllAsync();
-            var roomList = list.Select(u => new
-            {
-                u.RoomID,
-                u.RoomNumber,
-                u.Status,
-                u.Capacity,
-                u.Theater
-
-            }).ToList();
-
-            return Json(new { data = roomList });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(Room room, int cinemaId)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    if (_unitOfWork.Room.Get(u => u.RoomNumber == room.RoomNumber) != null)
-                    {
-                        return Json(new { success = false, message = "Room already exists." });
-                    }
-
-                    
-
-                    room.CreatedAt = DateTime.Now;
-                    room.UpdatedAt = DateTime.Now;
-                    room.CinemaID = cinemaId;
-
-                    _unitOfWork.Room.Add(room);
-                    await _unitOfWork.SaveAsync();
-
-                    return Json(new { success = true, message = "Room created successfully." });
-                }
-                catch (Exception ex)
-                {
-                    return Json(new { success = false, message = $"Error creating room: {ex.Message}" });
-                }
-            }
-            return Json(new { success = false, message = "Invalid room data." });
-        }
-        
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateField(int id, string field, string value)
-        {
-            var room = await _unitOfWork.Room.GetAsync(u => u.RoomID == id);
-            if (room == null)
-            {
-                return Json(new { success = false, message = "Room not found." });
-            }
-
-            try
-            {
-                switch (field)
-                {
-                    case "RoomNumber":
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            return Json(new { success = false, message = "Room Number cannot be empty." });
-                        }
-                        room.RoomNumber = value;
-                        break;
-                    case "Capacity":
-                        if (!int.TryParse(value, out int capacity) || capacity < 1)
-                        {
-                            return Json(new { success = false, message = "Invalid capacity value." });
-                        }
-                        room.Capacity = capacity;
-                        break;
-                    case "Status":
-                        if (!Enum.TryParse(value, out RoomStatus status))
-                        {
-                            return Json(new { success = false, message = "Invalid status value." });
-                        }
-                        room.Status = status;
-                        break;
-                    default:
-                        return Json(new { success = false, message = "Invalid field." });
-                }
-
-                room.UpdatedAt = DateTime.Now;
-                _unitOfWork.Room.Update(room);
-                await _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "Room updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error updating room: {ex.Message}" });
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Lock(int id)
-        {
-            var room = await _unitOfWork.Room.GetAsync(r => r.RoomID == id);
-            if (room == null)
-            {
-                return Json(new { success = false, message = "Room not found" });
-            }
-
-            try
-            {
-                room.Status = RoomStatus.Available;
-                room.UpdatedAt = DateTime.Now;
-                _unitOfWork.Room.Update(room);
-                await _unitOfWork.SaveAsync();
-
-                return Json(new { success = true, message = "Room has been locked successfully" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error locking room: {ex.Message}" });
-            }
-        }
-        [HttpPost]
-        public IActionResult Unlock(int id)
-        {
-            var room = _unitOfWork.Room.Get(u => u.RoomID == id);
-            if (room == null)
-            {
-                return Json(new { success = false, message = "Room not found." });
-            }
-
-            try
-            {
-                room.UpdatedAt = DateTime.Now;
-                _unitOfWork.Room.Update(room);
-                _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "Room unlocked successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error unlocking room: {ex.Message}" });
-            }
+            return Json(new { success = true, message = "Seat status updated successfully." });
         }
     }
 }

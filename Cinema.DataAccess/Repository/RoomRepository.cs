@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.DataAccess.Repository
 {
-    public class RoomRepository : Repository<Room>, IRoomRepository 
+    public class RoomRepository : Repository<Room>, IRoomRepository
     {
         private readonly ApplicationDbContext _db;
 

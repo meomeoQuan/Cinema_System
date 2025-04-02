@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Cinema.Models.ViewModels;
@@ -16,26 +16,23 @@ namespace Cinema.Models
         public int? OrderID { get; set; } // ✔️ Cách chuẩn nhất
 
 
-        [NotMapped] // Không lưu v  ào database
-        public string TempId { get; set; } // Dùng cho session
+        [NotMapped] // Không lưu vào database
+        public string? TempId { get; set; } // Dùng cho session
 
-        public string UserId { get; set; } // Nullable cho khách
+        //public string UserId { get; set; } // Nullable cho khách
 
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
 
-        [Required]
         [Column("ProductID")] // Đảm bảo tên cột khớp với database
-        public int? ProductId { get; set; }     // Cho phép ProductID nullable để hỗ trợ đơn hàng chỉ có vé xem phim
-        
+        public int? ProductID { get; set; }     // Cho phép ProductID nullable để hỗ trợ đơn hàng chỉ có vé xem phim
+
         public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
-        [Required]
-        [Column("ProductName")]
-        public string ProductName { get; set; }
 
         //[Required]
-        //public int UserId { get; set; }
+        //[Column("ProductName")]
+        //public string ProductName { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
@@ -58,16 +55,22 @@ namespace Cinema.Models
         public double TotalPrice
         {
             get { return Price * Quantity; }
-            set { } 
+            set { }
         }
 
-        // Navigation properties
+        // remove this if error occured
+        //[ForeignKey("UserID")]
+        //[ValidateNever]
+        //public virtual ApplicationUser User { get; set; }
+
+        //
+
         [ForeignKey("OrderID")]
         [ValidateNever]
         [InverseProperty("OrderDetails")]
         public virtual OrderTable? Order { get; set; }
 
-        [ForeignKey("ProductId")]
+        [ForeignKey("ProductID")]
         [ValidateNever]
         public virtual Product? Product { get; set; }
 
@@ -75,5 +78,5 @@ namespace Cinema.Models
         [ForeignKey("ShowtimeSeatID")]
         [ValidateNever]
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
-       }
     }
+}

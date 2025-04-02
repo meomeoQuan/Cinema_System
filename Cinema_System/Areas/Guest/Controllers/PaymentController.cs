@@ -126,7 +126,6 @@ namespace Cinema_System.Areas
                 _context.OrderDetails.Add(new OrderDetail
                 {
                     OrderID = orderId,
-                    ProductId = _context.Products.FirstOrDefault(p => p.Name == food.name).ProductID,
                     Quantity = food.quantity,
                     Price = food.price,
                 });
@@ -160,7 +159,7 @@ namespace Cinema_System.Areas
         public IActionResult CancelUrl(int orderCode)
         {
             var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
-
+            //var seat = _context.showTimeSeats.FirstOrDefault
             if (order == null)
             {
                 return NotFound(new { message = "Order không tồn tại" });

@@ -122,6 +122,26 @@
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 	<script>
+
+					// Generate a simple beep sound using Web Audio API
+				function playBeep() {
+			const context = new (window.AudioContext || window.webkitAudioContext)();
+			const oscillator = context.createOscillator();
+			const gainNode = context.createGain();
+
+			oscillator.type = "square"; // More noticeable beep sound
+			oscillator.frequency.setValueAtTime(1500, context.currentTime); // 1500 Hz beep
+			gainNode.gain.setValueAtTime(0.3, context.currentTime); // Adjust volume
+
+			oscillator.connect(gainNode);
+			gainNode.connect(context.destination);
+
+			oscillator.start();
+			setTimeout(() => {
+				oscillator.stop();
+			}, 1000); // Beep duration (100ms)
+		}
+
 		// Get reference to the video element in the HTML document
 		const video = document.getElementById('video');
 		// Get reference to the scannedImage element in the HTML document
@@ -184,12 +204,13 @@
 			// If QR code is detected
 			if(code) {
 				// Extract the data encoded in the QR code
+			
 				const qrData = code.data;
 
 
 				//https://localhost:7115/Staff/Staff/ValidAuthentication?OrderID=3
 				// Display the QR code data
-				qrDataLabel.textContent = 'QR Code Data: ' + qrData;
+				// qrDataLabel.textContent = 'QR Code Data: ' + qrData;
 				qrDataLabel.style.display = 'block';
 				// Stop the interval (stop scanning)
 				clearInterval(intervalId);
@@ -202,10 +223,13 @@
 				// Hide the video element
 				video.style.display = 'none';
 				// If the scanned QR code is a URL
-				if(isUrl(qrData)) {
-					// Open the URL in current tab
-					window.open(qrData, '_self');// _blank to other tab  _self to current tab	
-				}
+						if (isUrl(qrData)) {
+			playBeep();  // 🔊 Play the beep first
+			setTimeout(() => {
+				window.open(qrData, '_self'); // ⏳ Delay navigation slightly
+			}, 1000);  // Small delay (300ms) to allow sound to play
+		}
+
 			}
 		}, 100); // Adjust the interval as needed (milliseconds)
 		// Function to check if string is a URL
@@ -240,7 +264,7 @@
 					// If a QR code is detected
 					if(code) {
 						// Display the QR code data
-						qrDataLabel.textContent = 'QR Code Data: ' + code.data;
+						// qrDataLabel.textContent = 'QR Code Data: ' + code.data;
 						qrDataLabel.style.display = 'block';
 						// Display the scanned image
 						scannedImage.src = event.target.result;

@@ -22,5 +22,10 @@ namespace Cinema.DataAccess.Repository
         {
             _db.Update(showtimeSeat);
         }
+        public async Task<IEnumerable<ShowtimeSeat>> AddRangeAsync(List<ShowtimeSeat> showtimeSeats)
+        {
+            await _db.showTimeSeats.AddRangeAsync(showtimeSeats);
+            return showtimeSeats;
+        }
     }
 }

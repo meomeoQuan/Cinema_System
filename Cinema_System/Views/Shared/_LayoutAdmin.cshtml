@@ -61,8 +61,11 @@
 <body class="bg-gray-100">
     <div class="d-flex flex-column min-vh-100">
         <!-- Header -->
-        <header class="bg-primary text-white p-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <h1 class="text-lg fw-bold mb-2 mb-md-0">User Management</h1>
+        <header class="bg-secondary text-white p-2 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            @* <h1 class="text-lg fw-bold mb-2 mb-md-0">User Management</h1> *@
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <img src="~/css/images/logo2.png" class="align-items-center w-25 m-3" />
+            </a>
             <div class="d-flex align-items-center">
                 <button id="sidebarToggle" class="btn btn-secondary rounded me-2">
                     <i class="fas fa-bars"></i>
@@ -113,7 +116,7 @@
                         </a>
                         </li>
                         <li>
-                            <a asp-area="Admin" asp-controller="Home" asp-action="Revenue" class="d-flex align-items-center p-2 text-secondary btn btn-light btn-hover rounded">
+                        <a asp-area="Admin" asp-controller="Home" asp-action="Revenue" class="d-flex align-items-center p-2 text-secondary btn btn-light btn-hover rounded">
                                 <i class="fas fa-chart-line"></i>
                                 <span class="ml-2">Statistics</span>
                             </a>

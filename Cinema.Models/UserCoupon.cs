@@ -20,7 +20,6 @@ namespace Cinema.Models
 
         public DateTime UsedAt { get; set; }
 
-        // Navigation properties
         [ForeignKey("UserID")]
         [InverseProperty("UserCoupons")]
         [ValidateNever]

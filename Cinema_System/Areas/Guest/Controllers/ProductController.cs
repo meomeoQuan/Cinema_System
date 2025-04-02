@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Cinema.DataAccess.Repository;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -16,13 +17,13 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
 
         private readonly IProductRepository _productRepo;
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductController(IProductRepository productRepo, ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public ProductController(IProductRepository productRepo, IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
             _productRepo = productRepo;
-            _context = context;
+            _unitOfWork = unitOfWork;
             _userManager = userManager;
         }
 
@@ -53,9 +54,10 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
         [HttpPost]
+
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
-            var product = await _productRepo.GetFirstOrDefaultAsync(p => p.ProductID == productId);
+            var product = await _productRepo.GetAsync(p => p.ProductID == productId);
             if (product == null || product.Quantity < quantity)
             {
                 TempData["Error"] = "Sản phẩm không có sẵn hoặc không đủ số lượng";
@@ -67,9 +69,8 @@ namespace Cinema_System.Areas.Guest.Controllers
             if (userId != null)
             {
                 // Đã đăng nhập - lưu vào database
-                var cartItem = await _context.OrderDetails
-                    .FirstOrDefaultAsync(od =>
-                        od.UserId == userId &&
+                var cartItem = await _unitOfWork.OrderDetail
+                    .GetAsync(od =>
                         od.ProductId == productId &&
                         od.OrderID == null);
 
@@ -82,24 +83,17 @@ namespace Cinema_System.Areas.Guest.Controllers
                 {
                     //var defaultShowInfo = GetDefaultShowInfo(); // Phương thức giả định
 
-                    _context.OrderDetails.Add(new OrderDetail
+                    _unitOfWork.OrderDetail.Add(new OrderDetail
                     {
                         OrderID = null,
-                        UserId = userId,
                         ProductId = product.ProductID,
-                        ProductName = product.Name,
                         Price = product.Price,
                         Quantity = quantity,
                         TotalPrice = product.Price * quantity,
-
-
-
-                        // Các trường NotMapped sẽ không được lưu vào database
-                        //Tickets = new List<TicketSelectionVM>(), 
                         FoodItems = new List<FoodSelectionVM>()
                     });
                 }
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveAsync();
             }
             else
             {
@@ -118,7 +112,6 @@ namespace Cinema_System.Areas.Guest.Controllers
                     {
                         TempId = Guid.NewGuid().ToString(),
                         ProductId = productId,
-                        ProductName = product.Name,
                         Price = product.Price,
                         Quantity = quantity,
                         TotalPrice = product.Price * quantity,
@@ -141,11 +134,11 @@ namespace Cinema_System.Areas.Guest.Controllers
                 // Xóa từ database
                 if (int.TryParse(id, out int orderDetailId))
                 {
-                    var item = await _context.OrderDetails.FindAsync(orderDetailId);
-                    if (item != null && item.UserId == userId)
+                    var item = await _unitOfWork.OrderDetail.GetAsync(o => o.OrderDetailID == orderDetailId);
+                    if (item != null)
                     {
-                        _context.OrderDetails.Remove(item);
-                        await _context.SaveChangesAsync();
+                        _unitOfWork.OrderDetail.Remove(item);
+                        await _unitOfWork.SaveAsync();
                     }
                 }
             }
@@ -176,12 +169,12 @@ namespace Cinema_System.Areas.Guest.Controllers
                 // Cập nhật database
                 if (int.TryParse(id, out int orderDetailId))
                 {
-                    var item = await _context.OrderDetails.FindAsync(orderDetailId);
-                    if (item != null && item.UserId == userId)
+                    var item = await _unitOfWork.OrderDetail.GetAsync(o => o.OrderDetailID == orderDetailId);
+                    if (item != null)
                     {
                         item.Quantity = quantity;
                         item.TotalPrice = item.Price * quantity;
-                        await _context.SaveChangesAsync();
+                        await _unitOfWork.SaveAsync();
                     }
                 }
             }
@@ -209,11 +202,10 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             if (userId != null)
             {
-                // Lấy từ database cho user đã đăng nhập
-                viewModel.DatabaseItems = await _context.OrderDetails
-                    .Include(od => od.Product)
-                    .Where(od => od.UserId == userId && od.OrderID == null)
-                    .ToListAsync();
+                var order = await _unitOfWork.OrderTable.GetAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending);
+                var orderDetails = await _unitOfWork.OrderDetail.GetAllAsync(o => o.OrderID == order.OrderID);
+
+                viewModel.DatabaseItems = orderDetails.ToList();
             }
             else
             {

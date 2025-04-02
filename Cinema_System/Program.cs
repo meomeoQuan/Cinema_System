@@ -49,8 +49,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //-------------------------------------- SIGNAL IR   -------------------------------------------------
 builder.Services.AddSignalR();
 
+
 //đăng kí repository của product
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
+//builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
 
 //------------------------------ Configure Identity ---------------------------
 // Configure Identity with ApplicationUser
@@ -75,7 +77,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = $"/Identity/Account/Login";
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
-      // Cấu hình cookie
+    // Cấu hình cookie
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Cookie tồn tại 30 p
     options.SlidingExpiration = true; // Tự động gia hạn khi user active
@@ -122,7 +124,7 @@ builder.Services.AddSession(options =>
 // Configure token lifespan
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
-    options.TokenLifespan = TimeSpan.FromSeconds(30);
+    options.TokenLifespan = TimeSpan.FromMinutes(3);
 });
 
 // Add scoped services
@@ -168,10 +170,10 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 //route mapping cho area Staff
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "staff/products/{action=Index}/{id?}",
-    defaults: new { area = "Staff", controller = "ProductStaff" });
+//app.MapControllerRoute(
+//    name: "areas",
+//    pattern: "staff/products/{action=Index}/{id?}",
+//    defaults: new { area = "Staff", controller = "ProductStaff" });
 
 // Add middleware to handle role-based redirects
 app.Use(async (context, next) =>
@@ -181,7 +183,7 @@ app.Use(async (context, next) =>
     {
         var isAdmin = context.User.IsInRole(SD.Role_Admin);
         var path = context.Request.Path.ToString().ToLower();
-
+        //var isStaff = context.User.IsInRole(SD.Role_Staff);
         // 2. Skip redirect for static files, API calls, and Identity pages
         if (!path.StartsWith("/lib/") &&
             !path.StartsWith("/api/") &&
@@ -199,6 +201,10 @@ app.Use(async (context, next) =>
                 context.Response.Redirect("/Guest/Home/Index");
                 return;
             }
+            //else if (isStaff && !path.StartsWith("/staff"))
+            //{
+            //    context.Response.Redirect("/Staff")
+            //}
         }
     }
 
@@ -230,5 +236,3 @@ void SeedDatabase()
         DbInitializer.Initialize();
     }
 }
-
-

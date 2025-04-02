@@ -12,12 +12,12 @@ namespace Cinema_System.Areas.Guest.Controllers
         public DetailsApiController(ApplicationDbContext context)
         {
             _context = context;
-        }
+        }   
 
         [HttpGet("cities")]
         public async Task<IActionResult> getListCity()
         {
-            var cities = _context.Cinemas
+            var cities = _context.Theaters
                                 .Where(t => !string.IsNullOrEmpty(t.CinemaCity))
                                 .Select(t => t.CinemaCity)
                                 .Distinct()

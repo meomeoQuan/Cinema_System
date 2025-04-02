@@ -20,6 +20,8 @@ namespace Cinema.DataAccess.Repository.IRepository
         //Func<object, object> value
         Task<int> CountAsync(Expression<Func<T, bool>>? filter = null);
 
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+
         //=========================================================================================================
         T Get(Expression<Func<T, bool>> filter, string? includeProperties = null);
         IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
