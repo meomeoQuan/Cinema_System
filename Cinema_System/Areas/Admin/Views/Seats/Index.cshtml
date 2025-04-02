@@ -1,6 +1,4 @@
-﻿@using Cinema.Utility
-@using Cinema_System.Areas.Admin.Controllers
-@model IEnumerable<Seat>
+﻿@model IEnumerable<Seat>
 
 @{
     ViewData["Title"] = "Seat Management";
@@ -11,7 +9,6 @@
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title mb-0 fw-bold">Seat Management</h3>
-            <button id="addSeatBtn" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add Seat</button>
         </div>
 
         <div class="card-body">
@@ -24,30 +21,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model != null)
+                        @if (Model != null && Model.Any())
                         {
                             @foreach (var seat in Model)
                             {
-                                <tr>
-                                    <td>@(seat?.Row)@(seat?.ColumnNumber)</td>
+                                <tr id="seatRow-@seat.SeatID">
+                                    <td>@seat.Row@seat.ColumnNumber</td>
                                     <td class="text-center">
                                         <div class="d-flex gap-2 justify-content-center">
-                                            @if (seat?.Status == SeatStatus.Available)
-                                            {
-                                                <button onclick="toggleSeatStatus(@seat.SeatID, 'lock')"
-                                                        class="btn btn-outline-danger btn-sm">
-                                                    <i class="fas fa-lock"></i> Lock
-                                                </button>
-                                            }
-                                            else
-                                            {
-                                                <button onclick="toggleSeatStatus(@seat.SeatID, 'unlock')"
-                                                        class="btn btn-outline-success btn-sm">
-                                                    <i class="fas fa-unlock"></i> Unlock
-                                                </button>
-                                            }
-                                            <button onclick="editSeat(@seat.SeatID)"
-                                                    class="btn btn-outline-primary btn-sm">
+                                            <button data-id="@seat.SeatID"
+                                                    class="btn btn-sm @(seat.Status == SeatStatus.Available ? "btn-danger" : "btn-success") toggle-status-btn text-white">
+                                                <i class="fas @(seat.Status == SeatStatus.Available ? "fa-lock" : "fa-unlock")"></i>
+                                                @(seat.Status == SeatStatus.Available ? "Maintenance" : "Available")
+                                            </button>
+                                            <button onclick="editSeat(@seat.SeatID)" class="btn btn-outline-primary btn-sm">
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
                                         </div>
@@ -55,7 +42,7 @@
                                 </tr>
                             }
                         }
-                        @if (Model == null || !Model.Any())
+                        else
                         {
                             <tr>
                                 <td colspan="2" class="text-center">No seats found.</td>
@@ -68,37 +55,11 @@
     </div>
 </div>
 
-<!-- Add Seat Form (Ẩn ban đầu) -->
-<div class="card shadow-sm mt-3 d-none" id="seat-form">
-    <div class="card-header bg-primary text-white text-center">
-        <h4 class="mb-0">Add Seat</h4>
-    </div>
-    <div class="card-body">
-        <form id="createSeatForm">
-            <input type="hidden" id="seatId">
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label">Row</label>
-                    <input type="text" class="form-control" id="seatRow" required maxlength="1" pattern="[A-Za-z]">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Column Number</label>
-                    <input type="number" class="form-control" id="seatColumn" required min="1">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-secondary w-100 mt-3">
-                <i class="bi bi-check-circle"></i> Submit
-            </button>
-        </form>
-    </div>
-</div>
-
-
 @section Scripts {
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
-        $(document).ready(function () {
+            $(document).ready(function () {
             $('#tblData').DataTable({
                 "pageLength": 10,
                 "lengthMenu": [5, 10, 25, 50],
@@ -107,60 +68,42 @@
                 "info": true
             });
 
-            $('#addSeatBtn').click(function () {
-                $('#seat-form').toggleClass('d-none'); // Hiển thị hoặc ẩn form nhập ghế
-            });
-        });
+            $('#tblData').on('click', '.toggle-status-btn', function () {
+            var button = $(this);
+            var seatId = button.data('id');
+            var isLocking = button.hasClass("btn-danger");
+            var action = isLocking ? "lock" : "unlock";
+            var confirmMessage = isLocking ? "Are you sure you want to lock this seat?" : "Are you sure you want to unlock this seat?";
 
-        function toggleSeatStatus(seatId, action) {
-            fetch(`/Admin/Seat/ToggleStatus?seatId=${seatId}&action=${action}`, {
-                method: 'POST'
-            }).then(response => {
-                if (response.ok) {
-                    location.reload();
-                }
-            });
-        }
-
-        function editSeat(seatId) {
-            fetch(`/Admin/Seat/GetSeatById?seatId=${seatId}`)
-                .then(response => response.json())
-                .then(data => {
-                    $('#seatId').val(data.seatId);
-                    $('#seatRow').val(data.row);
-                    $('#seatColumn').val(data.columnNumber);
-                    $('#seat-form').removeClass('d-none'); // Hiển thị form để sửa
-                });
-        }
-
-        $('#createSeatForm').submit(function(e) {
-            e.preventDefault();
-
-            var seatData = {
-                SeatID: $('#seatId').val() || 0,
-                Row: $('#seatRow').val(),
-                ColumnNumber: $('#seatColumn').val(),
-                RoomID: @roomId
-            };
+            if (!confirm(confirmMessage)) return;
 
             $.ajax({
-                url: '/Admin/Seat/SaveSeat',
+                url: '/Admin/Seats/ToggleStatus',
                 type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(seatData),
-                success: function(response) {
+                data: { seatId: seatId, action: action },
+                success: function (response) {
                     if (response.success) {
                         toastr.success(response.message);
-                        location.reload();
+
+                        // Cập nhật màu nút sau khi thay đổi trạng thái ghế
+                        if (isLocking) {
+                            button.removeClass('btn-danger').addClass('btn-success')
+                                  .html('<i class="fas fa-unlock"></i> Available');
+                        } else {
+                            button.removeClass('btn-success').addClass('btn-danger')
+                                  .html('<i class="fas fa-lock"></i> Maintenance');
+                        }
                     } else {
                         toastr.error(response.message);
                     }
                 },
-                error: function(xhr) {
-                    var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
-                    toastr.error(errorMessage);
+                error: function () {
+                    toastr.error("An error occurred while processing your request.");
                 }
+                 });
             });
+
         });
+
     </script>
 }

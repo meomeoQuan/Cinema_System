@@ -376,56 +376,64 @@ namespace Cinema.DataAccess.Data
                 new ShowTime
                 {
                     ShowTimeID = 1,
-                    ShowDate = new DateTime(2025, 3, 10, 7, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(7, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 2,
-                    ShowDate = new DateTime(2025, 3, 10, 9, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(9, 3, 0),
                     RoomID = 2,
                     MovieID = 3
                 },
                 new ShowTime
                 {
                     ShowTimeID = 3,
-                    ShowDate = new DateTime(2025, 3, 10, 11, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(11, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 4,
-                    ShowDate = new DateTime(2025, 3, 10, 13, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(13, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 5,
-                    ShowDate = new DateTime(2025, 3, 11, 7, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 11),
+                    ShowTimes = new TimeSpan(15, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
-                    ShowTimeID = 6,
-                    ShowDate = new DateTime(2025, 3, 11, 9, 30, 0),
+                    ShowTimeID = 6, 
+                    ShowDate = new DateOnly(2025, 3, 11),
+                    ShowTimes = new TimeSpan(17, 3, 0),
                     RoomID = 2,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 7,
-                    ShowDate = new DateTime(2025, 3, 11, 11, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 11),
+                    ShowTimes = new TimeSpan(18, 3, 0),
                     RoomID = 2,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 8,
-                    ShowDate = new DateTime(2025, 3, 12, 9, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 12),
+                    ShowTimes = new TimeSpan(19, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 }

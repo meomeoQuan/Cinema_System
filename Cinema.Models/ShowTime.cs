@@ -20,7 +20,7 @@ namespace Cinema.Models
         public int ShowTimeID { get; set; }
 
         [Required]
-        public DateTime ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
+        public DateOnly ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
         public TimeSpan ShowTimes { get; set; }
         //public int CinemaID { get; set; }
         public int RoomID { get; set; }

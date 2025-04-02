@@ -38,6 +38,24 @@ namespace Cinema_System.Areas.Admin.Controllers
             return View(cinemas);
         }
 
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var cinemas = await _unitOfWork.Cinema.GetAllAsync();
+            var cinemasList = cinemas.Select(c => new
+            {
+                c.CinemaID,
+                c.Name,
+                c.Address,
+                AdminName = c.Admin?.FullName ?? "Unknown",
+                c.NumberOfRooms,
+                c.OpeningTime,
+                c.ClosingTime
+            }).ToList();
+
+            return Json(new { data = cinemasList });
+        }
+
         public async Task<IActionResult> Create(Theater theater)
         {
             if (ModelState.IsValid)
@@ -209,22 +227,6 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
-        {
-            var cinemas = await _unitOfWork.Cinema.GetAllAsync();
-            var cinemasList = cinemas.Select(c => new
-            {
-                c.CinemaID,
-                c.Name,
-                c.Address,
-                AdminName = c.Admin?.FullName ?? "Unknown",
-                c.NumberOfRooms,
-                c.OpeningTime,
-                c.ClosingTime
-            }).ToList();
-
-            return Json(new { data = cinemasList });
-        }
+        
     }
 }

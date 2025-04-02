@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
+using Cinema.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cinema_System.Areas.Admin.Controllers
@@ -26,7 +27,35 @@ namespace Cinema_System.Areas.Admin.Controllers
             ViewBag.Cinemas = cinemas.Select(c => new { Id = c.CinemaID, Name = c.Name }).ToList();
             return View(schedules);
         }
+        [HttpPost]
+        public async Task<IActionResult> AddRoom(string roomNumber, int cinemaId)
+        {
+            if (string.IsNullOrEmpty(roomNumber) || cinemaId <= 0)
+            {
+                return Json(new { success = false, message = "Room number and theater are required." });
+            }
 
+            try
+            {
+                // Tạo đối tượng Room mới
+                var newRoom = new Room
+                {
+                    RoomNumber = roomNumber,
+                    CinemaID = cinemaId
+                    // Thêm các thuộc tính khác nếu cần (ví dụ: Capacity, Status, v.v.)
+                };
+
+                // Thêm vào database qua UnitOfWork
+                _unitOfWork.Room.Add(newRoom);
+                await _unitOfWork.SaveAsync();
+
+                return Json(new { success = true, message = "Room added successfully", room = new { RoomID = newRoom.RoomID, RoomNumber = newRoom.RoomNumber } });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error adding room: " + ex.Message });
+            }
+        }
         //[HttpGet("GetAll")]
         //public async Task<IActionResult> GetAll()
         //{
@@ -47,14 +76,27 @@ namespace Cinema_System.Areas.Admin.Controllers
         //    return Json(new { data = schedulesList });
         //}
 
+        //[HttpGet]
+        //public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
+        //{
+        //    //var rooms = await _unitOfWork.Room.GetRoomsByCinemaIdAsync(cinemaId); old
+        //    var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId); // quan fix ,xem lai 
+        //    // anh muon lay cai gi lay Room dua tren CinemaID hay 
+        //    // --- lay Room dua tren roomid include Theater.CinemaID
+        //    return Json(rooms);
+        //}
         [HttpGet]
         public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
         {
-            //var rooms = await _unitOfWork.Room.GetRoomsByCinemaIdAsync(cinemaId); old
-            var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId); // quan fix ,xem lai 
-            // anh muon lay cai gi lay Room dua tren CinemaID hay 
-            // --- lay Room dua tren roomid include Theater.CinemaID
-            return Json(rooms);
+            var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId);
+
+            var roomList = rooms.Select(r => new
+            {
+                RoomID = r.RoomID,
+                RoomNumber = r.RoomNumber
+            }).ToList();
+
+            return Json(new { success = true, rooms = roomList });
         }
     }
 }
