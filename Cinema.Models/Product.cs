@@ -36,7 +36,6 @@ namespace Cinema.Models
     {
         Snack,
         Drink,
-        Gift,
-        Combo
+        Gift
     }
 }
