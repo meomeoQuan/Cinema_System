@@ -50,7 +50,10 @@ namespace Cinema_System.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
         {
-            var rooms = await _unitOfWork.Room.GetRoomsByCinemaIdAsync(cinemaId);
+            //var rooms = await _unitOfWork.Room.GetRoomsByCinemaIdAsync(cinemaId); old
+            var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId); // quan fix ,xem lai 
+            // anh muon lay cai gi lay Room dua tren CinemaID hay 
+            // --- lay Room dua tren roomid include Theater.CinemaID
             return Json(rooms);
         }
     }

@@ -40,6 +40,8 @@ namespace Cinema_System.Areas.Admin.Controllers
             foreach (var user in users)
             {
                 user.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Guest";
+                // dung lo em default neu ma luc 
+                // create user ko set role thi no se la guest -- quan 
             }
 
             return View(users);
@@ -60,7 +62,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             user.UserName = updatedUser.FullName;
             user.PhoneNumber = updatedUser.PhoneNumber;
             await _userManager.UpdateAsync(user);
-
+            
             return RedirectToAction(nameof(Index));
         }
 
@@ -102,7 +104,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                     }
 
                     user.UserName = user.Email; // Ensure UserName is set to Email
-                    string password = GenerateRandomPassword();
+                    string password = GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
                     var result = await _userManager.CreateAsync(user, password);
                     if (result.Succeeded)
                     {
