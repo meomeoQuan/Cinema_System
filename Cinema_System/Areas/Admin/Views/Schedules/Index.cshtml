@@ -225,6 +225,7 @@
                     type: 'GET',
                     data: { cinemaId: cinemaId },
                     success: function (response) {
+                        console.log(response); // Log the response to inspect it
                         var roomSelect = $('#scheduleRoomNumber');
                         roomSelect.empty();
 

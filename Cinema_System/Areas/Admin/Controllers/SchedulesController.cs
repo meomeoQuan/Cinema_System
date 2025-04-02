@@ -55,10 +55,14 @@ namespace Cinema_System.Areas.Admin.Controllers
             //var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId); // quan fix ,xem lai 
 
             // i wanna get room base on cinemaId
-            var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
+            var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId);
+            foreach (var item in rooms)
+            {
+                Console.WriteLine(item.RoomNumber);
+            }
             // anh muon lay cai gi lay Room dua tren CinemaID hay 
             // --- lay Room dua tren roomid include Theater.CinemaID
-            return Json(rooms);
+            return Json(new { success = true, rooms = rooms });
         }
         
         
