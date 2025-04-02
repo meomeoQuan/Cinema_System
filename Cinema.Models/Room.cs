@@ -34,9 +34,9 @@ namespace Cinema.Models
         public int CinemaID { get; set; }
 
         [ForeignKey("CinemaID")]
-        //[InverseProperty("Rooms")]
+        [InverseProperty("Rooms")]
         [ValidateNever]
-        [JsonIgnore]
+        //[JsonIgnore]
         public virtual Theater Theater { get; set; }
         [InverseProperty("Room")]
         public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();

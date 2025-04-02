@@ -19,13 +19,13 @@ namespace Cinema.Models
 
         [Required]
         [Range(0.00, 9999.99, ErrorMessage = "Price must be a positive value.")]
-        public double Price { get; set; }  // Default price
+        public double Price { get; set; }  = 45.00;
 
         [Required]
         [EnumDataType(typeof(ShowtimeSeatStatus))]
         public ShowtimeSeatStatus Status { get; set; } = ShowtimeSeatStatus.Available;
 
-        // Navigation properties
+
         [ForeignKey("ShowtimeID")]
         [InverseProperty("ShowTimeSeats")] 
         public virtual ShowTime Showtime { get; set; }

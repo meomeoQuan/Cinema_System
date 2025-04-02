@@ -447,56 +447,64 @@ namespace Cinema.DataAccess.Data
                 new ShowTime
                 {
                     ShowTimeID = 1,
-                    ShowDate = new DateTime(2025, 3, 10, 7, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(7, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 2,
-                    ShowDate = new DateTime(2025, 3, 10, 9, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(9, 3, 0),
                     RoomID = 2,
                     MovieID = 3
                 },
                 new ShowTime
                 {
                     ShowTimeID = 3,
-                    ShowDate = new DateTime(2025, 3, 10, 11, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(11, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 4,
-                    ShowDate = new DateTime(2025, 3, 10, 13, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 10),
+                    ShowTimes = new TimeSpan(13, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 5,
-                    ShowDate = new DateTime(2025, 3, 11, 7, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 11),
+                    ShowTimes = new TimeSpan(15, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 },
                 new ShowTime
                 {
-                    ShowTimeID = 6,
-                    ShowDate = new DateTime(2025, 3, 11, 9, 30, 0),
+                    ShowTimeID = 6, 
+                    ShowDate = new DateOnly(2025, 3, 11),
+                    ShowTimes = new TimeSpan(17, 3, 0),
                     RoomID = 2,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 7,
-                    ShowDate = new DateTime(2025, 3, 11, 11, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 11),
+                    ShowTimes = new TimeSpan(18, 3, 0),
                     RoomID = 2,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 8,
-                    ShowDate = new DateTime(2025, 3, 12, 9, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 12),
+                    ShowTimes = new TimeSpan(19, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 }
@@ -538,99 +546,97 @@ namespace Cinema.DataAccess.Data
                     OrderID = 1,
                     Status = OrderStatus.Completed,
                     TotalAmount = 124235,
-                    CreatedAt = new DateTime(2025, 1, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 1, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 2,
                     Status = OrderStatus.Pending,
                     TotalAmount = 747237.654,
-                    CreatedAt = new DateTime(2025, 2, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 2, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 3,
                     Status = OrderStatus.Completed,
                     TotalAmount = 50000,
-                    CreatedAt = new DateTime(2025, 3, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 3, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 4,
                     Status = OrderStatus.Pending,
                     TotalAmount = 60000,
-                    CreatedAt = new DateTime(2025, 4, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 4, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 5,
                     Status = OrderStatus.Completed,
                     TotalAmount = 70000,
-                    CreatedAt = new DateTime(2025, 5, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 5, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 6,
                     Status = OrderStatus.Pending,
                     TotalAmount = 80000,
-                    CreatedAt = new DateTime(2025, 6, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 6, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 7,
                     Status = OrderStatus.Completed,
                     TotalAmount = 90000,
-                    CreatedAt = new DateTime(2025, 7, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 7, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 8,
                     Status = OrderStatus.Pending,
                     TotalAmount = 100000,
-                    CreatedAt = new DateTime(2025, 8, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 8, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 9,
                     Status = OrderStatus.Completed,
                     TotalAmount = 110000,
-                    CreatedAt = new DateTime(2025, 9, 1)
-                    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                    CreatedAt = new DateTime(2025, 9, 1),
+                    UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
                 },
                 new OrderTable
                 {
                     OrderID = 10,
                     Status = OrderStatus.Pending,
                     TotalAmount = 120000,
-                    CreatedAt = new DateTime(2025, 10, 1)
+                    CreatedAt = new DateTime(2025, 10, 1),
 
-                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                    UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
                 },
                 new OrderTable
                 {
                     OrderID = 11,
                     Status = OrderStatus.Completed,
                     TotalAmount = 130000,
-                    CreatedAt = new DateTime(2025, 11, 1)
-
-                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                    CreatedAt = new DateTime(2025, 11, 1),
+                    UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
                 },
                 new OrderTable
                 {
                     OrderID = 12,
                     Status = OrderStatus.Pending,
                     TotalAmount = 140000,
-                    CreatedAt = new DateTime(2025, 12, 1)
-
-                    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                    CreatedAt = new DateTime(2025, 12, 1),
+                    UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
                 }
             );
 
