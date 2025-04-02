@@ -80,7 +80,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                 }
                 else
                 {
-                    var defaultShowInfo = GetDefaultShowInfo(); // Phương thức giả định
+                    //var defaultShowInfo = GetDefaultShowInfo(); // Phương thức giả định
 
                     _context.OrderDetails.Add(new OrderDetail
                     {
@@ -92,18 +92,10 @@ namespace Cinema_System.Areas.Guest.Controllers
                         Quantity = quantity,
                         TotalPrice = product.Price * quantity,
 
-                        // Các trường bắt buộc về thông tin phim
-                        MovieId = defaultShowInfo.MovieId,
-                        MovieName = defaultShowInfo.MovieName,
-                        Date = defaultShowInfo.Date,
-                        City = defaultShowInfo.City,
-                        Cinema = defaultShowInfo.Cinema,
-                        Showtime = defaultShowInfo.Showtime,
-                        RoomId = defaultShowInfo.RoomId,
-                        RoomName = defaultShowInfo.RoomName,
+
 
                         // Các trường NotMapped sẽ không được lưu vào database
-                        Tickets = new List<TicketSelectionVM>(),
+                        //Tickets = new List<TicketSelectionVM>(), 
                         FoodItems = new List<FoodSelectionVM>()
                     });
                 }
@@ -252,33 +244,33 @@ namespace Cinema_System.Areas.Guest.Controllers
             return View(viewModel);
         }
 
-        private ShowInfo GetDefaultShowInfo()
-        {
-            return new ShowInfo
-            {
-                MovieId = 0,
-                MovieName = string.Empty,
-                Date = DateTime.Now.ToString("yyyy-MM-dd"),
-                City = string.Empty,
-                Cinema = string.Empty,
-                Showtime = string.Empty,
-                RoomId = -1,
-                RoomName = string.Empty
-            };
-        }
+        //private ShowInfo GetDefaultShowInfo()
+        //{
+        //    return new ShowInfo
+        //    {
+        //        MovieId = 0,
+        //        MovieName = string.Empty,
+        //        Date = DateTime.Now.ToString("yyyy-MM-dd"),
+        //        City = string.Empty,
+        //        Cinema = string.Empty,
+        //        Showtime = string.Empty,
+        //        RoomId = -1,
+        //        RoomName = string.Empty
+        //    };
+        //}
 
-        // Lớp hỗ trợ
-        public class ShowInfo
-        {
-            public int MovieId { get; set; }
-            public string MovieName { get; set; }
-            public string Date { get; set; }
-            public string City { get; set; }
-            public string Cinema { get; set; }
-            public string Showtime { get; set; }
-            public int RoomId { get; set; }
-            public string RoomName { get; set; }
-        }
+        //// Lớp hỗ trợ
+        //public class ShowInfo
+        //{
+        //    public int MovieId { get; set; }
+        //    public string MovieName { get; set; }
+        //    public string Date { get; set; }
+        //    public string City { get; set; }
+        //    public string Cinema { get; set; }
+        //    public string Showtime { get; set; }
+        //    public int RoomId { get; set; }
+        //    public string RoomName { get; set; }
+        //}
 
         [HttpGet]
         public IActionResult Product(string searchString, ProductType? productType)

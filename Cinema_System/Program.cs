@@ -167,6 +167,12 @@ app.MapControllerRoute(
     pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+//route mapping cho area Staff
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "staff/products/{action=Index}/{id?}",
+    defaults: new { area = "Staff", controller = "ProductStaff" });
+
 // Add middleware to handle role-based redirects
 app.Use(async (context, next) =>
 {

@@ -180,7 +180,7 @@ html {
 }
 
 .text-primary {
-    color: #192E2F !important;
+    color: white !important;
 }
 
 .text-success {
@@ -214,17 +214,16 @@ bg-success {
 }
 
 .btn-outline-primary {
-    color: #192E2F;
-    border-color: #192E2F;
+    color: white !important;
+    border-color: white !important;
 }
 
 
-
-    .btn-outline-primary:hover {
-        color: #fff;
-        background-color: #192E2F;
-        border-color: #192E2F;
-    }
+.btn-outline-primary:hover {
+        color: black;
+        background-color: #6b2cc3 !important;
+        border-color: white !important;
+}
 
 
 
@@ -351,17 +350,18 @@ bg-success {
 
 
 .btn-primary {
-    color: #fff;
-    background-color: #192E2F;
-    border-color: #192E2F;
+    color: black;
+    background-color: white;
+    border-color: black;
+    text-align: center;
 }
 
 
 
     .btn-primary:hover {
-        color: #fff;
-        background-color: #445f5e;
-        border-color: #445f5e;
+        color: white;
+        background-color: red;
+        border-color: black;
     }
 
 
