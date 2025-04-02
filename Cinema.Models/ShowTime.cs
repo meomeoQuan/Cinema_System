@@ -45,7 +45,7 @@ namespace Cinema.Models
         [ValidateNever]
         public virtual Room Room { get; set; } = null!;
 
-        [InverseProperty("Showtime")] 
+        [InverseProperty("Showtime")]
         public virtual ICollection<ShowtimeSeat> ShowTimeSeats { get; set; } = new List<ShowtimeSeat>();
 
 

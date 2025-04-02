@@ -65,7 +65,7 @@ namespace Cinema.DataAccess.Repository
             return await query.ToListAsync();
         }
 
-    
+
         public void Add(T entity)
         {
             dbSet.Add(entity);
@@ -81,7 +81,7 @@ namespace Cinema.DataAccess.Repository
             dbSet.RemoveRange(entities);
         }
 
-        public async Task<IEnumerable<T>> GetAllPagedAsync( Expression<Func<T, bool>>? filter = null, string? includeProperties = null,   int pageIndex = 1,  int pageSize = 3)
+        public async Task<IEnumerable<T>> GetAllPagedAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, int pageIndex = 1, int pageSize = 3)
         {
             IQueryable<T> query = dbSet;
 
@@ -114,9 +114,9 @@ namespace Cinema.DataAccess.Repository
                 query = query.Where(filter);
             }
 
-            if(!string.IsNullOrEmpty(includeProperties))
+            if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach(var includeProp in includeProperties.Split(new char[] {','},StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(includeProp);
                 }
@@ -130,16 +130,16 @@ namespace Cinema.DataAccess.Repository
         // page 4 -> offset 9 , movies 1
 
         // 
-        public async Task<int> CountAsync(Expression<Func<T, bool>> ? filter = null)
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? filter = null)
         {
-           if(filter != null)
+            if (filter != null)
             {
                 return await dbSet.CountAsync(filter);
             }
-           return await dbSet.CountAsync();
+            return await dbSet.CountAsync();
         }
 
-   
+
         public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet.Where(filter);

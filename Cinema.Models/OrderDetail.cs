@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Cinema.Models.ViewModels;
@@ -27,7 +27,7 @@ namespace Cinema.Models
 
         [Column("ProductID")] // Đảm bảo tên cột khớp với database
         public int? ProductID { get; set; }     // Cho phép ProductID nullable để hỗ trợ đơn hàng chỉ có vé xem phim
-        
+
         public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
 
@@ -56,15 +56,15 @@ namespace Cinema.Models
         public double TotalPrice
         {
             get { return Price * Quantity; }
-            set { } 
+            set { }
         }
 
-       // remove this if error occured
+        // remove this if error occured
         //[ForeignKey("UserID")]
         //[ValidateNever]
         //public virtual ApplicationUser User { get; set; }
 
-       //
+        //
 
         [ForeignKey("OrderID")]
         [ValidateNever]
@@ -79,5 +79,5 @@ namespace Cinema.Models
         [ForeignKey("ShowtimeSeatID")]
         [ValidateNever]
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
-       }
     }
+}

@@ -25,7 +25,7 @@ namespace Cinema.Models
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Used count cannot be negative.")]
         public int UsedCount { get; set; } = 0; // Default value to match SQL
-        public DateTime? ExpireDate { get; set; } 
+        public DateTime? ExpireDate { get; set; }
 
 
 

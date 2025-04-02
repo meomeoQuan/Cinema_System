@@ -34,7 +34,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             ViewData["CinemaId"] = cinemaId;
 
             var list = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
- 
+
             return View(list);
         }
 
