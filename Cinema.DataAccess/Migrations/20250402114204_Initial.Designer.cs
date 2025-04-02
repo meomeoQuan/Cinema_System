@@ -4,6 +4,7 @@ using Cinema.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250402114204_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -313,8 +316,7 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("float");
 
                     b.Property<int?>("ProductID")
-                        .HasColumnType("int")
-                        .HasColumnName("ProductID");
+                        .HasColumnType("int");
 
                     b.Property<int?>("ProductId")
                         .HasColumnType("int")
@@ -378,7 +380,6 @@ namespace Cinema.DataAccess.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("OrderTables");
-
                 });
 
             modelBuilder.Entity("Cinema.Models.Product", b =>

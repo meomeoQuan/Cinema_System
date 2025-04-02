@@ -19,7 +19,8 @@ namespace Cinema.Models
         [NotMapped] // Không lưu vào database
         public string? TempId { get; set; } // Dùng cho session
 
-        //public string? UserID { get; set; } // Nullable cho khách
+        //public string UserId { get; set; } // Nullable cho khách
+
 
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
@@ -61,7 +62,8 @@ namespace Cinema.Models
        // remove this if error occured
         //[ForeignKey("UserID")]
         //[ValidateNever]
-        //public virtual ApplicationUser? User { get; set; }
+        //public virtual ApplicationUser User { get; set; }
+
        //
 
         [ForeignKey("OrderID")]

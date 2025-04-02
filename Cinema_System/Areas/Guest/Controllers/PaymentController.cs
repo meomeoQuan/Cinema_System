@@ -126,7 +126,6 @@ namespace Cinema_System.Areas
                 _context.OrderDetails.Add(new OrderDetail
                 {
                     OrderID = orderId,
-                    ProductID = _context.Products.FirstOrDefault(p => p.Name == food.name).ProductID,
                     Quantity = food.quantity,
                     Price = food.price,
                 });
