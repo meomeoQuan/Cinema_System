@@ -40,7 +40,7 @@
 
                             <tr data-id="@theater.CinemaID">
                                 <td data-field="Name">@theater.Name</td>
-                                <td data-field="Address">@theater.Name</td>
+                                <td data-field="Address">@theater.Address</td>
                                 <td data-field="AdminID">
                                     @(theater.Admin != null ? theater.Admin.FullName : "Not Assigned")
 
@@ -254,7 +254,7 @@
         });
 
 
-                    $(document).ready(function () {
+            $(document).ready(function () {
             $('#tblData').on('click', '.toggle-status-btn', function () {
                 var button = $(this);
                 var cinemaId = button.data('id');
