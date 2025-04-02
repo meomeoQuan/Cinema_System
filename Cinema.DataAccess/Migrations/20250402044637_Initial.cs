@@ -99,7 +99,7 @@ namespace Cinema.DataAccess.Migrations
                     TrailerLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AgeLimit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AgeLimit = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsUpcomingMovie = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -368,7 +368,7 @@ namespace Cinema.DataAccess.Migrations
                 {
                     ShowTimeID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ShowDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ShowDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ShowTimes = table.Column<TimeSpan>(type: "time", nullable: false),
                     RoomID = table.Column<int>(type: "int", nullable: false),
                     MovieID = table.Column<int>(type: "int", nullable: false)
@@ -560,9 +560,9 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ShowTimeID", "MovieID", "RoomID", "ShowDate", "ShowTimes" },
                 values: new object[,]
                 {
-                    { 2, 3, 2, new DateTime(2025, 3, 10, 9, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 6, 1, 2, new DateTime(2025, 3, 11, 9, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 7, 1, 2, new DateTime(2025, 3, 11, 11, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) }
+                    { 2, 3, 2, new DateOnly(2025, 3, 10), new TimeSpan(0, 9, 3, 0, 0) },
+                    { 6, 1, 2, new DateOnly(2025, 3, 11), new TimeSpan(0, 17, 3, 0, 0) },
+                    { 7, 1, 2, new DateOnly(2025, 3, 11), new TimeSpan(0, 18, 3, 0, 0) }
                 });
 
             migrationBuilder.InsertData(
@@ -627,11 +627,11 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ShowTimeID", "MovieID", "RoomID", "ShowDate", "ShowTimes" },
                 values: new object[,]
                 {
-                    { 1, 1, 1, new DateTime(2025, 3, 10, 7, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 3, 1, 1, new DateTime(2025, 3, 10, 11, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 4, 1, 1, new DateTime(2025, 3, 10, 13, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 5, 1, 1, new DateTime(2025, 3, 11, 7, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 8, 1, 1, new DateTime(2025, 3, 12, 9, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) }
+                    { 1, 1, 1, new DateOnly(2025, 3, 10), new TimeSpan(0, 7, 3, 0, 0) },
+                    { 3, 1, 1, new DateOnly(2025, 3, 10), new TimeSpan(0, 11, 3, 0, 0) },
+                    { 4, 1, 1, new DateOnly(2025, 3, 10), new TimeSpan(0, 13, 3, 0, 0) },
+                    { 5, 1, 1, new DateOnly(2025, 3, 11), new TimeSpan(0, 15, 3, 0, 0) },
+                    { 8, 1, 1, new DateOnly(2025, 3, 12), new TimeSpan(0, 19, 3, 0, 0) }
                 });
 
             migrationBuilder.InsertData(

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250331005906_Initial")]
+    [Migration("20250402044637_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -78,7 +78,6 @@ namespace Cinema.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MovieID"));
 
                     b.Property<string>("AgeLimit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -1107,8 +1106,8 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<int>("RoomID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ShowDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("ShowDate")
+                        .HasColumnType("date");
 
                     b.Property<TimeSpan>("ShowTimes")
                         .HasColumnType("time");
@@ -1127,64 +1126,64 @@ namespace Cinema.DataAccess.Migrations
                             ShowTimeID = 1,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 7, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 7, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 2,
                             MovieID = 3,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 10, 9, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 9, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 3,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 11, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 11, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 4,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 13, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 13, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 5,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 11, 7, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 15, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 6,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 11, 9, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 17, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 7,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 11, 11, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 18, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 8,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 12, 9, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 12),
+                            ShowTimes = new TimeSpan(0, 19, 3, 0, 0)
                         });
                 });
 

@@ -272,23 +272,19 @@ namespace Cinema_System.Areas.Admin.Controllers
 
                 try
                 {
-                    // ✅ Update the room capacity in the database first
                     _unitOfWork.Room.Update(room);
                     await _unitOfWork.SaveAsync();
 
-                    // ✅ Get the current seat count
                     var existingSeats = await _unitOfWork.Seat.GetAllAsync(s => s.RoomID == room.RoomID);
                     int currentSeatCount = existingSeats.Count();
 
                     if (capacity > currentSeatCount)
                     {
-                        // 🟢 Add missing seats
                         int seatsToAdd = capacity - currentSeatCount;
                         await AddSeats(room.RoomID, seatsToAdd);
                     }
                     else if (capacity < currentSeatCount)
                     {
-                        // 🔴 Only remove extra seats (do not remove all if they already match)
                         int seatsToRemove = currentSeatCount - capacity;
                         if (seatsToRemove > 0)
                         {
