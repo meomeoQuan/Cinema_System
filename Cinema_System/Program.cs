@@ -49,6 +49,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //-------------------------------------- SIGNAL IR   -------------------------------------------------
 builder.Services.AddSignalR();
 
+//đăng kí repository của product
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 //------------------------------ Configure Identity ---------------------------
 // Configure Identity with ApplicationUser
@@ -222,3 +224,5 @@ void SeedDatabase()
         DbInitializer.Initialize();
     }
 }
+
+
