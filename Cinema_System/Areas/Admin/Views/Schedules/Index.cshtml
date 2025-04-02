@@ -149,7 +149,7 @@
                 };
 
                 $.ajax({
-                    url: '/Admin/Schedules/Add',
+                    url: '/Admin/Schedules/AddRoom',
                     type: 'POST',
                     data: data,
                     success: function (response) {
@@ -220,27 +220,33 @@
                     return;
                 }
 
+                console.log("Calling loadRooms with cinemaId:", cinemaId); // Debug 1
+
                 $.ajax({
                     url: '/Admin/Schedules/GetRoomsByCinema',
                     type: 'GET',
                     data: { cinemaId: cinemaId },
+                    dataType: 'json', // Đảm bảo response là JSON
                     success: function (response) {
+                        console.log("Response from server:", response); // Debug 2
                         var roomSelect = $('#scheduleRoomNumber');
                         roomSelect.empty();
 
-                        if (response.success && response.rooms.length > 0) {
+                        if (response.success && response.rooms && response.rooms.length > 0) {
                             roomSelect.append('<option value="">Select Room</option>');
                             response.rooms.forEach(function (room) {
+                                console.log("Adding room - ID:", room.RoomID, "Number:", room.RoomNumber); // Debug 3
                                 roomSelect.append($('<option></option>')
                                     .attr('value', room.RoomID)
-                                    .text(room.RoomNumber));
+                                    .text(room.RoomNumber || "Unnamed Room")); // Nếu RoomNumber null thì hiển thị mặc định
                             });
                         } else {
                             roomSelect.append('<option value="">No rooms available</option>');
                             toastr.warning(response.message || 'No rooms found');
                         }
                     },
-                    error: function () {
+                    error: function (xhr, status, error) {
+                        console.error("AJAX error:", status, error, xhr.responseText); // Debug 4
                         toastr.error('Error loading rooms');
                     }
                 });

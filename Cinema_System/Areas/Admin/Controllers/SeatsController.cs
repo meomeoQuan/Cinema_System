@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
@@ -31,32 +30,54 @@ namespace Cinema_System.Areas.Admin.Controllers
             return View(seats);
         }
 
-        public async Task<IActionResult> GetAll(int roomId)
-        {
-            if (roomId <= 0)
-            {
-                return Json(new { success = false, message = "Invalid Room ID." });
-            }
-
-            var seats = await _unitOfWork.Seat.GetSeatsByRoomIdAsync(roomId);
-            return Json(new { success = true, data = seats });
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetSeatById(int seatId)
         {
             if (seatId <= 0)
             {
-                return BadRequest("Invalid Seat ID.");
+                return BadRequest(new { success = false, message = "Invalid Seat ID." });
             }
 
             var seat = await _unitOfWork.Seat.GetByIdAsync(seatId);
             if (seat == null)
             {
-                return NotFound();
+                return NotFound(new { success = false, message = "Seat not found." });
             }
 
-            return Json(seat);
+            return Json(new { success = true, data = seat });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int seatId, string action)
+        {
+            if (seatId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid Seat ID." });
+            }
+
+            var seat = await _unitOfWork.Seat.GetByIdAsync(seatId);
+            if (seat == null)
+            {
+                return NotFound(new { success = false, message = "Seat not found." });
+            }
+
+            if (action == "lock")
+            {
+                seat.Status = SeatStatus.Maintenance;
+            }
+            else if (action == "unlock")
+            {
+                seat.Status = SeatStatus.Available;
+            }
+            else
+            {
+                return BadRequest(new { success = false, message = "Invalid action." });
+            }
+
+            _unitOfWork.Seat.Update(seat);
+            await _unitOfWork.SaveAsync();
+
+            return Json(new { success = true, message = "Seat status updated successfully." });
         }
     }
 }
