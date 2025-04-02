@@ -38,6 +38,24 @@ namespace Cinema_System.Areas.Admin.Controllers
             return View(cinemas);
         }
 
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var cinemas = await _unitOfWork.Cinema.GetAllAsync();
+            var cinemasList = cinemas.Select(c => new
+            {
+                c.CinemaID,
+                c.Name,
+                c.Address,
+                AdminName = c.Admin?.FullName ?? "Unknown",
+                c.NumberOfRooms,
+                c.OpeningTime,
+                c.ClosingTime
+            }).ToList();
+
+            return Json(new { data = cinemasList });
+        }
+
         public async Task<IActionResult> Create(Theater theater)
         {
             if (ModelState.IsValid)
@@ -45,13 +63,13 @@ namespace Cinema_System.Areas.Admin.Controllers
                 try
                 {
                     // Kiểm tra tên rạp đã tồn tại chưa
-                    if (_unitOfWork.Cinema.Get(c => c.Name == theater.Name) != null)
+                    if (_unitOfWork.Cinema.GetAllAsync(c => c.Name == theater.Name) != null)
                     {
                         return Json(new { success = false, message = "Theater name already exists." });
                     }
 
                     // Kiểm tra địa chỉ rạp đã tồn tại chưa
-                    if (_unitOfWork.Cinema.Get(c => c.Address == theater.Address) != null)
+                    if (_unitOfWork.Cinema.GetAllAsync(c => c.Address == theater.Address) != null)
                     {
                         return Json(new { success = false, message = "Theater address already exists." });
                     }
@@ -209,22 +227,6 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
-        {
-            var cinemas = await _unitOfWork.Cinema.GetAllAsync();
-            var cinemasList = cinemas.Select(c => new
-            {
-                c.CinemaID,
-                c.Name,
-                c.Address,
-                AdminName = c.Admin?.FullName ?? "Unknown",
-                c.NumberOfRooms,
-                c.OpeningTime,
-                c.ClosingTime
-            }).ToList();
-
-            return Json(new { data = cinemasList });
-        }
+        
     }
 }

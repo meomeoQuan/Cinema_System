@@ -17,7 +17,6 @@ namespace Cinema.Models
         [InverseProperty("Admin")]
         public virtual ICollection<Theater> Theaters { get; set; } = new List<Theater>();
 
-        // ✅ Add this property to match `UserCoupon.User`
         [InverseProperty("User")]
         public virtual ICollection<UserCoupon> UserCoupons { get; set; } = new List<UserCoupon>();
     }
