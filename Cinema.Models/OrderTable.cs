@@ -33,7 +33,7 @@ namespace Cinema.Models
 
         public DateTime UpdatedAt { get; set; }
 
-        // Navigation properties
+
         [ForeignKey("UserID")]
         [ValidateNever]
         //[InverseProperty("OrderTables")]

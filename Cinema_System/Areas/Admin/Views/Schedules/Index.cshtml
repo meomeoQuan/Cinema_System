@@ -12,7 +12,7 @@
 				<i ></i> Schedule Management
 			</h3>
 			<button id="addScheduleBtn" class="btn btn-primary">
-				<i ></i> Add Schedule
+				<i ></i> Add
 			</button>
 		</div>
 		<div class="card-body">
@@ -55,7 +55,7 @@
 	<!-- Add Schedule Form -->
 	<div class="card shadow-sm mt-3 d-none" id="schedule-form">
 		<div class="card-header bg-primary text-white text-center">
-			<h4 class="mb-0">Add Schedule</h4>
+			<h4 class="mb-0">Add</h4>
 		</div>
 		<div class="card-body">
 			<form id="scheduleForm">
@@ -96,6 +96,7 @@
 					<div class="col-md-6">
 						<label class="form-label">Room Number</label>
 						<select class="form-select" id="scheduleRoomNumber" required>
+                         
 							<option value="">Select Cinema First</option>
 						</select>
 					</div>
@@ -108,9 +109,7 @@
 					<label class="form-label">Showtime</label>
 					<input type="time" class="form-control" id="scheduleShowtime" required>
 				</div>
-				<button type="submit" class="btn btn-secondary w-100">
-					<i class="bi bi-check-circle"></i> Submit
-				</button>
+                <button type="submit" class="btn btn-secondary w-100 mt-3"> Submit </button>
 			</form>
 		</div>
 	</div>
@@ -215,44 +214,43 @@
                     .html('<i class="bi bi-pencil-square"></i> Edit');
             });
 
-            // Load Rooms Based on Selected Cinema
-                    function loadRooms(cinemaId) {
-            if (!cinemaId) {
-                $('#scheduleRoomNumber').html('<option value="">Select Cinema First</option>');
-                return;
-            }
-
-            console.log("Calling loadRooms with cinemaId:", cinemaId); // Debug 1
-
-            $.ajax({
-                url: '/Admin/Schedules/GetRoomsByCinema',
-                type: 'GET',
-                data: { cinemaId: cinemaId },
-                dataType: 'json', // Đảm bảo response là JSON
-                success: function (response) {
-                    console.log("Response from server:", response); // Debug 2
-                    var roomSelect = $('#scheduleRoomNumber');
-                    roomSelect.empty();
-
-                    if (response.success && response.rooms && response.rooms.length > 0) {
-                        roomSelect.append('<option value="">Select Room</option>');
-                        response.rooms.forEach(function (room) {
-                            console.log("Adding room - ID:", room.RoomID, "Number:", room.RoomNumber); // Debug 3
-                            roomSelect.append($('<option></option>')
-                                .attr('value', room.RoomID)
-                                .text(room.RoomNumber || "Unnamed Room")); // Nếu RoomNumber null thì hiển thị mặc định
-                        });
-                    } else {
-                        roomSelect.append('<option value="">No rooms available</option>');
-                        toastr.warning(response.message || 'No rooms found');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("AJAX error:", status, error, xhr.responseText); // Debug 4
-                    toastr.error('Error loading rooms');
+            function loadRooms(cinemaId) {
+                if (!cinemaId) {
+                    $('#scheduleRoomNumber').html('<option value="">Select Cinema First</option>');
+                    return;
                 }
-            });
-        }
+
+                console.log("Calling loadRooms with cinemaId:", cinemaId); // Debug 1
+
+                $.ajax({
+                    url: '/Admin/Schedules/GetRoomsByCinema',
+                    type: 'GET',
+                    data: { cinemaId: cinemaId },
+                    dataType: 'json', // Đảm bảo response là JSON
+                    success: function (response) {
+                        console.log("Response from server:", response); // Debug 2
+                        var roomSelect = $('#scheduleRoomNumber');
+                        roomSelect.empty();
+
+                        if (response.success && response.rooms && response.rooms.length > 0) {
+                            roomSelect.append('<option value="">Select Room</option>');
+                            response.rooms.forEach(function (room) {
+                                console.log("Adding room - ID:", room.RoomID, "Number:", room.RoomNumber); // Debug 3
+                                roomSelect.append($('<option></option>')
+                                    .attr('value', room.RoomID)
+                                    .text(room.RoomNumber || "Unnamed Room")); // Nếu RoomNumber null thì hiển thị mặc định
+                            });
+                        } else {
+                            roomSelect.append('<option value="">No rooms available</option>');
+                            toastr.warning(response.message || 'No rooms found');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX error:", status, error, xhr.responseText); // Debug 4
+                        toastr.error('Error loading rooms');
+                    }
+                });
+            }
 
             // Bind Change Event for Cinema Dropdown
             $('#scheduleCinema').change(function () {

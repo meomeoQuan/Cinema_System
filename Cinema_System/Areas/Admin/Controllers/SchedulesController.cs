@@ -83,6 +83,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         //    var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId); // quan fix ,xem lai 
         //    // anh muon lay cai gi lay Room dua tren CinemaID hay 
         //    // --- lay Room dua tren roomid include Theater.CinemaID
+              //var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
         //    return Json(rooms);
         //}
         [HttpGet]
@@ -95,8 +96,54 @@ namespace Cinema_System.Areas.Admin.Controllers
                 RoomID = r.RoomID,
                 RoomNumber = r.RoomNumber
             }).ToList();
-
+          
             return Json(new { success = true, rooms = roomList });
         }
+        
+        
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ShowTime model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid showtime data." });
+            }
+
+            // Check if room exists
+            var room = await _unitOfWork.Room.GetAllAsync(r => r.RoomID == model.RoomID, includeProperties: "Seats");
+            
+            var roomEntity = room.FirstOrDefault();
+            if (roomEntity == null)
+            {
+                return Json(new { success = false, message = "Invalid room." });
+            }
+
+            _unitOfWork.showTime.Add(model);
+            await _unitOfWork.SaveAsync();
+
+            await _unitOfWork.ShowTimeSeat.AddRangeAsync(AutoGenerateTickets(roomEntity, model));
+
+            await _unitOfWork.SaveAsync();
+
+            return Json(new { success = true, message = "Showtime and tickets created successfully!" });
+        }
+
+
+        private List<ShowtimeSeat>  AutoGenerateTickets(Room room, ShowTime showTime)
+        {
+            var seats = new List<ShowtimeSeat>();
+            foreach (var seat in room.Seats)
+            {
+                var showtimeSeat = new ShowtimeSeat
+                {
+                    ShowtimeID = showTime.ShowTimeID,
+                    SeatID = seat.SeatID,
+                    Status = ShowtimeSeatStatus.Available
+                };
+                seats.Add(showtimeSeat);
+            }
+            return seats;
+        }
+
     }
 }
