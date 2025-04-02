@@ -210,9 +210,9 @@ namespace Cinema_System.Areas
 
         public async Task GenerateTicket(OrderTable order)
         {
-            
 
-            string secretKey = "h23hriu2ibfas92"; // Store securely in app settings or environment variables
+
+            string secretKey = "h23hriu2ibfas92"; // Store securely in app settings or environment variables optional
             string orderId = order.OrderID.ToString();
             string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
             string ? validationUrl = "";

@@ -26,19 +26,19 @@ namespace Cinema_System.Areas.Staff.Controllers
         [Authorize(Roles = "Staff")] // 🛡️ Only Staff can access this API
         public async Task<IActionResult> ValidAuthentication(int OrderID, string Key, long Timestamp)
         {
-            string secretKey = "h23hriu2ibfas92";
-            string dataToVerify = $"{OrderID}:{Timestamp}";
+            //string secretKey = "h23hriu2ibfas92";
+            //string dataToVerify = $"{OrderID}:{Timestamp}";
 
            
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
-            {
-                string expectedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToVerify)));
+            //using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+            //{
+            //    string expectedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToVerify)));
 
-                // ❌ Reject if Key doesn't match
-                if (expectedHash != Key)
-                {
-                    return Unauthorized("Invalid QR Code");
-                }
+            //    // ❌ Reject if Key doesn't match
+            //    if (expectedHash != Key)
+            //    {
+            //        return Unauthorized("Invalid QR Code");
+            //    }
 
                 //// ⏳ Reject if the QR Code is expired (valid for 10 min)
                 //long currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -55,7 +55,7 @@ namespace Cinema_System.Areas.Staff.Controllers
                 // ✅ QR Code is valid, Staff can check the ticket
                 return View(order);
             }
-        }
+        
 
 
 

@@ -135,6 +135,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
                         {
                             new Claim("FullName", appUser?.FullName ?? "User"),
                             new Claim("UserImage", appUser?.UserImage ?? "/images/default-avatar.png")
+
                         };
 
                         // Xóa claims cũ và thêm claims mới
@@ -171,7 +172,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             }
 
             // If we got this far, something failed, redisplay form
-            return Page();
+            return Page();  
         }
 
     }
