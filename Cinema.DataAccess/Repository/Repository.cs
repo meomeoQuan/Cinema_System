@@ -23,11 +23,18 @@ namespace Cinema.DataAccess.Repository
 
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
-            IQueryable<T> query = dbSet.Where(filter);
+            IQueryable<T> query = dbSet;
 
-            if (!string.IsNullOrEmpty(includeProperties))
+            // ✅ Apply filter only if it's not null
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            // ✅ Handle includeProperties safely
+            if (!string.IsNullOrWhiteSpace(includeProperties))
             {
                 foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {

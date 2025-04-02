@@ -540,6 +540,7 @@ namespace Cinema.DataAccess.Data
 
 
             // Seed OrderTables
+
             //modelBuilder.Entity<OrderTable>().HasData(
             //    new OrderTable
             //    {
@@ -638,6 +639,7 @@ namespace Cinema.DataAccess.Data
             //        UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
             //    }
             //);
+
 
             // Seed OrderDetails
             //modelBuilder.Entity<OrderDetail>().HasData(

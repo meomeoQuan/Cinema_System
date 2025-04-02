@@ -4,6 +4,7 @@ using Cinema.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250402101511_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -316,10 +319,6 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ProductID");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("ProductID");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -337,10 +336,53 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasIndex("ShowtimeSeatID");
 
-                    b.ToTable("OrderDetails", t =>
+                    b.ToTable("OrderDetails");
+
+                    b.HasData(
+                        new
                         {
-                            t.Property("ProductID")
-                                .HasColumnName("ProductID1");
+                            OrderDetailID = 1,
+                            OrderID = 1,
+                            Price = 10.0,
+                            ProductID = 1,
+                            Quantity = 2,
+                            TotalPrice = 20.0
+                        },
+                        new
+                        {
+                            OrderDetailID = 2,
+                            OrderID = 1,
+                            Price = 15.0,
+                            Quantity = 1,
+                            ShowtimeSeatID = 1,
+                            TotalPrice = 15.0
+                        },
+                        new
+                        {
+                            OrderDetailID = 3,
+                            OrderID = 2,
+                            Price = 20.0,
+                            ProductID = 2,
+                            Quantity = 1,
+                            TotalPrice = 20.0
+                        },
+                        new
+                        {
+                            OrderDetailID = 4,
+                            OrderID = 2,
+                            Price = 25.0,
+                            Quantity = 1,
+                            ShowtimeSeatID = 2,
+                            TotalPrice = 25.0
+                        },
+                        new
+                        {
+                            OrderDetailID = 5,
+                            OrderID = 3,
+                            Price = 30.0,
+                            ProductID = 3,
+                            Quantity = 3,
+                            TotalPrice = 90.0
                         });
                 });
 
@@ -379,6 +421,115 @@ namespace Cinema.DataAccess.Migrations
 
                     b.ToTable("OrderTables");
 
+                    b.HasData(
+                        new
+                        {
+                            OrderID = 1,
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 124235.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 2,
+                            CreatedAt = new DateTime(2025, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            TotalAmount = 747237.65399999998,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 3,
+                            CreatedAt = new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 50000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 4,
+                            CreatedAt = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            TotalAmount = 60000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 5,
+                            CreatedAt = new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 70000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 6,
+                            CreatedAt = new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            TotalAmount = 80000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 7,
+                            CreatedAt = new DateTime(2025, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 90000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 8,
+                            CreatedAt = new DateTime(2025, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            TotalAmount = 100000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 9,
+                            CreatedAt = new DateTime(2025, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 110000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                        },
+                        new
+                        {
+                            OrderID = 10,
+                            CreatedAt = new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            TotalAmount = 120000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                        },
+                        new
+                        {
+                            OrderID = 11,
+                            CreatedAt = new DateTime(2025, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 130000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                        },
+                        new
+                        {
+                            OrderID = 12,
+                            CreatedAt = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            TotalAmount = 140000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.Product", b =>

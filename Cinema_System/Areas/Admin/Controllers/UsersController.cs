@@ -62,7 +62,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             user.UserName = updatedUser.FullName;
             user.PhoneNumber = updatedUser.PhoneNumber;
             await _userManager.UpdateAsync(user);
-            
+
             return RedirectToAction(nameof(Index));
         }
 

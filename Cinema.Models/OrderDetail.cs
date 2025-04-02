@@ -17,15 +17,16 @@ namespace Cinema.Models
 
 
         [NotMapped] // Không lưu vào database
-        public string TempId { get; set; } // Dùng cho session
+        public string? TempId { get; set; } // Dùng cho session
 
         //public string UserId { get; set; } // Nullable cho khách
+
 
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
 
         [Column("ProductID")] // Đảm bảo tên cột khớp với database
-        public int? ProductId { get; set; }     // Cho phép ProductID nullable để hỗ trợ đơn hàng chỉ có vé xem phim
+        public int? ProductID { get; set; }     // Cho phép ProductID nullable để hỗ trợ đơn hàng chỉ có vé xem phim
         
         public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
@@ -62,6 +63,7 @@ namespace Cinema.Models
         //[ForeignKey("UserID")]
         //[ValidateNever]
         //public virtual ApplicationUser User { get; set; }
+
        //
 
         [ForeignKey("OrderID")]

@@ -53,6 +53,7 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
         [HttpPost]
+
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             var product = await _productRepo.GetAsync(p => p.ProductID == productId);
