@@ -1,4 +1,4 @@
-﻿@using Cinema.Utility
+﻿﻿@using Cinema.Utility
 
 @using Cinema_System.Areas.Admin.Controllers
 
@@ -145,19 +145,19 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
-		$(document).ready(function () {
-			$('#tblData').DataTable({
-				"pageLength": 10,
-				"lengthMenu": [5, 10, 25, 50],
-				"searching": true,
-				"ordering": true,
-				"info": true
-			});
+        $(document).ready(function () {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "info": true
+            });
 
             // Show user form on Add button click
-			$('#addTheaterBtn').click(function () {
-				$('#theater-form').toggleClass('d-none');
-			});
+            $('#addTheaterBtn').click(function () {
+                $('#theater-form').toggleClass('d-none');
+            });
 
             $('#theaterRooms').on('input', function () {
                 let value = $(this).val();
@@ -166,55 +166,55 @@
                 }
             });
             // Handle form submission
-			$('#createCinemaForm').submit(function(e) {
-			 e.preventDefault();
+            $('#createCinemaForm').submit(function(e) {
+             e.preventDefault();
 
-				var theaterData = {
-					Name: $('#theaterName').val(),
-					Address: $('#theaterAddress').val(),
+                var theaterData = {
+                    Name: $('#theaterName').val(),
+                    Address: $('#theaterAddress').val(),
                     AdminID: $('#adminId').val(),
-					NumberOfRooms: $('#theaterRooms').val(),
-					OpeningTime: $('#theaterOpeningTime').val(),
-					ClosingTime: $('#theaterClosingTime').val(),
-					__RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-				};
+                    NumberOfRooms: $('#theaterRooms').val(),
+                    OpeningTime: $('#theaterOpeningTime').val(),
+                    ClosingTime: $('#theaterClosingTime').val(),
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                };
 
-				// Validate required fields
-				if (Object.values(theaterData).some(value => !value)) {
-					toastr.error('All fields are required.');
-					return;
-				}
+                // Validate required fields
+                if (Object.values(theaterData).some(value => !value)) {
+                    toastr.error('All fields are required.');
+                    return;
+                }
 
-				$.ajax({
-					url: '/Admin/Cinemas/Create',
-					type: 'POST',
-					data: theaterData,
-					success: function (response) {
-						if (response.success) {
-							toastr.success(response.message);
-							alert('Cinema added successfully.');
-							location.reload();
-						} else {
-							toastr.error(response.message);
-						}
-					},
-					error: function (xhr) {
-						var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
-						toastr.error(errorMessage);
-					}
-			});
-		});
+                $.ajax({
+                    url: '/Admin/Cinemas/Create',
+                    type: 'POST',
+                    data: theaterData,
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            alert('Cinema added successfully.');
+                            location.reload();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+            });
+        });
 
 
-			// Xử lý khi nhấn "Edit"
-			$('#tblData').on('click', '.edit-btn', function () {
-				var row = $(this).closest('tr');
-				row.find('td[data-field]').each(function () {
-					$(this).attr('contenteditable', 'true').addClass('editable');
-				});
+            // Xử lý khi nhấn "Edit"
+            $('#tblData').on('click', '.edit-btn', function () {
+                var row = $(this).closest('tr');
+                row.find('td[data-field]').each(function () {
+                    $(this).attr('contenteditable', 'true').addClass('editable');
+                });
 
-				$(this).removeClass('btn-primary edit-btn').addClass('btn-success save-btn').html('<i class="bi bi-check-circle"></i> Save');
-			});
+                $(this).removeClass('btn-primary edit-btn').addClass('btn-success save-btn').html('<i class="bi bi-check-circle"></i> Save');
+            });
 
             // Inline editing
             $('#tblData').on('click', '.save-btn', function () {
@@ -292,7 +292,6 @@
         });
 
 
-		});
-	</script>
+        });
+    </script>
 }
-

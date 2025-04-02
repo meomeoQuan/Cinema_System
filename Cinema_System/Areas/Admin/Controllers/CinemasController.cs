@@ -227,6 +227,6 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
 
-        
+
     }
 }

@@ -34,7 +34,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             ViewData["CinemaId"] = cinemaId;
 
             var list = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
-            
+
             return View(list);
         }
 
@@ -161,7 +161,7 @@ namespace Cinema_System.Areas.Admin.Controllers
         private async Task CreateSeats(int roomId, int numberOfRows, int seatsPerRow)
         {
             var seats = GenerateSeatList(roomId, numberOfRows, seatsPerRow);
-            
+
             foreach (var seat in seats)
             {
                 _unitOfWork.Seat.Add(seat);
@@ -169,7 +169,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             await _unitOfWork.SaveAsync();
         }
 
-        
+
         private List<Seat> GenerateSeatList(int roomId, int numberOfRows, int seatsPerRow)
         {
             var seats = new List<Seat>();
@@ -272,19 +272,23 @@ namespace Cinema_System.Areas.Admin.Controllers
 
                 try
                 {
+                    // ✅ Update the room capacity in the database first
                     _unitOfWork.Room.Update(room);
                     await _unitOfWork.SaveAsync();
 
+                    // ✅ Get the current seat count
                     var existingSeats = await _unitOfWork.Seat.GetAllAsync(s => s.RoomID == room.RoomID);
                     int currentSeatCount = existingSeats.Count();
 
                     if (capacity > currentSeatCount)
                     {
+                        // 🟢 Add missing seats
                         int seatsToAdd = capacity - currentSeatCount;
                         await AddSeats(room.RoomID, seatsToAdd);
                     }
                     else if (capacity < currentSeatCount)
                     {
+                        // 🔴 Only remove extra seats (do not remove all if they already match)
                         int seatsToRemove = currentSeatCount - capacity;
                         if (seatsToRemove > 0)
                         {
@@ -381,7 +385,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return $"Cannot add more rooms. Cinema can only have {existingCinema.NumberOfRooms} rooms.";
             }
 
-            return null; 
+            return null;
         }
 
 

@@ -56,13 +56,13 @@
                                     <div class="d-flex gap-2 justify-content-center">
                                         @if (user.LockoutEnd == null || user.LockoutEnd < DateTime.Now)
                                         {
-                                         
-                                                <button onclick="lockUser('@user.Id', this)"
-                                                        class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
-                                                    <i class="bi bi-lock-fill me-1"></i>LOCK
-                                                </button>
-                                            
-                                            
+
+                                            <button onclick="lockUser('@user.Id', this)"
+                                                    class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
+                                                <i class="bi bi-lock-fill me-1"></i>LOCK
+                                            </button>
+
+
                                         }
                                         else
                                         {
@@ -77,9 +77,10 @@
                                                     class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold">
                                                 <i class="bi bi-pencil-square me-1"></i>Edit
                                             </button>
-                                        } else {
-                                            <button
-                                                    class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold disabled opacity-50">
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold disabled opacity-50">
                                                 <i class="bi bi-pencil-square me-1"></i>Edit
                                             </button>
                                         }
