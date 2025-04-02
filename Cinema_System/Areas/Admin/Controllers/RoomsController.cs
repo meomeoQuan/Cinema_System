@@ -241,18 +241,6 @@ namespace Cinema_System.Areas.Admin.Controllers
             await _unitOfWork.SaveAsync();
         }
 
-
-        private string ConvertToLetter(int index)
-        {
-            string result = "";
-            while (index >= 0)
-            {
-                result = (char)('A' + (index % 26)) + result;
-                index = (index / 26) - 1;
-            }
-            return result;
-        }
-
         [HttpPost]
         public async Task<IActionResult> UpdateField(int id, string field, string value)
         {

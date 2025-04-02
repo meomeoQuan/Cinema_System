@@ -19,7 +19,7 @@ namespace Cinema.Models
         [NotMapped] // Không lưu vào database
         public string TempId { get; set; } // Dùng cho session
 
-        public string UserId { get; set; } // Nullable cho khách
+        //public string UserId { get; set; } // Nullable cho khách
 
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
@@ -30,9 +30,9 @@ namespace Cinema.Models
         public int? ShowtimeSeatID { get; set; } // Nullable if the order is for products only
 
 
-        [Required]
-        [Column("ProductName")]
-        public string ProductName { get; set; }
+        //[Required]
+        //[Column("ProductName")]
+        //public string ProductName { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
@@ -59,9 +59,9 @@ namespace Cinema.Models
         }
 
        // remove this if error occured
-        [ForeignKey("UserID")]
-        [ValidateNever]
-        public virtual ApplicationUser User { get; set; }
+        //[ForeignKey("UserID")]
+        //[ValidateNever]
+        //public virtual ApplicationUser User { get; set; }
        //
 
         [ForeignKey("OrderID")]
@@ -69,7 +69,7 @@ namespace Cinema.Models
         [InverseProperty("OrderDetails")]
         public virtual OrderTable? Order { get; set; }
 
-        [ForeignKey("ProductId")]
+        [ForeignKey("ProductID")]
         [ValidateNever]
         public virtual Product? Product { get; set; }
 
