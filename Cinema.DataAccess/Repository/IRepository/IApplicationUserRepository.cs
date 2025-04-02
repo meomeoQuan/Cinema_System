@@ -8,7 +8,7 @@ using Cinema.Models;
 namespace Cinema.DataAccess.Repository.IRepository
 {
     public interface IApplicationUserRepository : IRepository<ApplicationUser>
-        
+
     {
        
         void Update(ApplicationUser applicationUser);

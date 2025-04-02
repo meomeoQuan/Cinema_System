@@ -55,10 +55,13 @@
                                     <div class="d-flex gap-2 justify-content-center">
                                         @if (user.LockoutEnd == null || user.LockoutEnd < DateTime.Now)
                                         {
+
                                             <button onclick="lockUser('@user.Id', this)"
                                                     class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
                                                 <i class="bi bi-lock-fill me-1"></i>LOCK
                                             </button>
+
+
                                         }
                                         else
                                         {
@@ -95,5 +98,83 @@
             </div>
         </div>
     </div>
+    <!-- User Form -->
+    <div class="card shadow-sm">
+        <div id="user-form" class="p-0 d-none">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">Add new user</h4>
+            </div>
+            <div class="card-body">
+                <form id="createUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="userName" placeholder="Enter Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" placeholder="Enter Email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="userPhone" placeholder="Enter Phone Number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="Admin">Admin</option>
+                            <option value="Staff">Staff</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100 mt-3">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "info": true
+            });
+
+            // Inline editing
+            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
+                var id = $(this).data('id');
+                var field = $(this).data('field');
+                var value = $(this).text();
+
+                if (!value.trim()) {
+                    toastr.error('Field cannot be empty.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Admin/Users/UpdateUserField',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        field: field,
+                        value: value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
 
