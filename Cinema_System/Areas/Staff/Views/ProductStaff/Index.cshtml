@@ -1,0 +1,69 @@
+﻿@using System.Globalization
+@model IEnumerable<Product>
+
+@{
+    ViewData["Title"] = "Product Management";
+}
+
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary text-white">Product List</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; Create New Product
+            </a>
+        </div>
+    </div>
+    <br /><br />
+
+    <div class="mb-3">
+        <a asp-action="GetProductsByType" asp-route-type="@ProductType.Snack" class="btn btn-outline-secondary">Snacks</a>
+        <a asp-action="GetProductsByType" asp-route-type="@ProductType.Drink" class="btn btn-outline-secondary">Drinks</a>
+        <a asp-action="GetProductsByType" asp-route-type="@ProductType.Gift" class="btn btn-outline-secondary">Gifts</a>
+        <a asp-action="GetProductsByType" asp-route-type="@ProductType.Combo" class="btn btn-outline-secondary">Combos</a>
+        <a asp-action="Index" class="btn btn-outline-primary text-white border-white">All Products</a>
+    </div>
+
+    <table class="table table-bordered table-striped text-center" style="width:100%">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var obj in Model)
+            {
+                <tr>
+                    <td width="10%">
+                        @if (!string.IsNullOrEmpty(obj.ProductImage))
+                        {
+                            <img src="@obj.ProductImage" class="img-thumbnail" alt="@obj.Name" />
+                        }
+                        else
+                        {
+                            <span>No Image</span>
+                        }
+                    </td>
+                    <td width="25%">@obj.Name</td>
+                    <td width="15%">@obj.ProductType</td>
+                    <td width="15%">@obj.Price.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</td>
+                    <td width="15%">@obj.Quantity</td>
+                    <td width="20%">
+                        <div class="btn-group" role="group">
+                            <a asp-action="Edit" asp-route-id="@obj.ProductID" class="btn btn-primary mx-2">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

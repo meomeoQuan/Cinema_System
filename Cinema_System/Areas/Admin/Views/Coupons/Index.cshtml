@@ -1,0 +1,737 @@
+﻿@using Cinema.Utility
+@using Cinema_System.Areas.Admin.Controllers
+@using System.Globalization
+@model IEnumerable<Coupon>
+
+@{
+    ViewData["Title"] = "Coupon Management";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 text-center fw-bold">Coupon Management</h3>
+            <button id="addCouponBtn" class="btn btn-primary">Add</button>
+        </div>
+
+        <div class="card-body">
+            <!-- Bảng Coupons -->
+            <div class="table-responsive">
+                <table id="tblData" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 20%;">Code</th>
+                            <th style="width: 15%;">Discount %</th>
+                            <th style="width: 15%;">Usage Limit</th>
+                            <th style="width: 15%;">Used Count</th>
+                            <th style="width: 15%;">Expiry Date</th>
+                            <th class="text-center" style="width: 20%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var coupon in Model)
+                        {
+                            <tr>
+                                <td data-id="@coupon.CouponID" data-field="Code" contenteditable="true">
+                                    @coupon.Code
+                                </td>
+                                <td data-id="@coupon.CouponID" data-field="DiscountPercentage" contenteditable="true">
+                                    @coupon.DiscountPercentage%
+                                </td>
+                                <td data-id="@coupon.CouponID" data-field="UsageLimit" contenteditable="true">
+                                    @coupon.UsageLimit?.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))
+                                </td>
+                                <td data-id="@coupon.CouponID" data-field="UsedCount" contenteditable="true">
+                                    @coupon.UsedCount
+                                </td>
+                                <td>
+                                    @(coupon.ExpireDate.HasValue ? coupon.ExpireDate.Value.ToString("dd/MM/yyyy") : "No expiry")
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button onclick="enableEdit(this)"
+                                                class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold">
+                                            <i class="bi bi-pencil-square me-1"></i>Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">No coupons found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coupon Form -->
+    <div class="card shadow-sm">
+        <div id="coupon-form" class="p-0 d-none">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">Add new coupon</h4>
+            </div>
+            <div class="card-body">
+                <form id="createCouponForm">
+                    <div class="mb-3">
+                        <label class="form-label">Code*</label>
+                        <input type="text" class="form-control" id="couponCode" placeholder="Enter Coupon Code" required>
+                        <small class="text-muted">(Case insensitive, must be unique)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Discount Percentage*</label>
+                        <input type="number" class="form-control" id="discountPercentage"
+                               placeholder="Enter Discount Percentage (0-100)" min="0" max="100" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usage Limit Amount*</label>
+                        <input type="number" class="form-control" id="usageLimit"
+                               placeholder="Enter Usage Limit Amount" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control" id="expireDate">
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100 mt-3">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "columnDefs": [
+                    { "orderable": false, "targets": [5] } // Disable sorting for Actions column
+                ]
+            });
+
+            // Inline editing
+            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
+                var id = $(this).data('id');
+                var field = $(this).data('field');
+                var value = $(this).text().trim();
+
+                if (!value) {
+                    toastr.error('Field cannot be empty.');
+                    return;
+                }
+
+                // Special handling for percentage field
+                if (field === 'DiscountPercentage') {
+                    value = value.replace('%', '');
+                    if (isNaN(value) || value < 0 || value > 100) {
+                        toastr.error('Discount percentage must be between 0 and 100.');
+                        return;
+                    }
+                }
+
+                // Special handling for currency field
+                if (field === 'UsageLimit') {
+                    value = value.replace(/[^0-9.]/g, '');
+                    if (isNaN(value) || value <= 0) {
+                        toastr.error('Max discount amount must be a positive number.');
+                        return;
+                    }
+                }
+
+                $.ajax({
+                    url: '/Admin/Coupons/UpdateCouponField',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        field: field,
+                        value: value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            if (field === 'DiscountPercentage') {
+                                $(this).text(value + '%');
+                            } else if (field === 'UsageLimit') {
+                                $(this).text('$' + parseFloat(value).toFixed(2));
+                            }
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
+
+            // Show coupon form on Add button click
+            $('#addCouponBtn').click(function() {
+                $('#coupon-form').toggleClass('d-none');
+            });
+
+            // Handle form submission
+            $('#createCouponForm').submit(function(e) {
+                e.preventDefault();
+
+                var couponData = {
+                    Code: $('#couponCode').val().trim(),
+                    DiscountPercentage: $('#discountPercentage').val(),
+                    UsageLimit: $('#usageLimit').val(),
+                    UsedCount: 0, // Always initialize to 0
+                    ExpireDate: $('#expireDate').val() ? new Date($('#expireDate').val()).toISOString() : null,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                };
+
+                // Validate data
+                if (!couponData.Code) {
+                    toastr.error('Coupon code is required.');
+                    return;
+                }
+
+                if (couponData.DiscountPercentage < 0 || couponData.DiscountPercentage > 100) {
+                    toastr.error('Discount percentage must be between 0 and 100.');
+                    return;
+                }
+
+                if (couponData.UsageLimit <= 0) {
+                    toastr.error('Max discount amount must be greater than 0.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Admin/Coupons/Create',
+                    type: 'POST',
+                    data: couponData,
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            location.reload();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
+        });
+
+        function enableEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
+            $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
+        }
+
+        function saveEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
+            $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
+        }
+    </script>
+}
+@Html.AntiForgeryToken()
+
+
+@* @using Cinema.Utility *@
+@* @using Cinema_System.Areas.Admin.Controllers *@
+@* @model IEnumerable<Coupon> *@
+
+@* @{ *@
+@*     ViewData["Title"] = "Coupon Management"; *@
+@* } *@
+
+@* <div class="container-fluid mt-4"> *@
+@*     <div class="card shadow-sm"> *@
+@*         <div class="card-header d-flex justify-content-between align-items-center"> *@
+@*             <h3 class="card-title mb-0 text-center fw-bold">Coupon Management</h3> *@
+@*             <button id="addCouponBtn" class="btn btn-primary">Add</button> *@
+@*         </div> *@
+
+@*         <div class="card-body"> *@
+@*             <!-- Bảng Coupons --> *@
+@*             <div class="table-responsive"> *@
+@*                 <table id="tblData" class="table table-bordered table-hover table-striped"> *@
+@*                     <thead class="thead-light"> *@
+@*                         <tr> *@
+@*                             <th style="width: 20%;">Code</th> *@
+@*                             <th style="width: 15%;">Discount %</th> *@
+@*                             <th style="width: 15%;">Usage Limit</th> *@
+@*                             <th style="width: 15%;">Used Count</th> *@
+@*                             <th style="width: 15%;">Expiry Date</th> *@
+@*                             <th style="width: 10%;">Status</th> *@
+@*                             <th class="text-center" style="width: 10%;">Actions</th> *@
+@*                         </tr> *@
+@*                     </thead> *@
+@*                     <tbody> *@
+@*                         @foreach (var coupon in Model) *@
+@*                         { *@
+@*                             bool isExpired = coupon.ExpireDate.HasValue && coupon.ExpireDate < DateTime.Now; *@
+@*                             bool isUsedUp = coupon.UsedCount >= coupon.UsageLimit; *@
+@*                             string statusClass = isExpired ? "bg-danger" : (isUsedUp ? "bg-warning" : "bg-success"); *@
+@*                             string statusText = isExpired ? "Expired" : (isUsedUp ? "Used Up" : "Active"); *@
+
+@*                             <tr> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="Code" contenteditable="true"> *@
+@*                                     @coupon.Code *@
+@*                                 </td> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="DiscountPercentage" contenteditable="true"> *@
+@*                                     @coupon.DiscountPercentage% *@
+@*                                 </td> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="UsageLimit" contenteditable="true"> *@
+@*                                     @coupon.UsageLimit *@
+@*                                 </td> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="UsedCount" contenteditable="true"> *@
+@*                                     @coupon.UsedCount *@
+@*                                 </td> *@
+@*                                 <td> *@
+@*                                     @(coupon.ExpireDate.HasValue ? coupon.ExpireDate.Value.ToString("dd/MM/yyyy") : "No expiry") *@
+@*                                 </td> *@
+@*                                 <td> *@
+@*                                     <span class="badge @statusClass">@statusText</span> *@
+@*                                 </td> *@
+@*                                 <td class="text-center"> *@
+@*                                     <div class="d-flex gap-2 justify-content-center"> *@
+@*                                         <button onclick="enableEdit(this)" *@
+@*                                                 class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold"> *@
+@*                                             <i class="bi bi-pencil-square me-1"></i>Edit *@
+@*                                         </button> *@
+@*                                     </div> *@
+@*                                 </td> *@
+@*                             </tr> *@
+@*                         } *@
+@*                         @if (!Model.Any()) *@
+@*                         { *@
+@*                             <tr> *@
+@*                                 <td colspan="7" class="text-center">No coupons found.</td> *@
+@*                             </tr> *@
+@*                         } *@
+@*                     </tbody> *@
+@*                 </table> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+
+@*     <!-- Coupon Form --> *@
+@*     <div class="card shadow-sm"> *@
+@*         <div id="coupon-form" class="p-0 d-none"> *@
+@*             <div class="card-header bg-primary text-white text-center"> *@
+@*                 <h4 class="mb-0">Add new coupon</h4> *@
+@*             </div> *@
+@*             <div class="card-body"> *@
+@*                 <form id="createCouponForm"> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Code*</label> *@
+@*                         <input type="text" class="form-control" id="couponCode" placeholder="Enter Coupon Code" required> *@
+@*                         <small class="text-muted">(Case insensitive, must be unique)</small> *@
+@*                     </div> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Discount Percentage*</label> *@
+@*                         <input type="number" class="form-control" id="discountPercentage" *@
+@*                                placeholder="Enter Discount Percentage (0-100)" min="0" max="100" step="0.01" required> *@
+@*                     </div> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Usage Limit*</label> *@
+@*                         <input type="number" class="form-control" id="usageLimit" *@
+@*                                placeholder="Enter Maximum Discount Amount" min="1" required> *@
+@*                     </div> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Expiry Date</label> *@
+@*                         <input type="date" class="form-control" id="expireDate"> *@
+@*                     </div> *@
+@*                     <button type="submit" class="btn btn-secondary w-100 mt-3">Submit</button> *@
+@*                 </form> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+
+@* @section Scripts { *@
+@*     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> *@
+@*     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> *@
+@*     <script> *@
+@*         $(document).ready(function() { *@
+@*             $('#tblData').DataTable({ *@
+@*                 "pageLength": 10, *@
+@*                 "searching": true, *@
+@*                 "ordering": true, *@
+@*                 "info": true, *@
+@*                 "columnDefs": [ *@
+@*                     { "orderable": false, "targets": [5, 6] } // Disable sorting for Status and Actions columns *@
+@*                 ] *@
+@*             }); *@
+
+@*             // Inline editing *@
+@*             $('#tblData').on('blur', 'td[contenteditable="true"]', function() { *@
+@*                 var id = $(this).data('id'); *@
+@*                 var field = $(this).data('field'); *@
+@*                 var value = $(this).text().trim(); *@
+
+@*                 if (!value) { *@
+@*                     toastr.error('Field cannot be empty.'); *@
+@*                     return; *@
+@*                 } *@
+
+@*                 // Special handling for percentage field *@
+@*                 if (field === 'DiscountPercentage') { *@
+@*                     value = value.replace('%', ''); *@
+@*                     if (isNaN(value) || value < 0 || value > 100) { *@
+@*                         toastr.error('Discount percentage must be between 0 and 100.'); *@
+@*                         return; *@
+@*                     } *@
+@*                 } *@
+
+@*                 $.ajax({ *@
+@*                     url: '/Admin/Coupons/UpdateCouponField', *@
+@*                     type: 'POST', *@
+@*                     data: { *@
+@*                         id: id, *@
+@*                         field: field, *@
+@*                         value: value, *@
+@*                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() *@
+@*                     }, *@
+@*                     success: function(response) { *@
+@*                         if (response.success) { *@
+@*                             toastr.success(response.message); *@
+@*                             if (field === 'DiscountPercentage') { *@
+@*                                 $(this).text(value + '%'); *@
+@*                             } *@
+@*                         } else { *@
+@*                             toastr.error(response.message); *@
+@*                         } *@
+@*                     }, *@
+@*                     error: function(xhr) { *@
+@*                         var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.'; *@
+@*                         toastr.error(errorMessage); *@
+@*                     } *@
+@*                 }); *@
+@*             }); *@
+
+@*             // Show coupon form on Add button click *@
+@*             $('#addCouponBtn').click(function() { *@
+@*                 $('#coupon-form').toggleClass('d-none'); *@
+@*             }); *@
+
+@*             // Handle form submission *@
+@*                     // Trong phần xử lý form submission *@
+@*         $('#createCouponForm').submit(function(e) { *@
+@*             e.preventDefault(); *@
+
+@*             var couponData = { *@
+@*                 Code: $('#couponCode').val().trim(), *@
+@*                 DiscountPercentage: $('#discountPercentage').val(), *@
+@*                 UsageLimit: $('#usageLimit').val(), *@
+@*                 UsedCount: 0, // Luôn khởi tạo bằng 0 *@
+@*                 ExpireDate: $('#expireDate').val() ? new Date($('#expireDate').val()).toISOString() : null, *@
+@*                 __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() *@
+@*             }; *@
+
+@*             // Validate data (bỏ validate UsedCount) *@
+@*             if (!couponData.Code) { *@
+@*                 toastr.error('Coupon code is required.'); *@
+@*                 return; *@
+@*             } *@
+
+@*             if (couponData.DiscountPercentage < 0 || couponData.DiscountPercentage > 100) { *@
+@*                 toastr.error('Discount percentage must be between 0 and 100.'); *@
+@*                 return; *@
+@*             } *@
+
+@*             if (couponData.UsageLimit <= 0) { *@
+@*                 toastr.error('Usage limit must be greater than 0.'); *@
+@*                 return; *@
+@*             } *@
+
+@*             $.ajax({ *@
+@*                 url: '/Admin/Coupons/Create', *@
+@*                 type: 'POST', *@
+@*                 data: couponData, *@
+@*                 success: function(response) { *@
+@*                     if (response.success) { *@
+@*                         toastr.success(response.message); *@
+@*                         location.reload(); *@
+@*                     } else { *@
+@*                         toastr.error(response.message); *@
+@*                     } *@
+@*                 }, *@
+@*                 error: function(xhr) { *@
+@*                     var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.'; *@
+@*                     toastr.error(errorMessage); *@
+@*                 } *@
+@*             }); *@
+@*         }); *@
+@*     }); *@
+
+@*         function enableEdit(button) { *@
+@*             var row = $(button).closest('tr'); *@
+@*             row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable'); *@
+@*             $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)'); *@
+@*         } *@
+
+@*         function saveEdit(button) { *@
+@*             var row = $(button).closest('tr'); *@
+@*             row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable'); *@
+@*             $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)'); *@
+@*         } *@
+
+@*         function applyCoupon() { *@
+@*             var couponCode = $('#couponInput').val(); *@
+@*             var orderTotal = parseFloat($('#orderTotal').val()); *@
+
+@*             $.ajax({ *@
+@*                 url: '/Admin/Coupons/Apply', *@
+@*                 type: 'POST', *@
+@*                 contentType: 'application/json', *@
+@*                 data: JSON.stringify({ *@
+@*                     CouponCode: couponCode, *@
+@*                     OrderTotal: orderTotal *@
+@*                 }), *@
+@*                 headers: { *@
+@*                     'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() *@
+@*                 }, *@
+@*                 success: function(response) { *@
+@*                     if (response.success) { *@
+@*                         $('#totalAfterDiscount').text(response.newTotal.toFixed(2)); *@
+@*                         $('#discountAmount').text(response.discountAmount.toFixed(2)); *@
+@*                         $('#remainingUses').text(response.remainingUses); *@
+@*                         toastr.success(response.message); *@
+@*                     } else { *@
+@*                         toastr.error(response.message); *@
+@*                     } *@
+@*                 }, *@
+@*                 error: function() { *@
+@*                     toastr.error('Error processing request'); *@
+@*                 } *@
+@*             }); *@
+@*         } *@
+@*     </script> *@
+@* } *@
+@* @Html.AntiForgeryToken() *@
+
+
+@* @using Cinema.Utility *@
+@* @using Cinema_System.Areas.Admin.Controllers *@
+@* @model IEnumerable<Coupon> *@
+
+@* @{ *@
+@*     ViewData["Title"] = "Coupon Management"; *@
+@* } *@
+
+@* <div class="container-fluid mt-4"> *@
+@*     <!-- Tiêu đề bảng + nút Add --> *@
+@*     <div class="card shadow-sm"> *@
+@*         <div class="card-header d-flex justify-content-between align-items-center"> *@
+@*             <h3 class="card-title mb-0 text-center fw-bold">Coupon Management</h3> *@
+@*             <button id="addCouponBtn" class="btn btn-primary">Add</button> *@
+@*         </div> *@
+
+@*         <div class="card-body"> *@
+@*             <!-- Bảng Coupons --> *@
+@*             <div class="table-responsive"> *@
+@*                 <table id="tblData" class="table table-bordered table-hover table-striped"> *@
+@*                     <thead class="thead-light"> *@
+@*                         <tr> *@
+@*                             <th style="width: 20%;">Code</th> *@
+@*                             <th style="width: 20%;">Discount %</th> *@
+@*                             <th style="width: 20%;">Usage Limit</th> *@
+@*                             <th style="width: 20%;">Used Count</th> *@
+@*                             <th class="text-center" style="width: 20%;">Actions</th> *@
+@*                         </tr> *@
+@*                     </thead> *@
+@*                     <tbody> *@
+@*                         @foreach (var coupon in Model) *@
+@*                         { *@
+@*                             <tr> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="Code" contenteditable="true">@coupon.Code</td> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="DiscountPercentage" contenteditable="true">@coupon.DiscountPercentage</td> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="UsageLimit" contenteditable="true">@coupon.UsageLimit</td> *@
+@*                                 <td data-id="@coupon.CouponID" data-field="UsedCount" contenteditable="true">@coupon.UsedCount</td> *@
+@*                                 <td class="text-center"> *@
+@*                                     <div class="d-flex gap-2 justify-content-center"> *@
+@*                                         <button onclick="enableEdit(this)" *@
+@*                                                 class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold"> *@
+@*                                             <i class="bi bi-pencil-square me-1"></i>Edit *@
+@*                                         </button> *@
+@*                                     </div> *@
+@*                                 </td> *@
+@*                             </tr> *@
+@*                         } *@
+@*                         @if (!Model.Any()) *@
+@*                         { *@
+@*                             <tr> *@
+@*                                 <td colspan="5" class="text-center">No coupons found.</td> *@
+@*                             </tr> *@
+@*                         } *@
+@*                     </tbody> *@
+@*                 </table> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+
+@*     <!-- Coupon Form --> *@
+@*     <div class="card shadow-sm"> *@
+@*         <div id="coupon-form" class="p-0 d-none"> *@
+@*             <div class="card-header bg-primary text-white text-center"> *@
+@*                 <h4 class="mb-0">Add new coupon</h4> *@
+@*             </div> *@
+@*             <div class="card-body"> *@
+@*                 <form id="createCouponForm"> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Code</label> *@
+@*                         <input type="text" class="form-control" id="couponCode" placeholder="Enter Coupon Code" required> *@
+@*                     </div> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Discount Percentage</label> *@
+@*                         <input type="number" class="form-control" id="discountPercentage" *@
+@*                                placeholder="Enter Discount Percentage (0-100)" min="0" max="100" required> *@
+@*                     </div> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Usage Limit</label> *@
+@*                         <input type="number" class="form-control" id="usageLimit" *@
+@*                                placeholder="Enter Usage Limit (0-1000)" min="0" max="1000" required> *@
+@*                     </div> *@
+@*                     <div class="mb-3"> *@
+@*                         <label class="form-label">Used Count</label> *@
+@*                         <input type="number" class="form-control" id="usedCount" *@
+@*                                placeholder="Enter Used Count" min="0" required> *@
+@*                     </div> *@
+@*                     <button type="submit" class="btn btn-secondary w-100 mt-3">Submit</button> *@
+@*                 </form> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+
+@* @section Scripts { *@
+@*     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> *@
+@*     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> *@
+@*     <script> *@
+@*         $(document).ready(function() { *@
+@*             $('#tblData').DataTable({ *@
+@*                 "pageLength": 10, *@
+@*                 "searching": true, *@
+@*                 "ordering": true, *@
+@*                 "info": true *@
+@*             }); *@
+
+@*             // Inline editing *@
+@*             $('#tblData').on('blur', 'td[contenteditable="true"]', function() { *@
+@*                 var id = $(this).data('id'); *@
+@*                 var field = $(this).data('field'); *@
+@*                 var value = $(this).text(); *@
+
+@*                 if (!value.trim()) { *@
+@*                     toastr.error('Field cannot be empty.'); *@
+@*                     return; *@
+@*                 } *@
+
+@*                 $.ajax({ *@
+@*                     url: '/Admin/Coupons/UpdateCouponField', *@
+@*                     type: 'POST', *@
+@*                     data: { *@
+@*                         id: id, *@
+@*                         field: field, *@
+@*                         value: value, *@
+@*                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() *@
+@*                     }, *@
+@*                     success: function(response) { *@
+@*                         if (response.success) { *@
+@*                             toastr.success(response.message); *@
+@*                         } else { *@
+@*                             toastr.error(response.message); *@
+@*                         } *@
+@*                     }, *@
+@*                     error: function(xhr) { *@
+@*                         var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.'; *@
+@*                         toastr.error(errorMessage); *@
+@*                     } *@
+@*                 }); *@
+@*             }); *@
+
+@*             // Show coupon form on Add button click *@
+@*             $('#addCouponBtn').click(function() { *@
+@*                 $('#coupon-form').toggleClass('d-none'); *@
+@*             }); *@
+
+@*             // Handle form submission *@
+@*             $('#createCouponForm').submit(function(e) { *@
+@*                 e.preventDefault(); *@
+
+@*                 var code = $('#couponCode').val(); *@
+@*                 var discountPercentage = $('#discountPercentage').val(); *@
+@*                 var usageLimit = $('#usageLimit').val(); *@
+@*                 var usedCount = $('#usedCount').val(); *@
+
+@*                 if (!code.trim() || !discountPercentage.trim() || !usageLimit.trim() || !usedCount.trim()) { *@
+@*                     toastr.error('All fields are required.'); *@
+@*                     return; *@
+@*                 } *@
+
+@*                 if (parseFloat(discountPercentage) < 0 || parseFloat(discountPercentage) > 100) { *@
+@*                     toastr.error('Discount percentage must be between 0 and 100.'); *@
+@*                     return; *@
+@*                 } *@
+
+@*                 if (parseFloat(usageLimit) < 0 || parseFloat(usageLimit) > 1000) { *@
+@*                     toastr.error('Usage limit must be between 0 and 1000.'); *@
+@*                     return; *@
+@*                 } *@
+
+@*                 if (parseInt(usedCount) < 0) { *@
+@*                     toastr.error('Used count cannot be negative.'); *@
+@*                     return; *@
+@*                 } *@
+
+@*                 $.ajax({ *@
+@*                     url: '/Admin/Coupons/Create', *@
+@*                     type: 'POST', *@
+@*                     data: { *@
+@*                         Code: code, *@
+@*                         DiscountPercentage: discountPercentage, *@
+@*                         UsageLimit: usageLimit, *@
+@*                         UsedCount: usedCount, *@
+@*                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() *@
+@*                     }, *@
+@*                     success: function(response) { *@
+@*                         if (response.success) { *@
+@*                             toastr.success(response.message); *@
+@*                             location.reload(); *@
+@*                         } else { *@
+@*                             toastr.error(response.message); *@
+@*                         } *@
+@*                     }, *@
+@*                     error: function(xhr) { *@
+@*                         var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.'; *@
+@*                         toastr.error(errorMessage); *@
+@*                     } *@
+@*                 }); *@
+@*             }); *@
+@*         }); *@
+
+@*         function enableEdit(button) { *@
+@*             var row = $(button).closest('tr'); *@
+@*             row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable'); *@
+@*             $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)'); *@
+@*         } *@
+
+@*         function saveEdit(button) { *@
+@*             var row = $(button).closest('tr'); *@
+@*             row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable'); *@
+@*             $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)'); *@
+@*         } *@
+@*     </script> *@
+@* } *@
+@* @Html.AntiForgeryToken() *@
+
