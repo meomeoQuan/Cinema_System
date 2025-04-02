@@ -42,8 +42,8 @@ for details on configuring this project to bundle and minify static web assets. 
 /* Định dạng container chứa các thành phần */
 .booking-container {
     display: flex;
-    align-items: center;
-    justify-content: center;
+/*    align-items: center;
+    justify-content: center;*/
     gap: 10px;
     background: linear-gradient(to right, #e0e5f5, #ffffff);
     padding: 15px;
