@@ -15,7 +15,8 @@ namespace Cinema.Models
         public int OrderID { get; set; }
 
 
-        //[Required]
+
+        [Required]
         public string? UserID { get; set; } // IdentityUser uses string as primary key
 
         [Required]
@@ -33,7 +34,7 @@ namespace Cinema.Models
 
         public DateTime UpdatedAt { get; set; }
 
-        // Navigation properties
+
         [ForeignKey("UserID")]
         [ValidateNever]
         //[InverseProperty("OrderTables")]

@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Cinema.DataAccess.Data;
@@ -17,50 +18,50 @@ namespace Cinema_System.Areas.Admin.Controllers
     public class RoomsController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public RoomsController(IUnitOfWork unitOfWork,
-                               UserManager<IdentityUser> userManager,
-                               RoleManager<IdentityRole> roleManager)
+        public RoomsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _userManager = userManager;
-            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> Index(int cinemaId)
         {
+            if (cinemaId <= 0)
+            {
+                return BadRequest("Invalid cinema ID");
+            }
+
             ViewData["CinemaId"] = cinemaId;
+
             var list = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
             
             return View(list);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
-        {
-            if (cinemaId <= 0)
-            {
-                return Json(new { success = false, message = "Invalid cinema ID" });
-            }
+        //[HttpGet]
+        //public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
+        //{
+        //    if (cinemaId <= 0)
+        //    {
+        //        return Json(new { success = false, message = "Invalid cinema ID" });
+        //    }
 
-            try
-            {
-                var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId);
+        //    try
+        //    {
+        //        var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId);
 
-                if (rooms == null || !rooms.Any())
-                {
-                    return Json(new { success = false, message = "No rooms found", rooms = new List<object>() });
-                }
+        //        if (rooms == null || !rooms.Any())
+        //        {
+        //            return Json(new { success = false, message = "No rooms found", rooms = new List<object>() });
+        //        }
 
-                return Json(new { success = true, rooms = rooms.Select(r => new { r.RoomID, r.RoomNumber }) });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error retrieving rooms: {ex.Message}" });
-            }
-        }
+        //        return Json(new { success = true, rooms = rooms.Select(r => new { r.RoomID, r.RoomNumber }) });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = $"Error retrieving rooms: {ex.Message}" });
+        //    }
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -85,68 +86,36 @@ namespace Cinema_System.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
-        {
-            var list = await _unitOfWork.Room.GetAllAsync();
-            var roomList = list.Select(u => new
-            {
-                u.RoomID,
-                u.RoomNumber,
-                u.Status,
-                u.Capacity,
-                u.Theater
+        //[HttpGet("GetAll")]
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    var list = await _unitOfWork.Room.GetAllAsync();
+        //    var roomList = list.Select(u => new
+        //    {
+        //        u.RoomID,
+        //        u.RoomNumber,
+        //        u.Status,
+        //        u.Capacity,
+        //        u.Theater
 
-            }).ToList();
+        //    }).ToList();
 
-            return Json(new { data = roomList });
-        }
+        //    return Json(new { data = roomList });
+        //}
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Room room)
         {
-            if (!ModelState.IsValid)
+            string validationError = await ValidateRoom(room);
+            if (validationError != null)
             {
-                var errors = ModelState.Values
-                                       .SelectMany(v => v.Errors)
-                                       .Select(e => e.ErrorMessage)
-                                       .ToList();
-                return Json(new { success = false, message = "Invalid room data.", errors });
+                return Json(new { success = false, message = validationError });
             }
 
             try
             {
-                var existingRoom = await _unitOfWork.Room.GetAsync(r => r.RoomNumber == room.RoomNumber);
-
-                var existingCinema = await _unitOfWork.Cinema.GetAsync(r => r.CinemaID == room.CinemaID, includeProperties: "Rooms");
-
-                int totalRooms = existingCinema.Rooms.Count;
-
-                if (totalRooms >= existingCinema.NumberOfRooms)
-                {
-                    return Json(new
-                    {
-                        success = false,
-                        message = $"Cannot add more rooms. Cinema can only have {existingCinema.NumberOfRooms} rooms. \nCurrent rooms: {totalRooms}."
-                    });
-                }
-
-
-                if (existingRoom != null)
-                {
-                    return Json(new { success = false, message = "Room number already exists." });
-                }
-
-                if (room.Capacity < 10 || room.Capacity % 10 != 0)
-                {
-                    return Json(new { success = false, message = "Capacity must be at least 10 and a multiple of 10." });
-                }
-
-                int numberOfRows = room.Capacity / 10;
-
                 var newRoom = await CreateRoom(room, room.CinemaID);
-                await CreateSeats(newRoom.RoomID, numberOfRows, 10);
-
+                await CreateSeats(newRoom.RoomID, room.Capacity / 10, 10);
                 return Json(new { success = true, message = "Room created successfully." });
             }
             catch (Exception ex)
@@ -154,12 +123,6 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return Json(new { success = false, message = $"Error creating room: {ex.Message}" });
             }
         }
-
-
-
-
-
-
 
         private async Task<string> ValidateRoomCreation(Room room, int numberOfRows, int seatsPerRow)
         {
@@ -206,7 +169,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             await _unitOfWork.SaveAsync();
         }
 
-        // Phương thức tạo danh sách ghế
+        
         private List<Seat> GenerateSeatList(int roomId, int numberOfRows, int seatsPerRow)
         {
             var seats = new List<Seat>();
@@ -241,55 +204,114 @@ namespace Cinema_System.Areas.Admin.Controllers
             return result;
         }
 
+        private async Task AddSeats(int roomId, int seatsToAdd)
+        {
+            var room = await _unitOfWork.Room.GetAsync(r => r.RoomID == roomId);
+            if (room == null) return;
 
+            var existingSeats = await _unitOfWork.Seat.GetAllAsync(s => s.RoomID == roomId);
+            int currentSeatCount = existingSeats.Count();
+
+            int newCapacity = currentSeatCount + seatsToAdd;
+            int numberOfRows = newCapacity / 10; // Example: If 20 seats → 2 rows
+            int seatsPerRow = 10;
+
+            var newSeats = GenerateSeatList(roomId, numberOfRows, seatsPerRow);
+
+            var seatsToInsert = newSeats.Where(s => !existingSeats.Any(es => es.Row == s.Row && es.ColumnNumber == s.ColumnNumber)).ToList();
+
+            foreach (var seat in seatsToInsert)
+            {
+                _unitOfWork.Seat.Add(seat);
+            }
+
+            await _unitOfWork.SaveAsync();
+        }
+
+
+
+        private async Task RemoveSeats(int roomId, int seatsToRemove)
+        {
+            var seats = await _unitOfWork.Seat.GetAllAsync(s => s.RoomID == roomId);
+            if (seats.Count() < seatsToRemove) return;
+
+            var seatsToDelete = seats.OrderByDescending(s => s.SeatName).Take(seatsToRemove);
+            _unitOfWork.Seat.RemoveRange(seatsToDelete);
+
+            await _unitOfWork.SaveAsync();
+        }
+
+
+        private string ConvertToLetter(int index)
+        {
+            string result = "";
+            while (index >= 0)
+            {
+                result = (char)('A' + (index % 26)) + result;
+                index = (index / 26) - 1;
+            }
+            return result;
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateField(int id, string field, string value)
         {
-            var room = await _unitOfWork.Room.GetAsync(u => u.RoomID == id);
+            var room = await _unitOfWork.Room.GetAsync(r => r.RoomID == id);
             if (room == null)
             {
                 return Json(new { success = false, message = "Room not found." });
             }
 
-            try
+            if (string.IsNullOrWhiteSpace(field) || string.IsNullOrWhiteSpace(value))
             {
-                switch (field)
+                return Json(new { success = false, message = "Invalid field or value." });
+            }
+
+            if (field == "RoomNumber")
+            {
+                room.RoomNumber = value.Trim();
+            }
+            else if (field == "Capacity")
+            {
+                if (!int.TryParse(value, out int capacity) || capacity < 10 || capacity % 10 != 0)
                 {
-                    case "RoomNumber":
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            return Json(new { success = false, message = "Room Number cannot be empty." });
-                        }
-                        room.RoomNumber = value;
-                        break;
-                    case "Capacity":
-                        if (!int.TryParse(value, out int capacity) || capacity < 1)
-                        {
-                            return Json(new { success = false, message = "Invalid capacity value." });
-                        }
-                        room.Capacity = capacity;
-                        break;
-                    case "Status":
-                        if (!Enum.TryParse(value, out RoomStatus status))
-                        {
-                            return Json(new { success = false, message = "Invalid status value." });
-                        }
-                        room.Status = status;
-                        break;
-                    default:
-                        return Json(new { success = false, message = "Invalid field." });
+                    return Json(new { success = false, message = "Capacity must be at least 10 and a multiple of 10." });
                 }
 
-                room.UpdatedAt = DateTime.Now;
-                _unitOfWork.Room.Update(room);
-                await _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "Room updated successfully." });
+                int oldCapacity = room.Capacity;
+                room.Capacity = capacity;
+
+                try
+                {
+                    _unitOfWork.Room.Update(room);
+                    await _unitOfWork.SaveAsync();
+
+                    var existingSeats = await _unitOfWork.Seat.GetAllAsync(s => s.RoomID == room.RoomID);
+                    int currentSeatCount = existingSeats.Count();
+
+                    if (capacity > currentSeatCount)
+                    {
+                        int seatsToAdd = capacity - currentSeatCount;
+                        await AddSeats(room.RoomID, seatsToAdd);
+                    }
+                    else if (capacity < currentSeatCount)
+                    {
+                        int seatsToRemove = currentSeatCount - capacity;
+                        if (seatsToRemove > 0)
+                        {
+                            await RemoveSeats(room.RoomID, seatsToRemove);
+                        }
+                    }
+
+                    return Json(new { success = true, message = "Room updated successfully." });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = $"Error updating room: {ex.Message}" });
+                }
             }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error updating room: {ex.Message}" });
-            }
+
+            return Json(new { success = false, message = "Invalid field update request." });
         }
 
         [HttpPost]
@@ -304,7 +326,7 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             try
             {
-                room.Status = RoomStatus.Available;
+                room.Status = RoomStatus.Maintenance;
                 room.UpdatedAt = DateTime.Now;
                 _unitOfWork.Room.Update(room);
                 await _unitOfWork.SaveAsync();
@@ -327,6 +349,7 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             try
             {
+                room.Status = RoomStatus.Available;
                 room.UpdatedAt = DateTime.Now;
                 _unitOfWork.Room.Update(room);
                 _unitOfWork.SaveAsync();
@@ -337,5 +360,41 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return Json(new { success = false, message = $"Error unlocking room: {ex.Message}" });
             }
         }
+
+
+        private async Task<string> ValidateRoom(Room room, bool isUpdate = false)
+        {
+            room.RoomNumber = room.RoomNumber.Trim();
+
+            if (string.IsNullOrWhiteSpace(room.RoomNumber) || !Regex.IsMatch(room.RoomNumber, @"^[a-zA-Z0-9\s]+$"))
+            {
+                return "Invalid Room Number. Only letters, numbers, and spaces are allowed.";
+            }
+
+            Room isDuplicate = await _unitOfWork.Room.GetAsync(r =>
+                                                                r.CinemaID == room.CinemaID &&
+                                                                r.RoomNumber == room.RoomNumber &&
+                                                                (!isUpdate || r.RoomID != room.RoomID));
+
+            if (isDuplicate != null)
+            {
+                return "Room Number already exists. Please use a unique number.";
+            }
+
+            if (room.Capacity < 10 || room.Capacity % 10 != 0)
+            {
+                return "Capacity must be at least 10 and a multiple of 10.";
+            }
+
+            var existingCinema = await _unitOfWork.Cinema.GetAsync(c => c.CinemaID == room.CinemaID, includeProperties: "Rooms");
+            if (existingCinema != null && existingCinema.Rooms.Count >= existingCinema.NumberOfRooms)
+            {
+                return $"Cannot add more rooms. Cinema can only have {existingCinema.NumberOfRooms} rooms.";
+            }
+
+            return null; 
+        }
+
+
     }
 }
