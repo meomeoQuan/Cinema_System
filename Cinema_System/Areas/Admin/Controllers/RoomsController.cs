@@ -193,6 +193,17 @@ namespace Cinema_System.Areas.Admin.Controllers
             return seats;
         }
 
+        private string ConvertToLetter(int index)
+        {
+            string result = "";
+            while (index >= 0)
+            {
+                result = (char)('A' + (index % 26)) + result;
+                index = (index / 26) - 1;
+            }
+            return result;
+        }
+
         private async Task AddSeats(int roomId, int seatsToAdd)
         {
             var room = await _unitOfWork.Room.GetAsync(r => r.RoomID == roomId);
@@ -228,18 +239,6 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork.Seat.RemoveRange(seatsToDelete);
 
             await _unitOfWork.SaveAsync();
-        }
-
-
-        private string ConvertToLetter(int index)
-        {
-            string result = "";
-            while (index >= 0)
-            {
-                result = (char)('A' + (index % 26)) + result;
-                index = (index / 26) - 1;
-            }
-            return result;
         }
 
         [HttpPost]

@@ -54,6 +54,7 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
         [HttpPost]
+
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             var product = await _productRepo.GetAsync(p => p.ProductID == productId);
@@ -70,7 +71,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                 // Đã đăng nhập - lưu vào database
                 var cartItem = await _unitOfWork.OrderDetail
                     .GetAsync(od =>
-                        od.ProductID == productId &&
+                        od.ProductId == productId &&
                         od.OrderID == null);
 
                 if (cartItem != null)
@@ -85,11 +86,10 @@ namespace Cinema_System.Areas.Guest.Controllers
                     _unitOfWork.OrderDetail.Add(new OrderDetail
                     {
                         OrderID = null,
-                        ProductID = product.ProductID,
+                        ProductId = product.ProductID,
                         Price = product.Price,
                         Quantity = quantity,
                         TotalPrice = product.Price * quantity,
-
                         FoodItems = new List<FoodSelectionVM>()
                     });
                 }
@@ -99,7 +99,7 @@ namespace Cinema_System.Areas.Guest.Controllers
             {
                 // Chưa đăng nhập - lưu vào session
                 var cartItems = GetSessionCart();
-                var existingItem = cartItems.FirstOrDefault(i => i.ProductID == productId);
+                var existingItem = cartItems.FirstOrDefault(i => i.ProductId == productId);
 
                 if (existingItem != null)
                 {
@@ -111,7 +111,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                     cartItems.Add(new OrderDetail
                     {
                         TempId = Guid.NewGuid().ToString(),
-                        ProductID = productId,
+                        ProductId = productId,
                         Price = product.Price,
                         Quantity = quantity,
                         TotalPrice = product.Price * quantity,
@@ -202,15 +202,10 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             if (userId != null)
             {
-                var orderTable = await _unitOfWork.OrderTable.GetAsync(u => u.UserID == userId, includeProperties: "OrderDetail");
-                var allorderDetails = await _unitOfWork.OrderDetail.GetAllAsync(o => o.OrderID == orderTable.OrderID,includeProperties: "Product,OrderTable");
+                var order = await _unitOfWork.OrderTable.GetAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending);
+                var orderDetails = await _unitOfWork.OrderDetail.GetAllAsync(o => o.OrderID == order.OrderID);
 
-                // Lấy từ database cho user đã đăng nhập
-                //viewModel.DatabaseItems = await _context.OrderDetails
-                //    .Include(od => od.Product)
-                //    .Where(od => od.UserId == userId && od.OrderID == null)
-                //    .ToListAsync();
-                viewModel.DatabaseItems = allorderDetails.ToList();
+                viewModel.DatabaseItems = orderDetails.ToList();
             }
             else
             {
@@ -218,14 +213,14 @@ namespace Cinema_System.Areas.Guest.Controllers
                 viewModel.SessionItems = GetSessionCart();
 
                 // Lấy thông tin Product cho session items
-                var productIds = viewModel.SessionItems.Select(i => i.ProductID).ToList();
+                var productIds = viewModel.SessionItems.Select(i => i.ProductId).ToList();
                 var products = _productRepo.GetAll()
                     .Where(p => productIds.Contains(p.ProductID))
                     .ToList();
 
                 foreach (var item in viewModel.SessionItems)
                 {
-                    item.Product = products.FirstOrDefault(p => p.ProductID == item.ProductID);
+                    item.Product = products.FirstOrDefault(p => p.ProductID == item.ProductId);
                 }
             }
 

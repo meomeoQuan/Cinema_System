@@ -4,6 +4,7 @@ using Cinema.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250402114204_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -313,6 +316,9 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("float");
 
                     b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int")
                         .HasColumnName("ProductID");
 
@@ -333,7 +339,11 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasIndex("ShowtimeSeatID");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", t =>
+                        {
+                            t.Property("ProductID")
+                                .HasColumnName("ProductID1");
+                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.OrderTable", b =>
@@ -1598,7 +1608,6 @@ namespace Cinema.DataAccess.Migrations
                             CinemaID = 1,
                             Address = "123 Main St, Da Nang City",
                             AdminID = "a1234567-b89c-40d4-a123-456789abcdef",
-                            CinemaCity = "Danang",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Grand Cinema",
@@ -1611,7 +1620,6 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CinemaID = 2,
                             Address = "456 Broadway Ave, HCM City",
-                            CinemaCity = "Ho Chi Minh",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Skyline Theater",
@@ -1624,7 +1632,6 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CinemaID = 3,
                             Address = "124 Main St, Danang City",
-                            CinemaCity = "Danang",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CGV Cinema",
@@ -1637,7 +1644,6 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CinemaID = 4,
                             Address = "124 Main St, HCM City",
-                            CinemaCity = "Ho Chi Minh",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "HCM Cinestar Cinema",

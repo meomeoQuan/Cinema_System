@@ -49,8 +49,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //-------------------------------------- SIGNAL IR   -------------------------------------------------
 builder.Services.AddSignalR();
 
+
 //đăng kí repository của product
 //builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
 
 //------------------------------ Configure Identity ---------------------------
 // Configure Identity with ApplicationUser
@@ -75,7 +77,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = $"/Identity/Account/Login";
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
-      // Cấu hình cookie
+    // Cấu hình cookie
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Cookie tồn tại 30 p
     options.SlidingExpiration = true; // Tự động gia hạn khi user active
@@ -234,5 +236,3 @@ void SeedDatabase()
         DbInitializer.Initialize();
     }
 }
-
-
