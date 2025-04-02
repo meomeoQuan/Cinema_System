@@ -12,7 +12,7 @@ namespace Cinema_System.Areas.Guest.Controllers
         public DetailsApiController(ApplicationDbContext context)
         {
             _context = context;
-        }
+        }   
 
         [HttpGet("cities")]
         public async Task<IActionResult> getListCity()

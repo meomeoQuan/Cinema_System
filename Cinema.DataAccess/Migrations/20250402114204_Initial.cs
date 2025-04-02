@@ -430,7 +430,8 @@ namespace Cinema.DataAccess.Migrations
                     ShowtimeSeatID = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    TotalPrice = table.Column<double>(type: "float", nullable: false)
+                    TotalPrice = table.Column<double>(type: "float", nullable: false),
+                    ProductID1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -441,8 +442,8 @@ namespace Cinema.DataAccess.Migrations
                         principalTable: "OrderTables",
                         principalColumn: "OrderID");
                     table.ForeignKey(
-                        name: "FK_OrderDetails_Products_ProductID",
-                        column: x => x.ProductID,
+                        name: "FK_OrderDetails_Products_ProductID1",
+                        column: x => x.ProductID1,
                         principalTable: "Products",
                         principalColumn: "ProductID");
                     table.ForeignKey(
@@ -488,12 +489,19 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ProductID", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
                 values: new object[,]
                 {
-                    { 1, "A large bucket of buttered popcorn.", "Popcorn", 89000.0, "/css/images/popcorn.png", 0, 50 },
-                    { 2, "Refreshing cold soda, 500ml.", "Soda", 39000.0, "/css/images/soda.png", 1, 100 },
-                    { 3, "Refreshing cold soda, 500ml.", "Coca", 39000.0, "/css/images/drink2.png", 1, 100 },
-                    { 4, "Refreshing cold soda, 500ml.", "Sprite", 39000.0, "/css/images/drink1.png", 1, 100 },
-                    { 5, "Refreshing cold soda, 500ml.", "Combo Couple", 129000.0, "/css/images/popcorn1.png", 2, 100 },
-                    { 6, "Refreshing cold soda, 500ml.", "Combo Full", 229000.0, "/css/images/popcorn2.png", 2, 100 }
+                    { 1, "mix with cheese", "Popcorn Cheese", 50000.0, "/css/images/pro1.jpg", 0, 12 },
+                    { 2, "Mix with Caramel", "Popcorn Caramel", 50000.0, "/css/images/pro2.jpg", 0, 10 },
+                    { 3, "Mix with Caramel and Cheese", "Popcorn Mix", 50000.0, "/css/images/pro6.jpg", 0, 20 },
+                    { 4, "Traditional Popcorn", "Popcorn", 50000.0, "/css/images/pro3.jpg", 0, 8 },
+                    { 5, "Refreshing drink to quench your thirst.", "Boba Tea", 20000.0, "/css/images/pro4.jpg", 1, 25 },
+                    { 6, "Sweet and fruity drink for a burst of flavor.", "Orange Juice", 20000.0, "/css/images/pro5.jpg", 1, 18 },
+                    { 7, "Energy drink to keep you going.", "Coke 32Oz", 20000.0, "/css/images/drink2.png", 1, 12 },
+                    { 8, "Classic soda for a nostalgic taste.", "Sprite", 20000.0, "/css/images/drink1.png", 1, 30 },
+                    { 9, "2 coke + 1 corn cheese + 1 corn caramel", "COMBO A", 100000.0, "/css/images/popcorn1.png", 3, 8 },
+                    { 10, "4 coke + 2 corn cheese + 2 corn caramel", "COMBO B", 150000.0, "/css/images/popcorn2.png", 3, 10 },
+                    { 11, "1 sprite + mix popcorn cheese caramel", "COMBO C", 70000.0, "/css/images/popcorn3.png", 3, 6 },
+                    { 12, "1 Teddy Bear + 1 Bottle", "Special Gift 1", 50000.0, "/css/images/gift1.jpg", 2, 3 },
+                    { 13, "1 Teddy Bear + 1 Bottle", "Special Gift 1", 75000.0, "/css/images/gift3.jpg", 2, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -501,9 +509,9 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "CinemaID", "Address", "AdminID", "CinemaCity", "ClosingTime", "CreatedAt", "Name", "NumberOfRooms", "OpeningTime", "Status", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 2, "456 Broadway Ave, HCM City", null, "Ho Chi Minh", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Skyline Theater", 7, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, "124 Main St, Danang City", null, "Danang", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "CGV Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 4, "124 Main St, HCM City", null, "Ho Chi Minh", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "HCM Cinestar Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 2, "456 Broadway Ave, HCM City", null, null, new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Skyline Theater", 7, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, "124 Main St, Danang City", null, null, new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "CGV Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4, "124 Main St, HCM City", null, null, new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "HCM Cinestar Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(
@@ -514,7 +522,7 @@ namespace Cinema.DataAccess.Migrations
             migrationBuilder.InsertData(
                 table: "Theaters",
                 columns: new[] { "CinemaID", "Address", "AdminID", "CinemaCity", "ClosingTime", "CreatedAt", "Name", "NumberOfRooms", "OpeningTime", "Status", "UpdatedAt" },
-                values: new object[] { 1, "123 Main St, Da Nang City", "a1234567-b89c-40d4-a123-456789abcdef", "Danang", new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Grand Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) });
+                values: new object[] { 1, "123 Main St, Da Nang City", "a1234567-b89c-40d4-a123-456789abcdef", null, new TimeSpan(0, 23, 0, 0, 0), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Grand Cinema", 5, new TimeSpan(0, 9, 0, 0, 0), "Open", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) });
 
             migrationBuilder.InsertData(
                 table: "Rooms",
@@ -702,9 +710,9 @@ namespace Cinema.DataAccess.Migrations
                 column: "OrderID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderDetails_ProductID",
+                name: "IX_OrderDetails_ProductID1",
                 table: "OrderDetails",
-                column: "ProductID");
+                column: "ProductID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_ShowtimeSeatID",

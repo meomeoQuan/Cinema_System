@@ -1,0 +1,157 @@
+﻿/* Custom Styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+h2 {
+  color: #333;
+  font-weight: bold;
+}
+
+.banner {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px; /* Bo góc nếu cần */
+}
+
+.banner img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s;
+/*  width: 300px;
+  height: auto;*/
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+/*.product-title {
+    color: white !important;
+}*/
+
+.mb-4.text-center {
+    color: white;
+    border: 2px solid #E6D1F2;
+    width: fit-content; /*auto fix border với chữ*/
+    margin: auto; /*căn giữa*/
+    padding: 5px 10px;
+}
+
+.search_result{
+    color: white !important;
+}
+
+.placeholder-img {
+    width: 100%;
+    height: 200px;
+    background-color: #e9ecef;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.align-content-center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gift-card {
+    width: 300px;
+    height: auto;
+}
+
+.btn-primary {
+  width: 100%;
+  background-color: #E6D1F2 !important;
+  border-color: #E6D1F2 !important;
+  border: none;
+  color: black !important;
+}
+
+.btn-primary:hover {
+  background-color: #D9C4EC !important;
+  border-color: #D9C4EC !important;
+  color: black !important;
+}
+
+.btn-link {
+  color: white;
+  text-decoration: none !important;
+  border-radius: 1px;
+}
+
+.btn-link:hover {
+  color: #E6D1F2;
+  text-decoration: underline;
+}
+
+
+/*Search Bar*/
+.search-filter-container {
+/*    background-color: #f8f9fa;*/
+/*    padding: 1rem;*/
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.search-input {
+    border-radius: 0.375rem;
+    border-right: none;
+    padding: 0.5rem 1rem;
+    height: calc(2.25rem + 2px);
+}
+
+.search-input:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+.input-group {
+    flex-wrap: nowrap;
+}
+
+.form-select {
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    height: calc(2.25rem + 2px);
+    cursor: pointer;
+}
+
+.search-button {
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.search-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+} all 0.3s;
+}

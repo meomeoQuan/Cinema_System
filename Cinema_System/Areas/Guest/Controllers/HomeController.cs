@@ -25,14 +25,52 @@ namespace Cinema_System.Areas.Guest.Controllers
             _unitOfWork = unitOfWork;
           
         }
-        
 
 
-        public IActionResult Index()
-        {
-            
-            return View();
-        }
+        //vua in vua tim kiem
+        //[HttpGet]
+        //public async Task<IActionResult> Index(string term)
+        //{
+        //    IEnumerable<Movie> movies;
+
+        //    if (!string.IsNullOrEmpty(term))
+        //    {
+        //        movies = await _unitOfWork.Movie.SearchAsync(term);
+        //        ViewBag.SearchTerm = term; // giu lai tu khoa tim kiem
+        //    }
+        //    else
+        //    {
+        //        movies = await _unitOfWork.Movie.GetAllAsync();
+        //    }
+
+        //    return View(movies);
+        //}
+
+        //[HttpGet]
+        //public async Task<IActionResult> Index(string term)
+        //{
+        //    // nhap tu khoa tim kim
+        //    if (!string.IsNullOrEmpty(term))
+        //    {
+        //        var movies = await _unitOfWork.Movie.SearchAsync(term);
+        //        ViewBag.SearchTerm = term; // giu lai tu khoa tim kiem
+        //        return View(movies);
+        //    }
+        //    return View(new List<Movie>());
+        //}
+
+        //[HttpGet]
+        //public async Task<IActionResult> Index(string term)
+        //{
+        //    if (!string.IsNullOrEmpty(term))
+        //    {
+
+        //        var movies = await _unitOfWork.Movie.SearchAsync(term, null); // them null de khong filter
+        //        ViewBag.SearchTerm = term;
+        //        return View(movies);
+        //    }
+        //    return View(new List<Movie>());
+        //}
 
         public IActionResult Chat()
         {
@@ -72,6 +110,13 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
         #endregion
+
+
+        public async Task<IActionResult> Product()
+        {
+            return View();
+        }
+
 
         public async Task<IActionResult> Cart()
         {
