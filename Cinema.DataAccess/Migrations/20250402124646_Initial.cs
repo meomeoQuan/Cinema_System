@@ -99,7 +99,7 @@ namespace Cinema.DataAccess.Migrations
                     TrailerLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AgeLimit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AgeLimit = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsUpcomingMovie = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -267,7 +267,7 @@ namespace Cinema.DataAccess.Migrations
                 {
                     OrderID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CouponID = table.Column<int>(type: "int", nullable: true),
                     TotalAmount = table.Column<double>(type: "float", nullable: false),
@@ -281,7 +281,8 @@ namespace Cinema.DataAccess.Migrations
                         name: "FK_OrderTables_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_OrderTables_Coupons_CouponID",
                         column: x => x.CouponID,
@@ -368,7 +369,7 @@ namespace Cinema.DataAccess.Migrations
                 {
                     ShowTimeID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ShowDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ShowDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ShowTimes = table.Column<TimeSpan>(type: "time", nullable: false),
                     RoomID = table.Column<int>(type: "int", nullable: false),
                     MovieID = table.Column<int>(type: "int", nullable: false)
@@ -424,11 +425,12 @@ namespace Cinema.DataAccess.Migrations
                 {
                     OrderDetailID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderID = table.Column<int>(type: "int", nullable: false),
+                    OrderID = table.Column<int>(type: "int", nullable: true),
                     ProductID = table.Column<int>(type: "int", nullable: true),
                     ShowtimeSeatID = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false)
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    TotalPrice = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -437,8 +439,7 @@ namespace Cinema.DataAccess.Migrations
                         name: "FK_OrderDetails_OrderTables_OrderID",
                         column: x => x.OrderID,
                         principalTable: "OrderTables",
-                        principalColumn: "OrderID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "OrderID");
                     table.ForeignKey(
                         name: "FK_OrderDetails_Products_ProductID",
                         column: x => x.ProductID,
@@ -483,25 +484,6 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "OrderTables",
-                columns: new[] { "OrderID", "CouponID", "CreatedAt", "Status", "TotalAmount", "UpdatedAt", "UserID" },
-                values: new object[,]
-                {
-                    { 1, null, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 124235.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 2, null, new DateTime(2025, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 747237.65399999998, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 3, null, new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 50000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 4, null, new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 60000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 5, null, new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 70000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 6, null, new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 80000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 7, null, new DateTime(2025, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 90000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 8, null, new DateTime(2025, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 100000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 9, null, new DateTime(2025, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 110000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 10, null, new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 120000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 11, null, new DateTime(2025, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 130000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null },
-                    { 12, null, new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 140000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Products",
                 columns: new[] { "ProductID", "Description", "Name", "Price", "ProductImage", "ProductType", "Quantity" },
                 values: new object[,]
@@ -525,16 +507,6 @@ namespace Cinema.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "OrderDetails",
-                columns: new[] { "OrderDetailID", "OrderID", "Price", "ProductID", "Quantity", "ShowtimeSeatID" },
-                values: new object[,]
-                {
-                    { 1, 1, 10.0, 1, 2, null },
-                    { 3, 2, 20.0, 2, 1, null },
-                    { 5, 3, 30.0, 3, 3, null }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Rooms",
                 columns: new[] { "RoomID", "Capacity", "CinemaID", "CreatedAt", "RoomNumber", "Status", "UpdatedAt" },
                 values: new object[] { 2, 150, 2, null, "B1", 0, null });
@@ -554,9 +526,9 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ShowTimeID", "MovieID", "RoomID", "ShowDate", "ShowTimes" },
                 values: new object[,]
                 {
-                    { 2, 3, 2, new DateTime(2025, 3, 10, 9, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 6, 1, 2, new DateTime(2025, 3, 11, 9, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 7, 1, 2, new DateTime(2025, 3, 11, 11, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) }
+                    { 2, 3, 2, new DateOnly(2025, 3, 10), new TimeSpan(0, 9, 3, 0, 0) },
+                    { 6, 1, 2, new DateOnly(2025, 3, 11), new TimeSpan(0, 17, 3, 0, 0) },
+                    { 7, 1, 2, new DateOnly(2025, 3, 11), new TimeSpan(0, 18, 3, 0, 0) }
                 });
 
             migrationBuilder.InsertData(
@@ -621,11 +593,11 @@ namespace Cinema.DataAccess.Migrations
                 columns: new[] { "ShowTimeID", "MovieID", "RoomID", "ShowDate", "ShowTimes" },
                 values: new object[,]
                 {
-                    { 1, 1, 1, new DateTime(2025, 3, 10, 7, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 3, 1, 1, new DateTime(2025, 3, 10, 11, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 4, 1, 1, new DateTime(2025, 3, 10, 13, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 5, 1, 1, new DateTime(2025, 3, 11, 7, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) },
-                    { 8, 1, 1, new DateTime(2025, 3, 12, 9, 30, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0) }
+                    { 1, 1, 1, new DateOnly(2025, 3, 10), new TimeSpan(0, 7, 3, 0, 0) },
+                    { 3, 1, 1, new DateOnly(2025, 3, 10), new TimeSpan(0, 11, 3, 0, 0) },
+                    { 4, 1, 1, new DateOnly(2025, 3, 10), new TimeSpan(0, 13, 3, 0, 0) },
+                    { 5, 1, 1, new DateOnly(2025, 3, 11), new TimeSpan(0, 15, 3, 0, 0) },
+                    { 8, 1, 1, new DateOnly(2025, 3, 12), new TimeSpan(0, 19, 3, 0, 0) }
                 });
 
             migrationBuilder.InsertData(
@@ -683,15 +655,6 @@ namespace Cinema.DataAccess.Migrations
                     { 48, 80000.0, 48, 1, 0 },
                     { 49, 80000.0, 49, 1, 0 },
                     { 50, 80000.0, 50, 1, 0 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "OrderDetails",
-                columns: new[] { "OrderDetailID", "OrderID", "Price", "ProductID", "Quantity", "ShowtimeSeatID" },
-                values: new object[,]
-                {
-                    { 2, 1, 15.0, null, 1, 1 },
-                    { 4, 2, 25.0, null, 1, 2 }
                 });
 
             migrationBuilder.CreateIndex(

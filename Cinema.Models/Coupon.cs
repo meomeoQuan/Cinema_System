@@ -25,10 +25,12 @@ namespace Cinema.Models
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Used count cannot be negative.")]
         public int UsedCount { get; set; } = 0; // Default value to match SQL
-        public DateTime? ExpireDate { get; set; } // Renamed from ExpireDay for clarity
+        public DateTime? ExpireDate { get; set; }
+
+
 
         [InverseProperty("Coupon")]
-        public virtual ICollection<OrderTable> OrderTables { get; set; } = new List<OrderTable>();
+        public virtual ICollection<OrderTable> OrderTables { get; set; } = new List<OrderTable>(); // new
 
         [InverseProperty("Coupon")]
         public virtual ICollection<UserCoupon> UserCoupons { get; set; } = new List<UserCoupon>();

@@ -35,57 +35,58 @@ namespace Cinema_System.Areas.Admin.Controllers
         // }
 
 
-           
 
-    public async Task<IActionResult> Revenue()
-    {
-        // Fetch monthly revenue data from the database
-        var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
-        var monthlyRevenue = revenueData
-            .GroupBy(o => o.CreatedAt.Month)
-            .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
-            .OrderBy(r => r.Month)
-            .Select(r => r.Amount)
-            .ToList();
 
-        if(monthlyRevenue is List<double>)
+        public async Task<IActionResult> Revenue()
         {
-            Console.WriteLine("ok");
+            // Fetch monthly revenue data from the database
+            var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
+
+            var monthlyRevenue = revenueData
+                .GroupBy(o => o.CreatedAt.Month)
+                .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+                .OrderBy(r => r.Month)
+                .Select(r => r.Amount)
+                .ToList();
+
+            if (monthlyRevenue is List<double>)
+            {
+                Console.WriteLine("ok");
+            }
+            // Create the view model
+            var viewModel = new RevenueViewModel
+            {
+                MonthlyRevenue = monthlyRevenue
+            };
+
+
+            // Pass the view model to the view
+            return View(viewModel);
         }
-        // Create the view model
-        var viewModel = new RevenueViewModel
-        {
-            MonthlyRevenue = monthlyRevenue
-        };
-        
-
-        // Pass the view model to the view
-        return View(viewModel);
-        }
 
 
-    //public async Task<IActionResult> Index()
-    //{
-    //    // Giả sử bạn có một phương thức để lấy tổng doanh thu
-    //    var revenue = await _unitOfWork.OrderTable.GetTotalRevenueAsync();
+        //public async Task<IActionResult> Index()
+        //{
+        //    // Giả sử bạn có một phương thức để lấy tổng doanh thu
+        //    var revenue = await _unitOfWork.OrderTable.GetTotalRevenueAsync();
 
-    //    // Giả sử bạn có một phương thức để lấy số lượng người dùng
-    //    //var userCount = await _unitOfWork.ApplicationUser.GetCountAsync();
+        //    // Giả sử bạn có một phương thức để lấy số lượng người dùng
+        //    //var userCount = await _unitOfWork.ApplicationUser.GetCountAsync();
 
-    //    // Giả sử bạn có một phương thức để lấy số lượng đơn hàng
-    //    //var orderCount = await _unitOfWork.Order.GetCountAsync();
+        //    // Giả sử bạn có một phương thức để lấy số lượng đơn hàng
+        //    //var orderCount = await _unitOfWork.Order.GetCountAsync();
 
-    //    // Tạo một ViewModel để truyền dữ liệu đến view
-    //    var dashboardViewModel = new DashboardViewModel
-    //    {
-    //        TotalRevenue = revenue
+        //    // Tạo một ViewModel để truyền dữ liệu đến view
+        //    var dashboardViewModel = new DashboardViewModel
+        //    {
+        //        TotalRevenue = revenue
 
-    //        //UserCount = userCount,
-    //        //OrderCount = orderCount
-    //    };
+        //        //UserCount = userCount,
+        //        //OrderCount = orderCount
+        //    };
 
-    //    return View(dashboardViewModel);
-    //}
-}
+        //    return View(dashboardViewModel);
+        //}
+    }
 
 }

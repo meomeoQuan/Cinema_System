@@ -40,6 +40,8 @@ namespace Cinema_System.Areas.Admin.Controllers
             foreach (var user in users)
             {
                 user.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Guest";
+                // dung lo em default neu ma luc 
+                // create user ko set role thi no se la guest -- quan 
             }
 
             return View(users);
@@ -102,7 +104,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                     }
 
                     user.UserName = user.Email; // Ensure UserName is set to Email
-                    string password = GenerateRandomPassword();
+                    string password = GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
                     var result = await _userManager.CreateAsync(user, password);
                     if (result.Succeeded)
                     {
@@ -297,133 +299,5 @@ namespace Cinema_System.Areas.Admin.Controllers
             //var user = await _userManager.FindByIdAsync(id);
             //return View(user);
         }
-
-
     }
 }
-
-
-
-        //    [HttpPost("LockUnlock")]
-        //    public async Task<IActionResult> LockUnlock([FromBody] LockUnlockRequest request)
-        //    {
-        //        var user = await _unitOfWork.ApplicationUser.GetAsync(u => u.Id == request.Id);
-        //        if (user == null)
-        //        {
-        //            return Json(new { success = false, message = "User not found." });
-        //        }
-
-        //        if (user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
-        //        {
-        //            // Unlock user
-        //            user.LockoutEnd = null;
-        //            await _unitOfWork.SaveAsync();
-        //            return Json(new { success = true, message = "User unlocked successfully." });
-        //        }
-        //        else
-        //        {
-        //            // Lock user for 1 year
-        //            user.LockoutEnd = DateTime.Now.AddYears(1);
-        //            await _unitOfWork.SaveAsync();
-        //            return Json(new { success = true, message = "User locked successfully." });
-        //        }
-        //    }
-        //}
-
-        //public class LockUnlockRequest
-        //{
-        //    public string Id { get; set; }
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Lock(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return Json(new { success = false, message = "User not found" });
-        //    }
-
-        //    var user = await _userManager.FindByIdAsync(id);
-        //    if (user == null)
-        //    {
-        //        return Json(new { success = false, message = "User not found" });
-        //    }
-
-        //    try
-        //    {
-        //        // Khóa user bằng cách set LockoutEnd đến tương lai xa
-        //        user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
-        //        var result = await _userManager.UpdateAsync(user);
-
-        //        if (result.Succeeded)
-        //        {
-        //            return Json(new { success = true, message = "User has been locked successfully" });
-        //        }
-        //        else
-        //        {
-        //            return Json(new { success = false, message = "Failed to lock user" });
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = ex.Message });
-        //    }
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Unlock(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return Json(new { success = false, message = "User not found" });
-        //    }
-
-        //    var user = await _userManager.FindByIdAsync(id);
-        //    if (user == null)
-        //    {
-        //        return Json(new { success = false, message = "User not found" });
-        //    }
-
-        //    try
-        //    {
-        //        // Mở khóa user bằng cách set LockoutEnd về null
-        //        user.LockoutEnd = null;
-        //        var result = await _userManager.UpdateAsync(user);
-
-        //        if (result.Succeeded)
-        //        {
-        //            return Json(new { success = true, message = "User has been unlocked successfully" });
-        //        }
-        //        else
-        //        {
-        //            return Json(new { success = false, message = "Failed to unlock user" });
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = ex.Message });
-        //    }
-        //}
-
-
-        // public async Task<IActionResult> Details(string id)
-        // {
-        //     var user = await _userManager.FindByIdAsync(id);
-        //     return View(user);
-        // }
-
-        // public async Task<IActionResult> Create()
-        // {
-        //     return View();
-        // }
-
-        // [HttpPost]
-        // [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> Create(ApplicationUser user)
-        // {
-        //     return View(user);
-        // }
-
-

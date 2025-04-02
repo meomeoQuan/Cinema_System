@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250326014717_Initial")]
+    [Migration("20250402124646_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -78,7 +78,6 @@ namespace Cinema.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MovieID"));
 
                     b.Property<string>("AgeLimit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -310,20 +309,24 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
-                    b.Property<int>("OrderID")
+                    b.Property<int?>("OrderID")
                         .HasColumnType("int");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<int?>("ProductID")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ProductID");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int?>("ShowtimeSeatID")
                         .HasColumnType("int");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
 
                     b.HasKey("OrderDetailID");
 
@@ -334,48 +337,6 @@ namespace Cinema.DataAccess.Migrations
                     b.HasIndex("ShowtimeSeatID");
 
                     b.ToTable("OrderDetails");
-
-                    b.HasData(
-                        new
-                        {
-                            OrderDetailID = 1,
-                            OrderID = 1,
-                            Price = 10.0,
-                            ProductID = 1,
-                            Quantity = 2
-                        },
-                        new
-                        {
-                            OrderDetailID = 2,
-                            OrderID = 1,
-                            Price = 15.0,
-                            Quantity = 1,
-                            ShowtimeSeatID = 1
-                        },
-                        new
-                        {
-                            OrderDetailID = 3,
-                            OrderID = 2,
-                            Price = 20.0,
-                            ProductID = 2,
-                            Quantity = 1
-                        },
-                        new
-                        {
-                            OrderDetailID = 4,
-                            OrderID = 2,
-                            Price = 25.0,
-                            Quantity = 1,
-                            ShowtimeSeatID = 2
-                        },
-                        new
-                        {
-                            OrderDetailID = 5,
-                            OrderID = 3,
-                            Price = 30.0,
-                            ProductID = 3,
-                            Quantity = 3
-                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.OrderTable", b =>
@@ -402,6 +363,7 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("OrderID");
@@ -411,104 +373,6 @@ namespace Cinema.DataAccess.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("OrderTables");
-
-                    b.HasData(
-                        new
-                        {
-                            OrderID = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 1,
-                            TotalAmount = 124235.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 2,
-                            CreatedAt = new DateTime(2025, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 0,
-                            TotalAmount = 747237.65399999998,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 3,
-                            CreatedAt = new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 1,
-                            TotalAmount = 50000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 4,
-                            CreatedAt = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 0,
-                            TotalAmount = 60000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 5,
-                            CreatedAt = new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 1,
-                            TotalAmount = 70000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 6,
-                            CreatedAt = new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 0,
-                            TotalAmount = 80000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 7,
-                            CreatedAt = new DateTime(2025, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 1,
-                            TotalAmount = 90000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 8,
-                            CreatedAt = new DateTime(2025, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 0,
-                            TotalAmount = 100000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 9,
-                            CreatedAt = new DateTime(2025, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 1,
-                            TotalAmount = 110000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 10,
-                            CreatedAt = new DateTime(2025, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 0,
-                            TotalAmount = 120000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 11,
-                            CreatedAt = new DateTime(2025, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 1,
-                            TotalAmount = 130000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            OrderID = 12,
-                            CreatedAt = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = 0,
-                            TotalAmount = 140000.0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.Product", b =>
@@ -1102,8 +966,8 @@ namespace Cinema.DataAccess.Migrations
                     b.Property<int>("RoomID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ShowDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("ShowDate")
+                        .HasColumnType("date");
 
                     b.Property<TimeSpan>("ShowTimes")
                         .HasColumnType("time");
@@ -1122,64 +986,64 @@ namespace Cinema.DataAccess.Migrations
                             ShowTimeID = 1,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 7, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 7, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 2,
                             MovieID = 3,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 10, 9, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 9, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 3,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 11, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 11, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 4,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 10, 13, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 10),
+                            ShowTimes = new TimeSpan(0, 13, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 5,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 11, 7, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 15, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 6,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 11, 9, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 17, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 7,
                             MovieID = 1,
                             RoomID = 2,
-                            ShowDate = new DateTime(2025, 3, 11, 11, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 11),
+                            ShowTimes = new TimeSpan(0, 18, 3, 0, 0)
                         },
                         new
                         {
                             ShowTimeID = 8,
                             MovieID = 1,
                             RoomID = 1,
-                            ShowDate = new DateTime(2025, 3, 12, 9, 30, 0, 0, DateTimeKind.Unspecified),
-                            ShowTimes = new TimeSpan(0, 0, 0, 0, 0)
+                            ShowDate = new DateOnly(2025, 3, 12),
+                            ShowTimes = new TimeSpan(0, 19, 3, 0, 0)
                         });
                 });
 
@@ -2012,9 +1876,7 @@ namespace Cinema.DataAccess.Migrations
                 {
                     b.HasOne("Cinema.Models.OrderTable", "Order")
                         .WithMany("OrderDetails")
-                        .HasForeignKey("OrderID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OrderID");
 
                     b.HasOne("Cinema.Models.Product", "Product")
                         .WithMany()
@@ -2039,7 +1901,9 @@ namespace Cinema.DataAccess.Migrations
 
                     b.HasOne("Cinema.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserID");
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Coupon");
 

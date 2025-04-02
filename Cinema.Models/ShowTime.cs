@@ -20,7 +20,7 @@ namespace Cinema.Models
         public int ShowTimeID { get; set; }
 
         [Required]
-        public DateTime ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
+        public DateOnly ShowDate { get; set; } // SQL `DATE` maps to `DateTime`
         public TimeSpan ShowTimes { get; set; }
         //public int CinemaID { get; set; }
         public int RoomID { get; set; }
@@ -45,7 +45,7 @@ namespace Cinema.Models
         [ValidateNever]
         public virtual Room Room { get; set; } = null!;
 
-        [InverseProperty("Showtime")] // Ensure it matches the navigation property in `ShowtimeSeat`
+        [InverseProperty("Showtime")]
         public virtual ICollection<ShowtimeSeat> ShowTimeSeats { get; set; } = new List<ShowtimeSeat>();
 
 

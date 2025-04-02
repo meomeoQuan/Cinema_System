@@ -18,9 +18,10 @@ namespace Cinema.Models
         public int ColumnNumber { get; set; }
 
         [Required]
-        public int RoomID { get; set; } // Foreign key
+        public int RoomID { get; set; }
 
         [Required]
+
         [EnumDataType(typeof(SeatStatus))]
         public SeatStatus Status { get; set; } = SeatStatus.Available;
 

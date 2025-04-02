@@ -31,6 +31,6 @@ namespace Cinema.DataAccess.Repository
         {
             _db.Update(orderTable);
         }
-        
+
     }
 }

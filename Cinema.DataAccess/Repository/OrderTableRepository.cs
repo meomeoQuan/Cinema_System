@@ -20,7 +20,7 @@ namespace Cinema.DataAccess.Repository
 
         public void Update(OrderTable orderTable)
         {
-           _db.Update(orderTable);
+            _db.Update(orderTable);
         }
     }
 }
