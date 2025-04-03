@@ -120,7 +120,7 @@ builder.Services.AddSession(options =>
 // Configure token lifespan
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
-    options.TokenLifespan = TimeSpan.FromMinutes(3);
+    options.TokenLifespan = TimeSpan.FromSeconds(30);
 });
 
 // Add scoped services

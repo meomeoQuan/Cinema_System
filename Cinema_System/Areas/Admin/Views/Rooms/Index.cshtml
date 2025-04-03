@@ -9,48 +9,45 @@
 <div class="container-fluid mt-4">
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 fw-bold">Room Management</h3>
-            <button id="addRoomBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roomModal">Add Room</button>
+            <h3 class="card-title mb-0 text-center fw-bold">Room Management</h3>
+            <button id="addRoomBtn" class="btn btn-primary">Add</button>
         </div>
 
         <div class="card-body">
+
             <div class="table-responsive">
                 <table id="tblData" class="table table-bordered table-hover table-striped">
                     <thead class="thead-light">
                         <tr>
-                            <th>Room Number</th>
-                            <th>Cinema</th>
-                            <th>Capacity</th>
-                            <th class="text-center">Actions</th>
+                            <th style="width: 15%;">Room Number</th>
+                            <th style="width: 30%;">Cinema</th>
+                            <th style="width: 10%;">Capacity</th>
+                            <th style="width: 45%;" class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @* onclick="manageSeats('@room.RoomID')" *@
                         @foreach (var room in Model)
                         {
                             <tr>
-                                <td data-id="@room.RoomID">@room.RoomNumber</td>
-                                <td>@room.Theater?.Address</td>
-                                <td>@room.Capacity</td>
+                                <td data-id="@room.RoomID" data-field="RoomNumber">@room.RoomNumber</td>
+                                <td>@room.Theater.Address</td>
+                                <td data-id="@room.RoomID" data-field="Capacity">@room.Capacity</td>
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <a href="/Admin/Seats/Index?roomId=@room.RoomID" class="btn btn-secondary btn-sm">Manage Seats</a>
-                                        @if (room.Status.ToString() == "Available")
-                                        {
-                                            <button onclick="toggleRoomStatus(@room.RoomID, 'lock')" class="btn btn-danger btn-sm">Lock</button>
-                                        }
-                                        else
-                                        {
-                                            <button onclick="toggleRoomStatus(@room.RoomID, 'unlock')" class="btn btn-success btn-sm">Unlock</button>
-                                        }
-                                        <button onclick="editRoom(@room.RoomID)" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#roomModal">Edit</button>
+                                        <a href="/Admin/Seats/Index?roomId=@room.RoomID" class="btn btn-secondary btn-sm rounded-3">Manage Seat</a>
+
+                                        <button onclick="lockRoom('@room.RoomID', this)" class="btn btn-sm rounded-3 text-uppercase fw-semibold toggle-status-btn @(room.Status == RoomStatus.Available ? "btn-danger" : "btn-success")">
+                                            <i class="bi me-1 @(room.Status == RoomStatus.Available ? "bi-lock-fill" : "bi-unlock-fill")"></i>
+                                            @(room.Status == RoomStatus.Available ? "Lock" : "Unlock")
+                                        </button>
+                                        <button onclick="enableEdit(this)" class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </button>
                                     </div>
                                 </td>
-                            </tr>
-                        }
-                        @if (!Model.Any())
-                        {
-                            <tr>
-                                <td colspan="4" class="text-center">No rooms found.</td>
+
+
                             </tr>
                         }
                     </tbody>
@@ -58,106 +55,174 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Room Modal -->
-<div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="roomModalLabel">Add/Edit Room</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="roomForm">
-                    <input type="hidden" id="roomId" />
-                    <div class="mb-3">
-                        <label class="form-label">Room Number</label>
-                        <input type="text" class="form-control" id="roomNumber" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Capacity</label>
-                        <input type="number" class="form-control" id="roomCapacity" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Save</button>
-                </form>
-            </div>
+    <!-- Room Form (Hidden by Default) -->
+    <div class="card shadow-sm mt-3 d-none" id="room-form">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">Add New Room</h4>
+        </div>
+        <div class="card-body">
+            <form id="createRoomForm">
+                <div class="mb-3">
+                    <label class="form-label">Room Number</label>
+                    <input type="text" class="form-control" id="roomNumber" name="RoomNumber" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Capacity</label>
+                    <input type="number" class="form-control" id="roomCapacity" name="Capacity" required>
+                </div>
+                <button type="submit" class="btn btn-secondary w-100 mt-3"> Submit </button>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/natural.js"></script>
     <script>
         $(document).ready(function () {
-            $('#tblData').DataTable();
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "columnDefs": [
+                    { "type": "natural", "targets": 0 } // Apply natural sorting to RoomNumber (column index 0)
+                ]
+            });
+
+            $('#addRoomBtn').click(function () {
+                $('#room-form').toggleClass('d-none');
+            });
+
+            // Inline editing
+            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
+                var id = $(this).data('id');
+                var field = $(this).data('field');
+                var value = $(this).text().trim();
+
+                if (!value) {
+                    toastr.error('Field cannot be empty.');
+                    return;
+                }
+
+                // $.post('/Admin/Rooms/UpdateField', data, function (response) {
+                //     response.success ? toastr.success(response.message) : toastr.error(response.message);
+                //     if (response.success) setTimeout(() => location.reload(), 1000);
+                // }, 'json');
+                $.ajax({
+                    url: '/Admin/Rooms/UpdateField',
+                    type: 'POST',
+                    data: {
+                        id,
+                        field,
+                        value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        response.success ? toastr.success(response.message) : toastr.error(response.message);
+                        if (response.success) setTimeout(() => location.reload(), 1000);
+                    },
+                    error: function(xhr) {
+                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
+                    }
+                });
+
+            });
+
+            $('#createRoomForm').submit(function (e) {
+                e.preventDefault();
+                let roomData = {
+                    RoomNumber: $('#roomNumber').val().trim(),
+                    Capacity: parseInt($('#roomCapacity').val(), 10),
+                    // CinemaID: @Html.Raw(Json.Serialize(cinemaId))
+                    CinemaID: @cinemaId
+                };
+
+                $.ajax({
+                    url: '/Admin/Rooms/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(roomData),
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
+                    }
+                });
+            });
         });
 
-        function editRoom(roomId) {
-            $.ajax({
-                url: `/Admin/Rooms/GetRoom/${roomId}`,
-                type: 'GET',
-                success: function (room) {
-                    $('#roomId').val(room.roomID);
-                    $('#roomNumber').val(room.roomNumber);
-                    $('#roomCapacity').val(room.capacity);
-                    $('#roomModalLabel').text('Edit Room');
-                },
-                error: function () {
-                    alert("Error retrieving room details.");
-                }
-            });
+        function lockRoom(roomId, button) {
+            if (confirm('Are you sure you want to lock this room and update maintenance status?')) {
+                $.ajax({
+                    url: '/Admin/Rooms/Lock/' + roomId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $(button).removeClass('btn-danger').addClass('btn-success').html('<i class="bi bi-unlock-fill me-1"></i>UNLOCK').attr('onclick', 'unlockRoom(\'' + roomId + '\', this)');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
+        }
+        function unlockRoom(roomId, button) {
+            if (confirm('Are you sure you want to unlock this this room and update available status?')) {
+                $.ajax({
+                    url: '/Admin/Rooms/Unlock/' + roomId,
+                    type: 'POST',
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $(button).removeClass('btn-success').addClass('btn-danger').html('<i class="bi bi-lock-fill me-1"></i>LOCK').attr('onclick', 'lockRoom(\'' + roomId + '\', this)');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            }
+        }
+        function enableEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
+            $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
         }
 
-        $('#roomForm').submit(function (e) {
-            e.preventDefault();
-            let roomData = {
-                RoomID: $('#roomId').val(),
-                RoomNumber: $('#roomNumber').val(),
-                Capacity: $('#roomCapacity').val(),
-                CinemaId: @cinemaId
-            };
-
-            $.ajax({
-                url: '/Admin/Rooms/Save',
-                type: 'POST',
-                data: JSON.stringify(roomData),
-                contentType: 'application/json',
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert(response.message);
-                    }
-                },
-                error: function () {
-                    alert("Error saving room.");
-                }
-            });
-        });
-
-        function toggleRoomStatus(roomId, action) {
-            if (!confirm(`Are you sure you want to ${action} this room?`)) return;
-
-            $.ajax({
-                url: `/Admin/Rooms/${action}/${roomId}`,
-                type: 'POST',
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert(response.message);
-                    }
-                },
-                error: function () {
-                    alert(`Error trying to ${action} the room.`);
-                }
-            });
+        function saveEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
+            $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
         }
     </script>
 }
+@Html.AntiForgeryToken()

@@ -1,0 +1,112 @@
+﻿@model IEnumerable<Seat>
+
+@{
+    ViewData["Title"] = "Seat Management";
+    int roomId = ViewData["RoomId"] as int? ?? 0;
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 fw-bold">Seat Management</h3>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblData" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Seat Number</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var seat in Model)
+                            {
+                                <tr id="seatRow-@seat.SeatID">
+                                    <td>@seat.Row@seat.ColumnNumber</td>
+                                    <td class="text-center">
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <button data-id="@seat.SeatID"
+                                                    class="btn btn-sm @(seat.Status == SeatStatus.Available ? "btn-danger" : "btn-success") toggle-status-btn text-white">
+                                                <i class="fas @(seat.Status == SeatStatus.Available ? "fa-lock" : "fa-unlock")"></i>
+                                                @(seat.Status == SeatStatus.Available ? "Maintenance" : "Available")
+                                            </button>
+                                            <button onclick="editSeat(@seat.SeatID)" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center">No seats found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/natural.js"></script>
+    <script>
+            $(document).ready(function () {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "columnDefs": [
+                    { "type": "natural", "targets": 0 } 
+                ]
+            });
+
+            $('#tblData').on('click', '.toggle-status-btn', function () {
+            var button = $(this);
+            var seatId = button.data('id');
+            var isLocking = button.hasClass("btn-danger");
+            var action = isLocking ? "lock" : "unlock";
+            var confirmMessage = isLocking ? "Are you sure you want to lock this seat?" : "Are you sure you want to unlock this seat?";
+
+            if (!confirm(confirmMessage)) return;
+
+            $.ajax({
+                url: '/Admin/Seats/ToggleStatus',
+                type: 'POST',
+                data: { seatId: seatId, action: action },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+
+                        // Cập nhật màu nút sau khi thay đổi trạng thái ghế
+                        if (isLocking) {
+                            button.removeClass('btn-danger').addClass('btn-success')
+                                  .html('<i class="fas fa-unlock"></i> Available');
+                        } else {
+                            button.removeClass('btn-success').addClass('btn-danger')
+                                  .html('<i class="fas fa-lock"></i> Maintenance');
+                        }
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function () {
+                    toastr.error("An error occurred while processing your request.");
+                }
+                 });
+            });
+
+        });
+
+    </script>
+}

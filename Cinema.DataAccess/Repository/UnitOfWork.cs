@@ -32,7 +32,7 @@ namespace Cinema.DataAccess.Repository
         public ICouponRepository Coupon { get; private set; }
         public IApplicationUserRepository ApplicationUser { get; private set; }
         public IShowTimeRepository showTime { get; private set; }
-        public IOrderRepository OrderTable { get; private set; }   
+        public IOrderRepository OrderTable { get; private set; }
         public IOrderDetailRepository OrderDetail { get; private set; }
         public IShowTimeSeatRepository ShowTimeSeat { get; private set; }
         public ICinemaRepository Cinema { get; private set; }
