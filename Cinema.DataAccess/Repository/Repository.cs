@@ -23,22 +23,17 @@ namespace Cinema.DataAccess.Repository
 
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter = null, string? includeProperties = null)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
 
+            // ✅ Apply filter only if it's not null
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
- 
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-
- 
+            // ✅ Handle includeProperties safely
             if (!string.IsNullOrWhiteSpace(includeProperties))
             {
                 foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
@@ -46,6 +41,7 @@ namespace Cinema.DataAccess.Repository
                     query = query.Include(includeProp);
                 }
             }
+
             return await query.FirstOrDefaultAsync();
         }
 
@@ -184,6 +180,28 @@ namespace Cinema.DataAccess.Repository
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
         {
             return await dbSet.AnyAsync(predicate);
+        }
+
+        public async Task<T> GetFirstOrDefaultAsync(
+        Expression<Func<T, bool>> filter,
+        string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp.Trim());
+                }
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
     }
 

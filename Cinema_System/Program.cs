@@ -44,6 +44,8 @@ builder.Services.AddRazorPages();
 //-------------------- Configure database context ---------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .EnableSensitiveDataLogging()  // Hiển thị giá trị tham số trong query
+    .EnableDetailedErrors()       // Hiển thị thông báo lỗi chi tiết từ SQL Server
 );
 
 //-------------------------------------- SIGNAL IR   -------------------------------------------------
@@ -51,7 +53,7 @@ builder.Services.AddSignalR();
 
 
 //đăng kí repository của product
-//builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
 //------------------------------ Configure Identity ---------------------------

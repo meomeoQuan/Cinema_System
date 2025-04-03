@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.DataAccess.Repository
 {
@@ -19,6 +18,7 @@ namespace Cinema.DataAccess.Repository
             _db = db;
         }
 
+
         public void Update(Coupon coupon)
         {
             _db.Update(coupon);
@@ -26,7 +26,7 @@ namespace Cinema.DataAccess.Repository
 
         public async Task AddAsync(Coupon coupon)
         {
-            await _db.Coupons.AddAsync(coupon); 
+            await _db.Coupons.AddAsync(coupon);
         }
     }
 }

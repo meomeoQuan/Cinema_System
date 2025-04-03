@@ -21,8 +21,9 @@ namespace Cinema.DataAccess.Data
         {
             //_applicationUserRepository = new ApplicationUserRepository(this);
         }
-        public DbSet<OrderTable> OrderTables { get; set; }
+
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<OrderTable> OrderTables { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Seat> Seats { get; set; }
 
@@ -91,7 +92,6 @@ namespace Cinema.DataAccess.Data
                   }
 
              );
-
 
             modelBuilder.Entity<Movie>().HasData(
                 // Showing Movies (Existing + 5 New)
@@ -213,13 +213,13 @@ namespace Cinema.DataAccess.Data
                 },
                 new Product
                 {
-                     ProductID = 5,
-                     Name = "Boba Tea",
-                     Description = "Refreshing drink to quench your thirst.",
-                     ProductType = ProductType.Drink,
-                     Price = 20000,
-                     Quantity = 25,
-                     ProductImage = "/css/images/pro4.jpg"
+                    ProductID = 5,
+                    Name = "Boba Tea",
+                    Description = "Refreshing drink to quench your thirst.",
+                    ProductType = ProductType.Drink,
+                    Price = 20000,
+                    Quantity = 25,
+                    ProductImage = "/css/images/pro4.jpg"
                 },
                 new Product
                 {
@@ -311,7 +311,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 1,
                     Name = "Grand Cinema",
                     Address = "123 Main St, Da Nang City",
-                    //CinemaCity = "Danang",
+                    CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
 
@@ -325,7 +325,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 2,
                     Name = "Skyline Theater",
                     Address = "456 Broadway Ave, HCM City",
-                    //CinemaCity = "Ho Chi Minh",
+                    CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 7,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -338,7 +338,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 3,
                     Name = "CGV Cinema",
                     Address = "124 Main St, Danang City",
-                    //CinemaCity = "Danang",
+                    CinemaCity = "Danang",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -351,7 +351,7 @@ namespace Cinema.DataAccess.Data
                     CinemaID = 4,
                     Name = "HCM Cinestar Cinema",
                     Address = "124 Main St, HCM City",
-                    //CinemaCity = "Ho Chi Minh",
+                    CinemaCity = "Ho Chi Minh",
                     NumberOfRooms = 5,
                     Status = CinemaStatus.Open,
                     OpeningTime = new TimeSpan(9, 0, 0),  // Changed from TimeSpan to string
@@ -495,14 +495,16 @@ namespace Cinema.DataAccess.Data
                 new ShowTime
                 {
                     ShowTimeID = 7,
-                    ShowDate = new DateTime(2025, 3, 11, 11, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 11),
+                    ShowTimes = new TimeSpan(18, 3, 0),
                     RoomID = 2,
                     MovieID = 1
                 },
                 new ShowTime
                 {
                     ShowTimeID = 8,
-                    ShowDate = new DateTime(2025, 3, 12, 9, 30, 0),
+                    ShowDate = new DateOnly(2025, 3, 12),
+                    ShowTimes = new TimeSpan(19, 3, 0),
                     RoomID = 1,
                     MovieID = 1
                 }
@@ -641,7 +643,7 @@ namespace Cinema.DataAccess.Data
             //);
 
 
-            // Seed OrderDetails
+            //Seed OrderDetails
             //modelBuilder.Entity<OrderDetail>().HasData(
             //    new OrderDetail
             //    {

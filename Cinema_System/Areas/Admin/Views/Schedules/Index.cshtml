@@ -79,7 +79,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Cinema</label>
-                        <select class="form-select" id="scheduleCinema" onchange="loadRooms(this.value)" required>
+                        <select class="form-select cinema-selector" id="scheduleCinema" onchange="loadRooms(this.value)" required>
                             @if (ViewBag.Cinemas != null && ViewBag.Cinemas.Count > 0)
                             {
                                 @foreach (var cinema in ViewBag.Cinemas)
@@ -95,8 +95,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Room Number</label>
-                        <select class="form-select" id="scheduleRoomNumber" required>
-
+                        <select class="form-select room-selector" id="scheduleRoomNumber" required>
                             <option value="">Select Cinema First</option>
                         </select>
                     </div>
@@ -116,6 +115,9 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
@@ -140,7 +142,7 @@
             // Handle Add Schedule Submission
             $('#scheduleForm').submit(function (e) {
                 e.preventDefault();
-                var data = {
+                let data = {
                     Title: $('#scheduleTitle').val(),
                     Cinema: $('#scheduleCinema').val(),
                     RoomNumber: $('#scheduleRoomNumber').val(),
@@ -148,10 +150,17 @@
                     Showtime: $('#scheduleShowtime').val()
                 };
 
+                console.log("Sending Data:", data); // Check if data is correct
+
                 $.ajax({
-                    url: '/Admin/Schedules/AddRoom',
+                    url: '/Admin/Schedules/Create',
                     type: 'POST',
-                    data: data,
+                    contentType: 'application/json', // ✅ Required for JSON data
+                    data: JSON.stringify(data), // ✅ Convert to JSON string
+                    dataType: 'json', //✅ Expect JSON response
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
                     success: function (response) {
                         if (response.success) {
                             toastr.success('Schedule added successfully');
@@ -214,13 +223,30 @@
                     .html('<i class="bi bi-pencil-square"></i> Edit');
             });
 
-            function loadRooms(cinemaId) {
+
+
+            // Bind Change Event for Cinema Dropdown
+            // $('#scheduleCinema').change(function () {
+            //     loadRooms($(this).val());
+            // });
+
+            // Load rooms if a cinema is already selected (for edit mode)
+            $('.cinema-selector').change(function () {
+                loadRooms($(this).val());
+            });
+
+            // ✅ Load rooms if cinema is already selected (for edit mode)
+            var selectedCinema = $('.cinema-selector').val();
+            if (selectedCinema) {
+                loadRooms(selectedCinema);
+            }
+        });
+
+        function loadRooms(cinemaId) {
                 if (!cinemaId) {
-                    $('#scheduleRoomNumber').html('<option value="">Select Cinema First</option>');
+                    $('.room-selector').html('<option value="">Select Cinema First</option>');
                     return;
                 }
-
-                console.log("Calling loadRooms with cinemaId:", cinemaId); // Debug 1
 
                 $.ajax({
                     url: '/Admin/Schedules/GetRoomsByCinema',
@@ -228,17 +254,15 @@
                     data: { cinemaId: cinemaId },
                     dataType: 'json', // Đảm bảo response là JSON
                     success: function (response) {
-                        console.log("Response from server:", response); // Debug 2
-                        var roomSelect = $('#scheduleRoomNumber');
+                        var roomSelect = $('.room-selector');
                         roomSelect.empty();
 
                         if (response.success && response.rooms && response.rooms.length > 0) {
                             roomSelect.append('<option value="">Select Room</option>');
                             response.rooms.forEach(function (room) {
-                                console.log("Adding room - ID:", room.RoomID, "Number:", room.RoomNumber); // Debug 3
                                 roomSelect.append($('<option></option>')
-                                    .attr('value', room.RoomID)
-                                    .text(room.RoomNumber || "Unnamed Room")); // Nếu RoomNumber null thì hiển thị mặc định
+                                    .attr('value', room.roomID)
+                                    .text(room.roomNumber || "Unnamed Room")); // Nếu RoomNumber null thì hiển thị mặc định
                             });
                         } else {
                             roomSelect.append('<option value="">No rooms available</option>');
@@ -251,18 +275,6 @@
                     }
                 });
             }
-
-            // Bind Change Event for Cinema Dropdown
-            $('#scheduleCinema').change(function () {
-                loadRooms($(this).val());
-            });
-
-            // Load rooms if a cinema is already selected (for edit mode)
-            var selectedCinema = $('#scheduleCinema').val();
-            if (selectedCinema) {
-                loadRooms(selectedCinema);
-            }
-        });
     </script>
 }
 

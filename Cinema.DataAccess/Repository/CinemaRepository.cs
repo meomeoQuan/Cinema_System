@@ -22,11 +22,6 @@ namespace Cinema.DataAccess.Repository
         }
 
 
-        //public async Task<Theater> FindByIdAsync(int cinemaId)
-        //{
-        //    return await _db.Theaters.FindAsync(cinemaId);
-        //}
-
         public async Task<Theater> FindByIdAsync(int cinemaId)
         {
             return await _db.Theaters.FindAsync(cinemaId);
