@@ -49,30 +49,6 @@ namespace Cinema.DataAccess.Repository
             }
         }
 
-        public async Task<IEnumerable<Movie>> SearchAsync(string searchTerm, bool? isUpcoming = null)
-        {
-            try
-            {
-                var query = _db.Movies.AsQueryable();
-
-                if (isUpcoming.HasValue)
-                {
-                    query = query.Where(m => m.IsUpcomingMovie == isUpcoming.Value);
-                }
-
-                if (!string.IsNullOrWhiteSpace(searchTerm))
-                {
-                    query = query.Where(m =>
-                        m.Title.Contains(searchTerm) ||
-                        (!string.IsNullOrEmpty(m.Synopsis) && m.Synopsis.Contains(searchTerm)));
-                }
-
-                return await query.ToListAsync() ?? new List<Movie>();
-            }
-            catch
-            {
-                return new List<Movie>();
-            }
-        }
+      
     }
 }

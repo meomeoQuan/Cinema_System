@@ -491,50 +491,36 @@ namespace Cinema.DataAccess.Data
                     ShowTimes = new TimeSpan(17, 3, 0),
                     RoomID = 2,
                     MovieID = 1
-                },
-                new ShowTime
-                {
-                    ShowTimeID = 7,
-                    ShowDate = new DateTime(2025, 3, 11, 11, 30, 0),
-                    RoomID = 2,
-                    MovieID = 1
-                },
-                new ShowTime
-                {
-                    ShowTimeID = 8,
-                    ShowDate = new DateTime(2025, 3, 12, 9, 30, 0),
-                    RoomID = 1,
-                    MovieID = 1
                 }
             );
 
             // Seed ShowtimeSeats for RoomID = 1 and ShowTimeID = 1
-            modelBuilder.Entity<ShowtimeSeat>().HasData(
-                 Enumerable.Range(1, 50).Select(seatId => new ShowtimeSeat
-                 {
-                     ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
-                     ShowtimeID = 1,           // Link to ShowTimeID = 1
-                     SeatID = seatId,          // Each seat (1-50)
-                     Price = 80000,            // Fixed price for all seats
-                     Status = ShowtimeSeatStatus.Available,
-                 }).ToArray()
-             );
+            //modelBuilder.Entity<ShowtimeSeat>().HasData(
+            //     Enumerable.Range(1, 50).Select(seatId => new ShowtimeSeat
+            //     {
+            //         ShowtimeSeatID = seatId,  // Unique ID for each ShowtimeSeat
+            //         ShowtimeID = 1,           // Link to ShowTimeID = 1
+            //         SeatID = seatId,          // Each seat (1-50)
+            //         Price = 80000,            // Fixed price for all seats
+            //         Status = ShowtimeSeatStatus.Available,
+            //     }).ToArray()
+            // );
 
             // Helper method to check if a seat falls within the VIP area
-            bool IsVipSeat(int seatId)
-            {
-                var vipSeats = new HashSet<int>
-                {
-                    // B3 to B8
-                    13, 14, 15, 16, 17, 18,
-                    // C3 to C8
-                    23, 24, 25, 26, 27, 28,
-                    // D3 to D8
-                    33, 34, 35, 36, 37, 38
-                };
+            //bool IsVipSeat(int seatId)
+            //{
+            //    var vipSeats = new HashSet<int>
+            //    {
+            //        // B3 to B8
+            //        13, 14, 15, 16, 17, 18,
+            //        // C3 to C8
+            //        23, 24, 25, 26, 27, 28,
+            //        // D3 to D8
+            //        33, 34, 35, 36, 37, 38
+            //    };
 
-                return vipSeats.Contains(seatId);
-            }
+            //    return vipSeats.Contains(seatId);
+            //}
 
 
             // Seed OrderTables
