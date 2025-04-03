@@ -117,7 +117,6 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
-
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
@@ -144,35 +143,35 @@
                 e.preventDefault();
                 let data = {
                     Title: $('#scheduleTitle').val(),
-                    Cinema: $('#scheduleCinema').val(),
                     RoomNumber: $('#scheduleRoomNumber').val(),
                     Showdate: $('#scheduleShowdate').val(),
                     Showtime: $('#scheduleShowtime').val()
                 };
 
-                console.log("Sending Data:", data); // Check if data is correct
+                console.log("Sending Data:", data);
 
-                $.ajax({
-                    url: '/Admin/Schedules/Create',
-                    type: 'POST',
-                    contentType: 'application/json', // ✅ Required for JSON data
-                    data: JSON.stringify(data), // ✅ Convert to JSON string
-                    dataType: 'json', //✅ Expect JSON response
-                    headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            toastr.success('Schedule added successfully');
-                            location.reload();
-                        } else {
-                            toastr.error('Failed to add schedule');
-                        }
-                    },
-                    error: function () {
-                        toastr.error('An error occurred');
-                    }
-                });
+                        $.ajax({
+            url: '/Admin/Schedules/Create',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            headers: {
+                "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() // Đảm bảo có token này trong header
+            },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success('Schedule added successfully');
+                    location.reload(); // Reload page to show new schedule
+                } else {
+                    toastr.error('Failed to add schedule');
+                }
+            },
+            error: function () {
+                toastr.error('An error occurred');
+            }
+        });
+
             });
 
             // Handle Edit Button Click
@@ -222,20 +221,10 @@
                     .addClass('btn-primary edit-btn')
                     .html('<i class="bi bi-pencil-square"></i> Edit');
             });
-
-            
-
-            // Bind Change Event for Cinema Dropdown
-            // $('#scheduleCinema').change(function () {
-            //     loadRooms($(this).val());
-            // });
-
-            // Load rooms if a cinema is already selected (for edit mode)
             $('.cinema-selector').change(function () {
                 loadRooms($(this).val());
             });
 
-            // ✅ Load rooms if cinema is already selected (for edit mode)
             var selectedCinema = $('.cinema-selector').val();
             if (selectedCinema) {
                 loadRooms(selectedCinema);
@@ -279,147 +268,3 @@
 }
 
 
-@* @section Scripts { *@
-@*     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> *@
-@*     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> *@
-@*     <script> *@
-@*         $(document).ready(function () { *@
-@*             // Initialize DataTable *@
-@*             $('#tblData').DataTable({ *@
-@*                 "pageLength": 10, *@
-@*                 "lengthMenu": [5, 10, 25, 50], *@
-@*                 "searching": true, *@
-@*                 "ordering": true, *@
-@*                 "info": true *@
-@*             }); *@
-
-@*             // Toggle Add Schedule Form *@
-@*             $('#addScheduleBtn').click(function () { *@
-@*                 $('#schedule-form').toggleClass('d-none'); *@
-@*                 if (!$('#schedule-form').hasClass('d-none')) { *@
-@*                     $('html, body').animate({ scrollTop: $('#schedule-form').offset().top }, 300); *@
-@*                 } *@
-@*             }); *@
-
-@*             // Handle Add Schedule Submission *@
-@*             $('#scheduleForm').submit(function (e) { *@
-@*                 e.preventDefault(); *@
-@*                 var data = { *@
-@*                     Title: $('#scheduleTitle').val(), *@
-@*                     Cinema: $('#scheduleCinema').val(), *@
-@*                     RoomNumber: $('#scheduleRoomNumber').val(), *@
-@*                     Showdate: $('#scheduleShowdate').val(), *@
-@*                     Showtime: $('#scheduleShowtime').val() *@
-@*                 }; *@
-
-@*                 $.ajax({ *@
-@*                     url: '/Admin/Schedules/Add', *@
-@*                     type: 'POST', *@
-@*                     data: data, *@
-@*                     success: function (response) { *@
-@*                         if (response.success) { *@
-@*                             toastr.success('Schedule added successfully'); *@
-@*                             location.reload(); *@
-@*                         } else { *@
-@*                             toastr.error('Failed to add schedule'); *@
-@*                         } *@
-@*                     }, *@
-@*                     error: function () { *@
-@*                         toastr.error('An error occurred'); *@
-@*                     } *@
-@*                 }); *@
-@*             }); *@
-
-@*             // Handle Edit Button Click *@
-@*             $('#tblData').on('click', '.edit-btn', function () { *@
-@*                 var row = $(this).closest('tr'); *@
-@*                 row.find('td[data-field]').each(function () { *@
-@*                     $(this).attr('contenteditable', 'true').addClass('editable'); *@
-@*                 }); *@
-
-@*                 $(this) *@
-@*                     .removeClass('btn-primary edit-btn') *@
-@*                     .addClass('btn-success save-btn') *@
-@*                     .html('<i class="bi bi-check-circle"></i> Save'); *@
-@*             }); *@
-
-@*             // Handle Save Button Click *@
-@*             $('#tblData').on('click', '.save-btn', function () { *@
-@*                 var row = $(this).closest('tr'); *@
-@*                 var id = row.data('id'); *@
-@*                 var updates = []; *@
-
-@*                 row.find('td[contenteditable="true"]').each(function () { *@
-@*                     var field = $(this).data('field'); *@
-@*                     var value = $(this).text().trim(); *@
-@*                     updates.push({ field, value }); *@
-@*                     $(this).removeAttr('contenteditable').removeClass('editable'); *@
-@*                 }); *@
-
-@*                 $.ajax({ *@
-@*                     url: '/Admin/Schedules/UpdateFields', *@
-@*                     type: 'POST', *@
-@*                     data: { id, updates, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() }, *@
-@*                     success: function (response) { *@
-@*                         if (response.success) { *@
-@*                             toastr.success('Schedule updated successfully'); *@
-@*                         } else { *@
-@*                             toastr.error('Update failed'); *@
-@*                         } *@
-@*                     }, *@
-@*                     error: function () { *@
-@*                         toastr.error('An error occurred'); *@
-@*                     } *@
-@*                 }); *@
-
-@*                 $(this) *@
-@*                     .removeClass('btn-success save-btn') *@
-@*                     .addClass('btn-primary edit-btn') *@
-@*                     .html('<i class="bi bi-pencil-square"></i> Edit'); *@
-@*             }); *@
-
-@*         function loadRooms(cinemaId) { *@
-@*             if (!cinemaId) { *@
-@*                 $('#scheduleRoomNumber').html('<option value="">Select Cinema First</option>'); *@
-@*                 return; *@
-@*             } *@
-
-@*             $.ajax({ *@
-@*                 url: '/Admin/Schedules/GetRoomsByCinema', *@
-@*                 type: 'GET', *@
-@*                 data: { cinemaId: cinemaId }, *@
-@*                 success: function (rooms) { *@
-@*                     var roomSelect = $('#scheduleRoomNumber'); *@
-@*                     roomSelect.empty(); *@
-
-@*                     if (rooms && rooms.length > 0) { *@
-@*                         roomSelect.append('<option value="">Select Room</option>'); *@
-@*                         rooms.forEach(function (room) { *@
-@*                             roomSelect.append($('<option></option>') *@
-@*                                 .attr('value', room.RoomID) *@
-@*                                 .text(room.RoomNumber)); *@
-@*                         }); *@
-@*                     } else { *@
-@*                         roomSelect.append('<option value="">No rooms available</option>'); *@
-@*                     } *@
-@*                 }, *@
-@*                 error: function () { *@
-@*                     toastr.error('Error loading rooms'); *@
-@*                 } *@
-@*             }); *@
-@*         } *@
-
-@*         // Ensure that when the cinema selection changes, the function is triggered *@
-@*         $(document).ready(function () { *@
-@*             $('#scheduleCinema').change(function () { *@
-@*                 loadRooms($(this).val()); *@
-@*             }); *@
-
-@*             // Load rooms for initially selected cinema (in case of edit) *@
-@*             var selectedCinema = $('#scheduleCinema').val(); *@
-@*             if (selectedCinema) { *@
-@*                 loadRooms(selectedCinema); *@
-@*             } *@
-@*         } *@
-@*     </script> *@
-@* } *@

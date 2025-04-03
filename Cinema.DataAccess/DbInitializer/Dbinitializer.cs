@@ -48,7 +48,7 @@ namespace Cinema.DataAccess.DbInitializer
             catch (Exception ex) { }
 
 
-            if(!_roleManager.RoleExistsAsync(SD.Role_Guest).GetAwaiter().GetResult())
+            if (!_roleManager.RoleExistsAsync(SD.Role_Guest).GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Staff)).GetAwaiter().GetResult();
@@ -117,9 +117,6 @@ namespace Cinema.DataAccess.DbInitializer
                     _userManager.AddToRoleAsync(user2, SD.Role_Staff).GetAwaiter().GetResult();
                 }
             }
-
-
-
         }
     }
 }

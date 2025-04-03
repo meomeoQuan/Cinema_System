@@ -68,28 +68,20 @@ namespace Cinema_System.Areas.Admin.Controllers
             {
                 try
                 {
-                    // Kiểm tra tên rạp đã tồn tại chưa
                     if (_unitOfWork.Cinema.Get(c => c.Name == theater.Name) != null)
                     {
                         return Json(new { success = false, message = "Theater name already exists." });
                     }
-
-                    // Kiểm tra địa chỉ rạp đã tồn tại chưa
                     if (_unitOfWork.Cinema.Get(c => c.Address == theater.Address) != null)
                     {
                         return Json(new { success = false, message = "Theater address already exists." });
                     }
-
-                    // Kiểm tra số phòng hợp lệ
                     if (theater.NumberOfRooms <= 0)
                     {
                         return Json(new { success = false, message = "Number of rooms must be greater than 0." });
                     }
-
-                    // Thêm rạp chiếu phim vào database
                     _unitOfWork.Cinema.Add(theater);
                     await _unitOfWork.SaveAsync();
-
                     return Json(new { success = true, message = "Theater created successfully." });
                 }
                 catch (Exception ex)
@@ -99,7 +91,6 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
             return Json(new { success = false, message = "Invalid theater data." });
         }
-
         [HttpPost]
         public async Task<IActionResult> UpdateTheaterField(int id, string field, string value)
         {
