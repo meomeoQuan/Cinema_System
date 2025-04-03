@@ -27,35 +27,33 @@ namespace Cinema_System.Areas.Admin.Controllers
             ViewBag.Cinemas = cinemas.Select(c => new { Id = c.CinemaID, Name = c.Name }).ToList();
             return View(schedules);
         }
-        [HttpPost]
-        public async Task<IActionResult> AddRoom(string roomNumber, int cinemaId)
-        {
-            if (string.IsNullOrEmpty(roomNumber) || cinemaId <= 0)
-            {
-                return Json(new { success = false, message = "Room number and theater are required." });
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> AddRoom(string roomNumber, int cinemaId)
+        //{
+        //    if (string.IsNullOrEmpty(roomNumber) || cinemaId <= 0)
+        //    {
+        //        return Json(new { success = false, message = "Room number and theater are required." });
+        //    }
 
-            try
-            {
-                // Tạo đối tượng Room mới
-                var newRoom = new Room
-                {
-                    RoomNumber = roomNumber,
-                    CinemaID = cinemaId
-                    // Thêm các thuộc tính khác nếu cần (ví dụ: Capacity, Status, v.v.)
-                };
+        //    try
+        //    {
+        //        var newRoom = new Room
+        //        {
+        //            RoomNumber = roomNumber,
+        //            CinemaID = cinemaId,
+                    
+        //        };
 
-                // Thêm vào database qua UnitOfWork
-                _unitOfWork.Room.Add(newRoom);
-                await _unitOfWork.SaveAsync();
+        //        _unitOfWork.Room.Add(newRoom);
+        //        await _unitOfWork.SaveAsync();
 
-                return Json(new { success = true, message = "Room added successfully", room = new { RoomID = newRoom.RoomID, RoomNumber = newRoom.RoomNumber } });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error adding room: " + ex.Message });
-            }
-        }
+        //        return Json(new { success = true, message = "Room added successfully", room = new { RoomID = newRoom.RoomID, RoomNumber = newRoom.RoomNumber } });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = "Error adding room: " + ex.Message });
+        //    }
+        //}
         //[HttpGet("GetAll")]
         //public async Task<IActionResult> GetAll()
         //{
@@ -102,8 +100,10 @@ namespace Cinema_System.Areas.Admin.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ShowTime model)
+        public async Task<IActionResult> Create(ShowTime model)
         {
+            Console.WriteLine("Create action hit!"); // Debugging
+            Console.WriteLine($"Received Model: RoomID={model.RoomID}, ShowDate={model.ShowDate}, ShowTimes={model.ShowTimes}");
             if (!ModelState.IsValid)
             {
                 return Json(new { success = false, message = "Invalid showtime data." });
@@ -122,7 +122,6 @@ namespace Cinema_System.Areas.Admin.Controllers
             await _unitOfWork.SaveAsync();
 
             await _unitOfWork.ShowTimeSeat.AddRangeAsync(AutoGenerateTickets(roomEntity, model));
-
             await _unitOfWork.SaveAsync();
 
             return Json(new { success = true, message = "Showtime and tickets created successfully!" });
