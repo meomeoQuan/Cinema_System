@@ -73,7 +73,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = $"/Identity/Account/Login";
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
-    // Cấu hình cookie
+      // Cấu hình cookie
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Cookie tồn tại 30 p
     options.SlidingExpiration = true; // Tự động gia hạn khi user active
@@ -120,7 +120,7 @@ builder.Services.AddSession(options =>
 // Configure token lifespan
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
-    options.TokenLifespan = TimeSpan.FromMinutes(3);
+    options.TokenLifespan = TimeSpan.FromSeconds(30);
 });
 
 // Add scoped services
