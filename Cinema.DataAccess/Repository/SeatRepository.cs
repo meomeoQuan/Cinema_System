@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cinema.DataAccess.Repository
 {
@@ -23,23 +22,11 @@ namespace Cinema.DataAccess.Repository
         {
             _db = db;
         }
-        public async Task<Seat?> GetByIdAsync(int seatId)
-        {
-            return await _db.Seats.FindAsync(seatId); // Tìm nhanh nhất bằng khóa chính
-        }
-
         public void Update(Seat seat)
         {
             _db.Update(seat);
         }
-        public async Task<IEnumerable<Seat>> GetSeatsByRoomIdAsync(int roomId)
-        {
-            return await _db.Seats
-               .Include(s => s.Room)
-               .Where(s => s.RoomID == roomId)
-               .ToListAsync();
-        }
+
     }
+
 }
-
-
