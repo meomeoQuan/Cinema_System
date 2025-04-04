@@ -102,98 +102,98 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             try
             {
+                bool isUpdated = false;
+
                 switch (field)
                 {
                     case "Name":
                         if (string.IsNullOrWhiteSpace(value))
-                        {
                             return Json(new { success = false, message = "Theater name cannot be empty." });
-                        }
-                        if (_unitOfWork.Cinema.GetAllAsync(c => c.Name == value && c.CinemaID != id) != null)
-                        {
+
+                        if (theater.Name == value)
+                            return Json(new { success = false, message = "No changes detected." });
+
+                        var existingName = await _unitOfWork.Cinema.GetAllAsync(c => c.Name == value && c.CinemaID != id);
+                        if (existingName.Any())
                             return Json(new { success = false, message = "Theater name already exists." });
-                        }
+
                         theater.Name = value;
+                        isUpdated = true;
                         break;
 
                     case "Address":
                         if (string.IsNullOrWhiteSpace(value))
-                        {
                             return Json(new { success = false, message = "Address cannot be empty." });
-                        }
-                        if (_unitOfWork.Cinema.GetAllAsync(c => c.Address == value && c.CinemaID != id) != null)
-                        {
-                            return Json(new { success = false, message = "Theater address already exists." });
-                        }
-                        theater.Address = value;
-                        break;
 
-                    case "CinemaCity":
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            return Json(new { success = false, message = "Cinema city cannot be empty." });
-                        }
-                        theater.CinemaCity = value;
+                        if (theater.Address == value)
+                            return Json(new { success = false, message = "No changes detected." });
+
+                        var existingAddress = await _unitOfWork.Cinema.GetAllAsync(c => c.Address == value && c.CinemaID != id);
+                        if (existingAddress.Any())
+                            return Json(new { success = false, message = "Theater address already exists." });
+
+                        theater.Address = value;
+                        isUpdated = true;
                         break;
 
                     case "NumberOfRooms":
                         if (!int.TryParse(value, out int numRooms) || numRooms < 1)
-                        {
                             return Json(new { success = false, message = "Number of rooms must be at least 1." });
-                        }
+
+                        if (theater.NumberOfRooms == numRooms)
+                            return Json(new { success = false, message = "No changes detected." });
+
                         theater.NumberOfRooms = numRooms;
+                        isUpdated = true;
                         break;
 
                     case "Status":
                         if (!Enum.TryParse(value, true, out CinemaStatus status))
-                        {
                             return Json(new { success = false, message = "Invalid cinema status." });
-                        }
+
+                        if (theater.Status == status)
+                            return Json(new { success = false, message = "No changes detected." });
+
                         theater.Status = status;
+                        isUpdated = true;
                         break;
 
                     case "OpeningTime":
-                        if (TimeSpan.TryParse(value, out TimeSpan openingTime))
-                        {
-                            theater.OpeningTime = openingTime;
-                        }
-                        else
-                        {
+                        if (!TimeSpan.TryParse(value, out TimeSpan openingTime))
                             return Json(new { success = false, message = "Invalid opening time format. Please use HH:mm." });
-                        }
+
+                        if (theater.OpeningTime == openingTime)
+                            return Json(new { success = false, message = "No changes detected." });
+
+                        theater.OpeningTime = openingTime;
+                        isUpdated = true;
                         break;
 
                     case "ClosingTime":
-                        if (TimeSpan.TryParse(value, out TimeSpan closingTime))
-                        {
-                            theater.ClosingTime = closingTime;
-                        }
-                        else
-                        {
+                        if (!TimeSpan.TryParse(value, out TimeSpan closingTime))
                             return Json(new { success = false, message = "Invalid closing time format. Please use HH:mm." });
-                        }
-                        break;
 
-                    case "AdminID":
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            return Json(new { success = false, message = "Admin ID cannot be empty." });
-                        }
-                        var admin = _unitOfWork.ApplicationUser.Get(a => a.Id == value);
-                        if (admin == null)
-                        {
-                            return Json(new { success = false, message = "Admin not found." });
-                        }
-                        theater.AdminID = value;
+                        if (theater.ClosingTime == closingTime)
+                            return Json(new { success = false, message = "No changes detected." });
+
+                        theater.ClosingTime = closingTime;
+                        isUpdated = true;
                         break;
 
                     default:
                         return Json(new { success = false, message = "Invalid field." });
                 }
 
-                theater.UpdatedAt = DateTime.Now; // Cập nhật thời gian chỉnh sửa
-                await _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "Theater updated successfully." });
+                if (isUpdated)
+                {
+                    _unitOfWork.Cinema.Update(theater);
+                    await _unitOfWork.SaveAsync();
+                    return Json(new { success = true, message = "Updated successfully." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "No changes made." });
+                }
             }
             catch (Exception ex)
             {
