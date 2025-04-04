@@ -321,7 +321,7 @@ public class PasswordGenerator
     {
         const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
         StringBuilder result = new StringBuilder(length);
-        using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
         {
             byte[] uintBuffer = new byte[sizeof(uint)];
 

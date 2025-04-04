@@ -111,7 +111,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
-      
+
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
@@ -172,7 +172,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             }
 
             // If we got this far, something failed, redisplay form
-            return Page();  
+            return Page();
         }
 
     }

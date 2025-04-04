@@ -47,50 +47,50 @@ namespace Cinema_System.Areas.Admin.Controllers
             {
                 MonthlyRevenue = monthlyRevenue
             };
-            RevenueForSingle(1);
+            //RevenueForSingle(1);
             return View(viewModel);
         }
-        public async Task<IActionResult> RevenueForSingle(int cinemaId)
-        {
-            //var revenueData = await _unitOfWork.OrderTable.GetAllAsync(includeProperties: "OrderDetail,ShowtimeSeat,ShowTime,Room,Theater");
-            //var revenueData = await _unitOfWork.OrderTable.GetAllAsync(
-            //    o => o.OrderDetails.ShowtimeSeat.ShowTime.Room.Theater.CinemaID == cinemaId,  // ✅ Filter by cinemaId
-            //    includeProperties: "OrderDetail,ShowtimeSeat,ShowTime,Room,Theater"
-            //);
-            var revenueData = await _unitOfWork.OrderTable.GetAllAsync(
-                o => o.OrderDetails.Any(od =>
-                    od.ShowtimeSeat.Showtime.Room.Theater.CinemaID == cinemaId // ✅ Corrected Filtering
-                ),
-                includeProperties: "OrderDetails,OrderDetails.ShowtimeSeat,OrderDetails.ShowtimeSeat.ShowTime,OrderDetails.ShowtimeSeat.ShowTime.Room,OrderDetails.ShowtimeSeat.ShowTime.Room.Theater"
-            );
+        //public async Task<IActionResult> RevenueForSingle(int cinemaId)
+        //{
+        //    //var revenueData = await _unitOfWork.OrderTable.GetAllAsync(includeProperties: "OrderDetail,ShowtimeSeat,ShowTime,Room,Theater");
+        //    //var revenueData = await _unitOfWork.OrderTable.GetAllAsync(
+        //    //    o => o.OrderDetails.ShowtimeSeat.ShowTime.Room.Theater.CinemaID == cinemaId,  // ✅ Filter by cinemaId
+        //    //    includeProperties: "OrderDetail,ShowtimeSeat,ShowTime,Room,Theater"
+        //    //);
+        //    var revenueData = await _unitOfWork.OrderTable.GetAllAsync(
+        //        o => o.OrderDetails.Any(od =>
+        //            od.ShowtimeSeat.Showtime.Room.Theater.CinemaID == cinemaId // ✅ Corrected Filtering
+        //        ),
+        //        includeProperties: "OrderDetails,OrderDetails.ShowtimeSeat,OrderDetails.ShowtimeSeat.ShowTime,OrderDetails.ShowtimeSeat.ShowTime.Room,OrderDetails.ShowtimeSeat.ShowTime.Room.Theater"
+        //    );
 
-            if (revenueData == null)
-            {
-                Console.WriteLine("Revenue data is null.");
-                return View(new RevenueViewModel { MonthlyRevenue = new List<double>() });
-            }
+        //    if (revenueData == null)
+        //    {
+        //        Console.WriteLine("Revenue data is null.");
+        //        return View(new RevenueViewModel { MonthlyRevenue = new List<double>() });
+        //    }
 
-            var monthlyRevenue = revenueData
-                .GroupBy(o => o.CreatedAt.Month)
-                .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
-                .OrderBy(r => r.Month)
-                .Select(r => r.Amount)
-                .ToList();
+        //    var monthlyRevenue = revenueData
+        //        .GroupBy(o => o.CreatedAt.Month)
+        //        .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+        //        .OrderBy(r => r.Month)
+        //        .Select(r => r.Amount)
+        //        .ToList();
 
-            // Create the view model
-            var viewModel = new RevenueViewModel
-            {
-                MonthlyRevenue = monthlyRevenue
-            };
-            Console.WriteLine("Revenue data:");
-            foreach (var item in revenueData)
-            {
-                Console.WriteLine($"OrderID: {item.OrderID}, TotalAmount: {item.TotalAmount}, CreatedAt: {item.CreatedAt}");
-            }
+        //    // Create the view model
+        //    var viewModel = new RevenueViewModel
+        //    {
+        //        MonthlyRevenue = monthlyRevenue
+        //    };
+        //    Console.WriteLine("Revenue data:");
+        //    foreach (var item in revenueData)
+        //    {
+        //        Console.WriteLine($"OrderID: {item.OrderID}, TotalAmount: {item.TotalAmount}, CreatedAt: {item.CreatedAt}");
+        //    }
 
-            return Json(monthlyRevenue);
-            //return View(viewModel);
-        }
+        //    return Json(monthlyRevenue);
+        //    //return View(viewModel);
+        //}
         //public async Task<IActionResult> Revenue()
         //{
         //    // Fetch monthly revenue data from the database

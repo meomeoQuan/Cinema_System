@@ -72,10 +72,7 @@
 
 
 
-    <!-- Floating Chat Icon -->
-    <div id="chat-icon" class="chat-icon">
-        <i class="fa-solid fa-comments"></i>
-    </div>
+  
 
     <!-- Chat Window (Hidden by Default) -->
     @* <partial name="_ChatPartial" /> *@
@@ -95,13 +92,7 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
-    <script>
-        // Basic toggle for chat icon
-        document.getElementById('chat-icon').addEventListener('click', function() {
-            const chatContainer = document.querySelector('.chat-container');
-            chatContainer.style.display = chatContainer.style.display === 'none' ? 'flex' : 'none';
-        });
-    </script>
+    
 
     <style>
         /* Floating Chat Icon */
