@@ -493,31 +493,31 @@ namespace Cinema.DataAccess.Data
                     TotalAmount = 50000,
                     CreatedAt = new DateTime(2025, 3, 1),
                     UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                },
+                new OrderTable
+                {
+                    OrderID = 4,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 60000,
+                    CreatedAt = new DateTime(2025, 4, 1),
+                    UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                },
+                new OrderTable
+                {
+                    OrderID = 5,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 70000,
+                    CreatedAt = new DateTime(2025, 5, 1),
+                    UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                },
+                new OrderTable
+                {
+                    OrderID = 6,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 80000,
+                    CreatedAt = new DateTime(2025, 6, 1),
+                    UserID = "a1234567-b89c-40d4-a123-456789abcdef"
                 }
-                //new OrderTable
-                //{
-                //    OrderID = 4,
-                //    Status = OrderStatus.Pending,
-                //    TotalAmount = 60000,
-                //    CreatedAt = new DateTime(2025, 4, 1)
-                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-                //},
-                //new OrderTable
-                //{
-                //    OrderID = 5,
-                //    Status = OrderStatus.Completed,
-                //    TotalAmount = 70000,
-                //    CreatedAt = new DateTime(2025, 5, 1)
-                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-                //},
-                //new OrderTable
-                //{
-                //    OrderID = 6,
-                //    Status = OrderStatus.Pending,
-                //    TotalAmount = 80000,
-                //    CreatedAt = new DateTime(2025, 6, 1)
-                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-                //},
                 //new OrderTable
                 //{
                 //    OrderID = 7,
@@ -549,26 +549,26 @@ namespace Cinema.DataAccess.Data
                 //    TotalAmount = 120000,
                 //    CreatedAt = new DateTime(2025, 10, 1)
 
-                //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
-                //},
-                //new OrderTable
-                //{
-                //    OrderID = 11,
-                //    Status = OrderStatus.Completed,
-                //    TotalAmount = 130000,
-                //    CreatedAt = new DateTime(2025, 11, 1)
+            //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+            //},
+            //new OrderTable
+            //{
+            //    OrderID = 11,
+            //    Status = OrderStatus.Completed,
+            //    TotalAmount = 130000,
+            //    CreatedAt = new DateTime(2025, 11, 1)
 
-                //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
-                //},
-                //new OrderTable
-                //{
-                //    OrderID = 12,
-                //    Status = OrderStatus.Pending,
-                //    TotalAmount = 140000,
-                //    CreatedAt = new DateTime(2025, 12, 1)
+            //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+            //},
+            //new OrderTable
+            //{
+            //    OrderID = 12,
+            //    Status = OrderStatus.Pending,
+            //    TotalAmount = 140000,
+            //    CreatedAt = new DateTime(2025, 12, 1)
 
-                //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
-                //}
+            //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+            //}
             );
 
 
