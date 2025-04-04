@@ -31,11 +31,6 @@ namespace Cinema.DataAccess.Repository.IRepository
 
         int Count(Expression<Func<Product, bool>> filter = null);
 
-        //IEnumerable<Product> GetPaged(
-        //    int pageNumber,
-        //    int pageSize,
-        //    Expression<Func<Product, bool>> filter = null,
-        //    Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
-        //    string includeProperties = null);
+        void Save();
     }
 }

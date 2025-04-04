@@ -56,13 +56,10 @@
                                     <div class="d-flex gap-2 justify-content-center">
                                         @if (user.LockoutEnd == null || user.LockoutEnd < DateTime.Now)
                                         {
-
                                             <button onclick="lockUser('@user.Id', this)"
                                                     class="btn btn-danger btn-sm rounded-3 text-uppercase fw-semibold">
                                                 <i class="bi bi-lock-fill me-1"></i>LOCK
                                             </button>
-
-
                                         }
                                         else
                                         {
@@ -218,7 +215,7 @@
                     success: function(response) {
                         if (response.success) {
                             toastr.success(response.message);
-                            alert('User created successfully. Password: ' + response.password);
+                            // alert('User created successfully. Password: ' + response.password);
                             location.reload();
                         } else {
                             toastr.error(response.message);

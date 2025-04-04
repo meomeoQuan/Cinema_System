@@ -13,14 +13,13 @@ namespace Cinema.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
 
-        public int? OrderID { get; set; }
+        public int? OrderID { get; set; } // ✔️ Cách chuẩn nhất
 
 
         [NotMapped] // Không lưu vào database
         public string? TempId { get; set; } // Dùng cho session
 
         //public string UserId { get; set; } // Nullable cho khách
-
 
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session

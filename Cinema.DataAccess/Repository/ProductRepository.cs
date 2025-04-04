@@ -121,5 +121,10 @@ namespace Cinema.DataAccess.Repository
             _db?.Dispose();
             GC.SuppressFinalize(this);
         }
+
+        public void Save()
+        {
+            _db.SaveChanges();
+        }
     }
 }

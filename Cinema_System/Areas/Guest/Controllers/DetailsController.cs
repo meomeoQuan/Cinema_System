@@ -27,6 +27,8 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return View(detailVM);
         }
-    }
 
+    }
 }
+
+
