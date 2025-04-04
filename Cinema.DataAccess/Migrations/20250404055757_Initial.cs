@@ -513,7 +513,10 @@ namespace Cinema.DataAccess.Migrations
                 {
                     { 1, null, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 124235.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "a1234567-b89c-40d4-a123-456789abcdef" },
                     { 2, null, new DateTime(2025, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, 747237.65399999998, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "a1234567-b89c-40d4-a123-456789abcdef" },
-                    { 3, null, new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 50000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "a1234567-b89c-40d4-a123-456789abcdef" }
+                    { 3, null, new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 50000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "a1234567-b89c-40d4-a123-456789abcdef" },
+                    { 4, null, new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 60000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "a1234567-b89c-40d4-a123-456789abcdef" },
+                    { 5, null, new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 70000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "a1234567-b89c-40d4-a123-456789abcdef" },
+                    { 6, null, new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 80000.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "a1234567-b89c-40d4-a123-456789abcdef" }
                 });
 
             migrationBuilder.InsertData(

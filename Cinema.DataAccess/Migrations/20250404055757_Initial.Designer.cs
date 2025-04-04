@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250404032012_Initial")]
+    [Migration("20250404055757_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -399,6 +399,33 @@ namespace Cinema.DataAccess.Migrations
                             CreatedAt = new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = 1,
                             TotalAmount = 50000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                        },
+                        new
+                        {
+                            OrderID = 4,
+                            CreatedAt = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 60000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                        },
+                        new
+                        {
+                            OrderID = 5,
+                            CreatedAt = new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 70000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                        },
+                        new
+                        {
+                            OrderID = 6,
+                            CreatedAt = new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 80000.0,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserID = "a1234567-b89c-40d4-a123-456789abcdef"
                         });
