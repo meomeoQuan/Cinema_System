@@ -144,8 +144,16 @@ input[type="number"] {
     justify-content: flex-end;
 }
 
+.btn-hover {
+    background-color: white !important;
+    text-decoration: none !important;
+    color: black;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
 .btn-hover:hover {
-    background-color: #e1d4fa;
+    background-color: #e1d4fa !important;
 }
 
 .btn btn-danger .btn-sm {

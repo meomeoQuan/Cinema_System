@@ -1,0 +1,196 @@
+﻿@using System.Globalization
+@model Cinema.Models.ViewModels.CartVM
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+	<div class="alert alert-warning">@Model.Message</div>
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title></title>
+	<link rel="stylesheet"
+		  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet"
+		  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+	<link rel="stylesheet" href="~/css/cart.css" />
+</head>
+<body>
+    <!--CART-->
+    @if (Model.SessionItems?.Any() == true || Model.DatabaseItems?.Any() == true)
+    {
+        <section class="">
+            <h2 class="font-weight-bold pt-5 cart-title">Cinema Cart</h2>
+            <hr>
+        </section>
+    }
+
+    <!--Session cart items(for guest)-->
+    @if (Model.SessionItems?.Any() == true)
+    {
+        <section id="cart-container" class="container my-5">
+            <table width="100%">
+                <thead>
+                    <tr>
+                        <td>Remove</td>
+                        <td>Image</td>
+                        <td>Product</td>
+                        <td>Price</td>
+                        <td>Quantity</td>
+                        <td>Total</td>
+                    </tr>
+                </thead>
+
+                <tbody class="text-table">
+                    @foreach (var item in Model.SessionItems)
+                    {
+                        <tr>
+                            <td>
+                                <form asp-action="RemoveFromCart" method="post">
+                                    <input type="hidden" name="id" value="@item.TempId" />
+                                    <input type="hidden" name="isSessionItem" value="true" />
+                                    <button type="submit" class="btn btn-danger btn-sm icon-trash">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <td><img src="@item.Product?.ProductImage" alt="ticket" /></td>
+                            <td>
+                                <h5>@item.Product?.Name</h5>
+                            </td>
+                            <td>
+                                <h5>@item.Price.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</h5>
+                            </td>
+                            <td class="w-25 pl-1 text-center align-middle quantity-cell">
+                                <form asp-action="UpdateQuantity" method="post">
+                                    <input type="hidden" name="id" value="@item.TempId" />
+                                    <input type="hidden" name="isSessionItem" value="true" />
+                                    <input type="number" name="quantity" value="@item.Quantity" min="1"
+                                           class="form-control" style="width: 70px; display: inline-block;"
+                                           onchange="this.form.submit()" />
+                                </form>
+                            </td>
+                            <td>
+                                <h5>@item.TotalPrice.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</h5>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    }
+
+    <!-- Database Cart Items (for logged in users) -->
+    @if (Model.DatabaseItems?.Any() == true)
+    {
+        <section id="cart-container" class="container my-5">
+            <table width="100%">
+                <thead>
+                    <tr>
+                        <td>Remove</td>
+                        <td>Image</td>
+                        <td>Product</td>
+                        <td>Price</td>
+                        <td>Quantity</td>
+                        <td>Total</td>
+                    </tr>
+                </thead>
+
+                <tbody class="text-table">
+                    @foreach (var item in Model.DatabaseItems)
+                    {
+                        <tr>
+                            <td>
+                                <form asp-action="RemoveFromCart" method="post">
+                                    <input type="hidden" name="id" value="@item.OrderDetailID" />
+                                    <input type="hidden" name="isSessionItem" value="false" />
+                                    <button type="submit" class="btn btn-danger btn-sm icon-trash">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            <td><img src="@item.Product?.ProductImage" alt="ticket" /></td>
+                            <td>
+                                <h5>@item.Product?.Name</h5>
+                            </td>
+                            <td>
+                                <h5>@item.Price.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</h5>
+                            </td>
+                            <td class="w-25 pl-1 text-center align-middle quantity-cell">
+                                <form asp-action="UpdateQuantity" method="post">
+                                    <input type="hidden" name="id" value="@item.OrderDetailID" />
+                                    <input type="hidden" name="isSessionItem" value="false" />
+                                    <input type="number" name="quantity" value="@item.Quantity" min="1"
+                                           class="form-control" style="width: 70px; display: inline-block;"
+                                           onchange="this.form.submit()" />
+                                </form>
+                            </td>
+                            <td>
+                                <h5>@item.TotalPrice.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</h5>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    }
+
+    <!--Summary section-->
+    @if (Model.SessionItems?.Any() == true || Model.DatabaseItems?.Any() == true)
+    {
+        <section id="cart-bottom" class="container">
+            <div class="row text-div">
+                <div class="coupon col-lg-6 col-md-6 col-12 mb-4">
+                    <div>
+                        <h5>COUPON</h5>
+                        <p>Enter your discout coupon</p>
+                        <input type="text" placeholder="Coupon Code">
+                        <button class="btn-hover">Apply Coupon</button>
+                    </div>
+                </div>
+                <div class="total col-lg-6 col-md-6 col-12">
+                    <div>
+                        <h5>CART TOTAL</h5>
+                        <div class="d-flex justify-content-between">
+                            <h6>Subtotal</h6>
+                            <p>@Model.Subtotal.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h6>Discount</h6>
+                            <p>@Model.Discount.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</p>
+                        </div>
+                        <hr class="second-hr">
+                        <div class="d-flex justify-content-between">
+                            <h6>Total</h6>
+                            <p>@Model.Total.ToString("C0", CultureInfo.GetCultureInfo("vi-VN"))</p>
+                        </div>
+                        @* <div class="d-flex justify-content-end"> *@
+                        @*     @if (User.Identity?.IsAuthenticated == true) *@
+                        @*     { *@
+                        @*         <a asp-action="Checkout" class="btn-hover">PROCEED TO CHECKOUT</a> *@
+                        @*     } *@
+                        @* </div> *@
+                        <div class="d-flex justify-content-end">
+                            @if (Model.SessionItems?.Any() == true || Model.DatabaseItems?.Any() == true)
+                            {
+                                <a asp-action="Checkout" class="btn-hover">PROCEED TO CHECKOUT</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <div class="container text-center my-5">
+            <h3>Your cart is empty</h3>
+            <a href="@Url.Action("Product")" class="btn btn-primary mt-3">Continue Shopping</a>
+        </div>
+    }
+</body>
+
+</html>

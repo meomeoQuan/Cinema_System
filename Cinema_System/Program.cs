@@ -44,10 +44,16 @@ builder.Services.AddRazorPages();
 //-------------------- Configure database context ---------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .EnableSensitiveDataLogging()  // Hiển thị giá trị tham số trong query
+    .EnableDetailedErrors()       // Hiển thị thông báo lỗi chi tiết từ SQL Server
 );
 
 //-------------------------------------- SIGNAL IR   -------------------------------------------------
 builder.Services.AddSignalR();
+
+
+//đăng kí repository của product
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
 //------------------------------ Configure Identity ---------------------------
@@ -165,6 +171,12 @@ app.MapControllerRoute(
     pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+//route mapping cho area Staff
+//app.MapControllerRoute(
+//    name: "areas",
+//    pattern: "staff/products/{action=Index}/{id?}",
+//    defaults: new { area = "Staff", controller = "ProductStaff" });
+
 // Add middleware to handle role-based redirects
 app.Use(async (context, next) =>
 {
@@ -173,7 +185,7 @@ app.Use(async (context, next) =>
     {
         var isAdmin = context.User.IsInRole(SD.Role_Admin);
         var path = context.Request.Path.ToString().ToLower();
-
+        //var isStaff = context.User.IsInRole(SD.Role_Staff);
         // 2. Skip redirect for static files, API calls, and Identity pages
         if (!path.StartsWith("/lib/") &&
             !path.StartsWith("/api/") &&
@@ -191,6 +203,10 @@ app.Use(async (context, next) =>
                 context.Response.Redirect("/Guest/Home/Index");
                 return;
             }
+            //else if (isStaff && !path.StartsWith("/staff"))
+            //{
+            //    context.Response.Redirect("/Staff")
+            //}
         }
     }
 

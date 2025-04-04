@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Cinema.DataAccess.Repository;
 
 namespace Cinema_System.Areas.Guest.Controllers
 {
@@ -17,8 +16,8 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
 
         private readonly IProductRepository _productRepo;
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public ProductController(IProductRepository productRepo, IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
         {
@@ -56,18 +55,14 @@ namespace Cinema_System.Areas.Guest.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
-            try
+            var product = await _productRepo.GetAsync(p => p.ProductID == productId);
+            if (product == null || product.Quantity < quantity)
             {
-                // 1. Check product availability
-                var product = await _productRepo.GetAsync(p => p.ProductID == productId);
-                if (product == null || product.Quantity < quantity)
-                {
-                    TempData["Error"] = "Product is not available or not in sufficient quantity";
-                    return RedirectToAction("Product");
-                }
+                TempData["Error"] = "Sản phẩm không có sẵn hoặc không đủ số lượng";
+                return RedirectToAction("Product");
+            }
 
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var isStaff = User.IsInRole("Staff");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 // 2. Handle logged-in users (both regular users and staff)
                 if (userId != null)
@@ -92,65 +87,54 @@ namespace Cinema_System.Areas.Guest.Controllers
                     var cartItem = await _unitOfWork.OrderDetail
                         .GetAsync(od => od.ProductID == productId && od.OrderID == order.OrderID);
 
-                    if (cartItem != null)
-                    {
-                        cartItem.Quantity += quantity;
-                        cartItem.TotalPrice = cartItem.Price * cartItem.Quantity;
-                    }
-                    else
-                    {
-                        _unitOfWork.OrderDetail.Add(new OrderDetail
-                        {
-                            OrderID = order.OrderID,
-                            ProductID = product.ProductID,
-                            Price = product.Price,
-                            Quantity = quantity,
-                            TotalPrice = product.Price * quantity
-                        });
-                    }
-                    await _unitOfWork.SaveAsync();
+                if (cartItem != null)
+                {
+                    cartItem.Quantity += quantity;
+                    cartItem.TotalPrice = cartItem.Price * cartItem.Quantity;
                 }
-                // 3. Handle guest users (session cart with 5-minute timeout)
                 else
                 {
-                    var cartItems = GetSessionCart();
-                    var existingItem = cartItems.FirstOrDefault(i => i.ProductID == productId);
+                    var defaultShowInfo = GetDefaultShowInfo(); // Phương thức giả định
 
-                    if (existingItem != null)
+                    _unitOfWork.OrderDetail.Add(new OrderDetail
                     {
-                        existingItem.Quantity += quantity;
-                        existingItem.TotalPrice = existingItem.Price * existingItem.Quantity;
-                        existingItem.AddedTime = DateTime.Now; // Reset the timer when updated
-                    }
-                    else
-                    {
-                        cartItems.Add(new OrderDetail
-                        {
-                            TempId = Guid.NewGuid().ToString(),
-                            ProductID = productId,
-                            Price = product.Price,
-                            Quantity = quantity,
-                            TotalPrice = product.Price * quantity,
-                            AddedTime = DateTime.Now,
-                            Product = new Product // Store minimal product info
-                            {
-                                ProductID = product.ProductID,
-                                Name = product.Name,
-                                ProductImage = product.ProductImage,
-                                Description = product.Description
-                            }
-                        });
-                    }
-                    SaveSessionCart(cartItems);
+                        OrderID = null,
+                        ProductId = product.ProductID,
+                        Price = product.Price,
+                        Quantity = quantity,
+                        TotalPrice = product.Price * quantity,
+                        FoodItems = new List<FoodSelectionVM>()
+                    });
                 }
-
-                return RedirectToAction("Cart");
+                await _unitOfWork.SaveAsync();
             }
-            catch (Exception ex)
+            else
             {
-                TempData["Error"] = "There was an error while adding to cart";
-                return RedirectToAction("Product");
+                // Chưa đăng nhập - lưu vào session
+                var cartItems = GetSessionCart();
+                var existingItem = cartItems.FirstOrDefault(i => i.ProductId == productId);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += quantity;
+                    existingItem.TotalPrice = existingItem.Price * existingItem.Quantity;
+                }
+                else
+                {
+                    cartItems.Add(new OrderDetail
+                    {
+                        TempId = Guid.NewGuid().ToString(),
+                        ProductId = productId,
+                        Price = product.Price,
+                        Quantity = quantity,
+                        TotalPrice = product.Price * quantity,
+                        AddedTime = DateTime.Now
+                    });
+                }
+                SaveSessionCart(cartItems);
             }
+
+            return RedirectToAction("Cart");
         }
 
         [HttpPost]
@@ -229,44 +213,75 @@ namespace Cinema_System.Areas.Guest.Controllers
             var viewModel = new CartVM();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // For all logged-in users (both regular and staff)
             if (userId != null)
             {
                 var order = await _unitOfWork.OrderTable
                     .GetAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending,
                                          includeProperties: "OrderDetails.Product");
 
-                viewModel.DatabaseItems = order?.OrderDetails?.ToList() ?? new List<OrderDetail>();
+                viewModel.DatabaseItems = orderDetails.ToList();
             }
-            // For guest users
             else
             {
+                // Lấy từ session cho guest
                 viewModel.SessionItems = GetSessionCart();
 
-                // Load product info for session items
-                var productIds = viewModel.SessionItems.Select(i => i.ProductID).Distinct().ToList();
-                var products = await _productRepo.GetAllAsync(p => productIds.Contains(p.ProductID));
+                // Lấy thông tin Product cho session items
+                var productIds = viewModel.SessionItems.Select(i => i.ProductId).ToList();
+                var products = _productRepo.GetAll()
+                    .Where(p => productIds.Contains(p.ProductID))
+                    .ToList();
 
                 foreach (var item in viewModel.SessionItems)
                 {
-                    item.Product = products.FirstOrDefault(p => p.ProductID == item.ProductID);
+                    item.Product = products.FirstOrDefault(p => p.ProductID == item.ProductId);
                 }
             }
 
-            // Calculate totals
-            viewModel.Subtotal = (viewModel.DatabaseItems?.Sum(i => i.TotalPrice) ?? 0)
-                               + (viewModel.SessionItems?.Sum(i => i.TotalPrice) ?? 0);
+            // Tính tổng tiền
+            var allItems = new List<OrderDetail>();
+            allItems.AddRange(viewModel.SessionItems);
+            allItems.AddRange(viewModel.DatabaseItems);
+
+            viewModel.Subtotal = allItems.Sum(i => i.TotalPrice);
             viewModel.Total = viewModel.Subtotal - viewModel.Discount;
             viewModel.Message = TempData["CartMessage"]?.ToString();
 
             return View(viewModel);
         }
 
+        private ShowInfo GetDefaultShowInfo()
+        {
+            return new ShowInfo
+            {
+                MovieId = 0,
+                MovieName = string.Empty,
+                Date = DateTime.Now.ToString("yyyy-MM-dd"),
+                City = string.Empty,
+                Cinema = string.Empty,
+                Showtime = string.Empty,
+                RoomId = -1,
+                RoomName = string.Empty
+            };
+        }
+
+        // Lớp hỗ trợ
+        public class ShowInfo
+        {
+            public int MovieId { get; set; }
+            public string MovieName { get; set; }
+            public string Date { get; set; }
+            public string City { get; set; }
+            public string Cinema { get; set; }
+            public string Showtime { get; set; }
+            public int RoomId { get; set; }
+            public string RoomName { get; set; }
+        }
 
         [HttpGet]
         public IActionResult Product(string searchString, ProductType? productType)
         {
-            var products = _productRepo.GetAll().AsQueryable();
+            var products = _productRepo.GetAll();
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -293,7 +308,5 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return View("Product", viewproduct);
         }
-
-
     }
 }
