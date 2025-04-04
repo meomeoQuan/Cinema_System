@@ -10,6 +10,7 @@ using Cinema.DbInitializer;
 using Cinema.DataAccess.DbInitializer;
 using Net.payOS;
 using Cinema_System.Areas.Service;
+using Cinema_System.Areas.Request;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -163,7 +164,7 @@ app.MapStaticAssets();
 // Map SignalR hubs
 app.MapHub<ChatHub>("/chatHub");
 app.MapHub<SeatBookingHub>("/seatBookingHub");
-
+app.MapHub<CountdownHub>("/countdownHub");
 
 // Configure routing for areas
 app.MapControllerRoute(
