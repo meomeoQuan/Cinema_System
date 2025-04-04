@@ -173,133 +173,62 @@ namespace Cinema.DataAccess.Data
                 new Product
                 {
                     ProductID = 1,
-                    Name = "Popcorn Cheese",
-                    Description = "mix with cheese",
+                    Name = "Popcorn",
+                    Description = "A large bucket of buttered popcorn.",
                     ProductType = ProductType.Snack,
-                    Price = 50000,
-                    Quantity = 12,
-                    ProductImage = "/css/images/pro1.jpg"
-
+                    Price = 89000,
+                    Quantity = 50,
+                    ProductImage = "/css/images/popcorn.png"
                 },
                 new Product
                 {
                     ProductID = 2,
-                    Name = "Popcorn Caramel",
-                    Description = "Mix with Caramel",
-                    ProductType = ProductType.Snack,
-                    Price = 50000,
-                    Quantity = 10,
-                    ProductImage = "/css/images/pro2.jpg"
+                    Name = "Soda",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Drink,
+                    Price = 39000,
+                    Quantity = 100,
+                    ProductImage = "/css/images/soda.png"
                 },
                 new Product
                 {
                     ProductID = 3,
-                    Name = "Popcorn Mix",
-                    Description = "Mix with Caramel and Cheese",
-                    ProductType = ProductType.Snack,
-                    Price = 50000,
-                    Quantity = 20,
-                    ProductImage = "/css/images/pro6.jpg"
-                },
-                new Product
-                {
-                    ProductID = 4,
-                    Name = "Popcorn",
-                    Description = "Traditional Popcorn",
-                    ProductType = ProductType.Snack,
-                    Price = 50000,
-                    Quantity = 8,
-                    ProductImage = "/css/images/pro3.jpg"
-                },
-                new Product
-                {
-                    ProductID = 5,
-                    Name = "Boba Tea",
-                    Description = "Refreshing drink to quench your thirst.",
+                    Name = "Coca",
+                    Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Drink,
-                    Price = 20000,
-                    Quantity = 25,
-                    ProductImage = "/css/images/pro4.jpg"
-                },
-                new Product
-                {
-                    ProductID = 6,
-                    Name = "Orange Juice",
-                    Description = "Sweet and fruity drink for a burst of flavor.",
-                    ProductType = ProductType.Drink,
-                    Price = 20000,
-                    Quantity = 18,
-                    ProductImage = "/css/images/pro5.jpg"
-                },
-                new Product
-                {
-                    ProductID = 7,
-                    Name = "Coke 32Oz",
-                    Description = "Energy drink to keep you going.",
-                    ProductType = ProductType.Drink,
-                    Price = 20000,
-                    Quantity = 12,
+                    Price = 39000,
+                    Quantity = 100,
                     ProductImage = "/css/images/drink2.png"
                 },
                 new Product
                 {
-                    ProductID = 8,
+                    ProductID = 4,
                     Name = "Sprite",
-                    Description = "Classic soda for a nostalgic taste.",
+                    Description = "Refreshing cold soda, 500ml.",
                     ProductType = ProductType.Drink,
-                    Price = 20000,
-                    Quantity = 30,
+                    Price = 39000,
+                    Quantity = 100,
                     ProductImage = "/css/images/drink1.png"
                 },
                 new Product
                 {
-                    ProductID = 9,
-                    Name = "COMBO A",
-                    Description = "2 coke + 1 corn cheese + 1 corn caramel",
-                    ProductType = ProductType.Combo,
-                    Price = 100000,
-                    Quantity = 8,
+                    ProductID = 5,
+                    Name = "Combo Couple",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Gift,
+                    Price = 129000,
+                    Quantity = 100,
                     ProductImage = "/css/images/popcorn1.png"
                 },
                 new Product
                 {
-                    ProductID = 10,
-                    Name = "COMBO B",
-                    Description = "4 coke + 2 corn cheese + 2 corn caramel",
-                    ProductType = ProductType.Combo,
-                    Price = 150000,
-                    Quantity = 10,
+                    ProductID = 6,
+                    Name = "Combo Full",
+                    Description = "Refreshing cold soda, 500ml.",
+                    ProductType = ProductType.Gift,
+                    Price = 229000,
+                    Quantity = 100,
                     ProductImage = "/css/images/popcorn2.png"
-                },
-                new Product
-                {
-                    ProductID = 11,
-                    Name = "COMBO C",
-                    Description = "1 sprite + mix popcorn cheese caramel",
-                    ProductType = ProductType.Combo,
-                    Price = 70000,
-                    Quantity = 6,
-                    ProductImage = "/css/images/popcorn3.png"
-                },
-                new Product
-                {
-                    ProductID = 12,
-                    Name = "Special Gift 1",
-                    Description = "1 Teddy Bear + 1 Bottle",
-                    ProductType = ProductType.Gift,
-                    Price = 50000,
-                    Quantity = 3,
-                    ProductImage = "/css/images/gift1.jpg"
-                },
-                new Product
-                {
-                    ProductID = 13,
-                    Name = "Special Gift 1",
-                    Description = "1 Teddy Bear + 1 Bottle",
-                    ProductType = ProductType.Gift,
-                    Price = 75000,
-                    Quantity = 2,
-                    ProductImage = "/css/images/gift3.jpg"
                 }
             );
 
@@ -540,107 +469,107 @@ namespace Cinema.DataAccess.Data
 
 
             // Seed OrderTables
-            //modelBuilder.Entity<OrderTable>().HasData(
-            //    new OrderTable
-            //    {
-            //        OrderID = 1,
-            //        Status = OrderStatus.Completed,
-            //        TotalAmount = 124235,
-            //        CreatedAt = new DateTime(2025, 1, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 2,
-            //        Status = OrderStatus.Pending,
-            //        TotalAmount = 747237.654,
-            //        CreatedAt = new DateTime(2025, 2, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 3,
-            //        Status = OrderStatus.Completed,
-            //        TotalAmount = 50000,
-            //        CreatedAt = new DateTime(2025, 3, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 4,
-            //        Status = OrderStatus.Pending,
-            //        TotalAmount = 60000,
-            //        CreatedAt = new DateTime(2025, 4, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 5,
-            //        Status = OrderStatus.Completed,
-            //        TotalAmount = 70000,
-            //        CreatedAt = new DateTime(2025, 5, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 6,
-            //        Status = OrderStatus.Pending,
-            //        TotalAmount = 80000,
-            //        CreatedAt = new DateTime(2025, 6, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 7,
-            //        Status = OrderStatus.Completed,
-            //        TotalAmount = 90000,
-            //        CreatedAt = new DateTime(2025, 7, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 8,
-            //        Status = OrderStatus.Pending,
-            //        TotalAmount = 100000,
-            //        CreatedAt = new DateTime(2025, 8, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 9,
-            //        Status = OrderStatus.Completed,
-            //        TotalAmount = 110000,
-            //        CreatedAt = new DateTime(2025, 9, 1)
-            //        //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 10,
-            //        Status = OrderStatus.Pending,
-            //        TotalAmount = 120000,
-            //        CreatedAt = new DateTime(2025, 10, 1)
+            modelBuilder.Entity<OrderTable>().HasData(
+                new OrderTable
+                {
+                    OrderID = 1,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 124235,
+                    CreatedAt = new DateTime(2025, 1, 1),
+                    UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                },
+                new OrderTable
+                {
+                    OrderID = 2,
+                    Status = OrderStatus.Pending,
+                    TotalAmount = 747237.654,
+                    CreatedAt = new DateTime(2025, 2, 1),
+                    UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                },
+                new OrderTable
+                {
+                    OrderID = 3,
+                    Status = OrderStatus.Completed,
+                    TotalAmount = 50000,
+                    CreatedAt = new DateTime(2025, 3, 1),
+                    UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                }
+                //new OrderTable
+                //{
+                //    OrderID = 4,
+                //    Status = OrderStatus.Pending,
+                //    TotalAmount = 60000,
+                //    CreatedAt = new DateTime(2025, 4, 1)
+                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 5,
+                //    Status = OrderStatus.Completed,
+                //    TotalAmount = 70000,
+                //    CreatedAt = new DateTime(2025, 5, 1)
+                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 6,
+                //    Status = OrderStatus.Pending,
+                //    TotalAmount = 80000,
+                //    CreatedAt = new DateTime(2025, 6, 1)
+                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 7,
+                //    Status = OrderStatus.Completed,
+                //    TotalAmount = 90000,
+                //    CreatedAt = new DateTime(2025, 7, 1)
+                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 8,
+                //    Status = OrderStatus.Pending,
+                //    TotalAmount = 100000,
+                //    CreatedAt = new DateTime(2025, 8, 1)
+                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 9,
+                //    Status = OrderStatus.Completed,
+                //    TotalAmount = 110000,
+                //    CreatedAt = new DateTime(2025, 9, 1)
+                //    //UserID = "2d595a04-e0b7-40f6-806c-a5c587b8d638"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 10,
+                //    Status = OrderStatus.Pending,
+                //    TotalAmount = 120000,
+                //    CreatedAt = new DateTime(2025, 10, 1)
 
-            //        //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 11,
-            //        Status = OrderStatus.Completed,
-            //        TotalAmount = 130000,
-            //        CreatedAt = new DateTime(2025, 11, 1)
+                //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 11,
+                //    Status = OrderStatus.Completed,
+                //    TotalAmount = 130000,
+                //    CreatedAt = new DateTime(2025, 11, 1)
 
-            //        //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
-            //    },
-            //    new OrderTable
-            //    {
-            //        OrderID = 12,
-            //        Status = OrderStatus.Pending,
-            //        TotalAmount = 140000,
-            //        CreatedAt = new DateTime(2025, 12, 1)
+                //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                //},
+                //new OrderTable
+                //{
+                //    OrderID = 12,
+                //    Status = OrderStatus.Pending,
+                //    TotalAmount = 140000,
+                //    CreatedAt = new DateTime(2025, 12, 1)
 
-            //        //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
-            //    }
-            //);
+                //    //UserID = "1c6efd5e-0104-4967-86b4-b7549a322819"
+                //}
+            );
 
 
             //Seed OrderDetails
