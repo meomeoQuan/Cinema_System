@@ -71,25 +71,25 @@ namespace Cinema.DataAccess.Data
             modelBuilder.Entity<ApplicationUser>().HasData(
                  new ApplicationUser
                  {
-                      FullName = "Đào Duy Quý",
-                      Role = "Admin",
-                      Id = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-                      AccessFailedCount = 0,
-                      ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-                      Email = "daoduyquylop97@gmail.com",
-                      EmailConfirmed = true,
-                      LockoutEnabled = true,
-                      NormalizedEmail = "daoduyquylop97@gmail.com",
-                      NormalizedUserName = "Đào Duy Quý",
-                      PasswordHash = "AQAAAAEAACcQAAAAEJ9",
-                      PhoneNumber = "0123456789",
-                      PhoneNumberConfirmed = true,
-                      SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-                      TwoFactorEnabled = false,
-                      UserName = "Đào Duy Quý",
-                      UserImage = "/css/images/user.png",
-                      Points = 0
-                  }
+                     FullName = "Đào Duy Quý",
+                     Role = "Admin",
+                     Id = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                     AccessFailedCount = 0,
+                     ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                     Email = "daoduyquylop97@gmail.com",
+                     EmailConfirmed = true,
+                     LockoutEnabled = true,
+                     NormalizedEmail = "daoduyquylop97@gmail.com",
+                     NormalizedUserName = "Đào Duy Quý",
+                     PasswordHash = "AQAAAAEAACcQAAAAEJ9",
+                     PhoneNumber = "0123456789",
+                     PhoneNumberConfirmed = true,
+                     SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                     TwoFactorEnabled = false,
+                     UserName = "Đào Duy Quý",
+                     UserImage = "/css/images/user.png",
+                     Points = 0
+                 }
 
              );
 
@@ -173,62 +173,133 @@ namespace Cinema.DataAccess.Data
                 new Product
                 {
                     ProductID = 1,
-                    Name = "Popcorn",
-                    Description = "A large bucket of buttered popcorn.",
+                    Name = "Popcorn Cheese",
+                    Description = "mix with cheese",
                     ProductType = ProductType.Snack,
-                    Price = 89000,
-                    Quantity = 50,
-                    ProductImage = "/css/images/popcorn.png"
+                    Price = 50000,
+                    Quantity = 12,
+                    ProductImage = "/css/images/pro1.jpg"
+
                 },
                 new Product
                 {
                     ProductID = 2,
-                    Name = "Soda",
-                    Description = "Refreshing cold soda, 500ml.",
-                    ProductType = ProductType.Drink,
-                    Price = 39000,
-                    Quantity = 100,
-                    ProductImage = "/css/images/soda.png"
+                    Name = "Popcorn Caramel",
+                    Description = "Mix with Caramel",
+                    ProductType = ProductType.Snack,
+                    Price = 50000,
+                    Quantity = 10,
+                    ProductImage = "/css/images/pro2.jpg"
                 },
                 new Product
                 {
                     ProductID = 3,
-                    Name = "Coca",
-                    Description = "Refreshing cold soda, 500ml.",
-                    ProductType = ProductType.Drink,
-                    Price = 39000,
-                    Quantity = 100,
-                    ProductImage = "/css/images/drink2.png"
+                    Name = "Popcorn Mix",
+                    Description = "Mix with Caramel and Cheese",
+                    ProductType = ProductType.Snack,
+                    Price = 50000,
+                    Quantity = 20,
+                    ProductImage = "/css/images/pro6.jpg"
                 },
                 new Product
                 {
                     ProductID = 4,
-                    Name = "Sprite",
-                    Description = "Refreshing cold soda, 500ml.",
-                    ProductType = ProductType.Drink,
-                    Price = 39000,
-                    Quantity = 100,
-                    ProductImage = "/css/images/drink1.png"
+                    Name = "Popcorn",
+                    Description = "Traditional Popcorn",
+                    ProductType = ProductType.Snack,
+                    Price = 50000,
+                    Quantity = 8,
+                    ProductImage = "/css/images/pro3.jpg"
                 },
                 new Product
                 {
                     ProductID = 5,
-                    Name = "Combo Couple",
-                    Description = "Refreshing cold soda, 500ml.",
-                    ProductType = ProductType.Gift,
-                    Price = 129000,
-                    Quantity = 100,
-                    ProductImage = "/css/images/popcorn1.png"
+                    Name = "Boba Tea",
+                    Description = "Refreshing drink to quench your thirst.",
+                    ProductType = ProductType.Drink,
+                    Price = 20000,
+                    Quantity = 25,
+                    ProductImage = "/css/images/pro4.jpg"
                 },
                 new Product
                 {
                     ProductID = 6,
-                    Name = "Combo Full",
-                    Description = "Refreshing cold soda, 500ml.",
-                    ProductType = ProductType.Gift,
-                    Price = 229000,
-                    Quantity = 100,
+                    Name = "Orange Juice",
+                    Description = "Sweet and fruity drink for a burst of flavor.",
+                    ProductType = ProductType.Drink,
+                    Price = 20000,
+                    Quantity = 18,
+                    ProductImage = "/css/images/pro5.jpg"
+                },
+                new Product
+                {
+                    ProductID = 7,
+                    Name = "Coke 32Oz",
+                    Description = "Energy drink to keep you going.",
+                    ProductType = ProductType.Drink,
+                    Price = 20000,
+                    Quantity = 12,
+                    ProductImage = "/css/images/drink2.png"
+                },
+                new Product
+                {
+                    ProductID = 8,
+                    Name = "Sprite",
+                    Description = "Classic soda for a nostalgic taste.",
+                    ProductType = ProductType.Drink,
+                    Price = 20000,
+                    Quantity = 30,
+                    ProductImage = "/css/images/drink1.png"
+                },
+                new Product
+                {
+                    ProductID = 9,
+                    Name = "COMBO A",
+                    Description = "2 coke + 1 corn cheese + 1 corn caramel",
+                    ProductType = ProductType.Combo,
+                    Price = 100000,
+                    Quantity = 8,
+                    ProductImage = "/css/images/popcorn1.png"
+                },
+                new Product
+                {
+                    ProductID = 10,
+                    Name = "COMBO B",
+                    Description = "4 coke + 2 corn cheese + 2 corn caramel",
+                    ProductType = ProductType.Combo,
+                    Price = 150000,
+                    Quantity = 10,
                     ProductImage = "/css/images/popcorn2.png"
+                },
+                new Product
+                {
+                    ProductID = 11,
+                    Name = "COMBO C",
+                    Description = "1 sprite + mix popcorn cheese caramel",
+                    ProductType = ProductType.Combo,
+                    Price = 70000,
+                    Quantity = 6,
+                    ProductImage = "/css/images/popcorn3.png"
+                },
+                new Product
+                {
+                    ProductID = 12,
+                    Name = "Special Gift 1",
+                    Description = "1 Teddy Bear + 1 Bottle",
+                    ProductType = ProductType.Gift,
+                    Price = 50000,
+                    Quantity = 3,
+                    ProductImage = "/css/images/gift1.jpg"
+                },
+                new Product
+                {
+                    ProductID = 13,
+                    Name = "Special Gift 1",
+                    Description = "1 Teddy Bear + 1 Bottle",
+                    ProductType = ProductType.Gift,
+                    Price = 75000,
+                    Quantity = 2,
+                    ProductImage = "/css/images/gift3.jpg"
                 }
             );
 
