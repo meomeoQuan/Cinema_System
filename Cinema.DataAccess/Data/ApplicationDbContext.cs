@@ -71,25 +71,25 @@ namespace Cinema.DataAccess.Data
             modelBuilder.Entity<ApplicationUser>().HasData(
                  new ApplicationUser
                  {
-                     FullName = "Đào Duy Quý",
-                     Role = "Admin",
-                     Id = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-                     AccessFailedCount = 0,
-                     ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-                     Email = "daoduyquylop97@gmail.com",
-                     EmailConfirmed = true,
-                     LockoutEnabled = true,
-                     NormalizedEmail = "daoduyquylop97@gmail.com",
-                     NormalizedUserName = "Đào Duy Quý",
-                     PasswordHash = "AQAAAAEAACcQAAAAEJ9",
-                     PhoneNumber = "0123456789",
-                     PhoneNumberConfirmed = true,
-                     SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
-                     TwoFactorEnabled = false,
-                     UserName = "Đào Duy Quý",
-                     UserImage = "/css/images/user.png",
-                     Points = 0
-                 }
+                      FullName = "Đào Duy Quý",
+                      Role = "Admin",
+                      Id = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                      AccessFailedCount = 0,
+                      ConcurrencyStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                      Email = "daoduyquylop97@gmail.com",
+                      EmailConfirmed = true,
+                      LockoutEnabled = true,
+                      NormalizedEmail = "daoduyquylop97@gmail.com",
+                      NormalizedUserName = "Đào Duy Quý",
+                      PasswordHash = "AQAAAAEAACcQAAAAEJ9",
+                      PhoneNumber = "0123456789",
+                      PhoneNumberConfirmed = true,
+                      SecurityStamp = "a1234567-b89c-40d4-a123-456789abcdef", // ✅ Giá trị cố định
+                      TwoFactorEnabled = false,
+                      UserName = "Đào Duy Quý",
+                      UserImage = "/css/images/user.png",
+                      Points = 0
+                  }
 
              );
 
