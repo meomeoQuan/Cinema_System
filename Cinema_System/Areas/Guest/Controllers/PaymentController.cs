@@ -174,9 +174,25 @@ namespace Cinema_System.Areas
 
         public async Task GenerateTicket(OrderTable order)
         {
-            // Generate Ticket Validation URL
-            string validationUrl = Url.Action("ValidAuthentication", "Staff",
-                new { area = "Staff", OrderID = order.OrderID }, Request.Scheme);
+
+
+
+            string secretKey = "h23hriu2ibfas92"; // Store securely in app settings or environment variables optional
+            string orderId = order.OrderID.ToString();
+            string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+            string ? validationUrl = "";
+            // 🔐 Generate HMAC-SHA256 token
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                string dataToSign = $"{orderId}:{timestamp}"; // OrderID + Timestamp
+                byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));
+                string token = Convert.ToBase64String(hash); // Encode as Base64
+
+                // 🏷️ Generate the Secure Validation URL
+                 validationUrl = Url.Action("ValidAuthentication", "Staff",
+                    new { area = "Staff", OrderID = orderId, Key = token, Timestamp = timestamp }, Request.Scheme);
+            }
+
 
         https://localhost:7251/Staff/Staff/ValidAuthentication?ticketId=ds#Staff
             // Generate QR Code

@@ -4,6 +4,9 @@
     ViewData["Title"] = "Register";
 }
 
+<!-- FontAwesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
     body {
         background: radial-gradient(circle at center, #001f3f, #000);
@@ -44,6 +47,21 @@
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid #00d4ff;
         }
+
+    /* Google Button - Red Outline */
+    .btn-google {
+        background: transparent;
+        color: #ff4d4d;
+        border: 2px solid #ff4d4d;
+        box-shadow: 0px 0px 10px rgba(255, 77, 77, 0.8);
+        transition: 0.3s ease-in-out;
+    }
+
+        .btn-google:hover {
+            background: linear-gradient(45deg, #ff4d4d, #ff0000);
+            color: white;
+            box-shadow: 0px 0px 20px #ff4d4d;
+        }
 </style>
 
 <div class="container mb-1 mt-3">
@@ -56,10 +74,9 @@
                 <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                     <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
-
                     <div class="form-floating mb-3">
-                        <input asp-for="Input.FullName" type="text" class="form-control" autocomplete="username" placeholder="meomeo" required />
-                        <label asp-for="Input.FullName">FullName</label>
+                        <input asp-for="Input.FullName" type="text" class="form-control" autocomplete="username" placeholder="Your Full Name" required />
+                        <label asp-for="Input.FullName">Full Name</label>
                         <span asp-validation-for="Input.FullName" class="text-danger"></span>
                     </div>
 
@@ -96,18 +113,18 @@
 
                 <hr />
 
-                <h3>Use another service to register</h3>
+                <h3>Or register with Google</h3>
                 @if ((Model.ExternalLogins?.Count ?? 0) == 0)
                 {
-                    <p class="text-muted">No external authentication services configured.</p>
+                    <p class="text-muted">Google authentication is not configured.</p>
                 }
                 else
                 {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="d-flex justify-content-center gap-2">
-                        @foreach (var provider in Model.ExternalLogins!)
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="text-center">
+                        @foreach (var provider in Model.ExternalLogins!.Where(p => p.Name == "Google"))
                         {
-                            <button type="submit" class="btn btn-outline-light" name="provider" value="@provider.Name">
-                                <i class="fas fa-sign-in-alt"></i> @provider.DisplayName
+                            <button type="submit" class="btn btn-google w-100 py-2" name="provider" value="@provider.Name">
+                                <i class="fab fa-google"></i> Sign up with Google
                             </button>
                         }
                     </form>
