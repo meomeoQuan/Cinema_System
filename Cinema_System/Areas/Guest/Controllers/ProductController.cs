@@ -74,7 +74,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                 {
                     // 2.1 Find or create Order
                     var order = await _unitOfWork.OrderTable
-                        .GetFirstOrDefaultAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending);
+                        .GetAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending);
 
                     if (order == null)
                     {
@@ -233,7 +233,7 @@ namespace Cinema_System.Areas.Guest.Controllers
             if (userId != null)
             {
                 var order = await _unitOfWork.OrderTable
-                    .GetFirstOrDefaultAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending,
+                    .GetAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending,
                                          includeProperties: "OrderDetails.Product");
 
                 viewModel.DatabaseItems = order?.OrderDetails?.ToList() ?? new List<OrderDetail>();
