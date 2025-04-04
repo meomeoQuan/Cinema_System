@@ -194,7 +194,7 @@ app.Use(async (context, next) =>
             // 3. Redirect Admin users to admin area if not already in admin path
             if (isAdmin && !path.StartsWith("/admin"))
             {
-                context.Response.Redirect("/Admin/Users/Index");
+                context.Response.Redirect("/Admin/Home/Revenue");
                 return;
             }
             // 4. Redirect non-Admin users out of admin path

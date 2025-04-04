@@ -53,6 +53,10 @@ namespace Cinema_System.Areas.Admin.Controllers
             {
                 Console.WriteLine("ok");
             }
+            if (monthlyRevenue == null)
+            {
+                Console.WriteLine("MonthlyRevenue is null.");
+            }
             // Create the view model
             var viewModel = new RevenueViewModel
             {
