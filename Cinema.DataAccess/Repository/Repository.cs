@@ -181,28 +181,6 @@ namespace Cinema.DataAccess.Repository
         {
             return await dbSet.AnyAsync(predicate);
         }
-
-        public async Task<T> GetFirstOrDefaultAsync(
-        Expression<Func<T, bool>> filter,
-        string? includeProperties = null)
-        {
-            IQueryable<T> query = dbSet;
-
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-
-            if (!string.IsNullOrEmpty(includeProperties))
-            {
-                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp.Trim());
-                }
-            }
-
-            return await query.FirstOrDefaultAsync();
-        }
     }
 
 }
