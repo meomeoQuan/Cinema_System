@@ -1,0 +1,213 @@
+﻿@using Cinema_System.Areas.Admin.Controllers
+@model IEnumerable<Movie>
+
+@{
+    ViewData["Title"] = "Movie Management";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 text-center fw-bold">Movie Management</h3>
+            <button id="addBtn" class="btn btn-primary">Add</button>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblData" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 20%;">Title</th>
+                            <th style="width: 45%;">Synopsis</th>
+                            <th style="width: 10%;">Genre</th>
+                            <th style="width: 5%;">Duration</th>
+                            <th style="width: 11%;">Release Date</th>
+                            <th style="width: 4%;">Trailer</th>
+                            <th style="width: 5%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var movie in Model)
+                        {
+                            <tr>
+                                <td data-id="@movie.MovieID" data-field="Title">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@movie.MovieImage" alt="Movie Image" class="img-fluid" width="50">
+                                        <div class="ms-2">@movie.Title</div>
+                                    </div>
+                                </td>
+                                <td data-id="@movie.MovieID" data-field="Synopsis" class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center">@movie.Synopsis</div>
+                                </td>
+                                <td data-id="@movie.MovieID" data-field="Genre" class="text-center">@movie.Genre</td>
+                                <td data-id="@movie.MovieID" data-field="Duration" class="text-center">@movie.Duration</td>
+                                <td data-id="@movie.MovieID" data-field="ReleaseDate" class="text-center">@movie.ReleaseDate.ToString("dd-MM-yyyy")</td>
+                                <td data-id="@movie.MovieID" data-field="Trailer" class="text-center">
+                                    @if (!string.IsNullOrEmpty(movie.TrailerLink))
+                                    {
+                                        <a href="@movie.TrailerLink" target="_blank" class="d-flex align-items-center justify-content-center">
+                                            Watch
+                                        </a>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button onclick="enableEdit(this)" class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-3 d-none" id="add-form">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">Add New Movie</h4>
+        </div>
+        <div class="card-body">
+            <form id="createForm">
+                <div class="mb-3">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="movieTitle" name="Title" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Synopsis</label>
+                    <textarea class="form-control" id="movieSynopsis" name="Synopsis"></textarea>
+                </div>
+                <div>
+                    <div class="mb-3">
+                        <label class="form-label">Genre</label>
+                        <input type="text" class="form-control" id="movieGenre" name="Genre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="movieDuration" name="Duration" required min="1">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Release Date</label>
+                    <input type="date" class="form-control" id="movieReleaseDate" name="ReleaseDate" required>
+                </div>
+   
+                <div class="mb-3">
+                    <label class="form-label">Trailer</label>
+                    <input type="url" class="form-control" id="movieTrailerLink" name="TrailerLink">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Movie Image URL</label>
+                    <input type="url" class="form-control" id="movieImage" name="MovieImage">
+                </div>
+                <button type="submit" class="btn btn-secondary w-100 mt-3"> Submit </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/natural.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "searching": true,
+                "ordering": true,
+                "columnDefs": [
+                    { "type": "natural", "targets": 0 }
+                ]
+            });
+
+            $('#addBtn').click(function () {
+                $('#add-form').toggleClass('d-none');
+            });
+
+            // Inline editing
+            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
+                var id = $(this).data('id');
+                var field = $(this).data('field');
+                var value = $(this).text().trim();
+
+                if (!value) {
+                    toastr.error('Field cannot be empty.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Admin/Movies/UpdateField',
+                    type: 'POST',
+                    data: {
+                        id,
+                        field,
+                        value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        response.success ? toastr.success(response.message) : toastr.error(response.message);
+                        if (response.success) location.reload();
+                    },
+                    error: function(xhr) {
+                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
+                    }
+                });
+
+            });
+
+            $('#createForm').submit(function (e) {
+                e.preventDefault();
+                let data = {
+                    Title: $('#movieTitle').val(),
+                    Genre: $('#movieGenre').val(),
+                    Synopsis: $('#movieSynopsis').val(),
+                    TrailerLink: $('#movieTrailerLink').val(),
+                    Duration: $('#movieDuration').val(),
+                    ReleaseDate: $('#movieReleaseDate').val(),
+                    MovieImage: $('#movieImage').val()
+                };
+
+                $.ajax({
+                    url: '/Admin/Movies/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
+                    }
+                });
+            });
+        });
+
+        function enableEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
+            $(button).removeClass('btn-primary').addClass('btn-success save-btn').html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
+        }
+
+        function saveEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
+            $(button).removeClass('btn-success save-btn').addClass('btn-primary').html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
+        }
+    </script>
+}
+@Html.AntiForgeryToken()

@@ -58,7 +58,7 @@ namespace Cinema_System.Areas
                 UserID = "a1234567-b89c-40d4-a123-456789abcdef",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CouponID = coupon != null? coupon.CouponID : null
+                CouponID = coupon != null ? coupon.CouponID : null
             };
 
             _context.OrderTables.Add(order);
@@ -80,7 +80,7 @@ namespace Cinema_System.Areas
                     ShowtimeSeatID = seat.showTimeSeatId,
                     Quantity = 1,
                     Price = showtimeSeat.Price,
-                   
+
                 });
                 await _context.SaveChangesAsync();
             }
@@ -156,7 +156,7 @@ namespace Cinema_System.Areas
                 return NotFound(new { message = "User không tồn tại trong đơn hàng" });
             }
 
-          
+
 
             // Cập nhật trạng thái đơn hàng thành "Completed"
             order.Status = OrderStatus.Completed;

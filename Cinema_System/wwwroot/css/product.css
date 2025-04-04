@@ -83,6 +83,7 @@ h2 {
 .gift-card {
     width: 300px;
     height: auto;
+    margin-top: 20px;
 }
 
 .btn-primary {

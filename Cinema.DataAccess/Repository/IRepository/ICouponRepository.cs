@@ -12,5 +12,6 @@ namespace Cinema.DataAccess.Repository.IRepository
     {
        
         void Update(Coupon coupon);
+        Task AddAsync(Coupon coupon);
     }
 }

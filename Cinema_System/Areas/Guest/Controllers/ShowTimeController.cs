@@ -10,7 +10,7 @@ namespace Cinema_System.Areas.Guest.Controllers
     {
         ApplicationDbContext _context;
 
-        public ShowTimeController (ApplicationDbContext context)
+        public ShowTimeController(ApplicationDbContext context)
         {
             _context = context;
         }

@@ -37,19 +37,17 @@
 
                         @* <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Discount</a></li> *@
                         @* <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">About Us</a></li> *@
-                        @* <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Policy</a></li> *@
+                        @* <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Policy</a></li> *@                      
+                        @if (User.IsInRole("Staff"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-area="Staff" asp-controller="Staff" asp-action="CameraScan">Scan Camera</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="Staff" asp-controller="ProductStaff" asp-action="Index">Manage Product</a></li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Cart">
                                 <i class="fa-solid fa-cart-shopping"></i>
                             </a>
                         </li>
-                      
-                        @if (User.IsInRole("Staff"))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-area="Staff" asp-controller="Staff" asp-action="CameraScan">Scan Camera</a></li>
-                        }
-
-
                     </ul>
                 </div>
 
@@ -59,13 +57,20 @@
             </div>
         </nav>
     </header>
+    
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            <partial name="_Notification" />
-            @RenderBody()
-        </main>
-    </div>
+
+
+     <div class="container"> 
+         <main role="main" class="pb-3"> 
+             <partial name="_Notification" /> 
+             @RenderBody() 
+         </main> 
+     </div> 
+
+
+
+
 
     <!-- Floating Chat Icon -->
     <div id="chat-icon" class="chat-icon">
