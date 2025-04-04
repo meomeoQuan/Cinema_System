@@ -44,6 +44,8 @@ builder.Services.AddRazorPages();
 //-------------------- Configure database context ---------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .EnableSensitiveDataLogging()  // Hiển thị giá trị tham số trong query
+    .EnableDetailedErrors()       // Hiển thị thông báo lỗi chi tiết từ SQL Server
 );
 
 //-------------------------------------- SIGNAL IR   -------------------------------------------------
@@ -51,7 +53,7 @@ builder.Services.AddSignalR();
 
 
 //đăng kí repository của product
-//builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
 //------------------------------ Configure Identity ---------------------------
@@ -77,7 +79,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = $"/Identity/Account/Login";
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
-    // Cấu hình cookie
+      // Cấu hình cookie
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Cookie tồn tại 30 p
     options.SlidingExpiration = true; // Tự động gia hạn khi user active
@@ -124,7 +126,7 @@ builder.Services.AddSession(options =>
 // Configure token lifespan
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
-    options.TokenLifespan = TimeSpan.FromMinutes(3);
+    options.TokenLifespan = TimeSpan.FromMinutes(1);
 });
 
 // Add scoped services
@@ -192,7 +194,7 @@ app.Use(async (context, next) =>
             // 3. Redirect Admin users to admin area if not already in admin path
             if (isAdmin && !path.StartsWith("/admin"))
             {
-                context.Response.Redirect("/Admin/Users/Index");
+                context.Response.Redirect("/Admin/Home/Revenue");
                 return;
             }
             // 4. Redirect non-Admin users out of admin path

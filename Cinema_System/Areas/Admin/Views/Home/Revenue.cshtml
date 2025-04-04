@@ -1,57 +1,119 @@
-﻿@page
+﻿@model Cinema.Models.ViewModels.RevenueViewModel
 
-
-@model Cinema.Models.ViewModels.RevenueViewModel
 @{
-    // ViewData["Title"] = "Admin Dashboard";
-
+    // ViewData["Title"] = "Revenue";
+    ViewData["Title"] = "Monthly Revenue";
     // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="flex flex-1 p-6">
-    Main Section
-    <main class="flex-1">
-        Example content
-        <div class="bg-white p-6 rounded shadow-md">
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
+    <div class="bg-white p-6 rounded shadow-md w-100">
+        <div> 
             <h2 class="text-xl font-bold mb-4">
                 Monthly Revenue
             </h2>
-            <canvas height="200" id="revenueChart" width="400">
-            </canvas>
+            @* <select id="cinemaSelect" class="form-select" onchange="location = this.value;"> *@
+            @*     <option value="@Url.Action("Revenue", new { cinemaId = (int?)null })" @(ViewBag.SelectedCinemaId == null ? "selected" : "")>All</option> *@
+            @*     @foreach (var cinema in ViewBag.Cinemas) *@
+            @*     { *@
+            @*         <option value="@Url.Action("Revenue", new { cinemaId = cinema.CinemaID })" @(ViewBag.SelectedCinemaId == cinema.CinemaID ? "selected" : "")>@cinema.Name</option> *@
+            @*     } *@
+            @* </select> *@
         </div>
-    </main>
+        
+        <canvas id="revenueChart" width="400" height="150"></canvas>
+    </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
 
-                const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue));
+                const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue)); 
 
-        //          const revenueData = @Html.Raw(Json.Serialize(Model.MonthlyRevenue));
-                const ctx = document.getElementById('revenueChart').getContext('2d');
+         //          const revenueData = @Html.Raw(Json.Serialize(Model.MonthlyRevenue)); 
+                const ctx = document.getElementById('revenueChart').getContext('2d'); 
 
-                const revenueChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                        datasets: [{
+                const revenueChart = new Chart(ctx, { 
+                    type: 'bar', 
+                    data: { 
+                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], 
+                        datasets: [{ 
 
-                            label: 'Revenue (VND)',
-                            data: revenueData,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
+                             label: 'Revenue (VND)', 
+                            data: revenueData, 
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)', 
+                            borderColor: 'rgba(54, 162, 235, 1)', 
+                             borderWidth: 1 
+                         }] 
 
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-    </script>
+                    }, 
+                     options: {
+                        scales: { 
+                            y: { 
+                              beginAtZero: true 
+                          } 
+                       } 
+                    } 
+                }); 
+     </script>
+    @* <script> *@
+    @*     const ctx = document.getElementById('revenueChart').getContext('2d'); *@
+    @*     const revenueChart = new Chart(ctx, { *@
+    @*         type: 'bar', *@
+    @*         data: { *@
+    @*             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], *@
+    @*             datasets: [{ *@
+    @*                     label: 'Revenue ($)', *@
+    @*                     data: [12000, 15000, 10000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000], *@
+    @*                     backgroundColor: 'rgba(54, 162, 235, 0.2)', *@
+    @*                     borderColor: 'rgba(54, 162, 235, 1)', *@
+    @*                     borderWidth: 1 *@
+    @*                 }] *@
+    @*         }, *@
+    @*         options: { *@
+    @*             scales: { *@
+    @*                 y: { *@
+    @*                     beginAtZero: true *@
+    @*                 } *@
+    @*             } *@
+    @*         } *@
+    @*     }); *@
+    @* </script> *@
+    @* <script> *@
+    @*     async function fetchRevenueData() { *@
+    @*         const response = await fetch('@Url.Action("Revenue", "Home")'); *@
+    @*         const data = await response.json(); *@
+    @*         return data; *@
+    @*     } *@
+
+    @*     async function renderChart() { *@
+    @*         const revenueData = await fetchRevenueData(); *@
+
+    @*         const ctx = document.getElementById('revenueChart').getContext('2d'); *@
+    @*         const revenueChart = new Chart(ctx, { *@
+    @*             type: 'bar', *@
+    @*             data: { *@
+    @*                 labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], *@
+    @*                 datasets: [{ *@
+    @*                     label: 'Revenue ($)', *@
+    @*                     Color: 'rgba(54, 162, 235, 0.2)', *@
+    @*                     borderColor: 'rgba(54, 162, 235, 1)', *@
+    @*                     borderWidth: 1 *@
+    @*                 }] *@
+    @*             }, *@
+    @*             options: { *@
+    @*                 scales: { *@
+    @*                     y: { *@
+    @*                         beginAtZero: true *@
+    @*                     } *@
+    @*                 } *@
+    @*             } *@
+    @*         }); *@
+    @*     } *@
+
+    @*     // Call the renderChart function to display the chart *@
+    @*     renderChart(); *@
+    @* </script> *@
+ 
 }

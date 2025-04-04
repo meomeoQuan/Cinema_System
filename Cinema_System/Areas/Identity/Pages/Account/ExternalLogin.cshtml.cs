@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Cinema.Utility;
+using Cinema.Models;
 
 namespace Cinema_System.Areas.Identity.Pages.Account
 {
@@ -84,8 +86,14 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             public string Email { get; set; }
+
+
+            public string? FullName { get; set; }
+            public string? Role { get; set; }
+            public string? UserImage { get; set; }
+            public int Points { get; set; } = 0;
         }
-        
+
         public IActionResult OnGet() => RedirectToPage("./Login");
 
         public IActionResult OnPost(string provider, string returnUrl = null)
@@ -131,7 +139,13 @@ namespace Cinema_System.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        UserImage = null,
+                        Points = 0,
+                        Role = SD.Role_Guest,
+                        FullName = info.Principal.FindFirstValue(ClaimTypes.Email)
+
+
                     };
                 }
                 return Page();
@@ -197,11 +211,11 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<ApplicationUser>();
             }
             catch
             {

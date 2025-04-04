@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Cinema.DataAccess.Data;
@@ -8,25 +9,28 @@ using Cinema.Utility;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = "Admin")]
-    //[Authorize(Roles = SD.Role_Admin)] 
+    [Authorize(Roles = SD.Role_Admin)] 
     public class UsersController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
 
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IEmailSender _emailService;
 
         public UsersController(IUnitOfWork unitOfWork,
                                UserManager<IdentityUser> userManager,
-                               RoleManager<IdentityRole> roleManager)
+                               RoleManager<IdentityRole> roleManager,
+                               IEmailSender emailService)
         {
+            _emailService = emailService;
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -105,11 +109,18 @@ namespace Cinema_System.Areas.Admin.Controllers
 
                     user.UserName = user.Email; // Ensure UserName is set to Email
                     string password = GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
+                    user.EmailConfirmed = true;
                     var result = await _userManager.CreateAsync(user, password);
                     if (result.Succeeded)
                     {
+                        await _emailService.SendEmailAsync(
+                            user.Email,
+                            "Create User Account Successfully",
+                            $"<p>Hi {user.FullName}!</p><p>Your password is: {password}</p><p>Please change your password after logging in for the first time.</p>"
+                        );
+
                         await _userManager.AddToRoleAsync(user, role);
-                        return Json(new { success = true, message = "User created successfully.", password });
+                        return Json(new { success = true, message = "User created successfully."});
                     }
                     else
                     {
@@ -134,6 +145,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
             return password.ToString();
         }
+
         private bool IsValidPhoneNumber(string phoneNumber)
         {
             // Define a regular expression for validating phone numbers
@@ -299,5 +311,27 @@ namespace Cinema_System.Areas.Admin.Controllers
             //var user = await _userManager.FindByIdAsync(id);
             //return View(user);
         }
+    }
+}
+
+
+public class PasswordGenerator
+{
+    public static string GenerateRandomPassword(int length = 12)
+    {
+        const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
+        StringBuilder result = new StringBuilder(length);
+        using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+        {
+            byte[] uintBuffer = new byte[sizeof(uint)];
+
+            while (length-- > 0)
+            {
+                rng.GetBytes(uintBuffer);
+                uint num = BitConverter.ToUInt32(uintBuffer, 0);
+                result.Append(validChars[(int)(num % (uint)validChars.Length)]);
+            }
+        }
+        return result.ToString();
     }
 }

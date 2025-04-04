@@ -32,7 +32,7 @@ namespace Cinema_System.Areas.Guest.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetShowtimeSeatByShowtimeIdtAndSeatId( [FromBody] ShowTimeSearchRequest request)
+        public async Task<IActionResult> GetShowtimeSeatByShowtimeIdtAndSeatId([FromBody] ShowTimeSearchRequest request)
         {
             var showtimeSeats = new ArrayList();
             foreach (int seatId in request.seatIds)

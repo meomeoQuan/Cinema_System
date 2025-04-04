@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250402101711_db")]
-    partial class db
+    [Migration("20250404032012_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -373,6 +373,35 @@ namespace Cinema.DataAccess.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("OrderTables");
+
+                    b.HasData(
+                        new
+                        {
+                            OrderID = 1,
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 124235.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                        },
+                        new
+                        {
+                            OrderID = 2,
+                            CreatedAt = new DateTime(2025, 2, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0,
+                            TotalAmount = 747237.65399999998,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                        },
+                        new
+                        {
+                            OrderID = 3,
+                            CreatedAt = new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TotalAmount = 50000.0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserID = "a1234567-b89c-40d4-a123-456789abcdef"
+                        });
                 });
 
             modelBuilder.Entity("Cinema.Models.Product", b =>
@@ -410,132 +439,62 @@ namespace Cinema.DataAccess.Migrations
                         new
                         {
                             ProductID = 1,
-                            Description = "mix with cheese",
-                            Name = "Popcorn Cheese",
-                            Price = 50000.0,
-                            ProductImage = "/css/images/pro1.jpg",
+                            Description = "A large bucket of buttered popcorn.",
+                            Name = "Popcorn",
+                            Price = 89000.0,
+                            ProductImage = "/css/images/popcorn.png",
                             ProductType = 0,
-                            Quantity = 12
+                            Quantity = 50
                         },
                         new
                         {
                             ProductID = 2,
-                            Description = "Mix with Caramel",
-                            Name = "Popcorn Caramel",
-                            Price = 50000.0,
-                            ProductImage = "/css/images/pro2.jpg",
-                            ProductType = 0,
-                            Quantity = 10
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Soda",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/soda.png",
+                            ProductType = 1,
+                            Quantity = 100
                         },
                         new
                         {
                             ProductID = 3,
-                            Description = "Mix with Caramel and Cheese",
-                            Name = "Popcorn Mix",
-                            Price = 50000.0,
-                            ProductImage = "/css/images/pro6.jpg",
-                            ProductType = 0,
-                            Quantity = 20
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Coca",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/drink2.png",
+                            ProductType = 1,
+                            Quantity = 100
                         },
                         new
                         {
                             ProductID = 4,
-                            Description = "Traditional Popcorn",
-                            Name = "Popcorn",
-                            Price = 50000.0,
-                            ProductImage = "/css/images/pro3.jpg",
-                            ProductType = 0,
-                            Quantity = 8
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Sprite",
+                            Price = 39000.0,
+                            ProductImage = "/css/images/drink1.png",
+                            ProductType = 1,
+                            Quantity = 100
                         },
                         new
                         {
                             ProductID = 5,
-                            Description = "Refreshing drink to quench your thirst.",
-                            Name = "Boba Tea",
-                            Price = 20000.0,
-                            ProductImage = "/css/images/pro4.jpg",
-                            ProductType = 1,
-                            Quantity = 25
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Combo Couple",
+                            Price = 129000.0,
+                            ProductImage = "/css/images/popcorn1.png",
+                            ProductType = 2,
+                            Quantity = 100
                         },
                         new
                         {
                             ProductID = 6,
-                            Description = "Sweet and fruity drink for a burst of flavor.",
-                            Name = "Orange Juice",
-                            Price = 20000.0,
-                            ProductImage = "/css/images/pro5.jpg",
-                            ProductType = 1,
-                            Quantity = 18
-                        },
-                        new
-                        {
-                            ProductID = 7,
-                            Description = "Energy drink to keep you going.",
-                            Name = "Coke 32Oz",
-                            Price = 20000.0,
-                            ProductImage = "/css/images/drink2.png",
-                            ProductType = 1,
-                            Quantity = 12
-                        },
-                        new
-                        {
-                            ProductID = 8,
-                            Description = "Classic soda for a nostalgic taste.",
-                            Name = "Sprite",
-                            Price = 20000.0,
-                            ProductImage = "/css/images/drink1.png",
-                            ProductType = 1,
-                            Quantity = 30
-                        },
-                        new
-                        {
-                            ProductID = 9,
-                            Description = "2 coke + 1 corn cheese + 1 corn caramel",
-                            Name = "COMBO A",
-                            Price = 100000.0,
-                            ProductImage = "/css/images/popcorn1.png",
-                            ProductType = 3,
-                            Quantity = 8
-                        },
-                        new
-                        {
-                            ProductID = 10,
-                            Description = "4 coke + 2 corn cheese + 2 corn caramel",
-                            Name = "COMBO B",
-                            Price = 150000.0,
+                            Description = "Refreshing cold soda, 500ml.",
+                            Name = "Combo Full",
+                            Price = 229000.0,
                             ProductImage = "/css/images/popcorn2.png",
-                            ProductType = 3,
-                            Quantity = 10
-                        },
-                        new
-                        {
-                            ProductID = 11,
-                            Description = "1 sprite + mix popcorn cheese caramel",
-                            Name = "COMBO C",
-                            Price = 70000.0,
-                            ProductImage = "/css/images/popcorn3.png",
-                            ProductType = 3,
-                            Quantity = 6
-                        },
-                        new
-                        {
-                            ProductID = 12,
-                            Description = "1 Teddy Bear + 1 Bottle",
-                            Name = "Special Gift 1",
-                            Price = 50000.0,
-                            ProductImage = "/css/images/gift1.jpg",
                             ProductType = 2,
-                            Quantity = 3
-                        },
-                        new
-                        {
-                            ProductID = 13,
-                            Description = "1 Teddy Bear + 1 Bottle",
-                            Name = "Special Gift 1",
-                            Price = 75000.0,
-                            ProductImage = "/css/images/gift3.jpg",
-                            ProductType = 2,
-                            Quantity = 2
+                            Quantity = 100
                         });
                 });
 
@@ -1601,6 +1560,7 @@ namespace Cinema.DataAccess.Migrations
                             CinemaID = 1,
                             Address = "123 Main St, Da Nang City",
                             AdminID = "a1234567-b89c-40d4-a123-456789abcdef",
+                            CinemaCity = "Danang",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Grand Cinema",
@@ -1613,6 +1573,7 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CinemaID = 2,
                             Address = "456 Broadway Ave, HCM City",
+                            CinemaCity = "Ho Chi Minh",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Skyline Theater",
@@ -1625,6 +1586,7 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CinemaID = 3,
                             Address = "124 Main St, Danang City",
+                            CinemaCity = "Danang",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "CGV Cinema",
@@ -1637,6 +1599,7 @@ namespace Cinema.DataAccess.Migrations
                         {
                             CinemaID = 4,
                             Address = "124 Main St, HCM City",
+                            CinemaCity = "Ho Chi Minh",
                             ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "HCM Cinestar Cinema",

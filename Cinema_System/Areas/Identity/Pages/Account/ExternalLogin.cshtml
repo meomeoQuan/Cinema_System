@@ -4,7 +4,21 @@
     ViewData["Title"] = "Register";
 }
 
+<style>
+    .btn-primary {
+        background: linear-gradient(45deg, #00d4ff, #007bff);
+        color: white;
+        border: none;
+        box-shadow: 0px 0px 10px #00d4ff;
+        transition: 0.3s ease-in-out;
+    }
 
+        .btn-primary:hover {
+            background: #007bff;
+            box-shadow: 0px 0px 20px #00d4ff;
+        }
+
+</style>
 
 
 <h1>@ViewData["Title"]</h1>
@@ -22,7 +36,7 @@
         <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="email" placeholder="Please enter your email."/>
+                <input asp-for="Input.Email" class="form-control" autocomplete="email" placeholder="Please enter your email." />
                 <label asp-for="Input.Email" class="form-label"></label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>

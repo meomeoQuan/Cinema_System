@@ -4,6 +4,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
@@ -33,7 +34,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
             _webHostEnvironment = webHostEnvironment;
             _unitOfWork = unitOfWork;
-         
+
         }
 
         /// <summary>
@@ -72,10 +73,10 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
             public string? userImage { get; set; }
             public string UserId { get; set; }
 
-            public int ? Point { get; set; }
+            public int? Point { get; set; }
 
 
-            public string ? Fullname { get; set; }
+            public string? Fullname { get; set; }
         }
 
         private async Task LoadAsync(IdentityUser user)
@@ -96,7 +97,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
                 userImage = userImage,
                 Point = point,
                 Fullname = fullname
-                
+
             };
         }
 
@@ -126,21 +127,22 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
                 await LoadAsync(user);
                 return Page();
             }
+
             var applicationUser = await _unitOfWork.ApplicationUser.GetAsync(u => u.Email == user.Email);
 
-            // Handle ImageUrl validation
-            if (file == null && string.IsNullOrEmpty(applicationUser.UserImage))
-            {
-                ModelState.AddModelError("applicationUser.userImage", "Please upload an image.");
-            }
+            // Update FullName in the custom user model (ApplicationUser)
+            applicationUser.FullName = Input.Fullname;
+            _unitOfWork.ApplicationUser.Update(applicationUser);
+            await _unitOfWork.SaveAsync();
 
+            // Update profile image logic here (if there's a file uploaded)
             string wwwRootPath = _webHostEnvironment.WebRootPath;
             if (file != null)
             {
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 string productPath = Path.Combine(wwwRootPath, @"images\user");
-                //---------------------------------------------------------------------
 
+                // Delete old image if it exists
                 if (!string.IsNullOrEmpty(applicationUser.UserImage))
                 {
                     var oldImagePath = Path.Combine(wwwRootPath, applicationUser.UserImage.TrimStart('\\'));
@@ -149,19 +151,20 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
                         System.IO.File.Delete(oldImagePath);
                     }
                 }
-                //----------------------------------------------------------------------
 
+                // Save new image
                 using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                 {
                     file.CopyTo(fileStream);
                 }
+
+                // Update image path
                 applicationUser.UserImage = @"\images\user\" + fileName;
                 _unitOfWork.ApplicationUser.Update(applicationUser);
-               await _unitOfWork.SaveAsync();
-
+                await _unitOfWork.SaveAsync();
             }
 
-
+            // Update phone number logic here
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             if (Input.PhoneNumber != phoneNumber)
             {
@@ -172,11 +175,56 @@ namespace Cinema_System.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
+            var identity = (ClaimsIdentity)User.Identity;
 
+            // Check if claims exist
+            var existingFullNameClaim = identity.FindFirst("FullName");
+            var existingImageClaim = identity.FindFirst("UserImage");
+
+            // Remove existing claims if they exist
+            if (existingFullNameClaim != null)
+            {
+                identity.RemoveClaim(existingFullNameClaim);
+            }
+
+            if (existingImageClaim != null)
+            {
+                identity.RemoveClaim(existingImageClaim);
+            }
+
+            // Create new claims
+            var newFullNameClaim = new Claim("FullName", applicationUser.FullName ?? "");
+            var newImageClaim = new Claim("UserImage", applicationUser.UserImage ?? "/images/default-avatar.png");
+
+            // Update claims in the database
+            if (existingFullNameClaim != null)
+            {
+                await _userManager.ReplaceClaimAsync(user, existingFullNameClaim, newFullNameClaim);
+            }
+            else
+            {
+                await _userManager.AddClaimAsync(user, newFullNameClaim);
+            }
+
+            if (existingImageClaim != null)
+            {
+                await _userManager.ReplaceClaimAsync(user, existingImageClaim, newImageClaim);
+            }
+            else
+            {
+                await _userManager.AddClaimAsync(user, newImageClaim);
+            }
+
+            // Refresh sign-in
             await _signInManager.RefreshSignInAsync(user);
+
+
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
+
+
+
 
     }
 }
