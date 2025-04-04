@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 
 
 [Area("Admin")]
-//[Authorize(Roles = SD.Role_Admin)]
+[Authorize(Roles = SD.Role_Admin)]
 public class CouponsController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
