@@ -16,7 +16,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = SD.Role_Admin)] 
+    [Authorize(Roles = SD.Role_Admin)] 
     public class MoviesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

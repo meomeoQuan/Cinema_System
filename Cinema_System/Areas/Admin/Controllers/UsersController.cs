@@ -16,8 +16,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = "Admin")]
-    //[Authorize(Roles = SD.Role_Admin)] 
+    [Authorize(Roles = SD.Role_Admin)] 
     public class UsersController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
