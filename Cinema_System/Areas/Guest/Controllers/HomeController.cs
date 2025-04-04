@@ -45,19 +45,33 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         //    return View(movies);
         //}
-
         [HttpGet]
         public async Task<IActionResult> Index(string term)
         {
-            // nhap tu khoa tim kim
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            string? userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                ApplicationUser? user = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+                if (user != null)
+                {
+                    ViewData["UserFullname"] = user.FullName;
+                    ViewData["UserImage"] = user.UserImage;
+                }
+            }
+            //-------------------------------------------------------------------------------
+            // Search functionality
             if (!string.IsNullOrEmpty(term))
             {
                 var movies = await _unitOfWork.Movie.SearchAsync(term);
-                ViewBag.SearchTerm = term; // giu lai tu khoa tim kiem
+                ViewBag.SearchTerm = term; // Keep the search term in the ViewBag
                 return View(movies);
             }
-            return View(new List<Movie>());
+
+            return View(new List<Movie>()); // Return an empty list if no search term is provided
         }
+
 
         //[HttpGet]
         //public async Task<IActionResult> Index(string term)

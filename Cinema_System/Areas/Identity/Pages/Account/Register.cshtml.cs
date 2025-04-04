@@ -141,7 +141,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
 
             // snippet code above will go to the dbinitializer class
 
-          
+
 
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
