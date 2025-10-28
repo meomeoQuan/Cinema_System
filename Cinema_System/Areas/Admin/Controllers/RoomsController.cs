@@ -213,7 +213,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             int currentSeatCount = existingSeats.Count();
 
             int newCapacity = currentSeatCount + seatsToAdd;
-            int numberOfRows = newCapacity / 10; // Example: If 20 seats → 2 rows
+            int numberOfRows = newCapacity / 10; // read this: If 20 seats → 2 rows
             int seatsPerRow = 10;
 
             var newSeats = GenerateSeatList(roomId, numberOfRows, seatsPerRow);

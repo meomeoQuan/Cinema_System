@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
@@ -9,9 +7,6 @@ using Cinema.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Cinema.DataAccess.Repository.IRepository;
-using Cinema.Models;
-using Microsoft.AspNetCore.Mvc;
 
 
 [Area("Admin")]

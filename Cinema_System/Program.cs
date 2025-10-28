@@ -3,7 +3,6 @@ using Cinema.DataAccess.Repository.IRepository;
 using Cinema.DataAccess.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Cinema.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Cinema.Utility;
 using Cinema.DbInitializer;

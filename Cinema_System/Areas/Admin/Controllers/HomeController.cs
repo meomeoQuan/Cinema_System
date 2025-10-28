@@ -14,12 +14,9 @@ namespace Cinema_System.Areas.Admin.Controllers
     //[Authorize(Roles = SD.Role_Admin)]
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _db;
         private readonly IUnitOfWork _unitOfWork;
-        public HomeController(IUnitOfWork unitOfWork,
-                              ApplicationDbContext context)
+        public HomeController(IUnitOfWork unitOfWork)
         {
-            _db = context;
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
         // [HttpGet]

@@ -16,8 +16,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = "Admin")]
-    //[Authorize(Roles = SD.Role_Admin)] 
+    [Authorize(Roles = SD.Role_Admin)] 
     public class UsersController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -109,7 +108,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                     }
 
                     user.UserName = user.Email; // Ensure UserName is set to Email
-                    string password = GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
+                    string password = PasswordGenerator.GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
                     user.EmailConfirmed = true;
                     var result = await _userManager.CreateAsync(user, password);
                     if (result.Succeeded)
@@ -135,17 +134,17 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
             return Json(new { success = false, message = "Invalid user data." });
         }
-        private string GenerateRandomPassword()
-        {
-            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*?_-";
-            var random = new Random();
-            var password = new StringBuilder();
-            for (int i = 0; i < 12; i++)
-            {
-                password.Append(validChars[random.Next(validChars.Length)]);
-            }
-            return password.ToString();
-        }
+        //private string GenerateRandomPassword()
+        //{
+        //    const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*?_-";
+        //    var random = new Random();
+        //    var password = new StringBuilder();
+        //    for (int i = 0; i < 12; i++)
+        //    {
+        //        password.Append(validChars[random.Next(validChars.Length)]);
+        //    }
+        //    return password.ToString();
+        //}
 
         private bool IsValidPhoneNumber(string phoneNumber)
         {
@@ -318,21 +317,26 @@ namespace Cinema_System.Areas.Admin.Controllers
 
 public class PasswordGenerator
 {
+    //public static string GenerateRandomPassword(int length = 12)
+    //{
+    //    const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
+    //    StringBuilder result = new StringBuilder(length);
+    //    using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+    //    {
+    //        byte[] uintBuffer = new byte[sizeof(uint)];
+
+    //        while (length-- > 0)
+    //        {
+    //            rng.GetBytes(uintBuffer);
+    //            uint num = BitConverter.ToUInt32(uintBuffer, 0);
+    //            result.Append(validChars[(int)(num % (uint)validChars.Length)]);
+    //        }
+    //    }
+    //    return result.ToString();
+    //}
     public static string GenerateRandomPassword(int length = 12)
     {
         const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
-        StringBuilder result = new StringBuilder(length);
-        using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-        {
-            byte[] uintBuffer = new byte[sizeof(uint)];
-
-            while (length-- > 0)
-            {
-                rng.GetBytes(uintBuffer);
-                uint num = BitConverter.ToUInt32(uintBuffer, 0);
-                result.Append(validChars[(int)(num % (uint)validChars.Length)]);
-            }
-        }
-        return result.ToString();
+        return RandomNumberGenerator.GetString(validChars, length);
     }
 }

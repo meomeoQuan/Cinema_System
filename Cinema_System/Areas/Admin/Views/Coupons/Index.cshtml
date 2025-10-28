@@ -103,7 +103,7 @@
     </div>
 </div>
 
-@section Scripts {
+@* @section Scripts {
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
@@ -241,8 +241,172 @@
             $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
         }
     </script>
+} *@
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tblData').DataTable({
+                "pageLength": 10,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "columnDefs": [
+                    { "orderable": false, "targets": [5] } // Disable sorting for Actions column
+                ]
+            });
+
+            // Show coupon form on Add button click
+            $('#addCouponBtn').click(function() {
+                $('#coupon-form').toggleClass('d-none');
+            });
+
+            // Handle form submission
+            $('#createCouponForm').submit(function(e) {
+                e.preventDefault();
+
+                var couponData = {
+                    Code: $('#couponCode').val().trim(),
+                    DiscountPercentage: $('#discountPercentage').val(),
+                    UsageLimit: $('#usageLimit').val(),
+                    UsedCount: 0, // Always initialize to 0
+                    ExpireDate: $('#expireDate').val() ? new Date($('#expireDate').val()).toISOString() : null,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                };
+
+                // Validate data
+                if (!couponData.Code) {
+                    toastr.error('Coupon code is required.');
+                    return;
+                }
+                if (couponData.DiscountPercentage < 0 || couponData.DiscountPercentage > 100) {
+                    toastr.error('Discount percentage must be between 0 and 100.');
+                    return;
+                }
+                if (couponData.UsageLimit <= 0) {
+                    toastr.error('Max discount amount must be greater than 0.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Admin/Coupons/Create',
+                    type: 'POST',
+                    data: couponData,
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            location.reload();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
+        });
+
+        function enableEdit(button) {
+            var row = $(button).closest('tr');
+            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
+            $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
+        }
+
+        function saveEdit(button) {
+            var row = $(button).closest('tr');
+            var cells = row.find('td[data-field]');
+            var validationPassed = true;
+            var updates = [];
+
+            // --- BƯỚC 1: Validate tất cả các ô trước khi gửi ---
+            cells.each(function() {
+                var cell = $(this);
+                var id = cell.data('id');
+                var field = cell.data('field');
+                var value = cell.text().trim();
+
+                // Kiểm tra không được để trống
+                if (!value) {
+                    toastr.error('Trường ' + field + ' không được để trống.');
+                    validationPassed = false;
+                    return false; // Dừng vòng lặp .each()
+                }
+
+                // Xử lý và validate cho ô DiscountPercentage
+                if (field === 'DiscountPercentage') {
+                    value = value.replace('%', '');
+                    if (isNaN(value) || value < 0 || value > 100) {
+                        toastr.error('Phần trăm giảm giá phải từ 0 đến 100.');
+                        validationPassed = false;
+                        return false;
+                    }
+                }
+
+                // Xử lý và validate cho ô UsageLimit (định dạng tiền tệ vi-VN)
+                if (field === 'UsageLimit') {
+                    value = value.replace(/[^\d]/g, ''); // Loại bỏ tất cả ký tự không phải số
+                    if (isNaN(value) || value <= 0) {
+                        toastr.error('Giới hạn sử dụng phải là một số dương.');
+                        validationPassed = false;
+                        return false;
+                    }
+                }
+
+                updates.push({ id: id, field: field, value: value, cell: cell });
+            });
+
+            // --- BƯỚC 2: Nếu có lỗi validation, dừng lại và không làm gì cả ---
+            if (!validationPassed) {
+                return; // Giữ nguyên trạng thái edit để người dùng sửa lỗi
+            }
+
+            // --- BƯỚC 3: Nếu tất cả đều hợp lệ, gửi các request AJAX để cập nhật ---
+            var ajaxRequests = updates.map(function(update) {
+                return $.ajax({
+                    url: '/Admin/Coupons/UpdateCouponField',
+                    type: 'POST',
+                    data: {
+                        id: update.id,
+                        field: update.field,
+                        value: update.value,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    }
+                });
+            });
+
+            // Đợi tất cả các request hoàn thành
+            $.when.apply($, ajaxRequests).done(function() {
+                toastr.success('Cập nhật coupon thành công!');
+
+                // Cập nhật lại giao diện người dùng sau khi lưu thành công
+                updates.forEach(function(update) {
+                    if (update.field === 'DiscountPercentage') {
+                        update.cell.text(update.value + '%');
+                    } else if (update.field === 'UsageLimit') {
+                        // Định dạng lại theo kiểu tiền tệ vi-VN
+                        var numberValue = parseInt(update.value, 10);
+                        var formattedValue = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(numberValue).replace(/\s/g, '');
+                        update.cell.text(formattedValue);
+                    }
+                });
+
+                // Chuyển hàng về trạng thái không chỉnh sửa
+                row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
+                $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
+
+            }).fail(function(xhr) {
+                var errorMessage = xhr.responseJSON?.message || 'Đã có lỗi xảy ra trong quá trình cập nhật.';
+                toastr.error(errorMessage);
+                // Nếu thất bại, giữ nguyên trạng thái chỉnh sửa để người dùng thử lại
+            });
+        }
+    </script>
 }
 @Html.AntiForgeryToken()
+
 
 
 @* @using Cinema.Utility *@

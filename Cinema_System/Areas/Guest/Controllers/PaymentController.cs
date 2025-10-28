@@ -195,16 +195,14 @@ namespace Cinema_System.Areas
 
                 // Email Content
                 string emailBody = $@"
-            <p>Your ticket has been generated. Please show the QR code below when entering the venue.</p>
-            <p>Scan this QR code to validate your ticket:</p>
-            <img src='data:image/png;base64,{qrCodeBase64}' alt='QR Code' />
-        ";
+                    <p>Your ticket has been generated. Please show the QR code below when entering the venue.</p>
+                    <p>Scan this QR code to validate your ticket:</p>
+                    <img src='data:image/png;base64,{qrCodeBase64}' alt='QR Code' />
+                ";
 
                 // Send Email
                 //order.User.Email
                 await _emailSender.SendEmailAsync("ngoanhquan0806@gmail.com", "Your Ticket QR Code", emailBody);
-
-
             }
         }
 

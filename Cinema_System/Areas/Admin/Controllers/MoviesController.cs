@@ -85,35 +85,35 @@ namespace Cinema_System.Areas.Admin.Controllers
 
 
 
-        private async Task<string> ValidateRoomCreation(Room room, int numberOfRows, int seatsPerRow)
-        {
-            // Check if the room number already exists
-            var existingRoom = _unitOfWork.Room.Get(u => u.RoomNumber == room.RoomNumber);
-            if (existingRoom != null)
-            {
-                return "Room number already exists. Please choose another.";
-            }
+        //private async Task<string> ValidateRoomCreation(Room room, int numberOfRows, int seatsPerRow)
+        //{
+        //    // Check if the room number already exists
+        //    var existingRoom = _unitOfWork.Room.Get(u => u.RoomNumber == room.RoomNumber);
+        //    if (existingRoom != null)
+        //    {
+        //        return "Room number already exists. Please choose another.";
+        //    }
 
-            // Ensure the total number of seats matches capacity
-            int totalSeats = numberOfRows * seatsPerRow;
-            if (totalSeats != room.Capacity)
-            {
-                return $"Invalid capacity. Expected {totalSeats} seats based on row configuration, but got {room.Capacity}.";
-            }
+        //    // Ensure the total number of seats matches capacity
+        //    int totalSeats = numberOfRows * seatsPerRow;
+        //    if (totalSeats != room.Capacity)
+        //    {
+        //        return $"Invalid capacity. Expected {totalSeats} seats based on row configuration, but got {room.Capacity}.";
+        //    }
 
-            return null; // No validation errors
-        }
+        //    return null; // No validation errors
+        //}
 
-        private async Task RemoveSeats(int roomId, int seatsToRemove)
-        {
-            var seats = await _unitOfWork.Seat.GetAllAsync(s => s.RoomID == roomId);
-            if (seats.Count() < seatsToRemove) return;
+        //private async Task RemoveSeats(int roomId, int seatsToRemove)
+        //{
+        //    var seats = await _unitOfWork.Seat.GetAllAsync(s => s.RoomID == roomId);
+        //    if (seats.Count() < seatsToRemove) return;
 
-            var seatsToDelete = seats.OrderByDescending(s => s.SeatName).Take(seatsToRemove);
-            _unitOfWork.Seat.RemoveRange(seatsToDelete);
+        //    var seatsToDelete = seats.OrderByDescending(s => s.SeatName).Take(seatsToRemove);
+        //    _unitOfWork.Seat.RemoveRange(seatsToDelete);
 
-            await _unitOfWork.SaveAsync();
-        }
+        //    await _unitOfWork.SaveAsync();
+        //}
 
         [HttpPost]
         public async Task<IActionResult> UpdateField(int id, string field, string value)
@@ -195,6 +195,7 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             return null;
         }
+
         private static readonly HttpClient httpClient = new HttpClient();
 
         public static async Task<bool> CheckLinkAsync(string url, string startsWith)
