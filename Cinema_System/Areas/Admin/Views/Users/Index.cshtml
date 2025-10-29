@@ -164,14 +164,14 @@
                 var userPhone = $('#userPhone').val();
                 var userRole = $('#userRole').val();
 
-                if (!userName.trim() || !userEmail.trim() || !userPhone.trim() || !userRole.trim()) {
-                    toastr.error('All fields are required.');
-                    return;
-                }
-                if (!/^\d{10}$/.test(userPhone)) {
-                    toastr.error('Phone number must be a 10-digit number.');
-                    return;
-                }
+                // if (!userName.trim() || !userEmail.trim() || !userPhone.trim() || !userRole.trim()) {
+                //     toastr.error('All fields are required.');
+                //     return;
+                // }
+                // if (!/^\d{10}$/.test(userPhone)) {
+                //     toastr.error('Phone number must be a 10-digit number.');
+                //     return;
+                // }
                 $.ajax({
                     url: '/Admin/Users/Create',
                     type: 'POST',
@@ -246,15 +246,18 @@
                     currentValues[field] = value;
                     if (originalValues[field] != value) hasChanged = true;
                 });
+
+                // Validate side client
                 if (!hasChanged) {
-                    toastr.info("Không có gì thay đổi.");
+                    toastr.info("No changes were detected.");
                     revertRowToDisplayMode(row, originalValues);
                     return;
                 }
-                if (!currentValues.FullName) { toastr.error("Họ tên không được để trống."); validationPassed = false; }
-                if (!currentValues.Email) { toastr.error("Email không được để trống."); validationPassed = false; }
-                if (!/^\d{10}$/.test(currentValues.PhoneNumber)) { toastr.error("Số điện thoại phải là 10 chữ số."); validationPassed = false; }
-                if (!validationPassed) return;
+  
+                // if (!currentValues.FullName) { toastr.error("Full name cannot be empty."); validationPassed = false; }
+                // if (!currentValues.Email) { toastr.error("Email cannot be empty."); validationPassed = false; }
+                // if (!/^\d{10}$/.test(currentValues.PhoneNumber)) { toastr.error("Phone number must be a 10-digit number."); validationPassed = false; }
+                // if (!validationPassed) return;
 
                 $.ajax({
                     url: '/Admin/Users/SaveUserChanges',
@@ -268,11 +271,11 @@
                             revertRowToDisplayMode(row, currentValues);
                         } else {
                             toastr.error(response.message);
-                            revertRowToDisplayMode(row, originalValues);
+                            // revertRowToDisplayMode(row, originalValues);
                         }
                     },
                     error: function () {
-                        toastr.error("Đã xảy ra lỗi trong quá trình cập nhật.");
+                        toastr.error("An error occurred during the update process..");
                         revertRowToDisplayMode(row, originalValues);
                     }
                 });
@@ -304,7 +307,7 @@
                 return `<span class="badge ${badgeClass} text-white rounded-pill"><i class="bi bi-person-fill me-1"></i> ${role}</span>`;
             }
 
-            // ✅ Gắn các hàm lock/unlock vào đối tượng `window` để `onclick` có thể thấy và gọi được
+            // Gắn các hàm lock/unlock vào đối tượng `window` để `onclick` có thể thấy và gọi được
             window.lockUser = function(userId, button) {
                 if (confirm('Are you sure you want to lock this user?')) {
                     $.ajax({
@@ -352,7 +355,6 @@
                     });
                 }
             }
-        // ✅ KẾT THÚC KHỐI DOCUMENT READY DUY NHẤT MỘT CÁCH CHÍNH XÁC
         });
     </script>
 }

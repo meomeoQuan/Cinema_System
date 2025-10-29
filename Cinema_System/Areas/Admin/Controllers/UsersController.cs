@@ -1,6 +1,3 @@
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
@@ -8,6 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Crypto.Generators;
+using System.Net.Mail;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using static QRCoder.PayloadGenerator;
 
 namespace Cinema_System.Areas.Admin.Controllers
 {
@@ -57,7 +61,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 {
                     if (_unitOfWork.ApplicationUser.Get(u => u.Email == user.Email) != null)
                     {
-                        return Json(new { success = false, message = "Email already exists." });
+                        return Json(new { success = false, message = "Email already exists. hehe" });
                     }
                     if (_unitOfWork.ApplicationUser.Get(u => u.PhoneNumber == user.PhoneNumber) != null)
                     {
@@ -69,7 +73,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                     }
 
                     user.UserName = user.Email; // Ensure UserName is set to Email
-                    string password = PasswordGenerator.GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
+                    string password = PasswordGenerator.GenerateRandomPassword();
                     user.EmailConfirmed = true;
                     var result = await _userManager.CreateAsync(user, password);
                     if (result.Succeeded)
@@ -108,41 +112,52 @@ namespace Cinema_System.Areas.Admin.Controllers
         public async Task<IActionResult> SaveUserChanges([FromBody] ApplicationUser updatedUser)
         {
             if (updatedUser == null || string.IsNullOrEmpty(updatedUser.Id))
-                return Json(new { success = false, message = "Dữ liệu người dùng không hợp lệ." });
+                return Json(new { success = false, message = "Invalid user data." });
 
             // Lấy người dùng từ UserManager để đảm bảo tính toàn vẹn
             var user = await _userManager.FindByIdAsync(updatedUser.Id) as ApplicationUser;
             if (user == null)
-                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+                return Json(new { success = false, message = "User not found." });
 
             try
             {
                 // 🔍 Kiểm tra điều kiện tổng thể
                 if (string.IsNullOrWhiteSpace(updatedUser.FullName))
-                    return Json(new { success = false, message = "Họ tên không được để trống." });
+                    return Json(new { success = false, message = "Full name cannot be empty." });
 
                 if (string.IsNullOrWhiteSpace(updatedUser.Email))
-                    return Json(new { success = false, message = "Email không được để trống." });
+                    return Json(new { success = false, message = "Email cannot be empty." });
 
                 // Tối ưu: Sử dụng AnyAsync để kiểm tra sự tồn tại
+                try
+                {
+                    var addr = new MailAddress(updatedUser.Email);
+                    if (addr.Address != updatedUser.Email.Trim())
+                        return Json(new { success = false, message = "Invalid email format." });
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Invalid email format." });
+                }
+
                 if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.Email == updatedUser.Email && u.Id != updatedUser.Id))
-                    return Json(new { success = false, message = "Email này đã tồn tại." });
+                    return Json(new { success = false, message = "This email already exists." });
 
                 if (string.IsNullOrWhiteSpace(updatedUser.PhoneNumber))
-                    return Json(new { success = false, message = "Số điện thoại không được để trống." });
+                    return Json(new { success = false, message = "Phone number cannot be empty." });
+
+                if (!IsValidPhoneNumber(updatedUser.PhoneNumber))
+                    return Json(new { success = false, message = "Phone number must be a 10-digit number." });
 
                 if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.PhoneNumber == updatedUser.PhoneNumber && u.Id != updatedUser.Id))
-                    return Json(new { success = false, message = "Số điện thoại này đã tồn tại." });
-
-                if (!Regex.IsMatch(updatedUser.PhoneNumber, @"^\d{10}$"))
-                    return Json(new { success = false, message = "Định dạng số điện thoại không hợp lệ." });
+                    return Json(new { success = false, message = "This phone number already exists." });
 
                 // Không có gì thay đổi
                 if (user.FullName == updatedUser.FullName &&
                     user.Email == updatedUser.Email &&
                     user.PhoneNumber == updatedUser.PhoneNumber &&
                     user.Role == updatedUser.Role)
-                    return Json(new { success = true, message = "Không có gì để thay đổi." });
+                    return Json(new { success = true, message = "No changes were detected." });
 
                 // ✅ Cập nhật dữ liệu thông qua UserManager
                 user.FullName = updatedUser.FullName.Trim();
@@ -156,14 +171,14 @@ namespace Cinema_System.Areas.Admin.Controllers
 
                 if (result.Succeeded)
                 {
-                    return Json(new { success = true, message = "Cập nhật người dùng thành công." });
+                    return Json(new { success = true, message = "User updated successfully." });
                 }
 
-                return Json(new { success = false, message = "Lỗi khi cập nhật người dùng: " + string.Join(", ", result.Errors.Select(e => e.Description)) });
+                return Json(new { success = false, message = "Error when updating user: " + string.Join(", ", result.Errors.Select(e => e.Description)) });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Lỗi hệ thống: {ex.Message}" });
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
             }
         }
 
@@ -196,13 +211,13 @@ namespace Cinema_System.Areas.Admin.Controllers
             var currentUserId = _userManager.GetUserId(User);
             if (id == currentUserId)
             {
-                return Json(new { success = false, message = "Bạn không thể tự khóa tài khoản của mình." });
+                return Json(new { success = false, message = "You cannot lock your own account." });
             }
 
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+                return Json(new { success = false, message = "User not found." });
             }
 
             // Dùng SetLockoutEndDateAsync là cách làm đúng chuẩn của Identity
@@ -210,20 +225,20 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             if (result.Succeeded)
             {
-                return Json(new { success = true, message = "Đã khóa người dùng thành công." });
+                return Json(new { success = true, message = "User locked successfully." });
             }
 
-            return Json(new { success = false, message = "Không thể khóa người dùng." });
+            return Json(new { success = false, message = "Failed to lock user." });
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken] // ✅ BẢO MẬT: Thêm AntiForgeryToken
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unlock(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+                return Json(new { success = false, message = "User not found." });
             }
 
             // Dùng SetLockoutEndDateAsync để mở khóa
@@ -231,10 +246,10 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             if (result.Succeeded)
             {
-                return Json(new { success = true, message = "Đã mở khóa người dùng thành công." });
+                return Json(new { success = true, message = "User unlocked successfully." });
             }
 
-            return Json(new { success = false, message = "Không thể mở khóa người dùng." });
+            return Json(new { success = false, message = "Failed to unlock user." });
         }
 
         public bool CurrentUser(string idEditing)
@@ -247,13 +262,42 @@ namespace Cinema_System.Areas.Admin.Controllers
             //return View(user);
         }
     }
-    }
+}
 
-    public class PasswordGenerator
+public class PasswordGenerator
+{
+    //public static string GenerateRandomPassword(int length = 12)
+    //{
+    //    const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
+    //    StringBuilder result = new StringBuilder(length);
+    //    using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+    //    {
+    //        byte[] uintBuffer = new byte[sizeof(uint)];
+
+    //        while (length-- > 0)
+    //        {
+    //            rng.GetBytes(uintBuffer);
+    //            uint num = BitConverter.ToUInt32(uintBuffer, 0);
+    //            result.Append(validChars[(int)(num % (uint)validChars.Length)]);
+    //        }
+    //    }
+    //    return result.ToString();
+    //}
+    //public static string GenerateRandomPassword(int length = 12)
+    //{
+    //    const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
+    //    return RandomNumberGenerator.GetString(validChars, length);
+    //}
+
+    public static string GenerateRandomPassword()
     {
-        public static string GenerateRandomPassword(int length = 12)
+        const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*?_-";
+        var random = new Random();
+        var password = new StringBuilder();
+        for (int i = 0; i < 12; i++)
         {
-            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
-            return RandomNumberGenerator.GetString(validChars, length);
+            password.Append(validChars[random.Next(validChars.Length)]);
         }
+        return password.ToString();
     }
+}
