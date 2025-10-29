@@ -96,6 +96,13 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Showtime not found." });
             }
 
+            // Không có gì thay đổi
+            if (showtimeFromDb.ShowDate == updatedShowtime.ShowDate &&
+                showtimeFromDb.ShowTimes == updatedShowtime.ShowTimes &&
+                showtimeFromDb.MovieID == updatedShowtime.MovieID &&
+                showtimeFromDb.RoomID == updatedShowtime.RoomID)
+                return Json(new { message = "No changes were detected." });
+
             var validationError = await ValidateShowTime(updatedShowtime, updatedShowtime.ShowTimeID);
             if (validationError != null)
             {
@@ -145,19 +152,19 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         private List<ShowtimeSeat> AutoGenerateTickets(Room room, ShowTime showTime)
-    {
-        var seats = new List<ShowtimeSeat>();
-        foreach (var seat in room.Seats)
         {
-            var showtimeSeat = new ShowtimeSeat
+            var seats = new List<ShowtimeSeat>();
+            foreach (var seat in room.Seats)
             {
-                ShowtimeID = showTime.ShowTimeID,
-                SeatID = seat.SeatID,
-                Status = ShowtimeSeatStatus.Available
-            };
-            seats.Add(showtimeSeat);
+                var showtimeSeat = new ShowtimeSeat
+                {
+                    ShowtimeID = showTime.ShowTimeID,
+                    SeatID = seat.SeatID,
+                    Status = ShowtimeSeatStatus.Available
+                };
+                seats.Add(showtimeSeat);
+            }
+            return seats;
         }
-        return seats;
-    }
     }
 }

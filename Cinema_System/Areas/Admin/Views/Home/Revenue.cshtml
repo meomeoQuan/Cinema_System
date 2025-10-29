@@ -1,73 +1,67 @@
 ﻿@model Cinema.Models.ViewModels.RevenueViewModel
-
 @{
-    // ViewData["Title"] = "Revenue";
-    ViewData["Title"] = "Monthly Revenue";
-    // Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Revenue - Last 12 Months";
 }
 
 <div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
     <div class="bg-white p-6 rounded shadow-md w-100">
-        <div> 
+        <div>
             <h2 class="text-xl font-bold mb-4">
-                Monthly Revenue
+                Revenue - Last 12 Months Comparison
             </h2>
-            <canvas height="200" id="revenueChart" width="400">
-            </canvas>
+            <canvas id="revenueChart" width="400" height="200"></canvas>
         </div>
-    </main>
+    </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    @* <script> *@
-
-    @*             const revenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue)); *@
-
-    @*     //          const revenueData = @Html.Raw(Json.Serialize(Model.MonthlyRevenue)); *@
-    @*             const ctx = document.getElementById('revenueChart').getContext('2d'); *@
-
-    @*             const revenueChart = new Chart(ctx, { *@
-    @*                 type: 'bar', *@
-    @*                 data: { *@
-    @*                     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], *@
-    @*                     datasets: [{ *@
-
-    @*                         label: 'Revenue (VND)', *@
-    @*                         data: revenueData, *@
-    @*                         backgroundColor: 'rgba(54, 162, 235, 0.2)', *@
-    @*                         borderColor: 'rgba(54, 162, 235, 1)', *@
-    @*                         borderWidth: 1 *@
-    @*                     }] *@
-
-    @*                 }, *@
-    @*                 options: { *@
-    @*                     scales: { *@
-    @*                         y: { *@
-    @*                             beginAtZero: true *@
-    @*                         } *@
-    @*                     } *@
-    @*                 } *@
-    @*             }); *@
-    @* </script> *@
     <script>
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthLabels));
+        const currentData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue));
+        const previousData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LastYearRevenue));
+
         const ctx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                datasets: [{
-                        label: 'Revenue ($)',
-                        data: [12000, 15000, 10000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Last 12 Months',
+                        data: currentData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.3)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1
-                    }]
+                    },
+                    {
+                        label: 'Previous 12 Months',
+                        data: previousData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.3)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
             },
             options: {
+                responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: { display: true, text: 'Revenue (VND)' }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Revenue Comparison: Last 12 Months vs Previous 12 Months'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' VND';
+                            }
+                        }
                     }
                 }
             }

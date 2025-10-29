@@ -262,6 +262,9 @@
                         if (response.success) {
                             toastr.success(response.message);
                             revertRowToDisplayMode(row, button, updatedValues);
+                        } else if(response.message = "No changes were detected.")  {
+                            toastr.info(response.message);
+                            revertRowToDisplayMode(row, button, updatedValues);
                         } else {
                             toastr.error(response.message);
                         }
@@ -309,8 +312,40 @@
         function revertRowToDisplayMode(row, button, values) {
             // Because fetching the room name requires an async call, the simplest
             // and most reliable way to ensure all data is correct is to reload.
-            toastr.info("Reloading page to reflect all changes...");
-            setTimeout(() => location.reload(), 1500);
+            // toastr.info("Reloading page to reflect all changes...");
+            // setTimeout(() => location.reload(), 1500);
+
+            // Logic change button and input to text
+            // Lấy dữ liệu hiển thị từ values
+            var movieText = $('#movieID option[value="' + values.MovieID + '"]').text() || 'N/A';
+            var cinemaText = $('#cinemaID option[value="' + values.CinemaID + '"]').text() || 'N/A';
+            var roomText = row.find('td[data-field="RoomID"] select option:selected').text() || 'N/A';
+
+            // Cập nhật lại các ô hiển thị dữ liệu
+            row.find('td[data-field="MovieID"]')
+                .data('movie-id', values.MovieID)
+                .text(movieText);
+
+            row.find('td[data-field="CinemaID"]')
+                .data('cinema-id', values.CinemaID)
+                .text(cinemaText);
+
+            row.find('td[data-field="RoomID"]')
+                .data('room-id', values.RoomID)
+                .text(roomText);
+
+            row.find('td[data-field="ShowDate"]')
+                .text(values.ShowDate);
+
+            // Format thời gian (bỏ giây nếu có)
+            var timeDisplay = values.ShowTimes.length > 5 ? values.ShowTimes.substring(0, 5) : values.ShowTimes;
+            row.find('td[data-field="ShowTimes"]').text(timeDisplay);
+
+            // Đổi nút “Save” về lại “Edit”
+            button.removeClass('btn-success save-btn')
+                .addClass('btn-primary edit-btn')
+                .html('<i class="bi bi-pencil-square"></i> Edit');
         }
+
     </script>
 }

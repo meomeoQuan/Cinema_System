@@ -121,6 +121,13 @@ namespace Cinema_System.Areas.Admin.Controllers
 
             try
             {
+                // Không có gì thay đổi
+                if (user.FullName == updatedUser.FullName &&
+                    user.Email == updatedUser.Email &&
+                    user.PhoneNumber == updatedUser.PhoneNumber &&
+                    user.Role == updatedUser.Role)
+                    return Json(new { success = true, message = "No changes were detected." });
+
                 // 🔍 Kiểm tra điều kiện tổng thể
                 if (string.IsNullOrWhiteSpace(updatedUser.FullName))
                     return Json(new { success = false, message = "Full name cannot be empty." });
@@ -152,12 +159,6 @@ namespace Cinema_System.Areas.Admin.Controllers
                 if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.PhoneNumber == updatedUser.PhoneNumber && u.Id != updatedUser.Id))
                     return Json(new { success = false, message = "This phone number already exists." });
 
-                // Không có gì thay đổi
-                if (user.FullName == updatedUser.FullName &&
-                    user.Email == updatedUser.Email &&
-                    user.PhoneNumber == updatedUser.PhoneNumber &&
-                    user.Role == updatedUser.Role)
-                    return Json(new { success = true, message = "No changes were detected." });
 
                 // ✅ Cập nhật dữ liệu thông qua UserManager
                 user.FullName = updatedUser.FullName.Trim();

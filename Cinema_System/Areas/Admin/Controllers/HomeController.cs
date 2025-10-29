@@ -32,38 +32,93 @@ namespace Cinema_System.Areas.Admin.Controllers
         // }
 
 
-
-
         public async Task<IActionResult> Revenue()
         {
-            // Fetch monthly revenue data from the database
-            var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
+            var orders = await _unitOfWork.OrderTable.GetAllAsync();
 
-            var monthlyRevenue = revenueData
-                .GroupBy(o => o.CreatedAt.Month)
-                .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
-                .OrderBy(r => r.Month)
-                .Select(r => r.Amount)
+            var now = DateTime.Now;
+            var startDate = now.AddMonths(-11); // 12 months including current
+            var previousStartDate = startDate.AddMonths(-12);
+            var previousEndDate = startDate.AddDays(-1);
+
+            // Group and aggregate
+            var groupedRevenue = orders
+                .GroupBy(o => new { o.CreatedAt.Year, o.CreatedAt.Month })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Amount = g.Sum(o => o.TotalAmount)
+                })
                 .ToList();
 
-            if (monthlyRevenue is List<double>)
-            {
-                Console.WriteLine("ok");
-            }
-            if (monthlyRevenue == null)
-            {
-                Console.WriteLine("MonthlyRevenue is null.");
-            }
-            // Create the view model
+            // Build current 12 months list
+            var currentMonths = Enumerable.Range(0, 12)
+                .Select(i => startDate.AddMonths(i))
+                .ToList();
+
+            // Build previous 12 months list
+            var previousMonths = Enumerable.Range(0, 12)
+                .Select(i => previousStartDate.AddMonths(i))
+                .ToList();
+
+            // Map revenue data
+            var currentYearRevenue = currentMonths
+                .Select(m => groupedRevenue
+                    .FirstOrDefault(r => r.Year == m.Year && r.Month == m.Month)?.Amount ?? 0)
+                .ToList();
+
+            var previousYearRevenue = previousMonths
+                .Select(m => groupedRevenue
+                    .FirstOrDefault(r => r.Year == m.Year && r.Month == m.Month)?.Amount ?? 0)
+                .ToList();
+
+            var monthLabels = currentMonths
+                .Select(m => m.ToString("MMM yyyy")) // e.g. "Nov 2024"
+                .ToList();
+
             var viewModel = new RevenueViewModel
             {
-                MonthlyRevenue = monthlyRevenue
+                MonthlyRevenue = currentYearRevenue,
+                LastYearRevenue = previousYearRevenue,
+                MonthLabels = monthLabels
             };
 
-
-            // Pass the view model to the view
             return View(viewModel);
         }
+
+
+
+        //public async Task<IActionResult> Revenue()
+        //{
+        //    // Fetch monthly revenue data from the database
+        //    var revenueData = await _unitOfWork.OrderTable.GetAllAsync();
+
+        //    var monthlyRevenue = revenueData
+        //        .GroupBy(o => o.CreatedAt.Month)
+        //        .Select(g => new { Month = g.Key, Amount = g.Sum(o => o.TotalAmount) })
+        //        .OrderBy(r => r.Month)
+        //        .Select(r => r.Amount)
+        //        .ToList();
+
+        //    if (monthlyRevenue is List<double>)
+        //    {
+        //        Console.WriteLine("ok");
+        //    }
+        //    if (monthlyRevenue == null)
+        //    {
+        //        Console.WriteLine("MonthlyRevenue is null.");
+        //    }
+        //    // Create the view model
+        //    var viewModel = new RevenueViewModel
+        //    {
+        //        MonthlyRevenue = monthlyRevenue
+        //    };
+
+
+        //    // Pass the view model to the view
+        //    return View(viewModel);
+        //}
 
 
         //public async Task<IActionResult> Index()
