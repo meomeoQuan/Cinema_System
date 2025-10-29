@@ -1,11 +1,12 @@
 ﻿@using Cinema.Utility
-
 @using Cinema_System.Areas.Admin.Controllers
 
 @model IEnumerable<Theater>
 
 @{
     ViewData["Title"] = "Cinema Management";
+    // 1. Ép kiểu ViewBag.Admins về một kiểu collection cụ thể (IEnumerable<dynamic>)
+    var adminsList = ViewBag.Admins as IEnumerable<dynamic>;
 }
 
 <div class="container-fluid mt-4">
@@ -41,9 +42,8 @@
                             <tr data-id="@theater.CinemaID">
                                 <td data-field="Name">@theater.Name</td>
                                 <td data-field="Address">@theater.Address</td>
-                                <td data-field="AdminID">
-                                    @(theater.Admin != null ? theater.Admin.FullName : "Not Assigned")
-
+                                <td data-field="AdminID" data-admin-id="@theater.AdminID">
+                                    @(theater.Admin != null ? theater.Admin.UserName : "Not Assigned")
                                 </td>
                                 <td data-field="NumberOfRooms">@theater.NumberOfRooms</td>
                                 <td data-field="OpeningTime">@theater.OpeningTime</td>
@@ -146,7 +146,10 @@
 
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    
     <script>
+        // Convert the admin list from C# to a JavaScript variable for use
+        var admins = @Html.Raw(Json.Serialize(adminsList?.Select(a => new { id = a.Id, fullName = a.FullName })));
         $(document).ready(function () {
             $('#tblData').DataTable({
                 "pageLength": 10,
@@ -156,20 +159,25 @@
                 "info": true
             });
 
-            // Show user form on Add button click
+            // --- ADD NEW FORM SECTION (Your original code) ---
             $('#addTheaterBtn').click(function () {
                 $('#theater-form').toggleClass('d-none');
             });
 
             $('#theaterRooms').on('input', function () {
-                let value = $(this).val();
-                if (value < 1) {
-                    $(this).val(1); // Tự động đặt giá trị về 1 nếu nhập số âm hoặc 0
+                if ($(this).val() < 1) {
+                    $(this).val(1);
                 }
             });
-            // Handle form submission
             $('#createCinemaForm').submit(function(e) {
-             e.preventDefault();
+                e.preventDefault();
+
+                // var openingTime = $('#theaterOpeningTime').val();
+                // var closingTime = $('#theaterClosingTime').val();
+                // if (openingTime && closingTime && openingTime >= closingTime) {
+                //     toastr.error("Closing Time must be later than Opening Time.");
+                //     return; //Stop the submission
+                // }
 
                 var theaterData = {
                     Name: $('#theaterName').val(),
@@ -194,7 +202,6 @@
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message);
-                            alert('Cinema added successfully.');
                             location.reload();
                         } else {
                             toastr.error(response.message);
@@ -204,60 +211,123 @@
                         var errorMessage = xhr.responseJSON?.message || 'An error occurred while processing your request.';
                         toastr.error(errorMessage);
                     }
+                });
             });
-        });
 
 
-            // Xử lý khi nhấn "Edit"
+            // --- INLINE EDITING SECTION ---
             $('#tblData').on('click', '.edit-btn', function () {
                 var row = $(this).closest('tr');
+                var originalValues = {};
+
                 row.find('td[data-field]').each(function () {
-                    $(this).attr('contenteditable', 'true').addClass('editable');
+                    var cell = $(this);
+                    var field = cell.data('field');
+
+                    if (field === 'AdminID') {
+                        originalValues[field] = cell.data('admin-id') || "";
+                    } else {
+                        originalValues[field] = cell.text().trim();
+                    }
+
+                    if (field === 'OpeningTime' || field === 'ClosingTime') {
+                        var originalTime = cell.text().trim();
+                        var timeInput = $('<input type="time" class="form-control form-control-sm" step="1" />');
+                        timeInput.val(originalTime);
+                        cell.html(timeInput);
+                    }
+                    else if (field === 'AdminID') {
+                        var currentAdminId = cell.data('admin-id');
+                        var select = $('<select class="form-select form-select-sm"></select>');
+                        select.append($('<option>', { value: '', text: 'Not Assigned' }));
+                        admins.forEach(function(admin) {
+                            var option = $('<option>', { value: admin.id, text: admin.fullName });
+                            if (admin.id === currentAdminId) { option.attr('selected', 'selected'); }
+                            select.append(option);
+                        });
+                        cell.html(select);
+                    } else {
+                        cell.attr('contenteditable', 'true').addClass('editable');
+                    }
                 });
 
+                row.data('original-values', originalValues);
                 $(this).removeClass('btn-primary edit-btn').addClass('btn-success save-btn').html('<i class="bi bi-check-circle"></i> Save');
             });
 
-            // Inline editing
+            // Handle "Save" button click
             $('#tblData').on('click', '.save-btn', function () {
-            var row = $(this).closest('tr');
-            var id = row.data('id');
-            var token = $('input[name="__RequestVerificationToken"]').val();
+                var button = $(this);
+                var row = button.closest('tr');
+                var originalValues = row.data('original-values');
+                var currentValues = { CinemaID: row.data('id') };
+                var hasChanged = false;
+                var validationPassed = true;
 
-            row.find('td[contenteditable="true"]').each(function () {
-                var field = $(this).data('field');
-                var value = $(this).text().trim();
+                row.find('td[data-field]').each(function () {
+                    var cell = $(this);
+                    var field = cell.data('field');
+                    var value;
 
+                    if (field === 'OpeningTime' || field === 'ClosingTime') {
+                        value = cell.find('input[type="time"]').val();
+                    } else if (field === 'AdminID') {
+                        value = cell.find('select').val();
+                    } else {
+                        value = cell.text().trim();
+                    }
+
+                    currentValues[field] = value;
+                    if (originalValues[field] != value) { hasChanged = true; }
+                });
+
+                if (!hasChanged) {
+                    toastr.info("No changes were detected.");
+                    revertRowToDisplayMode(row, button, originalValues);
+                    return;
+                }
+
+                // --- FINAL VALIDATION ON SAVE ---
+                if (!currentValues.Name) { toastr.error("Cinema name cannot be empty."); validationPassed = false; }
+                if (!currentValues.Address) { toastr.error("Address cannot be empty."); validationPassed = false; }
+                var numberOfRooms = parseInt(currentValues.NumberOfRooms);
+                if (isNaN(numberOfRooms) || numberOfRooms < 1) { toastr.error("Space must be a number greater than 0."); validationPassed = false; }
+                if (!currentValues.OpeningTime) { toastr.error("Opening Time cannot be empty."); validationPassed = false; }
+                if (!currentValues.ClosingTime) { toastr.error("Closing Time cannot be empty."); validationPassed = false; }
+
+                // --- NEW VALIDATION: Check if closing time is after opening time ---
+                // if (currentValues.OpeningTime && currentValues.ClosingTime && currentValues.OpeningTime >= currentValues.ClosingTime) {
+                //     toastr.error("Closing Time must be later than Opening Time.");
+                //     validationPassed = false;
+                // }
+
+                if (validationPassed == false) return;
+
+
+                // --- THIS IS THE CORRECTED AJAX CALL ---
+                currentValues.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
                 $.ajax({
-                    url: '/Admin/Cinemas/UpdateTheaterField',
+                    url: '/Admin/Cinemas/UpdateTheater',
                     type: 'POST',
-                    data: {
-                        id: id,
-                        field: field,
-                        value: value,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
+                    // This 'data' property is crucial and was missing from the placeholder.
+                    // It sends the entire object of new values to the controller.
+                    data: currentValues,
                     success: function (response) {
                         if (response.success) {
-                            toastr.success(`Updated successfully`);
+                            toastr.success(response.message);
+                            revertRowToDisplayMode(row, button, currentValues);
                         } else {
-                            toastr.error(`Failed to update ${field}: ${response.message}`);
+                            toastr.error(response.message);
                         }
                     },
                     error: function () {
-                        toastr.error(`Error updating ${field}`);
+                        toastr.error("An error occurred while updating.");
                     }
                 });
             });
 
-            // Đổi nút về trạng thái "Edit"
-            row.find('td[contenteditable="true"]').removeAttr('contenteditable').removeClass('editable');
-            $(this).removeClass('btn-success save-btn').addClass('btn-primary edit-btn').html('<i class="bi bi-pencil-square"></i> Edit');
-        });
-
-
-            $(document).ready(function () {
-            $('#tblData').on('click', '.toggle-status-btn', function () {
+            // --- TOGGLE STATUS SECTION ---
+            $('#tblData').on('click', '.toggle-status-btn', function () { 
                 var button = $(this);
                 var cinemaId = button.data('id');
                 var isClosing = button.hasClass("btn-danger");
@@ -272,13 +342,12 @@
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message);
-
-                            // Đổi class và nội dung nút
+                            // Toggle button class and content
                             if (isClosing) {
-                                button.removeClass('btn-danger').addClass('btn-success')
+                                button.removeClass('btn-danger').addClass('btn-primary')
                                       .html('<i class="bi bi-unlock-fill me-1"></i>OPEN');
                             } else {
-                                button.removeClass('btn-success').addClass('btn-danger')
+                                button.removeClass('btn-primary').addClass('btn-danger')
                                       .html('<i class="bi bi-lock-fill me-1"></i>CLOSE');
                             }
                         } else {
@@ -286,15 +355,32 @@
                         }
                     },
                     error: function (xhr) {
-                        var errorMessage = xhr.responseJSON?.message || "An error occurred while processing your request.";
+                        var errorMessage = xhr.responseJSON?.message || "An error occurred.";
                         toastr.error(errorMessage);
                     }
                 });
             });
         });
 
+        // Helper function to revert a row to display mode
+        function revertRowToDisplayMode(row, button, values) {
+            row.find('td[data-field]').each(function() {
+                var cell = $(this);
+                var field = cell.data('field');
 
-        });
+                if (field === 'AdminID') {
+                    var adminName = "Not Assigned";
+                    var selectedAdmin = admins.find(a => a.id === values.AdminID);
+                    if (selectedAdmin) { adminName = selectedAdmin.fullName; }
+                    cell.html(adminName);
+                } else {
+                    cell.html(values[field]);
+                    cell.removeAttr('contenteditable').removeClass('editable');
+                }
+            });
+            button.removeClass('btn-success save-btn').addClass('btn-primary edit-btn').html('<i class="bi bi-pencil-square"></i> Edit');
+            row.removeData('original-values');
+        }
     </script>
 }
 
