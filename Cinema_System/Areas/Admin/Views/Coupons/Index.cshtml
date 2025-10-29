@@ -44,9 +44,10 @@
                                 <td data-id="@coupon.CouponID" data-field="UsedCount" contenteditable="true">
                                     @coupon.UsedCount
                                 </td>
-                                <td>
-                                    @(coupon.ExpireDate.HasValue ? coupon.ExpireDate.Value.ToString("dd/MM/yyyy") : "No expiry")
+                                <td data-id="@coupon.CouponID" data-field="ExpireDate" contenteditable="true">
+                                    @(coupon.ExpireDate.HasValue? coupon.ExpireDate.Value.ToString("dd/MM/yyyy") : "")
                                 </td>
+
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
                                         <button onclick="enableEdit(this)"

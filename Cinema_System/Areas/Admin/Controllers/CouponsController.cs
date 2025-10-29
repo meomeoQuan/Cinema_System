@@ -124,6 +124,20 @@ public class CouponsController : Controller
                     }
                     coupon.UsedCount = usedCount;
                     break;
+                case "ExpireDate":
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        coupon.ExpireDate = null; // Cho phép bỏ trống (no expiry)
+                    }
+                    else if (DateTime.TryParseExact(value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime parsedDate))
+                    {
+                        coupon.ExpireDate = parsedDate;
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Invalid date format. Please use dd/MM/yyyy." });
+                    }
+                    break;
                 default:
                     return Json(new { success = false, message = "Invalid field." });
             }
