@@ -247,7 +247,7 @@ namespace Cinema_System.Areas
 
 
             // Gửi QR code qua email
-            await GenerateTicket(order);
+            //await GenerateTicket(order);
 
             return View();
         }

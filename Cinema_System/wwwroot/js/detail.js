@@ -122,53 +122,18 @@ document.getElementById("time").addEventListener("change", function () {
                         // Event listener for seat selection
                         const seats = document.querySelectorAll(".seat");
                         seats.forEach(seat => {
-                            seat.addEventListener("click", async function (event) {
-                                let seat = event.target;
-                                if (seat.classList.contains("seat") && !seat.classList.contains("booked") && !seat.classList.contains("maintenance")) {
-                                    let status;
-                                    let available;
-                                    try {
-                                        const response = await fetch(`/api/showtime-seat/ss/${seat.getAttribute("data-show-seat-id")}`)
-                                        let data = await response.json();
-                                        available = data.status === 0 ? 1 : 0;
-                                    } catch (e) {
-                                        console.log(e);
-                                        return;
-                                    }
-                                    const seatId = Number(seat.getAttribute("data-show-seat-id"));
-                                    if (seat.classList.contains("selected")) {
-                                        status = 0;
-                                        await connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
-                                        seat.classList.remove("selected");
-                                    } else if (!available && seat.classList.contains("seat") && !seat.classList.contains("booked")) {
-                                        alert("Ghế này đã được chọn, vui lòng chọn ghế khác.");
-                                        location.reload();
-                                        return;
-                                    } else if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
-                                        status = 2;
-                                        await connection.invoke("SelectSeat", seatId)
-                                            .catch(err => {
-                                                console.error("❌ Lỗi SelectSeat:", err.message);
-                                                alert("Có lỗi xảy ra khi chọn ghế, vui lòng thử lại!");
-                                            });
-                                        seat.classList.add("selected");
-                                    }
-
-                                    fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/${status}`, {
-                                        method: "PUT",
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                        }
-                                    })
-                                    console.log(document.querySelectorAll(".seat.selected").length);
-                                    console.log(document.getElementById("booking-summary"));
-                                    if (document.querySelectorAll(".seat.selected").length > 0) {
-                                        document.getElementById("booking-summary").classList.remove("d-none");
-                                    } else {
-                                        document.getElementById("booking-summary").classList.add("d-none");
-                                    }
-
-                                    updateTotal();
+                            seat.addEventListener("click", async function () {
+                                const seatId = Number(seat.getAttribute("data-show-seat-id"));
+                                if (seat.classList.contains("selected")) {
+                                    
+                                    await connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
+                                } else {
+                                    
+                                    await connection.invoke("SelectSeat", seatId)
+                                        .catch(err => {
+                                            console.error("❌ Lỗi SelectSeat:", err.message);
+                                            alert("Có lỗi xảy ra khi chọn ghế, vui lòng thử lại!");
+                                        });
                                 }
                             });
                         });
@@ -181,6 +146,53 @@ document.getElementById("time").addEventListener("change", function () {
     }
 });
 
+/**
+ * 
+ */
+
+// chọn ghế
+document.getElementById("seats").addEventListener("click", async function (event) {
+    let seat = event.target;
+    if (seat.classList.contains("seat") && !seat.classList.contains("booked") && !seat.classList.contains("maintenance")) {
+        let status;
+        let available;
+        try {
+            const response = await fetch(`/api/showtime-seat/ss/${seat.getAttribute("data-show-seat-id")}`)
+            let data = await response.json();
+            available = data.status === 0 ? 1 : 0;
+        } catch (e) {
+            console.log(e);
+            return;
+        }
+        if (seat.classList.contains("selected")) {
+            status = 0;
+            seat.classList.remove("selected");
+        } else if (!available && seat.classList.contains("seat") && !seat.classList.contains("booked")) {
+            alert("Ghế này đã được chọn, vui lòng chọn ghế khác.");
+            location.reload();
+            return;
+        } else if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
+            status = 2;
+            seat.classList.add("selected");
+        }
+
+        fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/${status}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        console.log(document.querySelectorAll(".seat.selected").length);
+        console.log(document.getElementById("booking-summary"));
+        if (document.querySelectorAll(".seat.selected").length > 0) {
+            document.getElementById("booking-summary").classList.remove("d-none");
+        } else {
+            document.getElementById("booking-summary").classList.add("d-none");
+        }
+
+        updateTotal();
+    }
+});
 /**
  * 
  */

@@ -15,11 +15,12 @@ namespace Cinema_System.Areas.Request
         private static bool isCounting = false;
         private static readonly object lockObj = new object();
         private static HashSet<int> selectedSeats = new HashSet<int>(); // To store selected seat IDs
-        private static ShowtimeSeatApiController showtime;
+        private static ApplicationDbContext _context;
+        private static ShowtimeSeatApiController showtime = new ShowtimeSeatApiController(_context);
 
         public CountdownHub(ApplicationDbContext context)
         {
-            showtime = new ShowtimeSeatApiController(context);
+            _context = context;
         }
 
         public async Task StartCountdown()
@@ -40,21 +41,31 @@ namespace Cinema_System.Areas.Request
 
             await Clients.All.SendAsync("CountdownFinished", selectedSeats); // Send selected seats to clients
 
-            await showtime.PutSTSeatsStatus(selectedSeats.ToList(), 0);
+            foreach (int seat in selectedSeats)
+            {
+                await showtime.PutSTSeatStatus(seat, 0);
+            }
+
             ResetCountdown();
         }
 
         public void SelectSeat(int seatId)
         {
+            lock (lockObj)
+            {
                 if (!selectedSeats.Contains(seatId))
                 {
                     selectedSeats.Add(seatId);
                 }
+            }
         }
 
         public void DeselectSeat(int seatId)
         {
+            lock (lockObj)
+            {
                 selectedSeats.Remove(seatId);
+            }
         }
 
         private void ResetCountdown()

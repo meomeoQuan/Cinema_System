@@ -34,7 +34,6 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             var items = JsonConvert.DeserializeObject<List<OrderDetail>>(sessionCart);
 
-            // Kiểm tra timeout 5 phút
             var now = DateTime.Now;
             var expiredItems = items.Where(i => (now - i.AddedTime).TotalMinutes > 5).ToList();
 
@@ -58,7 +57,6 @@ namespace Cinema_System.Areas.Guest.Controllers
         {
             try
             {
-                // 1. Check product availability
                 var product = await _productRepo.GetAsync(p => p.ProductID == productId);
                 if (product == null || product.Quantity < quantity)
                 {
@@ -69,10 +67,8 @@ namespace Cinema_System.Areas.Guest.Controllers
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var isStaff = User.IsInRole("Staff");
 
-                // 2. Handle logged-in users (both regular users and staff)
                 if (userId != null)
                 {
-                    // 2.1 Find or create Order
                     var order = await _unitOfWork.OrderTable
                         .GetFirstOrDefaultAsync(o => o.UserID == userId && o.Status == OrderStatus.Pending);
 
@@ -90,7 +86,6 @@ namespace Cinema_System.Areas.Guest.Controllers
                         await _unitOfWork.SaveAsync();
                     }
 
-                    // 2.2 Check if product already in cart
                     var cartItem = await _unitOfWork.OrderDetail
                         .GetAsync(od => od.ProductID == productId && od.OrderID == order.OrderID);
 
@@ -112,7 +107,6 @@ namespace Cinema_System.Areas.Guest.Controllers
                     }
                     await _unitOfWork.SaveAsync();
                 }
-                // 3. Handle guest users (session cart with 5-minute timeout)
                 else
                 {
                     var cartItems = GetSessionCart();
@@ -122,7 +116,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                     {
                         existingItem.Quantity += quantity;
                         existingItem.TotalPrice = existingItem.Price * existingItem.Quantity;
-                        existingItem.AddedTime = DateTime.Now; // Reset the timer when updated
+                        existingItem.AddedTime = DateTime.Now; 
                     }
                     else
                     {
@@ -134,7 +128,7 @@ namespace Cinema_System.Areas.Guest.Controllers
                             Quantity = quantity,
                             TotalPrice = product.Price * quantity,
                             AddedTime = DateTime.Now,
-                            Product = new Product // Store minimal product info
+                            Product = new Product 
                             {
                                 ProductID = product.ProductID,
                                 Name = product.Name,
@@ -162,7 +156,6 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             if (userId != null && !isSessionItem)
             {
-                // Xóa từ database
                 if (int.TryParse(id, out int orderDetailId))
                 {
                     var item = await _unitOfWork.OrderDetail.GetAsync(o => o.OrderDetailID == orderDetailId);
@@ -175,7 +168,6 @@ namespace Cinema_System.Areas.Guest.Controllers
             }
             else
             {
-                // Xóa từ session
                 var cartItems = GetSessionCart();
                 var item = cartItems.FirstOrDefault(i => i.TempId == id);
                 if (item != null)
@@ -197,7 +189,6 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             if (userId != null && !isSessionItem)
             {
-                // Cập nhật database
                 if (int.TryParse(id, out int orderDetailId))
                 {
                     var item = await _unitOfWork.OrderDetail.GetAsync(o => o.OrderDetailID == orderDetailId);
@@ -211,7 +202,6 @@ namespace Cinema_System.Areas.Guest.Controllers
             }
             else
             {
-                // Cập nhật session
                 var cartItems = GetSessionCart();
                 var item = cartItems.FirstOrDefault(i => i.TempId == id);
                 if (item != null)
@@ -231,7 +221,6 @@ namespace Cinema_System.Areas.Guest.Controllers
             var viewModel = new CartVM();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // For all logged-in users (both regular and staff)
             if (userId != null)
             {
                 var order = await _unitOfWork.OrderTable
@@ -240,12 +229,10 @@ namespace Cinema_System.Areas.Guest.Controllers
 
                 viewModel.DatabaseItems = order?.OrderDetails?.ToList() ?? new List<OrderDetail>();
             }
-            // For guest users
             else
             {
                 viewModel.SessionItems = GetSessionCart();
 
-                // Load product info for session items
                 var productIds = viewModel.SessionItems.Select(i => i.ProductID).Distinct().ToList();
                 var products = await _productRepo.GetAllAsync(p => productIds.Contains(p.ProductID));
 
@@ -255,7 +242,6 @@ namespace Cinema_System.Areas.Guest.Controllers
                 }
             }
 
-            // Calculate totals
             viewModel.Subtotal = (viewModel.DatabaseItems?.Sum(i => i.TotalPrice) ?? 0)
                                + (viewModel.SessionItems?.Sum(i => i.TotalPrice) ?? 0);
             viewModel.Total = viewModel.Subtotal - viewModel.Discount;
@@ -264,8 +250,6 @@ namespace Cinema_System.Areas.Guest.Controllers
             return View(viewModel);
         }
 
-//            return View(viewModel);
-//        }
 
         [HttpGet]
         public IActionResult Product(string searchString, ProductType? productType)

@@ -48,7 +48,7 @@ namespace Cinema.DataAccess.DbInitializer
             catch (Exception ex) { }
 
 
-            if(!_roleManager.RoleExistsAsync(SD.Role_Guest).GetAwaiter().GetResult())
+            if (!_roleManager.RoleExistsAsync(SD.Role_Guest).GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Staff)).GetAwaiter().GetResult();
@@ -67,9 +67,9 @@ namespace Cinema.DataAccess.DbInitializer
 
                 _userManager.CreateAsync(new ApplicationUser
                 {
-                    UserName = "admin@dotnet.com",
-                    Email = "admin@dotnet.com",
-                    FullName = "Neko",
+                    UserName = "staff@gmail.com",
+                    Email = "staff@gmail.com",
+                    FullName = "Staff",
                     PhoneNumber = "1112223333",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true
@@ -117,6 +117,9 @@ namespace Cinema.DataAccess.DbInitializer
                     _userManager.AddToRoleAsync(user2, SD.Role_Staff).GetAwaiter().GetResult();
                 }
             }
+
+
+
         }
     }
 }
