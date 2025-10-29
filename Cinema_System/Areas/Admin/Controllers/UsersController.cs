@@ -40,59 +40,130 @@ namespace Cinema_System.Areas.Admin.Controllers
                 user.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Guest";
             }
 
+            ViewBag.RolesList = _roleManager.Roles
+                                    .Where(r => r.Name != SD.Role_Guest) // Lọc bỏ vai trò Guest nếu không muốn gán
+                                    .Select(r => r.Name)
+                                    .ToList();
+
             return View(users);
         }
 
-        // ✅ CHỈ KIỂM TRA KHI ẤN SAVE
         [HttpPost]
+        public async Task<IActionResult> Create(ApplicationUser user, string role)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (_unitOfWork.ApplicationUser.Get(u => u.Email == user.Email) != null)
+                    {
+                        return Json(new { success = false, message = "Email already exists." });
+                    }
+                    if (_unitOfWork.ApplicationUser.Get(u => u.PhoneNumber == user.PhoneNumber) != null)
+                    {
+                        return Json(new { success = false, message = "Phone number already exists." });
+                    }
+                    if (!IsValidPhoneNumber(user.PhoneNumber ?? string.Empty))
+                    {
+                        return Json(new { success = false, message = "Invalid phone number format." });
+                    }
+
+                    user.UserName = user.Email; // Ensure UserName is set to Email
+                    string password = PasswordGenerator.GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
+                    user.EmailConfirmed = true;
+                    var result = await _userManager.CreateAsync(user, password);
+                    if (result.Succeeded)
+                    {
+                        await _emailService.SendEmailAsync(
+                            user.Email,
+                            "Create User Account Successfully",
+                            $"<p>Hi {user.FullName}!</p><p>Your password is: {password}</p><p>Please change your password after logging in for the first time.</p>"
+                        );
+
+                        await _userManager.AddToRoleAsync(user, role);
+                        return Json(new { success = true, message = "User created successfully." });
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = string.Join(", ", result.Errors.Select(e => e.Description)) });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = $"Error creating user: {ex.Message}" });
+                }
+            }
+            return Json(new { success = false, message = "Invalid user data." });
+        }
+
+        private bool IsValidPhoneNumber(string phoneNumber)
+        {
+            // Define a regular expression for validating phone numbers
+            var phoneRegex = new Regex(@"^\d{10}$"); // Example: 10-digit phone number
+            return phoneRegex.IsMatch(phoneNumber);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken] // ✅ BẢO MẬT: Thêm AntiForgeryToken
         public async Task<IActionResult> SaveUserChanges([FromBody] ApplicationUser updatedUser)
         {
             if (updatedUser == null || string.IsNullOrEmpty(updatedUser.Id))
-                return Json(new { success = false, message = "Invalid user data." });
+                return Json(new { success = false, message = "Dữ liệu người dùng không hợp lệ." });
 
-            var user = await _unitOfWork.ApplicationUser.GetAsync(u => u.Id == updatedUser.Id);
+            // Lấy người dùng từ UserManager để đảm bảo tính toàn vẹn
+            var user = await _userManager.FindByIdAsync(updatedUser.Id) as ApplicationUser;
             if (user == null)
-                return Json(new { success = false, message = "User not found." });
+                return Json(new { success = false, message = "Không tìm thấy người dùng." });
 
             try
             {
                 // 🔍 Kiểm tra điều kiện tổng thể
                 if (string.IsNullOrWhiteSpace(updatedUser.FullName))
-                    return Json(new { success = false, message = "Full name cannot be empty." });
+                    return Json(new { success = false, message = "Họ tên không được để trống." });
 
                 if (string.IsNullOrWhiteSpace(updatedUser.Email))
-                    return Json(new { success = false, message = "Email cannot be empty." });
+                    return Json(new { success = false, message = "Email không được để trống." });
 
-                if (_unitOfWork.ApplicationUser.Get(u => u.Email == updatedUser.Email && u.Id != updatedUser.Id) != null)
-                    return Json(new { success = false, message = "Email already exists." });
+                // Tối ưu: Sử dụng AnyAsync để kiểm tra sự tồn tại
+                if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.Email == updatedUser.Email && u.Id != updatedUser.Id))
+                    return Json(new { success = false, message = "Email này đã tồn tại." });
 
                 if (string.IsNullOrWhiteSpace(updatedUser.PhoneNumber))
-                    return Json(new { success = false, message = "Phone number cannot be empty." });
+                    return Json(new { success = false, message = "Số điện thoại không được để trống." });
 
-                if (_unitOfWork.ApplicationUser.Get(u => u.PhoneNumber == updatedUser.PhoneNumber && u.Id != updatedUser.Id) != null)
-                    return Json(new { success = false, message = "Phone number already exists." });
+                if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.PhoneNumber == updatedUser.PhoneNumber && u.Id != updatedUser.Id))
+                    return Json(new { success = false, message = "Số điện thoại này đã tồn tại." });
 
                 if (!Regex.IsMatch(updatedUser.PhoneNumber, @"^\d{10}$"))
-                    return Json(new { success = false, message = "Invalid phone number format." });
+                    return Json(new { success = false, message = "Định dạng số điện thoại không hợp lệ." });
 
                 // Không có gì thay đổi
                 if (user.FullName == updatedUser.FullName &&
                     user.Email == updatedUser.Email &&
-                    user.PhoneNumber == updatedUser.PhoneNumber)
-                    return Json(new { success = false, message = "Nothing to change." });
+                    user.PhoneNumber == updatedUser.PhoneNumber &&
+                    user.Role == updatedUser.Role)
+                    return Json(new { success = true, message = "Không có gì để thay đổi." });
 
-                // ✅ Cập nhật dữ liệu
+                // ✅ Cập nhật dữ liệu thông qua UserManager
                 user.FullName = updatedUser.FullName.Trim();
-                user.Email = updatedUser.Email.Trim();
-                user.UserName = updatedUser.Email.Trim();
                 user.PhoneNumber = updatedUser.PhoneNumber.Trim();
 
-                await _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "User updated successfully." });
+                // Cập nhật email và username một cách an toàn
+                await _userManager.SetEmailAsync(user, updatedUser.Email.Trim());
+                await _userManager.SetUserNameAsync(user, updatedUser.Email.Trim());
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "Cập nhật người dùng thành công." });
+                }
+
+                return Json(new { success = false, message = "Lỗi khi cập nhật người dùng: " + string.Join(", ", result.Errors.Select(e => e.Description)) });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Error updating user: {ex.Message}" });
+                return Json(new { success = false, message = $"Lỗi hệ thống: {ex.Message}" });
             }
         }
 
@@ -116,6 +187,54 @@ namespace Cinema_System.Areas.Admin.Controllers
             });
 
             return applicationUsers;
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Lock(string id)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            if (id == currentUserId)
+            {
+                return Json(new { success = false, message = "Bạn không thể tự khóa tài khoản của mình." });
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+            }
+
+            // Dùng SetLockoutEndDateAsync là cách làm đúng chuẩn của Identity
+            var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
+
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "Đã khóa người dùng thành công." });
+            }
+
+            return Json(new { success = false, message = "Không thể khóa người dùng." });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken] // ✅ BẢO MẬT: Thêm AntiForgeryToken
+        public async Task<IActionResult> Unlock(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+            }
+
+            // Dùng SetLockoutEndDateAsync để mở khóa
+            var result = await _userManager.SetLockoutEndDateAsync(user, null);
+
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "Đã mở khóa người dùng thành công." });
+            }
+
+            return Json(new { success = false, message = "Không thể mở khóa người dùng." });
         }
 
         public bool CurrentUser(string idEditing)

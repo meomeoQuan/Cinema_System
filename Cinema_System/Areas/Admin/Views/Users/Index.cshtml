@@ -30,11 +30,11 @@
                     <tbody>
                         @foreach (var user in Model)
                         {
-                            <tr>
-                                <td data-id="@user.Id" data-field="FullName">@user.FullName</td>
-                                <td data-id="@user.Id" data-field="Email">@user.Email</td>
-                                <td data-id="@user.Id" data-field="PhoneNumber">@user.PhoneNumber</td>
-                                <td class="text-center">
+                            <tr data-id="@user.Id">
+                                <td data-field="FullName">@user.FullName</td>
+                                <td data-field="Email">@user.Email</td>
+                                <td data-field="PhoneNumber">@user.PhoneNumber</td>
+                                <td data-field="Role" class="text-center">
                                     @* Badge hiển thị màu theo role *@
                                     @{
                                         string GetBadgeClass(string role)
@@ -70,8 +70,7 @@
                                         }
                                         @if (user.Role != "Guest")
                                         {
-                                            <button onclick="enableEdit(this)"
-                                                    class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold">
+                                            <button class="btn btn-primary btn-sm rounded-3 text-uppercase fw-semibold edit-btn">
                                                 <i class="bi bi-pencil-square me-1"></i>Edit
                                             </button>
                                         }
@@ -96,7 +95,6 @@
                 </table>
             </div>
         </div>
-
     </div>
     <!-- User Form -->
     <div class="card shadow-sm">
@@ -131,11 +129,20 @@
         </div>
     </div>
 </div>
+
+
+
+
+
 @section Scripts {
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
+        // ✅ BẮT ĐẦU KHỐI DOCUMENT READY DUY NHẤT
         $(document).ready(function() {
+            // Lấy danh sách Role từ ViewBag và chuyển thành biến JavaScript
+            var roles = @Html.Raw(Json.Serialize(ViewBag.RolesList ?? new List<string>()));
+
             $('#tblData').DataTable({
                 "pageLength": 10,
                 "lengthMenu": [5, 10, 25, 50],
@@ -144,49 +151,14 @@
                 "info": true
             });
 
-            // Inline editing
-            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
-                var id = $(this).data('id');
-                var field = $(this).data('field');
-                var value = $(this).text();
-
-                if (!value.trim()) {
-                    toastr.error('Field cannot be empty.');
-                    return;
-                }
-
-                $.ajax({
-                    url: '/Admin/Users/UpdateUserField',
-                    type: 'POST',
-                    data: {
-                        id: id,
-                        field: field,
-                        value: value,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
-                        toastr.error(errorMessage);
-                    }
-                });
-            });
-
-            // Show user form on Add button click
+            // --- XỬ LÝ FORM THÊM MỚI ---
             $('#addUserBtn').click(function() {
                 $('#user-form').toggleClass('d-none');
             });
 
-            // Handle form submission
             $('#createUserForm').submit(function(e) {
                 e.preventDefault();
-
+                // ... (Logic thêm mới người dùng của bạn giữ nguyên)
                 var userName = $('#userName').val();
                 var userEmail = $('#userEmail').val();
                 var userPhone = $('#userPhone').val();
@@ -196,98 +168,192 @@
                     toastr.error('All fields are required.');
                     return;
                 }
-
                 if (!/^\d{10}$/.test(userPhone)) {
                     toastr.error('Phone number must be a 10-digit number.');
                     return;
                 }
-
                 $.ajax({
                     url: '/Admin/Users/Create',
                     type: 'POST',
                     data: {
-                        FullName: userName,
-                        Email: userEmail,
-                        PhoneNumber: userPhone,
-                        Role: userRole,
+                        FullName: userName, Email: userEmail, PhoneNumber: userPhone, Role: userRole,
                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                     },
                     success: function(response) {
                         if (response.success) {
                             toastr.success(response.message);
-                            // alert('User created successfully. Password: ' + response.password);
                             location.reload();
                         } else {
                             toastr.error(response.message);
                         }
                     },
                     error: function(xhr) {
-                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
+                        var errorMessage = xhr.responseJSON?.message || 'An error occurred.';
                         toastr.error(errorMessage);
                     }
                 });
             });
+
+            // --- XỬ LÝ EDIT VÀ SAVE ---
+            $('#tblData').on('click', '.edit-btn', function () {
+                var button = $(this);
+                var row = button.closest('tr');
+                var originalValues = {};
+
+                row.find('td[data-field]').each(function () {
+                    var cell = $(this);
+                    var field = cell.data('field');
+                    // originalValues[field] = cell.text().trim();
+                    var originalText = cell.text().trim();
+                    originalValues[field] = originalText;
+                    if (field === 'Role') {
+                        var currentRole = cell.text().trim();
+                        var select = $('<select class="form-select form-select-sm"></select>');
+                        roles.forEach(function(role) {
+                            var option = $('<option>', { value: role, text: role });
+                            if (role === currentRole) option.attr('selected', 'selected');
+                            select.append(option);
+                        });
+                        cell.html(select);
+                    } else {
+                        // cell.attr('contenteditable', 'true').addClass('editable');
+                        // ✅ THAY ĐỔI QUAN TRỌNG: Thay vì dùng contenteditable,
+                        // chúng ta chèn một thẻ <input> có class .form-control
+                        var input = $('<input type="text" class="form-control form-control-sm">');
+                        input.val(originalText);
+                        cell.html(input);
+                    }
+                });
+                row.data('original-values', originalValues);
+                button.removeClass('btn-primary edit-btn').addClass('btn-success save-btn');
+                button.html('<i class="bi bi-check-circle me-1"></i>Save');
+            });
+
+            $('#tblData').on('click', '.save-btn', function () {
+                var button = $(this);
+                var row = button.closest('tr');
+                var originalValues = row.data('original-values');
+                var currentValues = { Id: row.data('id') };
+                var hasChanged = false;
+                var validationPassed = true;
+
+                row.find('td[data-field]').each(function () {
+                    var cell = $(this);
+                    var field = cell.data('field');
+                    // var value = field === 'Role' ? cell.find('select').val() : cell.text().trim();
+                    var value = field === 'Role' ? cell.find('select').val() : cell.find('input').val().trim();
+                    
+                    currentValues[field] = value;
+                    if (originalValues[field] != value) hasChanged = true;
+                });
+                if (!hasChanged) {
+                    toastr.info("Không có gì thay đổi.");
+                    revertRowToDisplayMode(row, originalValues);
+                    return;
+                }
+                if (!currentValues.FullName) { toastr.error("Họ tên không được để trống."); validationPassed = false; }
+                if (!currentValues.Email) { toastr.error("Email không được để trống."); validationPassed = false; }
+                if (!/^\d{10}$/.test(currentValues.PhoneNumber)) { toastr.error("Số điện thoại phải là 10 chữ số."); validationPassed = false; }
+                if (!validationPassed) return;
+
+                $.ajax({
+                    url: '/Admin/Users/SaveUserChanges',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(currentValues),
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            revertRowToDisplayMode(row, currentValues);
+                        } else {
+                            toastr.error(response.message);
+                            revertRowToDisplayMode(row, originalValues);
+                        }
+                    },
+                    error: function () {
+                        toastr.error("Đã xảy ra lỗi trong quá trình cập nhật.");
+                        revertRowToDisplayMode(row, originalValues);
+                    }
+                });
+            });
+
+            // --- CÁC HÀM TRỢ GIÚP (HELPER FUNCTIONS) ---
+            function revertRowToDisplayMode(row, values) {
+                row.find('td[data-field]').each(function() {
+                    var cell = $(this);
+                    var field = cell.data('field');
+                    var value = values[field];
+                    if (field === 'Role') {
+                        cell.html(getRoleBadgeHtml(value));
+                    } else {
+                        cell.html(value);
+                        // cell.removeAttr('contenteditable').removeClass('editable');
+                    }
+                });
+                var button = row.find('.save-btn');
+                button.removeClass('btn-success save-btn').addClass('btn-primary edit-btn');
+                button.html('<i class="bi bi-pencil-square me-1"></i>Edit');
+                row.removeData('original-values');
+            }
+
+            function getRoleBadgeHtml(role) {
+                var badgeClass = 'bg-secondary';
+                if (role && role.toLowerCase() === 'admin') badgeClass = 'bg-danger';
+                if (role && role.toLowerCase() === 'staff') badgeClass = 'bg-success';
+                return `<span class="badge ${badgeClass} text-white rounded-pill"><i class="bi bi-person-fill me-1"></i> ${role}</span>`;
+            }
+
+            // ✅ Gắn các hàm lock/unlock vào đối tượng `window` để `onclick` có thể thấy và gọi được
+            window.lockUser = function(userId, button) {
+                if (confirm('Are you sure you want to lock this user?')) {
+                    $.ajax({
+                        url: '/Admin/Users/Lock/' + userId,
+                        type: 'POST',
+                        headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                        success: function(response) {
+                            if (response.success) {
+                                toastr.success(response.message);
+                                $(button).removeClass('btn-danger').addClass('btn-success')
+                                       .html('<i class="bi bi-unlock-fill me-1"></i>UNLOCK')
+                                       .attr('onclick', 'unlockUser(\'' + userId + '\', this)');
+                            } else {
+                                toastr.error(response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            var errorMessage = xhr.responseJSON?.message || 'An error occurred.';
+                            toastr.error(errorMessage);
+                        }
+                    });
+                }
+            }
+
+            window.unlockUser = function(userId, button) {
+                if (confirm('Are you sure you want to unlock this user?')) {
+                    $.ajax({
+                        url: '/Admin/Users/Unlock/' + userId,
+                        type: 'POST',
+                        headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                        success: function(response) {
+                            if (response.success) {
+                                toastr.success(response.message);
+                                $(button).removeClass('btn-success').addClass('btn-danger')
+                                       .html('<i class="bi bi-lock-fill me-1"></i>LOCK')
+                                       .attr('onclick', 'lockUser(\'' + userId + '\', this)');
+                            } else {
+                                toastr.error(response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            var errorMessage = xhr.responseJSON?.message || 'An error occurred.';
+                            toastr.error(errorMessage);
+                        }
+                    });
+                }
+            }
+        // ✅ KẾT THÚC KHỐI DOCUMENT READY DUY NHẤT MỘT CÁCH CHÍNH XÁC
         });
-
-        function enableEdit(button) {
-            var row = $(button).closest('tr');
-            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
-            $(button).html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
-        }
-
-        function saveEdit(button) {
-            var row = $(button).closest('tr');
-            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
-            $(button).html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
-        }
-
-        function lockUser(userId, button) {
-            if (confirm('Are you sure you want to lock this user?')) {
-                $.ajax({
-                    url: '/Admin/Users/Lock/' + userId,
-                    type: 'POST',
-                    headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            $(button).removeClass('btn-danger').addClass('btn-success').html('<i class="bi bi-unlock-fill me-1"></i>UNLOCK').attr('onclick', 'unlockUser(\'' + userId + '\', this)');
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
-                        toastr.error(errorMessage);
-                    }
-                });
-            }
-        }
-
-        function unlockUser(userId, button) {
-            if (confirm('Are you sure you want to unlock this user?')) {
-                $.ajax({
-                    url: '/Admin/Users/Unlock/' + userId,
-                    type: 'POST',
-                    headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            $(button).removeClass('btn-success').addClass('btn-danger').html('<i class="bi bi-lock-fill me-1"></i>LOCK').attr('onclick', 'lockUser(\'' + userId + '\', this)');
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred while processing your request.';
-                        toastr.error(errorMessage);
-                    }
-                });
-            }
-        }
     </script>
 }
 @Html.AntiForgeryToken()
