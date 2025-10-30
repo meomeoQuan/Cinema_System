@@ -12,103 +12,103 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>QR Code Scanner</title>
 	<style>
-	/* Set the font family and background color for the body */
-body {
-    font-family: 'Orbitron', sans-serif; /* Sci-fi font */
-    background: radial-gradient(circle at center, #001f3f, #000); /* Sci-fi blue background */
-    color: white; /* Text color */
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+		/* Set the font family and background color for the body */
+		body {
+			font-family: 'Orbitron', sans-serif; /* Sci-fi font */
+			background: radial-gradient(circle at center, #001f3f, #000); /* Sci-fi blue background */
+			color: white; /* Text color */
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
 
-/* Center-align text inside the container */
-#container {
-    text-align: center;
-}
+		/* Center-align text inside the container */
+		#container {
+			text-align: center;
+		}
 
-/* Styling for the video element */
-#video {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-    display: none;
-    border: 2px solid #00d4ff;
-    box-shadow: 0 0 15px #00d4ff;
-    border-radius: 10px;
-}
+		/* Styling for the video element */
+		#video {
+			width: 100%;
+			max-width: 600px;
+			margin: 0 auto;
+			display: none;
+			border: 2px solid #00d4ff;
+			box-shadow: 0 0 15px #00d4ff;
+			border-radius: 10px;
+		}
 
-/* Styling for the scannedImage element */
-#scannedImage {
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    display: none;
-    border: 2px solid #00d4ff;
-    box-shadow: 0 0 15px #00d4ff;
-    border-radius: 10px;
-}
+		/* Styling for the scannedImage element */
+		#scannedImage {
+			width: 100%;
+			max-width: 600px;
+			margin: 20px auto;
+			display: none;
+			border: 2px solid #00d4ff;
+			box-shadow: 0 0 15px #00d4ff;
+			border-radius: 10px;
+		}
 
-/* Styling for the qrData element */
-#qrData {
-    font-size: 18px;
-    margin-top: 10px;
-    text-align: center;
-    display: none;
-    color: #00d4ff;
-}
+		/* Styling for the qrData element */
+		#qrData {
+			font-size: 18px;
+			margin-top: 10px;
+			text-align: center;
+			display: none;
+			color: #00d4ff;
+		}
 
-/* Styling for the buttons container */
-#buttons {
-    margin-top: 20px;
-}
+		/* Styling for the buttons container */
+		#buttons {
+			margin-top: 20px;
+		}
 
-/* Sci-fi button styles */
-.button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: 2px solid #00d4ff;
-    border-radius: 5px;
-    background: transparent;
-    color: #00d4ff;
-    box-shadow: 0px 0px 10px #00d4ff;
-    transition: 0.3s ease-in-out;
-}
+		/* Sci-fi button styles */
+		.button {
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			border: 2px solid #00d4ff;
+			border-radius: 5px;
+			background: transparent;
+			color: #00d4ff;
+			box-shadow: 0px 0px 10px #00d4ff;
+			transition: 0.3s ease-in-out;
+		}
 
-.button:hover {
-    background: linear-gradient(45deg, #00d4ff, #007bff);
-    color: white;
-    box-shadow: 0px 0px 20px #00d4ff;
-}
+			.button:hover {
+				background: linear-gradient(45deg, #00d4ff, #007bff);
+				color: white;
+				box-shadow: 0px 0px 20px #00d4ff;
+			}
 
-/* Styling for file input */
-input[type="file"] {
-    display: none;
-}
+		/* Styling for file input */
+		input[type="file"] {
+			display: none;
+		}
 
-/* Sci-fi labels */
-label {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    background: transparent;
-    border: 2px solid #3498db;
-    color: #3498db;
-    box-shadow: 0px 0px 10px #3498db;
-    transition: background-color 0.3s, box-shadow 0.3s;
-}
+		/* Sci-fi labels */
+		label {
+			display: inline-block;
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			border-radius: 5px;
+			background: transparent;
+			border: 2px solid #3498db;
+			color: #3498db;
+			box-shadow: 0px 0px 10px #3498db;
+			transition: background-color 0.3s, box-shadow 0.3s;
+		}
 
-label:hover {
-    background: linear-gradient(45deg, #3498db, #1e90ff);
-    color: white;
-    box-shadow: 0px 0px 20px #3498db;
-}
+			label:hover {
+				background: linear-gradient(45deg, #3498db, #1e90ff);
+				color: white;
+				box-shadow: 0px 0px 20px #3498db;
+			}
 	</style>
 </head>
 
@@ -214,7 +214,7 @@ label:hover {
 			// If QR code is detected
 			if(code) {
 				// Extract the data encoded in the QR code
-			
+
 				const qrData = code.data;
 
 
@@ -246,7 +246,7 @@ label:hover {
 		function isUrl(str) {
 			return str.startsWith('http://') || str.startsWith('https://');
 		}
-		
+
 		// Event listener for webcam button
 		webcamButton.addEventListener('click', showWebcam);
 	</script>

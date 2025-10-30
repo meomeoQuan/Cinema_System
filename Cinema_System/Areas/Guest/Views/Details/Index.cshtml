@@ -174,7 +174,18 @@
 					<p><strong>Coupon:</strong> <input style="width: 70px" class="coupon" type="text"/></p>
 					</div>
 					<div class="col-md-1">
-					<button type="button" id="book-btn" class="btn btn-success">Book</button>
+					<form id="booking-form" asp-action="CreatePayment" asp-controller="Payment" asp-area="Guest"  method="post">
+						<input type="hidden" id="totalAmountInput" name="totalAmount" value="0" />
+
+						<!-- Input hidden để chứa danh sách ghế -->
+						<div id="seat-inputs"></div>
+
+						<!-- Input hidden để chứa danh sách món ăn -->
+						<div id="food-inputs"></div>
+
+						<button type="button" id="book-btn" class="btn btn-success">Book</button>
+					</form>
+					
 					</div>
 				</div>
 			</section>

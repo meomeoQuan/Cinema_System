@@ -118,5 +118,6 @@ namespace Cinema.DataAccess.DbInitializer
                 }
             }
         }
+
     }
 }
