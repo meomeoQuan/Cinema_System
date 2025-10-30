@@ -1,7 +1,8 @@
-﻿// File: /Areas/Admin/Controllers/SchedulesController.cs
+﻿// File: /Areas/Admin/Controllers/DemoSchedulesController.cs
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
@@ -10,11 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class DemoSchedules : Controller
+    public class DemoSchedulesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public DemoSchedules(IUnitOfWork unitOfWork)
+        public DemoSchedulesController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -32,37 +33,71 @@ namespace Cinema_System.Areas.Admin.Controllers
 
         #region API Calls for FullCalendar & AJAX
 
-        // Trong file DemoSchedulesController.cs
-
         [HttpGet]
-        public async Task<IActionResult> GetSchedulesForCalendar(DateTime start, DateTime end)
+        public async Task<IActionResult> GetSchedulesForCalendar(DateTime start, DateTime end, int cinemaId = 0)
         {
-            var schedules = await _unitOfWork.showTime.GetAllAsync(
-                s => s.ShowDate >= DateOnly.FromDateTime(start) && s.ShowDate <= DateOnly.FromDateTime(end),
-                includeProperties: "Movie,Room.Theater" // Đảm bảo đã include đầy đủ
-            );
+            try
+            {
+                // Lấy tất cả các lịch chiếu trong khoảng thời gian yêu cầu
+                var allSchedulesInDateRange = await _unitOfWork.showTime.GetAllAsync(
+                    s => s.ShowDate >= DateOnly.FromDateTime(start) && s.ShowDate <= DateOnly.FromDateTime(end),
+                    includeProperties: "Movie,Room.Theater"
+                );
 
-            // *** DÒNG SỬA LỖI QUAN TRỌNG ***
-            // Thêm .Where() để lọc ra những suất chiếu bị lỗi (không có thông tin phim)
-            // Điều này ngăn chặn lỗi 500 Internal Server Error
-            var events = schedules
-                .Where(s => s.Movie != null && s.Room?.Theater != null)
-                .Select(s => new
+                IEnumerable<ShowTime> filteredSchedules;
+
+                // Nếu người dùng có chọn một rạp cụ thể
+                if (cinemaId > 0)
                 {
-                    id = s.ShowTimeID,
-                    title = s.Movie.Title,
-                    start = s.ShowDate.ToDateTime(TimeOnly.FromTimeSpan(s.ShowTimes)),
-                    end = s.ShowDate.ToDateTime(TimeOnly.FromTimeSpan(s.ShowTimes)).AddMinutes(s.Movie.Duration),
-                    extendedProps = new
-                    {
-                        roomId = s.RoomID,
-                        cinemaName = s.Room.Theater.Name,
-                        roomNumber = s.Room.RoomNumber
-                    },
-                    backgroundColor = GetColorForMovie(s.MovieID)
-                }).ToList();
+                    // Lấy danh sách ID các phòng thuộc rạp đó
+                    var roomIdsInCinema = (await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId))
+                                                           .Select(r => r.RoomID)
+                                                           .ToHashSet(); // Dùng HashSet để kiểm tra nhanh hơn
 
-            return Json(events);
+                    // Nếu rạp này có phòng
+                    if (roomIdsInCinema.Any())
+                    {
+                        // Lọc danh sách các lịch chiếu đã lấy ban đầu
+                        filteredSchedules = allSchedulesInDateRange.Where(s => roomIdsInCinema.Contains(s.RoomID));
+                    }
+                    else
+                    {
+                        // Nếu rạp này không có phòng nào, trả về danh sách rỗng
+                        filteredSchedules = Enumerable.Empty<ShowTime>();
+                    }
+                }
+                else // Nếu người dùng xem "All Cinemas"
+                {
+                    filteredSchedules = allSchedulesInDateRange;
+                }
+
+                // Chuyển đổi kết quả cuối cùng sang định dạng event cho FullCalendar
+                var events = filteredSchedules
+                    .Where(s => s.Movie != null && s.Room?.Theater != null && s.Movie.Duration > 0)
+                    .Select(s => new
+                    {
+                        id = s.ShowTimeID,
+                        title = s.Movie.Title,
+                        start = s.ShowDate.ToDateTime(TimeOnly.FromTimeSpan(s.ShowTimes)),
+                        end = s.ShowDate.ToDateTime(TimeOnly.FromTimeSpan(s.ShowTimes)).AddMinutes(s.Movie.Duration),
+                        extendedProps = new
+                        {
+                            roomId = s.RoomID,
+                            cinemaName = s.Room.Theater.Name,
+                            roomNumber = s.Room.RoomNumber
+                        },
+                        backgroundColor = GetColorForMovie(s.MovieID)
+                    }).ToList();
+
+                return Json(events);
+            }
+            catch (Exception ex)
+            {
+                // Ghi lại lỗi để debug. Rất quan trọng!
+                // logger.LogError(ex, "Error fetching schedules for calendar"); 
+                // Trả về lỗi 500 để client biết có vấn đề
+                return StatusCode(500, new { message = "An error occurred on the server." });
+            }
         }
 
         [HttpGet]
@@ -107,7 +142,7 @@ namespace Cinema_System.Areas.Admin.Controllers
 
                 return Json(new { success = true, message = "Showtime created successfully!" });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { success = false, message = "An unexpected error occurred." });
             }
@@ -134,7 +169,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 MovieID = showtimeFromDb.MovieID,
                 RoomID = showtimeFromDb.RoomID,
                 ShowDate = DateOnly.FromDateTime(start),
-                ShowTimes = start.TimeOfDay // .TimeOfDay trả về TimeSpan, đã chính xác
+                ShowTimes = start.TimeOfDay
             };
 
             var validationError = await ValidateShowTime(updatedShowtime, updatedShowtime.ShowTimeID);
@@ -152,7 +187,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 await _unitOfWork.SaveAsync();
                 return Json(new { success = true, message = "Schedule updated successfully." });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { success = false, message = "An error occurred while updating." });
             }
@@ -175,8 +210,6 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return "Movie not found or has invalid duration.";
             }
 
-            // *** ĐÂY LÀ DÒNG ĐÃ SỬA ***
-            // Chuyển đổi TimeSpan sang TimeOnly trước khi dùng
             var newShowtimeStart = model.ShowDate.ToDateTime(TimeOnly.FromTimeSpan(model.ShowTimes));
             var newShowtimeEnd = newShowtimeStart.AddMinutes(movie.Duration);
 

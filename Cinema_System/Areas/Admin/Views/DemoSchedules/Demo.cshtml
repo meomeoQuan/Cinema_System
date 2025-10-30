@@ -1,8 +1,5 @@
 ﻿@* File: /Areas/Admin/Views/DemoSchedules/DemoSchedules.cshtml *@
 
-@model IEnumerable<ShowTime>
-@* Model có thể không cần thiết nếu bạn không dùng nó, nhưng để đó không sao *@
-
 @{
     ViewData["Title"] = "Visual Schedule Editor";
     var moviesList = ViewBag.Movies as IEnumerable<dynamic>;
@@ -12,7 +9,6 @@
 <!-- Thư viện CSS của FullCalendar -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
 <style>
-    /* CSS tùy chỉnh để giao diện đẹp hơn */
     #external-events-container {
         border: 1px solid #ddd;
         background: #f8f9fa;
@@ -22,7 +18,7 @@
 
     #external-events {
         padding: 1rem;
-        height: calc(100vh - 200px);
+        height: calc(100vh - 250px); /* Điều chỉnh chiều cao cho phù hợp */
         overflow-y: auto;
     }
 
@@ -50,12 +46,29 @@
         </div>
         <div class="card-body">
             @Html.AntiForgeryToken()
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="cinemaFilter" class="form-label fw-bold">Select Cinema to Manage:</label>
+                    <select id="cinemaFilter" class="form-select">
+                        <option value="0" selected>-- All Cinemas --</option>
+                        @if (cinemasList != null)
+                        {
+                            foreach (var cinema in cinemasList)
+                            {
+                                <option value="@cinema.Id">@cinema.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-lg-2">
                     <div id="external-events-container">
                         <div id="external-events">
                             <h5 class="text-center border-bottom pb-2">Now Showing Movies</h5>
-                            <p class="text-muted text-center small">Drag a movie onto the calendar to schedule it.</p>
+                            <p class="text-muted text-center small">Drag a movie onto the calendar.</p>
                             @if (moviesList != null)
                             {
                                 foreach (var movie in moviesList)
@@ -77,8 +90,7 @@
     </div>
 </div>
 
-<!-- Modal để chọn Rạp và Phòng khi thả phim vào lịch -->
-<!-- Modal để chọn Rạp và Phòng khi thả phim vào lịch -->
+<!-- Modal để chọn Rạp và Phòng -->
 <div class="modal fade" id="selectRoomModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -90,7 +102,6 @@
                 <form id="createScheduleFromDropForm">
                     <input type="hidden" id="droppedMovieId" />
                     <input type="hidden" id="droppedStartDate" />
-
                     <div class="mb-3">
                         <label class="form-label fw-bold">Movie</label>
                         <input type="text" class="form-control" id="droppedMovieTitle" disabled />
@@ -130,31 +141,19 @@
     </div>
 </div>
 
-
-
 @section Scripts {
-    <!-- Thư viện FullCalendar và các plugin cần thiết -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/interaction/main.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
-            if (!calendarEl) {
-                console.error("Calendar element #calendar not found!");
-                return;
-            }
-
             var containerEl = document.getElementById('external-events');
             var createScheduleModal = new bootstrap.Modal(document.getElementById('selectRoomModal'));
             var token = $('input[name="__RequestVerificationToken"]').val();
 
-            // Kích hoạt kéo-thả cho các mục phim
-            new FullCalendar.Draggable(containerEl, {
-                itemSelector: '.fc-event'
-            });
+            new FullCalendar.Draggable(containerEl, { itemSelector: '.fc-event' });
 
-            // Khởi tạo Lịch
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 headerToolbar: {
                     left: 'prev,next today',
@@ -164,24 +163,26 @@
                 initialView: 'timeGridWeek',
                 editable: true,
                 droppable: true,
-                // Tạo URL động và chính xác
-                events: '@Url.Action("GetSchedulesForCalendar", "DemoSchedules", new { area = "Admin" })',
-
-                // Bắt sự kiện khi tải lịch bị lỗi
-                failure: function(error) {
-                    toastr.error("Failed to load schedule data. Check console (F12) for details.");
-                    console.error("Error loading events:", error);
-                },
 
                 drop: function(info) {
                     info.jsEvent.preventDefault();
+
                     document.getElementById('droppedMovieId').value = info.draggedEl.getAttribute('data-movie-id');
                     document.getElementById('droppedMovieTitle').value = info.draggedEl.getAttribute('data-movie-title');
                     document.getElementById('droppedStartDate').value = info.dateStr;
                     var showDateTime = new Date(info.dateStr);
                     document.getElementById('droppedTimeDisplay').value = showDateTime.toLocaleString();
+
+                    var selectedCinemaIdOnPage = $('#cinemaFilter').val();
+
                     $('#modalCinemaID').val('');
                     $('#modalRoomID').html('<option value="">-- Select Cinema First --</option>');
+
+                    if (selectedCinemaIdOnPage && selectedCinemaIdOnPage !== '0') {
+                        $('#modalCinemaID').val(selectedCinemaIdOnPage);
+                        $('#modalCinemaID').trigger('change');
+                    }
+
                     createScheduleModal.show();
                 },
 
@@ -211,10 +212,33 @@
                 },
             });
 
-            // Quan trọng: Phải gọi render() để lịch hiển thị
-            calendar.render();
+            function refetchCalendarEvents() {
+                var selectedCinemaId = $('#cinemaFilter').val();
+                toastr.info('Loading schedule for the selected cinema...');
 
-            // Logic của Modal (giữ nguyên nhưng đảm bảo URL đúng)
+                calendar.getEventSources().forEach(function(source) {
+                    source.remove();
+                });
+
+                calendar.addEventSource({
+                    url: '@Url.Action("GetSchedulesForCalendar", "DemoSchedules", new { area = "Admin" })',
+                    extraParams: {
+                        cinemaId: selectedCinemaId
+                    },
+                    failure: function(error) {
+                        toastr.error("Failed to load schedule data. Check Network tab (F12) for server errors.");
+                        console.error("Error loading events from server:", error);
+                    }
+                });
+            }
+
+            $('#cinemaFilter').on('change', function() {
+                refetchCalendarEvents();
+            });
+
+            calendar.render();
+            refetchCalendarEvents();
+
             $('#saveDroppedEvent').click(function() {
                 var startDate = new Date($('#droppedStartDate').val());
                 var timeString = startDate.toTimeString().split(' ')[0].substring(0, 5);
@@ -233,7 +257,7 @@
                     .done(function(response) {
                         if (response.success) {
                             toastr.success(response.message);
-                            calendar.refetchEvents();
+                            refetchCalendarEvents();
                             createScheduleModal.hide();
                         } else {
                             toastr.error(response.message);
@@ -244,7 +268,7 @@
                     });
             });
 
-             $('#modalCinemaID').change(function() {
+            $('#modalCinemaID').change(function() {
                 var cinemaId = $(this).val();
                 loadRooms(cinemaId, $('#modalRoomID'));
             });
