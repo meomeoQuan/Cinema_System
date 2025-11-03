@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using Cinema.DataAccess.Data;
+﻿using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
@@ -10,6 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using static QRCoder.PayloadGenerator;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -120,56 +121,68 @@ namespace Cinema_System.Areas.Admin.Controllers
         {
             var movie = await _unitOfWork.Movie.GetAsync(r => r.MovieID == id);
             if (movie == null)
-            {
                 return Json(new { success = false, message = "Movie not found." });
-            }
 
             if (string.IsNullOrWhiteSpace(field) || string.IsNullOrWhiteSpace(value))
-            {
                 return Json(new { success = false, message = "Invalid field or value." });
-            }
-            switch (field.ToLower())
-            {
-                case "title":
-                    movie.Title = value.Trim();
-                    break;
-                case "genre":
-                    movie.Title = value.Trim();
-                    break;
-                case "synopsis":
-                    movie.Synopsis = value.Trim();
-                    break;
-                case "trailer":
-                    if (!string.IsNullOrWhiteSpace(value) && !Regex.IsMatch(value, @"^(https?://)?(www\.)?(youtube\.com|youtu\.?be)/.+$"))
-                    {
-                        return Json(new { success = false, message = "Invalid YouTube link." });
-                    }
-                    movie.TrailerLink = value.Trim();
-                    break;
-                case "duration":
-                    if (!int.TryParse(value, out int duration) || duration <= 0)
-                    {
-                        return Json(new { success = false, message = "Invalid duration." });
-                    }
-                    movie.Duration = duration;
-                    break;
-                case "releasetime":
-                    if (!DateTime.TryParse(value, out DateTime releaseDate))
-                    {
-                        return Json(new { success = false, message = "Invalid release date." });
-                    }
-                    movie.ReleaseDate = releaseDate;
-                    break;
-                default:
-                    return Json(new { success = false, message = "Invalid field update request." });
-            }
-  
-            _unitOfWork.Movie.Update(movie);
-            await _unitOfWork.SaveAsync();
-            movie.UpdatedAt = DateTime.Now;
 
-            return Json(new { success = true, message = "Movie updated successfully." });
+            try
+            {
+                switch (field.Trim().ToLower())
+                {
+                    case "title":
+                        movie.Title = value.Trim();
+                        break;
+
+                    case "genre":
+                        movie.Genre = value.Trim();
+                        break;
+
+                    case "synopsis":
+                        movie.Synopsis = value.Trim();
+                        break;
+
+                    case "trailer":
+                        if (!string.IsNullOrWhiteSpace(value) &&
+                            !Regex.IsMatch(value, @"^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$", RegexOptions.IgnoreCase))
+                        {
+                            return Json(new { success = false, message = "Invalid YouTube link." });
+                        }
+                        movie.TrailerLink = value.Trim();
+                        break;
+
+                    case "duration":
+                        if (!int.TryParse(value, out int duration) || duration <= 0)
+                            return Json(new { success = false, message = "Invalid duration." });
+
+                        movie.Duration = duration;
+                        break;
+
+                    case "releasedate":
+                        if (!DateTime.TryParseExact(value, new[] { "yyyy-MM-dd", "MM/dd/yyyy", "dd-MM-yyyy" },
+                            CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime releaseDate))
+                        {
+                            return Json(new { success = false, message = "Invalid release date format." });
+                        }
+                        movie.ReleaseDate = releaseDate;
+                        break;
+
+                    default:
+                        return Json(new { success = false, message = "Invalid field update request." });
+                }
+
+                movie.UpdatedAt = DateTime.Now;
+                _unitOfWork.Movie.Update(movie);
+                await _unitOfWork.SaveAsync();
+
+                return Json(new { success = true, message = "Movie updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Update failed: {ex.Message}" });
+            }
         }
+
 
 
         private async Task<string> ValidateMovie(Movie movie)
@@ -178,7 +191,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             movie.Genre = movie.Genre.Trim();
             movie.Synopsis = movie.Synopsis?.Trim();
             movie.TrailerLink = movie.TrailerLink?.Trim();
-            if (!await CheckLinkAsync(movie.MovieImage, "text/html"))
+            if (!await CheckLinkAsync(movie.TrailerLink, "text/html"))
             {
                 return "Invalid Trailer Link";
             }

@@ -92,8 +92,13 @@
                 
                 <div class="mb-3">
                     <label class="form-label">Release Date</label>
-                    <input type="date" class="form-control" id="movieReleaseDate" name="ReleaseDate" required>
+                    <div class="d-flex gap-2">
+                        <select id="releaseDay" class="form-select" required></select>
+                        <select id="releaseMonth" class="form-select" required></select>
+                        <select id="releaseYear" class="form-select" required></select>
+                    </div>
                 </div>
+
    
                 <div class="mb-3">
                     <label class="form-label">Trailer</label>
@@ -115,62 +120,38 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/natural.js"></script>
+
     <script>
         $(document).ready(function () {
+            // === Init DataTable ===
             $('#tblData').DataTable({
-                "pageLength": 10,
-                "lengthMenu": [5, 10, 25, 50],
-                "searching": true,
-                "ordering": true,
-                "columnDefs": [
-                    { "type": "natural", "targets": 0 }
-                ]
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                searching: true,
+                ordering: true,
+                columnDefs: [{ type: 'natural', targets: 0 }]
             });
 
-            $('#addBtn').click(function () {
-                $('#add-form').toggleClass('d-none');
-            });
+            $('#addBtn').click(() => $('#add-form').toggleClass('d-none'));
 
-            // Inline editing
-            $('#tblData').on('blur', 'td[contenteditable="true"]', function() {
-                var id = $(this).data('id');
-                var field = $(this).data('field');
-                var value = $(this).text().trim();
+            initDateDropdowns('#releaseDay', '#releaseMonth', '#releaseYear');
 
-                if (!value) {
-                    toastr.error('Field cannot be empty.');
+            // === Add form submit ===
+            $('#createForm').submit(function (e) {
+                e.preventDefault();
+                const releaseDate = buildDateFromDropdown('#releaseDay', '#releaseMonth', '#releaseYear');
+                if (!releaseDate) {
+                    toastr.error('Please select a valid release date.');
                     return;
                 }
 
-                $.ajax({
-                    url: '/Admin/Movies/UpdateField',
-                    type: 'POST',
-                    data: {
-                        id,
-                        field,
-                        value,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        response.success ? toastr.success(response.message) : toastr.error(response.message);
-                        if (response.success) location.reload();
-                    },
-                    error: function(xhr) {
-                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
-                    }
-                });
-
-            });
-
-            $('#createForm').submit(function (e) {
-                e.preventDefault();
-                let data = {
+                const data = {
                     Title: $('#movieTitle').val(),
                     Genre: $('#movieGenre').val(),
                     Synopsis: $('#movieSynopsis').val(),
                     TrailerLink: $('#movieTrailerLink').val(),
                     Duration: $('#movieDuration').val(),
-                    ReleaseDate: $('#movieReleaseDate').val(),
+                    ReleaseDate: releaseDate,
                     MovieImage: $('#movieImage').val()
                 };
 
@@ -182,32 +163,187 @@
                     headers: {
                         "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
                     },
-                    success: function (response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            setTimeout(() => location.reload(), 1000);
-                        } else {
-                            toastr.error(response.message);
-                        }
+                    success: res => {
+                        res.success ? (toastr.success(res.message), setTimeout(() => location.reload(), 1000))
+                                    : toastr.error(res.message);
                     },
-                    error: function (xhr) {
-                        toastr.error(xhr.responseJSON?.message || 'Error processing request.');
-                    }
+                    error: xhr => toastr.error(xhr.responseJSON?.message || 'Error processing request.')
                 });
             });
         });
 
+        // === Inline Edit ===
         function enableEdit(button) {
-            var row = $(button).closest('tr');
-            row.find('td[data-field]').attr('contenteditable', 'true').addClass('editable');
-            $(button).removeClass('btn-primary').addClass('btn-success save-btn').html('<i class="bi bi-check-circle-fill me-1"></i>Save').attr('onclick', 'saveEdit(this)');
+            const row = $(button).closest('tr');
+            row.find('td[data-field]').each(function () {
+                const field = $(this).data('field');
+                const val = $(this).text().trim();
+                $(this).data('original', val);
+
+                if (field === 'ReleaseDate') {
+                    const [day, month, year] = val.split('-');
+                    $(this).html(`
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <select class="form-select form-select-sm day" style="width:65px;"></select>
+                            <select class="form-select form-select-sm month" style="width:90px;"></select>
+                            <select class="form-select form-select-sm year" style="width:85px;"></select>
+                        </div>
+                    `);
+
+                    const daySel = $(this).find('.day');
+                    const monthSel = $(this).find('.month');
+                    const yearSel = $(this).find('.year');
+                    initDateDropdowns(daySel, monthSel, yearSel);
+
+                    daySel.val(parseInt(day));
+                    monthSel.val(parseInt(month));
+                    yearSel.val(parseInt(year));
+
+                    // Khi chọn năm/tháng => cập nhật lại số ngày (hợp lệ)
+                    monthSel.add(yearSel).on('change', () => updateDaysDropdown(daySel, monthSel, yearSel));
+                } else {
+                    $(this).attr('contenteditable', 'true').addClass('editable');
+                }
+            });
+
+            $(button)
+                .removeClass('btn-primary')
+                .addClass('btn-success')
+                .html('<i class="bi bi-check-circle-fill me-1"></i>Save')
+                .attr('onclick', 'saveEdit(this)');
         }
 
         function saveEdit(button) {
-            var row = $(button).closest('tr');
-            row.find('td[data-field]').removeAttr('contenteditable').removeClass('editable');
-            $(button).removeClass('btn-success save-btn').addClass('btn-primary').html('<i class="bi bi-pencil-square me-1"></i>Edit').attr('onclick', 'enableEdit(this)');
+    const row = $(button).closest('tr');
+    const updates = [];
+
+    row.find('td[data-field]').each(function () {
+        const field = $(this).data('field');
+        const id = $(this).data('id');
+        const original = $(this).data('original') || '';
+        let current = original;
+
+        if (field === 'ReleaseDate') {
+            const day = $(this).find('.day').val();
+            const month = $(this).find('.month').val();
+            const year = $(this).find('.year').val();
+
+            if (day && month && year) {
+                const display = `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                const newDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                current = display;
+
+                if (display !== original) {
+                    updates.push({ id, field, value: newDate, display });
+                }
+                $(this).text(display);
+            } else {
+                $(this).text(original);
+            }
+        } else {
+            const val = $(this).text().trim();
+            if (val !== original) {
+                updates.push({ id, field, value: val });
+            }
+            $(this).removeAttr('contenteditable').removeClass('editable');
+        }
+    });
+
+    $(button)
+        .removeClass('btn-success')
+        .addClass('btn-primary')
+        .html('<i class="bi bi-pencil-square me-1"></i>Edit')
+        .attr('onclick', 'enableEdit(this)');
+
+    if (updates.length === 0) {
+        toastr.info('No changes to save.');
+        return;
+    }
+
+    // Gửi từng field update qua AJAX, không reload lại trang
+    updates.forEach(u => {
+        $.ajax({
+            url: '/Admin/Movies/UpdateField',
+            type: 'POST',
+            data: {
+                id: u.id,
+                field: u.field,
+                value: u.value,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: res => {
+                if (res.success) {
+                    toastr.success(res.message);
+                    // Cập nhật hiển thị ngay
+                    const cell = row.find(`td[data-field="${u.field}"]`);
+                    if (u.display) cell.text(u.display);
+                    else cell.text(u.value);
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: xhr => toastr.error(xhr.responseJSON?.message || 'Error processing request.')
+        });
+    });
+}
+
+
+        // === Helpers ===
+        function buildDateFromDropdown(daySel, monthSel, yearSel) {
+            const day = $(daySel).val();
+            const month = $(monthSel).val();
+            const year = $(yearSel).val();
+            if (!day || !month || !year) return null;
+            if (!isValidDate(day, month, year)) return null;
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+
+                function initDateDropdowns(daySel, monthSel, yearSel) {
+            const days = $(daySel), months = $(monthSel), years = $(yearSel);
+
+            // Ngày
+            days.empty().append(`<option value="">Day</option>`);
+            for (let i = 1; i <= 31; i++) {
+                days.append(`<option value="${i}">${i}</option>`);
+            }
+
+            // Tháng
+            months.empty().append(`<option value="">Month</option>`);
+            for (let i = 1; i <= 12; i++) {
+                months.append(`<option value="${i}">${i}</option>`);
+            }
+
+            // Năm: hiện tại → +10 năm sau
+            years.empty().append(`<option value="">Year</option>`);
+            const currentYear = new Date().getFullYear();
+            const maxYear = currentYear + 10;
+            for (let y = currentYear; y <= maxYear; y++) {
+                years.append(`<option value="${y}">${y}</option>`);
+            }
+        }
+
+
+        // Cập nhật dropdown ngày khi đổi tháng hoặc năm
+        function updateDaysDropdown(daySel, monthSel, yearSel) {
+            const month = parseInt($(monthSel).val());
+            const year = parseInt($(yearSel).val());
+            const daysInMonth = getDaysInMonth(month, year);
+            const selectedDay = $(daySel).val();
+            $(daySel).empty().append('<option value="">Day</option>');
+            for (let i = 1; i <= daysInMonth; i++) $(daySel).append(`<option value="${i}">${i}</option>`);
+            if (selectedDay && selectedDay <= daysInMonth) $(daySel).val(selectedDay);
+        }
+
+        // Kiểm tra số ngày trong tháng
+        function getDaysInMonth(month, year) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        // Kiểm tra ngày hợp lệ (ví dụ không cho 31/02)
+        function isValidDate(day, month, year) {
+            const d = new Date(`${year}-${month}-${day}`);
+            return d.getFullYear() == year && d.getMonth() + 1 == month && d.getDate() == day;
         }
     </script>
 }
-@Html.AntiForgeryToken()
+
