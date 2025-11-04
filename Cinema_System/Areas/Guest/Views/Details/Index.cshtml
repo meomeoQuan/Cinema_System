@@ -27,45 +27,6 @@
 				</div>
 			</section>
 
-			<!-- Section 2: Booking Options -->
-			@* <section id="booking-options" class="mb-5"> *@
-			@* 	<h2 class="text-center">SHOWTIMES</h2> *@
-			@* <!-- Chọn thành phố --> *@
-			@* 		<div class="col-md-4"> *@
-			@* 			<label for="cinemaCity">Choose city</label> *@
-			@* 			<select id="cinemaCity" class="form-control"> *@
-			@* 				<option value="">-- Select a City --</option> *@
-			@* 			</select> *@
-			@* 		</div> *@
-
-			@* 		<!-- Chọn rạp --> *@
-			@* 		<div class="col-md-4"> *@
-			@* 			<label for="cinema">Choose cinema</label> *@
-			@* 			<select id="cinema" class="form-control"> *@
-			@* 				<option value="">-- Select a Theater --</option> *@
-			@* 			</select> *@
-			@* 		</div> *@
-
-			@* 		<!-- Chọn ngày --> *@
-			@* 		<div class="col-md-4"> *@
-			@* 			<label for="date">Choose date</label> *@
-			@* 			<input asp-for="Movie.MovieID" hidden /> *@
-			@* 			<select id="date" class="form-control"> *@
-			@* 				<option value="">-- Select a Date --</option> *@
-			@* 			</select> *@
-			@* 		</div> *@
-
-			@* 		<!-- Chọn giờ --> *@
-			@* 		<div class="col-md-4 mt-3"> *@
-			@* 			<label for="time">Choose time</label> *@
-			@* 			<select id="time" class="form-control"> *@
-			@* 				<option>-- Select a Time --</option> *@
-			@* 			</select> *@
-			@* 		</div> *@
-			@* 	</div> *@
-			@* </section> *@
-		@* <section id="booking-options" class="mb-5"> *@
-		@* 	<h2 class="text-center">SHOWTIMES</h2> *@
 
 		 	<div class="row g-3"> 
 		 		<!-- Chọn thành phố --> 
@@ -154,27 +115,27 @@
 				</div>
 			</section>
 
-			<!-- Section 5: Booking Summary -->
-			<section id="booking-summary" class="mb-5 d-none">
-				<!--<h2>Booking Summary</h2>-->
-				<div class="row align-items-center">
-					<div class="col-md-2">
+		<!-- Section 5: Booking Summary -->
+		<section id="booking-summary" class="mb-5 d-none">
+			<!--<h2>Booking Summary</h2>-->
+			<div class="row align-items-center">
+				<div class="col-md-2">
 					<p><strong>Movie:</strong> @Model.Movie.Title</p>
-					</div>
-					<div class="col-md-3">
-						<p><strong>Food:</strong> <span id="selected-foods">No food selected</span></p>
-					</div>
-					<div class="col-md-2">
-						<p><strong>Time expired:</strong> <span id="countdown">05:00</span></p>
-					</div>	
-					<div class="col-md-2">
+				</div>
+				<div class="col-md-3">
+					<p><strong>Food:</strong> <span id="selected-foods">No food selected</span></p>
+				</div>
+				<div class="col-md-2">
+					<p><strong>Time expired:</strong> <span id="countdown">05:00</span></p>
+				</div>
+				<div class="col-md-2">
 					<p><strong>Total:</strong> <span id="total-price">0 VND</span></p>
-					</div>
-					<div class="col-md-2">
-					<p><strong>Coupon:</strong> <input style="width: 70px" class="coupon" type="text"/></p>
-					</div>
-					<div class="col-md-1">
-					<form id="booking-form" asp-action="CreatePayment" asp-controller="Payment" asp-area="Guest"  method="post">
+				</div>
+				<div class="col-md-2">
+					<p><strong>Coupon:</strong> <input style="width: 70px" class="coupon" type="text" /></p>
+				</div>
+				<div class="col-md-1">
+					<form id="booking-form" asp-action="PaymentSummary" asp-controller="Payment" asp-area="Guest" method="post">
 						<input type="hidden" id="totalAmountInput" name="totalAmount" value="0" />
 
 						<!-- Input hidden để chứa danh sách ghế -->
@@ -185,10 +146,11 @@
 
 						<button type="button" id="book-btn" class="btn btn-success">Book</button>
 					</form>
-					
-					</div>
+
 				</div>
-			</section>
+			</div>
+		</section>
+
 
 			
 			

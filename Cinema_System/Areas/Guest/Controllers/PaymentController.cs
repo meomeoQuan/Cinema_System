@@ -1,24 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Cinema_System.Areas.Service;
-using Cinema_System.Areas.Request;
-using Net.payOS;
-using Net.payOS.Types;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Cinema.DataAccess.Data;
+using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
-using SQLitePCL;
-using Cinema.DataAccess.Data;
-using QRCoder;
-using System.Drawing.Imaging;
-using System.Drawing;
+using Cinema.Utility;
+using Cinema_System.Areas.Request;
+using Cinema_System.Areas.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using System.Text;
-using Cinema.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Net.payOS;
+using Net.payOS.Types;
+using QRCoder;
+using SQLitePCL;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Cinema_System.Areas
 {
@@ -31,93 +33,132 @@ namespace Cinema_System.Areas
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailSender _emailSender;
-        //private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
         public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context,
-            IEmailSender emailSender)
+            IEmailSender emailSender, UserManager<IdentityUser> userManager)
         {
             _payOSService = payOSService;
             _payOS = payOS;
             _context = context;
             _emailSender = emailSender;
-            //_userManager = userManager;
+            _userManager = userManager;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePayment([FromBody] PaymentRequest request)
+        public async Task<IActionResult> PaymentSummary([FromBody]PaymentRequest request)
+        {
+            return View(request);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePayment(PaymentRequest request)
         {
             if (request == null || request.TotalAmount <= 0)
             {
                 return BadRequest("Invalid payment request.");
             }
 
-            Coupon coupon = _context.Coupons.FirstOrDefault(c => c.Code == request.Coupon);
+            // 🔍 Find coupon
+            var coupon = _context.Coupons.FirstOrDefault(c => c.Code == request.Coupon);
 
-            OrderTable order = new OrderTable
+            // 👤 Check if user exists by email
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            // 🆕 Create if not exists
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = request.Email,
+                    Email = request.Email,
+                    Role = SD.Role_Guest,
+                };
+                var createResult = await _userManager.CreateAsync(user, "Default@123");
+
+                if (!createResult.Succeeded)
+                {
+                    return BadRequest("Failed to create user account.");
+                }
+            }
+
+            // 🧾 Create new order
+            var order = new OrderTable
             {
                 Status = OrderStatus.Pending,
                 TotalAmount = request.TotalAmount,
-                UserID = "a1234567-b89c-40d4-a123-456789abcdef",
+                UserID = user.Id,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CouponID = (coupon != null) ? coupon.CouponID : null
+                CouponID = coupon?.CouponID
             };
 
             _context.OrderTables.Add(order);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // get order ID
 
             int orderId = order.OrderID;
-
-            // Chuẩn bị danh sách sản phẩm từ Seats & Foods
             var items = new List<ItemData>();
+            var orderDetails = new List<OrderDetail>();
 
-            // Thêm ghế vào danh sách
+            // 🎟️ Add seats
             foreach (var seat in request.Seats)
             {
-                ShowtimeSeat showtimeSeat = _context.showTimeSeats.Find(seat.showTimeSeatId);
-                items.Add(new ItemData($"Seat {seat.nameSeat}", 1, (int)showtimeSeat.Price));
-                _context.OrderDetails.Add(new OrderDetail
+                var showtimeSeat = await _context.showTimeSeats.FindAsync(seat.showTimeSeatId);
+                if (showtimeSeat != null)
                 {
-                    OrderID = orderId,
-                    ShowtimeSeatID = seat.showTimeSeatId,
-                    Quantity = 1,
-                    Price = showtimeSeat.Price,
-
-                });
-                await _context.SaveChangesAsync();
+                    items.Add(new ItemData($"Seat {seat.nameSeat}", 1, (int)showtimeSeat.Price));
+                    orderDetails.Add(new OrderDetail
+                    {
+                        OrderID = orderId,
+                        ShowtimeSeatID = seat.showTimeSeatId,
+                        Quantity = 1,
+                        Price = showtimeSeat.Price
+                    });
+                }
             }
 
-            // Thêm thức ăn vào danh sách
+            // 🍿 Add food
             foreach (var food in request.Items)
             {
-                items.Add(new ItemData(food.name, food.quantity, food.price));
-                _context.OrderDetails.Add(new OrderDetail
+                var product = _context.Products.FirstOrDefault(p => p.Name == food.name);
+                if (product != null)
                 {
-                    OrderID = orderId,
-                    ProductID = _context.Products.FirstOrDefault(p => p.Name == food.name).ProductID,
-                    Quantity = food.quantity,
-                    Price = food.price,
-                });
-                await _context.SaveChangesAsync();
-
+                    items.Add(new ItemData(food.name, food.quantity, food.price));
+                    orderDetails.Add(new OrderDetail
+                    {
+                        OrderID = orderId,
+                        ProductID = product.ProductID,
+                        Quantity = food.quantity,
+                        Price = food.price
+                    });
+                }
             }
 
-            var couponPrice = 0;
+            // Save all details once
+            _context.OrderDetails.AddRange(orderDetails);
+            await _context.SaveChangesAsync();
 
+            // 💸 Coupon discount
+            int discount = 0;
             if (coupon != null)
             {
-                couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
-                items.Add(new ItemData(coupon.Code, 1, couponPrice));
+                discount = (int)(request.TotalAmount * coupon.DiscountPercentage / 100);
+                items.Add(new ItemData($"Coupon {coupon.Code}", 1, -discount));
             }
-            // Gọi dịch vụ PayOS để tạo thanh toán
-            var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
+
+            int finalAmount = request.TotalAmount - discount;
+
+            // 🔗 Call PayOS
+            var response = await _payOSService.CreatePaymentAsync(finalAmount, orderId, items, _payOS);
 
             if (response.error == 0)
             {
-                return Json(new { paymentUrl = ((CreatePaymentResult)response.data).checkoutUrl });
+                var paymentResult = (CreatePaymentResult)response.data;
+                return Json(new { paymentUrl = paymentResult.checkoutUrl });
             }
 
             return BadRequest("Payment failed.");
         }
+
 
 
         // Trang hủy
@@ -181,7 +222,7 @@ namespace Cinema_System.Areas
             string secretKey = "h23hriu2ibfas92"; // Store securely in app settings or environment variables optional
             string orderId = order.OrderID.ToString();
             string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-            string ? validationUrl = "";
+            string? validationUrl = "";
             // 🔐 Generate HMAC-SHA256 token
             using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
             {
@@ -191,8 +232,8 @@ namespace Cinema_System.Areas
                 string token = Convert.ToBase64String(hash); // Encode as Base64
 
                 // 🏷️ Generate the Secure Validation URL
-                 validationUrl = Url.Action("ValidAuthentication", "Staff",
-                    new { area = "Staff", OrderID = orderId, Key = token, Timestamp = timestamp }, Request.Scheme);
+                validationUrl = Url.Action("ValidAuthentication", "Staff",
+                   new { area = "Staff", OrderID = orderId, Key = token, Timestamp = timestamp }, Request.Scheme);
             }
 
 

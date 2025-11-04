@@ -16,9 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
 PayOS payOs = new PayOS(
-    configuration["PayOs:ClientId"] ?? throw new Exception("Cannot find environment"),
-    configuration["PayOs:ApiKey"] ?? throw new Exception("Cannot find environment"),
-    configuration["PayOs:CheckSumKey"] ?? throw new Exception("Cannot find environment"));
+    configuration["PayOS:ClientId"] ?? throw new Exception("Cannot find environment"),
+    configuration["PayOS:ApiKey"] ?? throw new Exception("Cannot find environment"),
+    configuration["PayOS:CheckSumKey"] ?? throw new Exception("Cannot find environment"));
 
 builder.Services.AddSingleton(payOs);
 

@@ -12,6 +12,7 @@ namespace Cinema.Models
         [NotMapped]
         public string Role { get; set; }
 
+        public bool IsAnonymous { get; set; } = false;
         public string? UserImage { get; set; }
         public int Points { get; set; } = 0;
         [InverseProperty("Admin")]

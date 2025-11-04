@@ -15,11 +15,11 @@ namespace Cinema.Models
 
         public int? OrderID { get; set; } // ✔️ Cách chuẩn nhất
 
+        public int ? ScanTurnNumber { get; set; } = 0;
+        public bool IsScanned { get; set; } = false;
 
         [NotMapped] // Không lưu vào database
         public string? TempId { get; set; } // Dùng cho session
-
-        //public string UserId { get; set; } // Nullable cho khách
 
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
@@ -57,13 +57,6 @@ namespace Cinema.Models
             get { return Price * Quantity; }
             set { }
         }
-
-        // remove this if error occured
-        //[ForeignKey("UserID")]
-        //[ValidateNever]
-        //public virtual ApplicationUser User { get; set; }
-
-        //
 
         [ForeignKey("OrderID")]
         [ValidateNever]

@@ -154,6 +154,8 @@ async function updateTotal() {
 
     // Cập nhật giá trị của input hidden
     $('#totalAmountInput').val(total);
+
+
     if (total > 0) {
         document.getElementById("booking-summary").classList.remove("d-none");
     } else {
@@ -195,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 productHtml.innerHTML += content;
             })
             addEventListenersForButtons();
-            
+
         })
 });
 
@@ -241,13 +243,28 @@ document.getElementById('book-btn').addEventListener('click', function () {
     })
 
     let coupon = document.querySelector(".coupon").value;
-
+    let email = document.getElementById("emailInput").value;
+    console.log("email: ", email);
     let bookingData = {
+        Email: email,
         Coupon: coupon,
-                Seats: selectedSeats,
+        Seats: selectedSeats,
         Items: selectedFoods,
         TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, "") // Chuyển đổi số tiền
     };
+    console.log("booking data: ", bookingData);
+    ///Guest/Payment / OrderSummary
+    fetch('/Guest/Payment/PaymentSummary', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingData)
+    })
+        .then(response => response.text()) // <- Razor returns HTML
+        .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+        });
 
     fetch(`/Guest/Payment/CreatePayment`, {
         method: 'POST',
@@ -265,6 +282,8 @@ document.getElementById('book-btn').addEventListener('click', function () {
         })
         .catch(error => console.error("Lỗi khi gọi API:", error));
 })
+
+console.log("Data payment url: ", data.paymentUrl);
 
 $(document).ready(function () {
     // Submit the form
@@ -395,4 +414,4 @@ document.getElementById("date").addEventListener("change", function () {
     } else if (!seatSelection.classList.contains("d-none")) {
         seatSelection.classList.add("d-none");
     }
-});
+});  

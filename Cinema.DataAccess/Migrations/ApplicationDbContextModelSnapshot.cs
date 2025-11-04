@@ -306,6 +306,9 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
+                    b.Property<bool>("IsScanned")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("OrderID")
                         .HasColumnType("int");
 
@@ -317,6 +320,9 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnName("ProductID");
 
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ScanTurnNumber")
                         .HasColumnType("int");
 
                     b.Property<int?>("ShowtimeSeatID")
@@ -1867,6 +1873,9 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Points")
                         .HasColumnType("int");
 
@@ -1893,6 +1902,7 @@ namespace Cinema.DataAccess.Migrations
                             TwoFactorEnabled = false,
                             UserName = "Đào Duy Quý",
                             FullName = "Đào Duy Quý",
+                            IsAnonymous = false,
                             Points = 0,
                             UserImage = "/css/images/user.png"
                         });
