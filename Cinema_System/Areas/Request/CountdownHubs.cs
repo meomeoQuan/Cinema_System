@@ -16,11 +16,12 @@ namespace Cinema_System.Areas.Request
         private static readonly object lockObj = new object();
         private static HashSet<int> selectedSeats = new HashSet<int>(); // To store selected seat IDs
         private static ApplicationDbContext _context;
-        private static ShowtimeSeatApiController showtime = new ShowtimeSeatApiController(_context);
+        private static ShowtimeSeatApiController showtime;
 
         public CountdownHub(ApplicationDbContext context)
         {
             _context = context;
+            showtime = new ShowtimeSeatApiController(_context);
         }
 
         public async Task StartCountdown()

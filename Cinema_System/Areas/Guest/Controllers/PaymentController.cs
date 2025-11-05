@@ -247,12 +247,12 @@ namespace Cinema_System.Areas
 
 
             // Gửi QR code qua email
-            //await GenerateTicket(order);
+            await GenerateTicket(order,order.User.Email);
 
             return View();
         }
 
-        public async Task GenerateTicket(OrderTable order)
+        public async Task GenerateTicket(OrderTable order,string emailUser)
         {
 
 
@@ -302,7 +302,7 @@ namespace Cinema_System.Areas
                 using (var message = new MailMessage())
                 {
                     message.From = new MailAddress("DE180924ngoanhquan@gmail.com"); // Sender
-                    message.To.Add("ngoanhquan0806@gmail.com"); // Recipient
+                    message.To.Add(emailUser); // Recipient
                     message.Subject = "Your Ticket QR Code";
                     message.Body = emailBody;
                     message.IsBodyHtml = true;
@@ -318,11 +318,11 @@ namespace Cinema_System.Areas
                 }
             }
 
-            // Clean up: Delete QR file after sending
-            if (System.IO.File.Exists(qrFilePath))
-            {
-                System.IO.File.Delete(qrFilePath);
-            }
+            //// Clean up: Delete QR file after sending
+            //if (System.IO.File.Exists(qrFilePath))
+            //{
+            //    System.IO.File.Delete(qrFilePath);
+            //}
         }
         //sample url : https://localhost:7115/Staff/Staff/ValidAuthentication?OrderID=3&Key=hcOct9fXJQekxBIFe6Z1awlfk91oRVhS%2Bics1XO8JC8%3D&Timestamp=1742815101
 
@@ -332,27 +332,27 @@ namespace Cinema_System.Areas
 
         //https://localhost:7115/Guest/Payment/TestSendQR?orderId=3 -> test url
         // Test API to send QR code email   
-        [HttpGet]
-        public async Task<IActionResult> TestSendQR(int orderId)
-        {
-            var order = await _context.OrderTables
-                .Include(o => o.User) // Ensure User is loaded
-                .FirstOrDefaultAsync(o => o.OrderID == orderId);
+        //[HttpGet]
+        //public async Task<IActionResult> TestSendQR(int orderId)
+        //{
+        //    var order = await _context.OrderTables
+        //        .Include(o => o.User) // Ensure User is loaded
+        //        .FirstOrDefaultAsync(o => o.OrderID == orderId);
 
-            if (order == null)
-            {
-                return NotFound(new { message = "Order không tồn tại" });
-            }
+        //    if (order == null)
+        //    {
+        //        return NotFound(new { message = "Order không tồn tại" });
+        //    }
 
-            if (order.User == null)
-            {
-                return NotFound(new { message = "User không tồn tại trong đơn hàng" });
-            }
+        //    if (order.User == null)
+        //    {
+        //        return NotFound(new { message = "User không tồn tại trong đơn hàng" });
+        //    }
 
-            await GenerateTicket(order);
+        //    await GenerateTicket(order);
 
-            return Ok("QR Code email sent successfully!");
-        }
+        //    return Ok("QR Code email sent successfully!");
+        //}
 
 
 

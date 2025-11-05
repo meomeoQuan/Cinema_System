@@ -26,34 +26,32 @@ namespace Cinema_System.Areas.Staff.Controllers
         [Authorize(Roles = "Staff")] // 🛡️ Only Staff can access this API
         public async Task<IActionResult> ValidAuthentication(int OrderID, string Key, long Timestamp)
         {
-            //string secretKey = "h23hriu2ibfas92";
-            //string dataToVerify = $"{OrderID}:{Timestamp}";
+            string secretKey = "h23hriu2ibfas92";
+            string dataToVerify = $"{OrderID}:{Timestamp}";
 
 
-            //using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
-            //{
-            //    string expectedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToVerify)));
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                string expectedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToVerify)));
 
-            //    // ❌ Reject if Key doesn't match
-            //    if (expectedHash != Key)
-            //    {
-            //        return Unauthorized("Invalid QR Code");
-            //    }
+                // ❌ Reject if Key doesn't match
+                if (expectedHash != Key)
+                {
+                    return Unauthorized("Invalid QR Code");
+                }
 
-            //// ⏳ Reject if the QR Code is expired (valid for 10 min)
-            //long currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            //if (currentTimestamp - Timestamp > 600) // 600 sec = 10 min
-            //{
-            //    return Unauthorized("QR Code Expired");
-            //}
-            IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderID == OrderID,
-            includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order");
+                // ⏳ Reject if the QR Code is expired (valid for 10 min)
+                long currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                if (currentTimestamp - Timestamp > 600) // 600 sec = 10 min
+                {
+                    return Unauthorized("QR Code Expired");
+                }
+                IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderID == OrderID,
+                includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User");
 
-            // i want to take (Product): Name, Price, Quantity . (ShowtimeSeat.Showtime) : ShowDate (DateTime -> string). (ShowtimeSeat.Showtime.Movie) : Title, Genre, Duration(int -> string ) (ShowtimeSeat.Showtime.Room) : RoomNumber
-            // ShowtimeSeat.Showtime.Room.Cinema -> Name, Address
 
-            // ✅ QR Code is valid, Staff can check the ticket
-            return View(order);
+                return View(order);
+            }
         }
 
 

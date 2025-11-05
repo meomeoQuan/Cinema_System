@@ -67,9 +67,13 @@ document.getElementById("time").addEventListener("change", function () {
                             .configureLogging(signalR.LogLevel.Information)
                             .build();
 
-                        connection.start().then(() => {
-                            console.log("✅ Kết nối SignalR thành công!");
-                        }).catch(err => console.error("❌ Lỗi kết nối SignalR:", err));
+                        if (connection.state === signalR.HubConnectionState.Disconnected) {
+                            connection.start().then(() => {
+                                console.log("✅ Kết nối SignalR thành công!");
+                            }).catch(err => console.error("❌ Lỗi kết nối SignalR:", err));
+                        } else {
+                            console.log("Connection is already started or connecting:", connection.state);
+                        }
 
                         const observer = new MutationObserver((mutationsList) => {
                             mutationsList.forEach(mutation => {

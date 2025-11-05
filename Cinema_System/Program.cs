@@ -107,11 +107,14 @@ builder.Services.AddAuthentication();
 //        policy.RequireRole(SD.Role_Admin));
 //});
 // Add Google authentication
-builder.Services.AddAuthentication().AddGoogle(options =>
-{
-    options.ClientId = "1090292520927-n8hcmp4v0f4u1peg91j9mdadadjdl72u.apps.googleusercontent.com";
-    options.ClientSecret = "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";
-});
+var googleAuth = builder.Configuration.GetSection("GoogleAuth");
+
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = googleAuth["ClientId"];
+        options.ClientSecret = googleAuth["ClientSecret"];
+    });
 
 //------------------------------ Configure Session --------------------------------
 builder.Services.AddDistributedMemoryCache();

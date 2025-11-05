@@ -4,6 +4,8 @@
     ViewData["Title"] = "Ticket Validation";
 }
 
+
+
 <h2>Your Ticket Includes:</h2>
 
 @foreach (var cinemaGroup in Model.GroupBy(o => o.ShowtimeSeat?.Showtime?.Room?.Theater?.Name))
