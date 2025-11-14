@@ -1,6 +1,5 @@
 ﻿@model MovieDetailVM
 
-	
 	<body>
 	<input asp-for="Movie.MovieID" hidden />
 		<div class="container">
@@ -64,44 +63,65 @@
 			@* 		</div> *@
 			@* 	</div> *@
 			@* </section> *@
-		@* <section id="booking-options" class="mb-5"> *@
-		@* 	<h2 class="text-center">SHOWTIMES</h2> *@
+		<section id="booking-options" class="py-5 mb-5 bg-light rounded-4 shadow-sm">
+			<div class="container">
+				<h2 class="text-center mb-4 fw-bold text-uppercase text-primary">Showtimes</h2>
 
-		 	<div class="row g-3"> 
-		 		<!-- Chọn thành phố --> 
-		 		<div class="col-md-6 d-flex align-items-center gap-2"> 
-		 			<label for="cinemaCity" class="fw-bold">Choose city</label> 
-		 			<select id="cinemaCity" class="form-control"> 
-		 				<option value="">-- Select a City --</option> 
-		 			</select> 
-		 		</div> 
+				<div class="row g-4 justify-content-center">
 
-		 		<!-- Chọn rạp --> 
-		 		<div class="col-md-6 d-flex align-items-center gap-2"> 
-		 			<label for="cinema" class="fw-bold">Choose cinema</label> 
-		 			<select id="cinema" class="form-control"> 
-		 				<option value="">-- Select a Theater --</option> 
-		 			</select> 
-		 		</div> 
+					<!-- Chọn thành phố -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="cinemaCity" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-geo-alt-fill me-2 text-danger"></i>Choose City
+							</label>
+							<select id="cinemaCity" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a City --</option>
+							</select>
+						</div>
+					</div>
 
-		 		<!-- Chọn ngày --> 
-		 		<div class="col-md-6 d-flex align-items-center gap-2"> 
-		 			<label for="date" class="fw-bold">Choose date</label> 
-		 			<input asp-for="Movie.MovieID" hidden /> 
-		 			<select id="date" class="form-control"> 
-		 				<option value="">-- Select a Date --</option> 
-		 			</select> 
-		 		</div> 
+					<!-- Chọn rạp -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="cinema" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-building-fill me-2 text-warning"></i>Choose Cinema
+							</label>
+							<select id="cinema" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a Theater --</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Chọn ngày -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="date" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-calendar-event-fill me-2 text-success"></i>Choose Date
+							</label>
+							<input asp-for="Movie.MovieID" hidden />
+							<select id="date" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a Date --</option>
+							</select>
+						</div>
+					</div>
 
 					<!-- Chọn giờ -->
-					<div class="col-md-4 mt-3">
-						<label for="time">Choose time</label>
-						<select id="time" class="form-control">
-							<option value="">-- Select a Time --</option>
-						</select>
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="time" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-clock-fill me-2 text-info"></i>Choose Time
+							</label>
+							<select id="time" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a Time --</option>
+							</select>
+						</div>
 					</div>
+
 				</div>
-			</section>
+			</div>
+		</section>
+
 
 
 
@@ -183,9 +203,6 @@
 					</div>
 				</div>
 			</section>
-
-			
-			
 			</div>
 	</body>
 

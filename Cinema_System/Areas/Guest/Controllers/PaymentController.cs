@@ -265,7 +265,7 @@ namespace Cinema_System.Areas
             {
                 string dataToSign = $"{orderId}:{timestamp}"; // OrderID + Timestamp
                 byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));
-                string token = Convert.ToBase64String(hash); // Encode as Base64
+                string token = Convert.ToBase64String(hash);// Encode as Base64
 
                 // 🏷️ Generate the Secure Validation URL
                 validationUrl = Url.Action("ValidAuthentication", "Staff",
