@@ -79,5 +79,7 @@ namespace Cinema.Models
         [ForeignKey("ShowtimeSeatID")]
         [ValidateNever]
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
+
+        public bool IsScanned { get; set; } = false; // Mặc định chưa quét
     }
 }

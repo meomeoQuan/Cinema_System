@@ -22,48 +22,17 @@ namespace Cinema_System.Areas.Staff.Controllers
 
 
 
-
-        [HttpGet]
-        [Authorize(Roles = "Staff")] // 🛡️ Only Staff can access this API
-        //public async Task<IActionResult> ValidAuthentication(int OrderID, string Key, long Timestamp)
-        //{
-        //    string secretKey = "h23hriu2ibfas92";
-        //    string dataToVerify = $"{OrderID}:{Timestamp}";
-        //    Key = WebUtility.UrlDecode(Key);
-
-        //    using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
-        //    {
-        //        string expectedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToVerify)));
-
-        //        // ❌ Reject if Key doesn't match
-        //        if (expectedHash != Key)
-        //        {
-        //            return Unauthorized("Invalid QR Code");
-        //        }
-
-        //        // ⏳ Reject if the QR Code is expired (valid for 10 min)
-        //        long currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        //        if (currentTimestamp - Timestamp > 600) // 600 sec = 10 min
-        //        {
-        //            return Unauthorized("QR Code Expired");
-        //        }
-        //        IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderID == OrderID,
-        //        includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User");
-
-
-        //        return View(order);
-        //    }
-        //}
-
-
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ValidAuthentication(string OrderID, string Key, long Timestamp)
+        public async Task<IActionResult> ValidAuthentication(string OrderID, string Key, long Timestamp, bool IsScanned)
         {
             string secretKey = "h23hriu2ibfas92";
             // Không ép kiểu — dùng nguyên string giống khi tạo token
-            string dataToVerify = $"{OrderID}:{Timestamp}";
+            string dataToVerify = $"{OrderID}:{Timestamp}:{IsScanned}";
 
+            var orderDetails = await _unitOfWork.OrderDetail.GetAsync(
+                      u => u.OrderID.ToString() == OrderID
+                  );
             //Key = WebUtility.UrlDecode(Key);
             Console.WriteLine($"[VALIDATE] Token received: {Key}");
             Console.WriteLine($"[VALIDATE] DataToVerify: {dataToVerify}");
@@ -73,24 +42,36 @@ namespace Cinema_System.Areas.Staff.Controllers
                 string expectedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToVerify)));
                 Console.WriteLine($"[VALIDATE] ExpectedHash recomputed: {expectedHash}");
 
-                if (expectedHash != Key)
-                    return Unauthorized("Invalid QR Code");
+                if(!orderDetails.IsScanned)
+                {
+                    
+                    orderDetails.IsScanned = true;
+                    _unitOfWork.OrderDetail.Update(orderDetails);
+                    await _unitOfWork.SaveAsync();
 
-                long currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                if (currentTimestamp - Timestamp > 600)
-                    return Unauthorized("QR Code Expired");
+                    if (expectedHash != Key)
+                        return Unauthorized("Invalid QR Code");
 
-                // Nếu OrderID là số trong DB, convert ở đây:
-                // long parsedOrderId = long.Parse(OrderID);
-                // var order = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderID == parsedOrderId, ...);
+                    long currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    if (currentTimestamp - Timestamp > 604.800) // 7 days in seconds
+                        return Unauthorized("QR Code Expired");
 
-                // Nếu OrderID trên DB là string, dùng trực tiếp:
-                IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(
-                    u => u.OrderID.ToString() == OrderID,
-                    includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
-                );
+                    // Nếu OrderID là số trong DB, convert ở đây:
+                    // long parsedOrderId = long.Parse(OrderID);
+                    // var order = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderID == parsedOrderId, ...);
 
-                return View(order);
+                    // Nếu OrderID trên DB là string, dùng trực tiếp:
+                    IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(
+                        u => u.OrderID.ToString() == OrderID,
+                        includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
+                    );
+                   
+                    return View(order);
+                }
+
+                return Unauthorized("QR code has been scanned");
+
+               
             }
         }
 
