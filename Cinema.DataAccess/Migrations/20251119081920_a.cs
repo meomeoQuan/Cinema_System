@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Cinema.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class dbs : Migration
+    public partial class a : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -429,7 +429,8 @@ namespace Cinema.DataAccess.Migrations
                     ShowtimeSeatID = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    TotalPrice = table.Column<double>(type: "float", nullable: false)
+                    TotalPrice = table.Column<double>(type: "float", nullable: false),
+                    IsScanned = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

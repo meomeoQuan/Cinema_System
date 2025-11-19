@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250404070635_dbs")]
-    partial class dbs
+    [Migration("20251119081920_a")]
+    partial class a
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -308,6 +308,9 @@ namespace Cinema.DataAccess.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
+
+                    b.Property<bool>("IsScanned")
+                        .HasColumnType("bit");
 
                     b.Property<long?>("OrderID")
                         .HasColumnType("bigint");

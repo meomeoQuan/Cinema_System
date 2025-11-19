@@ -219,7 +219,7 @@ namespace Cinema_System.Areas
         }
 
         [HttpGet]
-        public async Task<IActionResult>ReturnUrl(long orderCode)
+        public async Task<IActionResult> ReturnUrl(long orderCode)
         {
             // Tìm đơn hàng trong database với User
             var order = await _context.OrderTables
@@ -247,12 +247,12 @@ namespace Cinema_System.Areas
 
 
             // Gửi QR code qua email
-            await GenerateTicket(order,order.User.Email);
+            await GenerateTicket(order, order.User.Email);
 
             return View();
         }
 
-        public async Task GenerateTicket(OrderTable order,string emailUser)
+        public async Task GenerateTicket(OrderTable order, string emailUser)
         {
 
 

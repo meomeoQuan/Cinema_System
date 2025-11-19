@@ -16,7 +16,7 @@ namespace Cinema_System.Areas.Request
     {
         private class ConnectionState
         {
-            public int CountdownTime { get; set; } = 30; // 30 giây
+            public int CountdownTime { get; set; } = 300; // 30 giây
             public HashSet<int> SelectedSeats { get; } = new HashSet<int>();
             public CancellationTokenSource TimerTokenSource { get; set; }
         }
@@ -131,23 +131,45 @@ namespace Cinema_System.Areas.Request
             }
         }
 
+        public Task<bool> ConfirmBooking()
+        {
+            var cid = Context.ConnectionId;
+            Console.WriteLine($"[SignalR - {cid}] ConfirmBooking: Đang yêu cầu xác nhận...");
+
+            // Cố gắng xóa trạng thái
+            if (_connectionStates.TryRemove(cid, out var state))
+            {
+                state.TimerTokenSource?.Cancel();
+                Console.WriteLine($"[SignalR - {cid}] ConfirmBooking: ✅ THÀNH CÔNG! State đã xóa. Ghế sẽ được giữ.");
+                return Task.FromResult(true);
+            }
+            else
+            {
+                Console.WriteLine($"[SignalR - {cid}] ConfirmBooking: ❌ THẤT BẠI! Không tìm thấy State (có thể đã bị xóa trước đó).");
+                return Task.FromResult(false);
+            }
+        }
+
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            // Xóa trạng thái và lấy ra
-            if (_connectionStates.TryRemove(Context.ConnectionId, out var state))
+            var cid = Context.ConnectionId;
+            // Nếu tìm thấy state ở đây, nghĩa là ConfirmBooking CHƯA chạy hoặc chạy thất bại
+            if (_connectionStates.TryRemove(cid, out var state))
             {
-                // Hủy timer ngay lập tức
-                state.TimerTokenSource?.Cancel();
+                Console.WriteLine($"[SignalR - {cid}] Disconnected: ⚠️ Phát hiện ngắt kết nối mà chưa Confirm -> Đang hủy ghế.");
 
-                // Lấy danh sách ghế để giải phóng
+                state.TimerTokenSource?.Cancel();
                 HashSet<int> seatsToRelease;
-                lock (state.SelectedSeats) // Khóa lại để đọc
+                lock (state.SelectedSeats)
                 {
                     seatsToRelease = new HashSet<int>(state.SelectedSeats);
                 }
-
-                // Giải phóng ghế
                 await ReleaseSeats(seatsToRelease);
+            }
+            else
+            {
+                // Đây là trường hợp mong muốn khi chuyển trang thanh toán
+                Console.WriteLine($"[SignalR - {cid}] Disconnected: ℹ️ Ngắt kết nối an toàn (State đã trống).");
             }
             await base.OnDisconnectedAsync(exception);
         }
