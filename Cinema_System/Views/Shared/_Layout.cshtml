@@ -16,61 +16,73 @@
 </head>
 <body>
     <header class="header">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-1" data-bs-theme="dark" style="height: 80px;">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" data-bs-theme="dark">
             <div class="container-fluid">
+                <!-- Logo -->
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/css/images/logo2.png" style="width:65px; height:45px;" />
+                    <img src="~/css/images/logo2.png" alt="Logo" style="width:65px; height:45px;" />
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+
+                <!-- Toggler (mobile only) -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarContent" aria-controls="navbarContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-center">
-                    <ul class="navbar-nav mx-auto">
-                        <li>
-                            <a class="nav-link small-text" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                <!-- Collapsible wrapper -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <!-- Left: Main Menu (centered on large screens) -->
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link small-text" asp-area="" asp-controller="Product" asp-action="Product">Products</a>
+                            <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Product">Products</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link small-text" asp-area="" asp-controller="Order" asp-action="Index">Discount</a>
+                            <a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">Discount</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link small-text" asp-area="" asp-controller="Order" asp-action="Index">About Us</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">About Us</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link small-text" asp-area="" asp-controller="Order" asp-action="Index">Policy</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Policy">Policy</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link small-text" asp-area="Guest" asp-controller="Product" asp-action="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+                            <a class="nav-link text-white" asp-area="Guest" asp-controller="Product" asp-action="Cart">
+                                <i class="fa-solid fa-cart-shopping fa-lg"></i>
+                            </a>
                         </li>
-                      
-                        @if (User.IsInRole("Staff"))
+                         @if (User.IsInRole("Staff"))
                         {
-                            <li class="nav-item"><a class="nav-link" asp-area="Staff" asp-controller="Staff" asp-action="CameraScan">Scan Camera</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-area="Staff" asp-controller="ProductStaff" asp-action="Index">Manage Product</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Staff" asp-controller="Staff" asp-action="CameraScan">
+                                    Scan Camera
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Staff" asp-controller="ProductStaff" asp-action="Index">
+                                    Manage Product
+                                </a>
+                            </li>
                         }
-
-
+                     
                     </ul>
-                </div>
-
-                <div class="d-flex">
-                    <partial name="_LoginPartial" />
+                        <!-- Login Partial (always far right) -->
+                        <partial name="_LoginPartial" />
                 </div>
             </div>
-            </nav>
+        </nav>
     </header>
 
-    <div class="container">
+    <div class="container mt-5 pt-4">
         <main role="main" class="pb-3">
             <partial name="_Notification" />
             @RenderBody()
         </main>
     </div>
-            @RenderBody()
+          
     @* <!-- Floating Chat Icon --> *@
     @* <div id="chat-icon" class="chat-icon"> *@
     @*     <i class="fa-solid fa-comments"></i> *@
