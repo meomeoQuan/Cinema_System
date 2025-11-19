@@ -4,89 +4,102 @@
     ViewData["Title"] = "Ticket Validation";
 }
 
-
-
-<h2>Your Ticket Includes:</h2>
-
-@foreach (var cinemaGroup in Model.GroupBy(o => o.ShowtimeSeat?.Showtime?.Room?.Theater?.Name))
+@foreach (var orderGroup in Model.GroupBy(o => o.OrderID))
 {
-    var firstOrder = cinemaGroup.FirstOrDefault();
-    var cinemaName = cinemaGroup.Key ;
-    var cinemaAddress = firstOrder?.ShowtimeSeat?.Showtime?.Room?.Theater?.Address;
-    <h3>@cinemaName</h3>
-    <p>@cinemaAddress</p>
-   
+    var firstOrder = orderGroup.FirstOrDefault();
 
-    @foreach (var movieGroup in cinemaGroup.GroupBy(o => o.ShowtimeSeat?.Showtime?.Movie?.Title))
+    // Order info
+    <h3>OrderId: @firstOrder.OrderID</h3>
+    var user = firstOrder.Order?.User;
+    <h3>Customer: @(user?.Email ?? user?.FullName)</h3>
+
+    <h2>Your Ticket Includes:</h2>
+
+    // Group by Cinema within this order
+    @foreach (var cinemaGroup in orderGroup.GroupBy(o => o.ShowtimeSeat?.Showtime?.Room?.Theater?.Name))
     {
-        var firstMovie = movieGroup.FirstOrDefault();
-        var movieTitle = movieGroup.Key;
-        var genre = firstMovie?.ShowtimeSeat?.Showtime?.Movie?.Genre ;
-        var duration = firstMovie?.ShowtimeSeat?.Showtime?.Movie?.Duration + " mins" ;
-        var roomNumber = firstMovie?.ShowtimeSeat?.Showtime?.Room?.RoomNumber ;
+        var firstCinema = cinemaGroup.FirstOrDefault();
+        var cinemaName = cinemaGroup.Key;
+        var cinemaAddress = firstCinema?.ShowtimeSeat?.Showtime?.Room?.Theater?.Address;
 
-        <!-- Check if there are seats -->
-        var seatDetails = movieGroup.Where(d => d.ShowtimeSeat?.Seat != null); // Ensure Seat exists
-        if (seatDetails.Any())
+        <h3>@cinemaName</h3>
+        <p>@cinemaAddress</p>
+
+        // Showtimes within this cinema
+        @foreach (var showtimeGroup in cinemaGroup.GroupBy(o => o.ShowtimeSeat?.Showtime))
         {
-            <h4>@movieTitle</h4>
-            <p>Genre: @genre</p>
-            <p>Duration: @duration</p>
-            <h5>Seat Information</h5>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                       
-                        <th>Room Number</th>
-                        <th>Seat Name</th>
-                        <th>Ticket Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var detail in seatDetails) // Now only seats with valid data appear
-                    {
-                        <tr>
-                           
-                            <td>@roomNumber</td>
-                            <td>@(detail.ShowtimeSeat.Seat.SeatName)</td> <!-- Ensured not null -->
-                            <td>@($"{detail.ShowtimeSeat.Price:C}")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
+            var firstShowtime = showtimeGroup.FirstOrDefault();
+            var showDate = firstShowtime?.ShowtimeSeat?.Showtime?.ShowDate.ToString("dd/MM/yyyy");
+            var showHour = firstShowtime?.ShowtimeSeat?.Showtime?.ShowTimes.ToString(@"hh\:mm");
 
+            <p>Date: @showDate</p>
+            <p>Time: @showHour</p>
 
-        <!-- Check if there are products -->
-        var productDetails = movieGroup.Where(d => d.Product != null);
-        if (productDetails.Any())
-        {
-            <h5>Product Information</h5>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var detail in productDetails)
-                    {
-                        var productPrice = detail.Product?.Price ?? 0;
-                        var quantity = detail.Quantity;
-                        var totalPrice = productPrice * quantity;
+            // Movies within this showtime
+            @foreach (var movieGroup in showtimeGroup.GroupBy(o => o.ShowtimeSeat?.Showtime?.Movie?.Title))
+            {
+                var firstMovie = movieGroup.FirstOrDefault();
+                var movieTitle = movieGroup.Key;
+                var genre = firstMovie?.ShowtimeSeat?.Showtime?.Movie?.Genre;
+                var duration = firstMovie?.ShowtimeSeat?.Showtime?.Movie?.Duration + " mins";
+                var roomNumber = firstMovie?.ShowtimeSeat?.Showtime?.Room?.RoomNumber;
 
-                        <tr>
-                            <td>@(detail.Product?.Name )</td>
-                            <td>@($"{productPrice:C}")</td>
-                            <td>@quantity</td>
-                          
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                // Seats
+                var seatDetails = movieGroup.Where(d => d.ShowtimeSeat?.Seat != null);
+                if (seatDetails.Any())
+                {
+                    <h4>@movieTitle</h4>
+                    <p>Genre: @genre</p>
+                    <p>Duration: @duration</p>
+                    <h5>Seat Information</h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Room Number</th>
+                                <th>Seat Name</th>
+                                <th>Ticket Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detail in seatDetails)
+                            {
+                                <tr>
+                                    <td>@roomNumber</td>
+                                    <td>@detail.ShowtimeSeat.Seat.SeatName</td>
+                                    <td>@($"{detail.ShowtimeSeat.Price} vnd")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                // Products
+                var productDetails = movieGroup.Where(d => d.Product != null);
+                if (productDetails.Any())
+                {
+                    <h5>Product Information</h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detail in productDetails)
+                            {
+                                <tr>
+                                    <td>@detail.Product?.Name</td>
+                                    <td>@($"{detail.Product?.Price} vnd")</td>
+                                    <td>@detail.Quantity</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            }
         }
     }
 }
+

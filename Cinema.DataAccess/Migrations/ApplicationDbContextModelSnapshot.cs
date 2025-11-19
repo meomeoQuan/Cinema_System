@@ -306,6 +306,9 @@ namespace Cinema.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailID"));
 
+                    b.Property<bool>("IsScanned")
+                        .HasColumnType("bit");
+
                     b.Property<long?>("OrderID")
                         .HasColumnType("bigint");
 
