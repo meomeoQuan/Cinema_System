@@ -1,4 +1,48 @@
-﻿//IN RA GHẾ
+﻿// --- 1. Khởi tạo và Cấu hình Kết nối SignalR ---
+let connection = new signalR.HubConnectionBuilder()
+    .withUrl("/countdownHub")
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+// --- 2. Định nghĩa các Hàm Xử lý Sự kiện từ Server ---
+connection.on("ReceiveCountdown", function (timeLeft) {
+    console.log(⏳ Nhận thời gian từ server: ${ timeLeft }s);
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    const countdownElement = document.getElementById("countdown");
+    if (countdownElement) {
+        countdownElement.textContent = ${ minutes }:${ seconds < 10 ? "0" : "" }${ seconds };
+    }
+});
+
+connection.on("CountdownFinished", function (selectedSeats) {
+    console.log("⏰ Hết thời gian. Server đã giải phóng ghế.", selectedSeats);
+    alert("Hết thời gian giữ vé!");
+    location.reload();
+});
+
+connection.onclose(() => {
+    console.warn("⚠️ Mất kết nối SignalR. Thử kết nối lại sau 5 giây...");
+    setTimeout(() => startConnection(), 5000);
+});
+
+// --- 3. Hàm Bắt đầu Kết nối ---
+async function startConnection() {
+    if (connection.state === signalR.HubConnectionState.Disconnected) {
+        try {
+            await connection.start();
+            console.log("✅ Kết nối SignalR thành công!");
+        } catch (err) {
+            console.error("❌ Lỗi kết nối SignalR:", err);
+            setTimeout(() => startConnection(), 5000);
+        }
+    }
+}
+
+// --- 4. Khởi động Kết nối Ngay lập tức ---
+startConnection();
+
+// --- 5. Logic Chính của Trang (In ghế và Xử lý Chọn giờ) ---
 document.getElementById("time").addEventListener("change", function () {
     const seatSelection = document.getElementById("seat-selection");
     if (this.value) {
@@ -9,193 +53,167 @@ document.getElementById("time").addEventListener("change", function () {
 
         if (showtimeId) {
             let showtimeSeatSet = new Set();
+            let showtimeSeatList = [];
 
-            // Gọi API để lấy danh sách ghế
-            fetch(`/api/showtime-seat/${showtimeId}`)
+            // Bước 1 & 2: Fetch API và lấy chi tiết ghế
+            fetch(/api/showtime - seat / ${ showtimeId })
                 .then(response => response.json())
                 .then(data => {
-                    let showtimeSeatList = data; // Lưu danh sách ghế từ API
+                    showtimeSeatList = data;
                     data.forEach(showtimeSeat => {
                         showtimeSeatSet.add(showtimeSeat.showtimeSeatID);
                     });
-
-                    // Chuyển Set thành Array
                     let seatIdList = Array.from(showtimeSeatSet);
-
-                    // Gửi danh sách ID ghế đến API để lấy chi tiết ghế
                     return fetch("/api/seats", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(seatIdList)
-                    }).then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Lỗi: ${response.status} - ${response.statusText}`);
-                        }
-                        return response.json();
-                    }).then(data => {
-                        let rowSeatSet = new Set();
-                        Array.from(data).forEach(seat => {
-                            if (!rowSeatSet.has(seat.row)) {
-                                rowSeatSet.add(seat.row);
-                            }
-                        });
-
-                        let identitySeat = 0;
-                        rowSeatSet.forEach(row => {
-                            for (let seatNum = 1; seatNum <= 10 && identitySeat < data.length; seatNum++) {
-                                let seatCur = Array.from(data)[identitySeat];
-                                let showtimeSeatCur = showtimeSeatList.find(showtimeSeat => showtimeSeat.seatID === seatCur.seatID);
-
-                                const seat = `<div class='seat${showtimeSeatCur.status === 1 || seatCur.status === 1 ? " maintenance" : showtimeSeatCur.status === 2 ? " booked" : ""}' 
-                                    data-show-seat-id='${showtimeSeatCur.showtimeSeatID}'  
-                                    data-seat-id='${seatCur.seatID}'>
-                                    ${String.fromCharCode(64 + row)}${seatCur.row}${seatCur.columnNumber}
-                                </div>`;
-
-                                seatsContainer.insertAdjacentHTML("beforeend", seat);
-                                identitySeat++;
-                            }
-                            seatsContainer.insertAdjacentHTML("beforeend", "<br>");
-                        });
-                        const targetNode = document.getElementById("booking-summary");
-                        if (!targetNode) return;
-
-                        let connection = new signalR.HubConnectionBuilder()
-                            .withUrl("/countdownHub")
-                            .configureLogging(signalR.LogLevel.Information)
-                            .build();
-
-                        if (connection.state === signalR.HubConnectionState.Disconnected) {
-                            connection.start().then(() => {
-                                console.log("✅ Kết nối SignalR thành công!");
-                            }).catch(err => console.error("❌ Lỗi kết nối SignalR:", err));
-                        } else {
-                            console.log("Connection is already started or connecting:", connection.state);
-                        }
-
-                        const observer = new MutationObserver((mutationsList) => {
-                            mutationsList.forEach(mutation => {
-                                if (mutation.attributeName === "class") {
-                                    if (!targetNode.classList.contains("d-none")) {
-                                        console.log("Phần tử #booking-summary đã hiển thị! Bắt đầu đếm ngược...");
-                                        observer.disconnect();
-                                        connection.invoke("StartCountdown").then(() => {
-                                            console.log("📡 Gửi lệnh StartCountdown thành công!");
-                                        }).catch(err => console.error("❌ Lỗi khi gửi lệnh StartCountdown:", err));
-                                    }
-                                }
-                            });
-                        });
-
-                        observer.observe(targetNode, { attributes: true });
-
-                        connection.on("ReceiveCountdown", function (timeLeft) {
-                            console.log(`⏳ Nhận thời gian từ server: ${timeLeft}s`);
-                            const minutes = Math.floor(timeLeft / 60);
-                            const seconds = timeLeft % 60;
-                            document.getElementById("countdown").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-                        });
-
-                        connection.on("CountdownFinished", function (selectedSeats) {
-                            let promises = [];
-
-                            selectedSeats.forEach(seatId => {
-                                const request = fetch(`/api/showtime-seat/${seatId}/0`, {
-                                    method: "PUT",
-                                    headers: { "Content-Type": "application/json" },
-                                }).then(response => response.json())
-                                    .then(data => console.log(`Ghế ${seatId} cập nhật:`, data))
-                                    .catch(error => console.error(`Lỗi cập nhật ghế ${seatId}:`, error));
-
-                                promises.push(request);
-                            });
-
-                            Promise.all(promises).then(() => {
-                                alert("Hết thời gian giữ vé!");
-                                location.reload();
-                            });
-                        });
-
-                        connection.onclose(() => {
-                            console.warn("⚠️ Mất kết nối SignalR. Thử kết nối lại sau 5 giây...");
-                            setTimeout(() => connection.start(), 5000);
-                        });
-
-                        // Event listener for seat selection
-                        const seats = document.querySelectorAll(".seat");
-                        seats.forEach(seat => {
-                            seat.addEventListener("click", async function () {
-                                const seatId = Number(seat.getAttribute("data-show-seat-id"));
-                                if (seat.classList.contains("selected")) {
-                                    
-                                    await connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
-                                } else {
-                                    
-                                    await connection.invoke("SelectSeat", seatId)
-                                        .catch(err => {
-                                            console.error("❌ Lỗi SelectSeat:", err.message);
-                                            alert("Có lỗi xảy ra khi chọn ghế, vui lòng thử lại!");
-                                        });
-                                }
-                            });
-                        });
                     });
                 })
-                .catch(error => console.error("Lỗi:", error));
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(Lỗi: ${ response.status } - ${ response.statusText });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Bước 3: In ghế ra màn hình
+                    let rowSeatSet = new Set();
+                    Array.from(data).forEach(seat => {
+                        if (!rowSeatSet.has(seat.row)) {
+                            rowSeatSet.add(seat.row);
+                        }
+                    });
+
+                    let identitySeat = 0;
+                    rowSeatSet.forEach(row => {
+                        for (let seatNum = 1; seatNum <= 10 && identitySeat < data.length; seatNum++) {
+                            let seatCur = Array.from(data)[identitySeat];
+                            let showtimeSeatCur = showtimeSeatList.find(showtimeSeat => showtimeSeat.seatID === seatCur.seatID);
+
+                            if (showtimeSeatCur) {
+                                const seat = `<div class='seat${showtimeSeatCur.status === 1 || seatCur.status === 1 ? " maintenance" : showtimeSeatCur.status === 2 ? " booked" : ""}' 
+                                     data-show-seat-id='${showtimeSeatCur.showtimeSeatID}' 
+                                     data-seat-id='${seatCur.seatID}'>
+                                     ${String.fromCharCode(64 + row)}${seatCur.row}${seatCur.columnNumber}
+                                 </div>`;
+                                seatsContainer.insertAdjacentHTML("beforeend", seat);
+                            }
+                            identitySeat++;
+                        }
+                        seatsContainer.insertAdjacentHTML("beforeend", "<br>");
+                    });
+
+                    //// Bước 4: Khởi tạo MutationObserver để bắt đầu đếm ngược
+                    //// (Giữ nguyên, không thay đổi)
+                    //const targetNode = document.getElementById("booking-summary");
+                    //if (!targetNode) return;
+
+                    //const observer = new MutationObserver((mutationsList) => {
+                    //    mutationsList.forEach(mutation => {
+                    //        if (mutation.attributeName === "class") {
+                    //            if (!targetNode.classList.contains("d-none")) {
+                    //                console.log("Phần tử #booking-summary đã hiển thị! Bắt đầu đếm ngược...");
+                    //                observer.disconnect();
+                    //                if (connection.state === signalR.HubConnectionState.Connected) {
+                    //                    connection.invoke("StartCountdown").then(() => {
+                    //                        console.log("📡 Gửi lệnh StartCountdown thành công!");
+                    //                    }).catch(err => console.error("❌ Lỗi khi gửi lệnh StartCountdown:", err));
+                    //                } else {
+                    //                    console.error("❌ SignalR chưa kết nối, không thể bắt đầu timer!");
+                    //                }
+                    //            }
+                    //        }
+                    //    });
+                    //});
+                    //observer.observe(targetNode, { attributes: true });
+
+                })
+                .catch(error => console.error("Lỗi khi fetch và in ghế:", error));
         }
     } else if (!seatSelection.classList.contains("d-none")) {
         seatSelection.classList.add("d-none");
     }
 });
 
-/**
- * 
- */
 
-// chọn ghế
+/**
+ * TRÌNH NGHE SỰ KIỆN TỔNG (ĐÃ SỬA ĐỔI)
+ * XÓA BỎ HOÀN TOÀN logic fetch PUT, chỉ gọi SignalR
+*/
 document.getElementById("seats").addEventListener("click", async function (event) {
     let seat = event.target;
-    if (seat.classList.contains("seat") && !seat.classList.contains("booked") && !seat.classList.contains("maintenance")) {
-        let status;
-        let available;
-        try {
-            const response = await fetch(`/api/showtime-seat/ss/${seat.getAttribute("data-show-seat-id")}`)
-            let data = await response.json();
-            available = data.status === 0 ? 1 : 0;
-        } catch (e) {
-            console.log(e);
-            return;
-        }
-        if (seat.classList.contains("selected")) {
-            status = 0;
-            seat.classList.remove("selected");
-        } else if (!available && seat.classList.contains("seat") && !seat.classList.contains("booked")) {
-            alert("Ghế này đã được chọn, vui lòng chọn ghế khác.");
-            location.reload();
-            return;
-        } else if (seat.classList.contains("seat") && !seat.classList.contains("maintenance") && !seat.classList.contains("booked")) {
-            status = 2;
-            seat.classList.add("selected");
-        }
-
-        fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/${status}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-        console.log(document.querySelectorAll(".seat.selected").length);
-        console.log(document.getElementById("booking-summary"));
-        if (document.querySelectorAll(".seat.selected").length > 0) {
-            document.getElementById("booking-summary").classList.remove("d-none");
-        } else {
-            document.getElementById("booking-summary").classList.add("d-none");
-        }
-
-        updateTotal();
+    if (!seat.classList.contains("seat") || seat.classList.contains("booked") || seat.classList.contains("maintenance")) {
+        return; // Bỏ qua nếu không phải ghế hợp lệ
     }
+
+    const showSeatId = Number(seat.getAttribute("data-show-seat-id"));
+
+    // 1. Kiểm tra trạng thái ghế (VẪN CẦN THIẾT)
+    let available;
+    try {
+        const response = await fetch(/api/showtime - seat / ss / ${ showSeatId }); // GET
+        if (!response.ok) throw new Error("Server không phản hồi");
+        let data = await response.json();
+        available = data.status === 0; // true nếu status là 0 (trống)
+    } catch (e) {
+        console.error("Lỗi khi kiểm tra ghế:", e);
+        alert("Không thể kiểm tra trạng thái ghế, vui lòng thử lại.");
+        return;
+    }
+
+    // 2. Xử lý logic chọn/bỏ chọn
+    if (seat.classList.contains("selected")) {
+        // --- ĐANG BỎ CHỌN ---
+        try {
+            // CHỈ GỌI SIGNALR
+            await connection.invoke("DeselectSeat", showSeatId);
+
+            // Cập nhật UI ngay lập- tức
+            seat.classList.remove("selected");
+            console.log(Đã bỏ chọn ghế ${ showSeatId });
+
+            // XÓA BỎ FETCH PUT
+            // fetch(/api/showtime-seat/${showSeatId}/0, ... ) // << ĐÃ XÓA
+
+        } catch (err) {
+            console.error("Lỗi khi bỏ chọn ghế (SignalR):", err.message);
+            alert("Có lỗi xảy ra, không thể bỏ chọn ghế. Vui lòng thử lại.");
+        }
+
+    } else if (!available) {
+        // --- GHẾ ĐÃ BỊ CHỌN (BỞI NGƯỜI KHÁC) ---
+        alert("Ghế này vừa được người khác chọn, vui lòng chọn ghế khác.");
+        location.reload();
+        return;
+
+    } else {
+        // --- ĐANG CHỌN GHẾ ---
+        try {
+            // CHỈ GỌI SIGNALR
+            await connection.invoke("SelectSeat", showSeatId);
+
+            // Cập nhật UI ngay lập tức
+            seat.classList.add("selected");
+            console.log(Đã chọn ghế ${ showSeatId });
+
+            // XÓA BỎ FETCH PUT
+            // fetch(/api/showtime-seat/${showSeatId}/2, ... ) // << ĐÃ XÓA
+
+        } catch (err) {
+            console.error("Lỗi khi chọn ghế (SignalR):", err.message);
+            alert("Có lỗi xảy ra, không thể chọn ghế. Vui lòng thử lại.");
+        }
+    }
+
+    // 3. Cập nhật summary (luôn chạy sau khi thử chọn/bỏ chọn)
+    if (document.querySelectorAll(".seat.selected").length > 0) {
+        document.getElementById("booking-summary").classList.remove("d-none");
+    } else {
+        document.getElementById("booking-summary").classList.add("d-none");
+    }
+
+    // updateTotal();
 });
 /**
  * 
@@ -230,7 +248,7 @@ async function updateTotal() {
 
         let totalElement = document.getElementById("total");
         if (totalElement) {
-            totalElement.innerText = `Total: ${total}`;
+            totalElement.innerText = Total: ${ total };
         }
     } catch (error) {
         console.error("Lỗi khi gọi API:", error);
@@ -243,7 +261,7 @@ async function updateTotal() {
         let price = parseInt($(this).find('.price').text().replace(/\D/g, ''));
 
         if (count > 0) {
-            selectedFoods.push(`${count} x ${foodName}`);
+            selectedFoods.push(${ count } x ${ foodName });
             total += count * price;
         }
     });
@@ -299,7 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 productHtml.innerHTML += content;
             })
             addEventListenersForButtons();
-            
+
         })
 });
 
@@ -360,7 +378,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
     let coupon = document.querySelector(".coupon").value;
     let cinemaId = document.querySelector("#cinema").value;
     let showtimeSeat;
-    const apiUrl = `/api/showtime-seat/ss/${selectedSeats[0].showTimeSeatId}`;
+    const apiUrl = /api/showtime - seat / ss / ${ selectedSeats[0].showTimeSeatId };
     console.log("Fetching from:", apiUrl);
     try {
         let response = await fetch(apiUrl);
@@ -373,7 +391,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
 
     let showtime;
     try {
-        let response = await fetch(`/api/showtime/getById/${showtimeSeat.showtimeID}`)
+        let response = await fetch(/api/showtime / getById / ${ showtimeSeat.showtimeID })
         showtime = await response.json();
     } catch (e) {
         console.error(e);
@@ -383,7 +401,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
     let cinema;
 
     try {
-        let response = await fetch(`/api/cinemas/id/${cinemaId}`);
+        let response = await fetch(/api/cinemas / id / ${ cinemaId });
         cinema = await response.json();
     } catch (e) {
         console.error(e);
@@ -392,7 +410,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
 
     let bookingData = {
         Coupon: coupon,
-                Seats: selectedSeats,
+        Seats: selectedSeats,
         Items: selectedFoods,
         TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, ""), // Chuyển đổi số tiền
         TitleMovie: nameMovie,
@@ -403,7 +421,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
     };
     const user = getCookie('user');
     if (user != null) {
-        fetch(`/Guest/Payment/CreatePayment`, {
+        fetch(/Guest/Payment / CreatePayment, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json"
@@ -426,7 +444,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
 })
 
 //$(document).ready(function () {
-    
+
 //});
 
 
@@ -463,7 +481,7 @@ document.getElementById("cinemaCity").addEventListener("change", function () {
     timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (cinemaCityName) {
-        fetch(`/api/cinemas/${cinemaCityName}`)
+        fetch(/api/cinemas / ${ cinemaCityName })
             .then(response => response.json())
             .then(data => {
                 data.forEach(cinema => {
@@ -493,7 +511,7 @@ document.getElementById("cinema").addEventListener("change", function () {
     timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (cinemaId) {
-        fetch(`/api/showtime/${cinemaId}/${movieId}`)
+        fetch(/api/showtime / ${ cinemaId } / ${ movieId })
             .then(response => response.json())
             .then(data => {
                 let uniqueDates = new Set();
@@ -529,7 +547,7 @@ document.getElementById("date").addEventListener("change", function () {
     timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (dateChoose) {
-        fetch(`/api/showtime/${cinemaId}/${movieId}`)
+        fetch(/api/showtime / ${ cinemaId } / ${ movieId })
             .then(response => response.json())
             .then(data => {
                 data.forEach(showtime => {
