@@ -302,6 +302,10 @@ namespace Cinema_System.Areas
             string movieName = first.ShowtimeSeat.Showtime.Movie.Title;
             int movieDuration = first.ShowtimeSeat.Showtime.Movie.Duration;
             DateOnly showDate = first.ShowtimeSeat.Showtime.ShowDate;
+
+            // Format as dd:MM:yyyy
+            string formattedDate = showDate.ToString("dd/MM/yyyy");
+
             TimeSpan showTime = first.ShowtimeSeat.Showtime.ShowTimes;
 
             // Convert TimeSpan → TimeOnly
@@ -348,11 +352,11 @@ namespace Cinema_System.Areas
                 <p><strong>Duration:</strong> {movieDuration} minutes</p>
 
                 <h3>🏢 Cinema</h3>
-                <p><strong>Theater:</strong> {cinemaName}</p>
+                <p><strong>Cinema:</strong> {cinemaName}</p>
                 <p><strong>Room:</strong> {roomName}</p>
 
                 <h3>📅 Show Date</h3>
-                <p>{showDate}</p>
+                <p>{formattedDate}</p>
 
                 <h3>🕒 Showtime</h3>
                 <p>{showtimeStr}</p>
