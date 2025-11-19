@@ -1,86 +1,55 @@
-using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
-using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
 using Cinema.Utility;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto.Generators;
+using System.Net.Mail;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using static QRCoder.PayloadGenerator;
 
 namespace Cinema_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = "Admin")]
-    //[Authorize(Roles = SD.Role_Admin)] 
+    [Authorize(Roles = SD.Role_Admin)]
     public class UsersController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IEmailSender _emailService;
 
-        public UsersController(IUnitOfWork unitOfWork,
-                               UserManager<IdentityUser> userManager,
-                               RoleManager<IdentityRole> roleManager)
+        public UsersController(
+            IUnitOfWork unitOfWork,
+            UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IEmailSender emailService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _roleManager = roleManager;
-
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index()
         {
-
             var users = await _unitOfWork.ApplicationUser.GetAllAsync();
             foreach (var user in users)
             {
                 user.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Guest";
-                // dung lo em default neu ma luc 
-                // create user ko set role thi no se la guest -- quan 
             }
+
+            ViewBag.RolesList = _roleManager.Roles
+                                    .Where(r => r.Name != SD.Role_Guest) // Lọc bỏ vai trò Guest nếu không muốn gán
+                                    .Select(r => r.Name)
+                                    .ToList();
 
             return View(users);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, ApplicationUser updatedUser)
-        {
-            if (!ModelState.IsValid) return View(updatedUser);
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            user.UserName = updatedUser.FullName;
-            user.PhoneNumber = updatedUser.PhoneNumber;
-            await _userManager.UpdateAsync(user);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
-        {
-            var users = await _unitOfWork.ApplicationUser.GetAllAsync();
-            var usersList = users.Select(u => new
-            {
-                u.Id,
-                u.FullName,
-                u.Email,
-                u.PhoneNumber,
-                u.Role,
-                u.LockoutEnd
-            }).ToList();
-
-            return Json(new { data = usersList });
         }
 
         [HttpPost]
@@ -92,7 +61,7 @@ namespace Cinema_System.Areas.Admin.Controllers
                 {
                     if (_unitOfWork.ApplicationUser.Get(u => u.Email == user.Email) != null)
                     {
-                        return Json(new { success = false, message = "Email already exists." });
+                        return Json(new { success = false, message = "Email already exists. hehe" });
                     }
                     if (_unitOfWork.ApplicationUser.Get(u => u.PhoneNumber == user.PhoneNumber) != null)
                     {
@@ -104,12 +73,19 @@ namespace Cinema_System.Areas.Admin.Controllers
                     }
 
                     user.UserName = user.Email; // Ensure UserName is set to Email
-                    string password = GenerateRandomPassword(); // xem lai nhe .net lam gium r ko can phai lam v dau -- quan
+                    string password = PasswordGenerator.GenerateRandomPassword();
+                    user.EmailConfirmed = true;
                     var result = await _userManager.CreateAsync(user, password);
                     if (result.Succeeded)
                     {
+                        await _emailService.SendEmailAsync(
+                            user.Email,
+                            "Create User Account Successfully",
+                            $"<p>Hi {user.FullName}!</p><p>Your password is: {password}</p><p>Please change your password after logging in for the first time.</p>"
+                        );
+
                         await _userManager.AddToRoleAsync(user, role);
-                        return Json(new { success = true, message = "User created successfully.", password });
+                        return Json(new { success = true, message = "User created successfully." });
                     }
                     else
                     {
@@ -123,17 +99,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
             return Json(new { success = false, message = "Invalid user data." });
         }
-        private string GenerateRandomPassword()
-        {
-            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*?_-";
-            var random = new Random();
-            var password = new StringBuilder();
-            for (int i = 0; i < 12; i++)
-            {
-                password.Append(validChars[random.Next(validChars.Length)]);
-            }
-            return password.ToString();
-        }
+
         private bool IsValidPhoneNumber(string phoneNumber)
         {
             // Define a regular expression for validating phone numbers
@@ -142,130 +108,79 @@ namespace Cinema_System.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateUserField(string id, string field, string value)
+        [ValidateAntiForgeryToken] // ✅ BẢO MẬT: Thêm AntiForgeryToken
+        public async Task<IActionResult> SaveUserChanges([FromBody] ApplicationUser updatedUser)
         {
-            var user = _unitOfWork.ApplicationUser.Get(u => u.Id == id);
+            if (updatedUser == null || string.IsNullOrEmpty(updatedUser.Id))
+                return Json(new { success = false, message = "Invalid user data." });
+
+            // Lấy người dùng từ UserManager để đảm bảo tính toàn vẹn
+            var user = await _userManager.FindByIdAsync(updatedUser.Id) as ApplicationUser;
             if (user == null)
-            {
                 return Json(new { success = false, message = "User not found." });
-            }
 
             try
             {
-                switch (field)
+                // Không có gì thay đổi
+                if (user.FullName == updatedUser.FullName &&
+                    user.Email == updatedUser.Email &&
+                    user.PhoneNumber == updatedUser.PhoneNumber &&
+                    user.Role == updatedUser.Role)
+                    return Json(new { success = true, message = "No changes were detected." });
+
+                // 🔍 Kiểm tra điều kiện tổng thể
+                if (string.IsNullOrWhiteSpace(updatedUser.FullName))
+                    return Json(new { success = false, message = "Full name cannot be empty." });
+
+                if (string.IsNullOrWhiteSpace(updatedUser.Email))
+                    return Json(new { success = false, message = "Email cannot be empty." });
+
+                // Tối ưu: Sử dụng AnyAsync để kiểm tra sự tồn tại
+                try
                 {
-                    case "FullName":
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            return Json(new { success = false, message = "Full Name cannot be empty." });
-                        }
-                        user.FullName = value;
-                        break;
-                    case "Email":
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            return Json(new { success = false, message = "Email cannot be empty." });
-                        }
-                        if (_unitOfWork.ApplicationUser.Get(u => u.Email == value && u.Id != id) != null)
-                        {
-                            return Json(new { success = false, message = "Email already exists." });
-                        }
-                        user.Email = value;
-                        break;
-                    case "PhoneNumber":
-                        if (string.IsNullOrWhiteSpace(value))
-                        {
-                            return Json(new { success = false, message = "Phone Number cannot be empty." });
-                        }
-                        if (_unitOfWork.ApplicationUser.Get(u => u.PhoneNumber == value && u.Id != id) != null)
-                        {
-                            return Json(new { success = false, message = "Phone number already exists." });
-                        }
-                        if (!IsValidPhoneNumber(user.PhoneNumber ?? string.Empty))
-                        {
-                            return Json(new { success = false, message = "Invalid phone number format." });
-                        }
-                        user.PhoneNumber = value;
-                        break;
-                    default:
-                        return Json(new { success = false, message = "Invalid field." });
+                    var addr = new MailAddress(updatedUser.Email);
+                    if (addr.Address != updatedUser.Email.Trim())
+                        return Json(new { success = false, message = "Invalid email format." });
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Invalid email format." });
                 }
 
-                _ = _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "User updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error updating user: {ex.Message}" });
-            }
-        }
+                if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.Email == updatedUser.Email && u.Id != updatedUser.Id))
+                    return Json(new { success = false, message = "This email already exists." });
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Lock(string id)
-        {
-            var currentUserId = _userManager.GetUserId(User); // Lấy ID của người dùng hiện tại
-            if (id == currentUserId)
-            {
-                return Json(new { success = false, message = "You cannot lock your own account." });
-            }
+                if (string.IsNullOrWhiteSpace(updatedUser.PhoneNumber))
+                    return Json(new { success = false, message = "Phone number cannot be empty." });
 
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return Json(new { success = false, message = "User not found" });
-            }
+                if (!IsValidPhoneNumber(updatedUser.PhoneNumber))
+                    return Json(new { success = false, message = "Phone number must be a 10-digit number." });
 
-            if (await _userManager.IsInRoleAsync(user, SD.Role_Admin) ||
-                await _userManager.IsInRoleAsync(user, SD.Role_Staff))
-            {
-                return Json(new { success = false, message = "Cannot modify Admin or Staff accounts" });
-            }
+                if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.PhoneNumber == updatedUser.PhoneNumber && u.Id != updatedUser.Id))
+                    return Json(new { success = false, message = "This phone number already exists." });
 
-            try
-            {
-                // Khóa user bằng cách set LockoutEnd đến tương lai xa
-                user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
+
+                // ✅ Cập nhật dữ liệu thông qua UserManager
+                user.FullName = updatedUser.FullName.Trim();
+                user.PhoneNumber = updatedUser.PhoneNumber.Trim();
+
+                // Cập nhật email và username một cách an toàn
+                await _userManager.SetEmailAsync(user, updatedUser.Email.Trim());
+                await _userManager.SetUserNameAsync(user, updatedUser.Email.Trim());
+
                 var result = await _userManager.UpdateAsync(user);
 
                 if (result.Succeeded)
                 {
-                    return Json(new { success = true, message = "User has been locked successfully" });
+                    return Json(new { success = true, message = "User updated successfully." });
                 }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to lock user" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error locking user: {ex.Message}" });
-            }
-        }
-        [HttpPost]
-        public IActionResult Unlock(string id)
-        {
-            var user = _unitOfWork.ApplicationUser.Get(u => u.Id == id);
-            if (user == null)
-            {
-                return Json(new { success = false, message = "User not found." });
-            }
 
-            try
-            {
-                user.LockoutEnd = null;
-                _unitOfWork.SaveAsync();
-                return Json(new { success = true, message = "User unlocked successfully." });
+                return Json(new { success = false, message = "Error when updating user: " + string.Join(", ", result.Errors.Select(e => e.Description)) });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Error unlocking user: {ex.Message}" });
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
             }
-        }
-        //Search admin for Cinemas
-        public ApplicationUser SearchUserById(string id)
-        {
-            return _unitOfWork.ApplicationUser.Get(u => u.Id == id);
         }
 
         internal static async Task<IEnumerable<ApplicationUser>> GetUsersByRole(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, string role_Admin)
@@ -290,6 +205,54 @@ namespace Cinema_System.Areas.Admin.Controllers
             return applicationUsers;
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Lock(string id)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            if (id == currentUserId)
+            {
+                return Json(new { success = false, message = "You cannot lock your own account." });
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            // Dùng SetLockoutEndDateAsync là cách làm đúng chuẩn của Identity
+            var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
+
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "User locked successfully." });
+            }
+
+            return Json(new { success = false, message = "Failed to lock user." });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unlock(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found." });
+            }
+
+            // Dùng SetLockoutEndDateAsync để mở khóa
+            var result = await _userManager.SetLockoutEndDateAsync(user, null);
+
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "User unlocked successfully." });
+            }
+
+            return Json(new { success = false, message = "Failed to unlock user." });
+        }
+
         public bool CurrentUser(string idEditing)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -299,5 +262,43 @@ namespace Cinema_System.Areas.Admin.Controllers
             //var user = await _userManager.FindByIdAsync(id);
             //return View(user);
         }
+    }
+}
+
+public class PasswordGenerator
+{
+    //public static string GenerateRandomPassword(int length = 12)
+    //{
+    //    const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
+    //    StringBuilder result = new StringBuilder(length);
+    //    using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+    //    {
+    //        byte[] uintBuffer = new byte[sizeof(uint)];
+
+    //        while (length-- > 0)
+    //        {
+    //            rng.GetBytes(uintBuffer);
+    //            uint num = BitConverter.ToUInt32(uintBuffer, 0);
+    //            result.Append(validChars[(int)(num % (uint)validChars.Length)]);
+    //        }
+    //    }
+    //    return result.ToString();
+    //}
+    //public static string GenerateRandomPassword(int length = 12)
+    //{
+    //    const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()";
+    //    return RandomNumberGenerator.GetString(validChars, length);
+    //}
+
+    public static string GenerateRandomPassword()
+    {
+        const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*?_-";
+        var random = new Random();
+        var password = new StringBuilder();
+        for (int i = 0; i < 12; i++)
+        {
+            password.Append(validChars[random.Next(validChars.Length)]);
+        }
+        return password.ToString();
     }
 }

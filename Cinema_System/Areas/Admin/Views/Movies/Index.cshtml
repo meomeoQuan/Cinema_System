@@ -1,0 +1,349 @@
+﻿@using Cinema_System.Areas.Admin.Controllers
+@model IEnumerable<Movie>
+
+@{
+    ViewData["Title"] = "Movie Management";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 text-center fw-bold">Movie Management</h3>
+            <button id="addBtn" class="btn btn-primary">Add</button>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tblData" class="table table-bordered table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 20%;">Title</th>
+                            <th style="width: 45%;">Synopsis</th>
+                            <th style="width: 10%;">Genre</th>
+                            <th style="width: 5%;">Duration</th>
+                            <th style="width: 11%;">Release Date</th>
+                            <th style="width: 4%;">Trailer</th>
+                            <th style="width: 5%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var movie in Model)
+                        {
+                            <tr>
+                                <td data-id="@movie.MovieID" data-field="Title">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@movie.MovieImage" alt="Movie Image" class="img-fluid" width="50">
+                                        <div class="ms-2">@movie.Title</div>
+                                    </div>
+                                </td>
+                                <td data-id="@movie.MovieID" data-field="Synopsis" class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center">@movie.Synopsis</div>
+                                </td>
+                                <td data-id="@movie.MovieID" data-field="Genre" class="text-center">@movie.Genre</td>
+                                <td data-id="@movie.MovieID" data-field="Duration" class="text-center">@movie.Duration</td>
+                                <td data-id="@movie.MovieID" data-field="ReleaseDate" class="text-center">@movie.ReleaseDate.ToString("dd-MM-yyyy")</td>
+                                <td data-id="@movie.MovieID" data-field="Trailer" class="text-center">
+                                    @if (!string.IsNullOrEmpty(movie.TrailerLink))
+                                    {
+                                        <a href="@movie.TrailerLink" target="_blank" class="d-flex align-items-center justify-content-center">
+                                            Watch
+                                        </a>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button onclick="enableEdit(this)" class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-3 d-none" id="add-form">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">Add New Movie</h4>
+        </div>
+        <div class="card-body">
+            <form id="createForm">
+                <div class="mb-3">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="movieTitle" name="Title" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Synopsis</label>
+                    <textarea class="form-control" id="movieSynopsis" name="Synopsis"></textarea>
+                </div>
+                <div>
+                    <div class="mb-3">
+                        <label class="form-label">Genre</label>
+                        <input type="text" class="form-control" id="movieGenre" name="Genre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="movieDuration" name="Duration" required min="1">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Release Date</label>
+                    <div class="d-flex gap-2">
+                        <select id="releaseDay" class="form-select" required></select>
+                        <select id="releaseMonth" class="form-select" required></select>
+                        <select id="releaseYear" class="form-select" required></select>
+                    </div>
+                </div>
+
+   
+                <div class="mb-3">
+                    <label class="form-label">Trailer</label>
+                    <input type="url" class="form-control" id="movieTrailerLink" name="TrailerLink">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Movie Image URL</label>
+                    <input type="url" class="form-control" id="movieImage" name="MovieImage">
+                </div>
+                <button type="submit" class="btn btn-secondary w-100 mt-3"> Submit </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/toastr.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/sorting/natural.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // === Init DataTable ===
+            $('#tblData').DataTable({
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                searching: true,
+                ordering: true,
+                columnDefs: [{ type: 'natural', targets: 0 }]
+            });
+
+            $('#addBtn').click(() => $('#add-form').toggleClass('d-none'));
+
+            initDateDropdowns('#releaseDay', '#releaseMonth', '#releaseYear');
+
+            // === Add form submit ===
+            $('#createForm').submit(function (e) {
+                e.preventDefault();
+                const releaseDate = buildDateFromDropdown('#releaseDay', '#releaseMonth', '#releaseYear');
+                if (!releaseDate) {
+                    toastr.error('Please select a valid release date.');
+                    return;
+                }
+
+                const data = {
+                    Title: $('#movieTitle').val(),
+                    Genre: $('#movieGenre').val(),
+                    Synopsis: $('#movieSynopsis').val(),
+                    TrailerLink: $('#movieTrailerLink').val(),
+                    Duration: $('#movieDuration').val(),
+                    ReleaseDate: releaseDate,
+                    MovieImage: $('#movieImage').val()
+                };
+
+                $.ajax({
+                    url: '/Admin/Movies/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: res => {
+                        res.success ? (toastr.success(res.message), setTimeout(() => location.reload(), 1000))
+                                    : toastr.error(res.message);
+                    },
+                    error: xhr => toastr.error(xhr.responseJSON?.message || 'Error processing request.')
+                });
+            });
+        });
+
+        // === Inline Edit ===
+        function enableEdit(button) {
+            const row = $(button).closest('tr');
+            row.find('td[data-field]').each(function () {
+                const field = $(this).data('field');
+                const val = $(this).text().trim();
+                $(this).data('original', val);
+
+                if (field === 'ReleaseDate') {
+                    const [day, month, year] = val.split('-');
+                    $(this).html(`
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <select class="form-select form-select-sm day" style="width:65px;"></select>
+                            <select class="form-select form-select-sm month" style="width:90px;"></select>
+                            <select class="form-select form-select-sm year" style="width:85px;"></select>
+                        </div>
+                    `);
+
+                    const daySel = $(this).find('.day');
+                    const monthSel = $(this).find('.month');
+                    const yearSel = $(this).find('.year');
+                    initDateDropdowns(daySel, monthSel, yearSel);
+
+                    daySel.val(parseInt(day));
+                    monthSel.val(parseInt(month));
+                    yearSel.val(parseInt(year));
+
+                    // Khi chọn năm/tháng => cập nhật lại số ngày (hợp lệ)
+                    monthSel.add(yearSel).on('change', () => updateDaysDropdown(daySel, monthSel, yearSel));
+                } else {
+                    $(this).attr('contenteditable', 'true').addClass('editable');
+                }
+            });
+
+            $(button)
+                .removeClass('btn-primary')
+                .addClass('btn-success')
+                .html('<i class="bi bi-check-circle-fill me-1"></i>Save')
+                .attr('onclick', 'saveEdit(this)');
+        }
+
+        function saveEdit(button) {
+    const row = $(button).closest('tr');
+    const updates = [];
+
+    row.find('td[data-field]').each(function () {
+        const field = $(this).data('field');
+        const id = $(this).data('id');
+        const original = $(this).data('original') || '';
+        let current = original;
+
+        if (field === 'ReleaseDate') {
+            const day = $(this).find('.day').val();
+            const month = $(this).find('.month').val();
+            const year = $(this).find('.year').val();
+
+            if (day && month && year) {
+                const display = `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+                const newDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                current = display;
+
+                if (display !== original) {
+                    updates.push({ id, field, value: newDate, display });
+                }
+                $(this).text(display);
+            } else {
+                $(this).text(original);
+            }
+        } else {
+            const val = $(this).text().trim();
+            if (val !== original) {
+                updates.push({ id, field, value: val });
+            }
+            $(this).removeAttr('contenteditable').removeClass('editable');
+        }
+    });
+
+    $(button)
+        .removeClass('btn-success')
+        .addClass('btn-primary')
+        .html('<i class="bi bi-pencil-square me-1"></i>Edit')
+        .attr('onclick', 'enableEdit(this)');
+
+    if (updates.length === 0) {
+        toastr.info('No changes to save.');
+        return;
+    }
+
+    // Gửi từng field update qua AJAX, không reload lại trang
+    updates.forEach(u => {
+        $.ajax({
+            url: '/Admin/Movies/UpdateField',
+            type: 'POST',
+            data: {
+                id: u.id,
+                field: u.field,
+                value: u.value,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: res => {
+                if (res.success) {
+                    toastr.success(res.message);
+                    // Cập nhật hiển thị ngay
+                    const cell = row.find(`td[data-field="${u.field}"]`);
+                    if (u.display) cell.text(u.display);
+                    else cell.text(u.value);
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: xhr => toastr.error(xhr.responseJSON?.message || 'Error processing request.')
+        });
+    });
+}
+
+
+        // === Helpers ===
+        function buildDateFromDropdown(daySel, monthSel, yearSel) {
+            const day = $(daySel).val();
+            const month = $(monthSel).val();
+            const year = $(yearSel).val();
+            if (!day || !month || !year) return null;
+            if (!isValidDate(day, month, year)) return null;
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+
+                function initDateDropdowns(daySel, monthSel, yearSel) {
+            const days = $(daySel), months = $(monthSel), years = $(yearSel);
+
+            // Ngày
+            days.empty().append(`<option value="">Day</option>`);
+            for (let i = 1; i <= 31; i++) {
+                days.append(`<option value="${i}">${i}</option>`);
+            }
+
+            // Tháng
+            months.empty().append(`<option value="">Month</option>`);
+            for (let i = 1; i <= 12; i++) {
+                months.append(`<option value="${i}">${i}</option>`);
+            }
+
+            // Năm: hiện tại → +10 năm sau
+            years.empty().append(`<option value="">Year</option>`);
+            const currentYear = new Date().getFullYear();
+            const maxYear = currentYear + 10;
+            for (let y = currentYear; y <= maxYear; y++) {
+                years.append(`<option value="${y}">${y}</option>`);
+            }
+        }
+
+
+        // Cập nhật dropdown ngày khi đổi tháng hoặc năm
+        function updateDaysDropdown(daySel, monthSel, yearSel) {
+            const month = parseInt($(monthSel).val());
+            const year = parseInt($(yearSel).val());
+            const daysInMonth = getDaysInMonth(month, year);
+            const selectedDay = $(daySel).val();
+            $(daySel).empty().append('<option value="">Day</option>');
+            for (let i = 1; i <= daysInMonth; i++) $(daySel).append(`<option value="${i}">${i}</option>`);
+            if (selectedDay && selectedDay <= daysInMonth) $(daySel).val(selectedDay);
+        }
+
+        // Kiểm tra số ngày trong tháng
+        function getDaysInMonth(month, year) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        // Kiểm tra ngày hợp lệ (ví dụ không cho 31/02)
+        function isValidDate(day, month, year) {
+            const d = new Date(`${year}-${month}-${day}`);
+            return d.getFullYear() == year && d.getMonth() + 1 == month && d.getDate() == day;
+        }
+    </script>
+}
+

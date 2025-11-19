@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Cinema.DataAccess.Repository.IRepository;
 using Cinema.Models;
@@ -16,117 +17,139 @@ namespace Cinema_System.Areas.Admin.Controllers
             _unitOfWork = unitOfWork;
         }
 
+        // Index() and GetRoomsByCinema() methods remain the same...
         public async Task<IActionResult> Index()
         {
             var schedules = await _unitOfWork.showTime.GetAllAsync("Movie,Room.Theater");
             var movies = await _unitOfWork.Movie.GetAllAsync();
             var cinemas = await _unitOfWork.Cinema.GetAllAsync();
-            //var
-            //var Showtime
-            ViewBag.Movies = movies.Select(m => new { Id = m.MovieID, Title = m.Title }).ToList();
-            ViewBag.Cinemas = cinemas.Select(c => new { Id = c.CinemaID, Name = c.Name }).ToList();
+
+            ViewBag.Movies = movies.Select(m => new { Id = m.MovieID, m.Title }).ToList();
+            ViewBag.Cinemas = cinemas.Select(c => new { Id = c.CinemaID, c.Name }).ToList();
             return View(schedules);
         }
-        //[HttpPost]
-        //public async Task<IActionResult> AddRoom(string roomNumber, int cinemaId)
-        //{
-        //    if (string.IsNullOrEmpty(roomNumber) || cinemaId <= 0)
-        //    {
-        //        return Json(new { success = false, message = "Room number and theater are required." });
-        //    }
 
-        //    try
-        //    {
-        //        var newRoom = new Room
-        //        {
-        //            RoomNumber = roomNumber,
-        //            CinemaID = cinemaId,
-
-        //        };
-
-        //        _unitOfWork.Room.Add(newRoom);
-        //        await _unitOfWork.SaveAsync();
-
-        //        return Json(new { success = true, message = "Room added successfully", room = new { RoomID = newRoom.RoomID, RoomNumber = newRoom.RoomNumber } });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "Error adding room: " + ex.Message });
-        //    }
-        //}
-        //[HttpGet("GetAll")]
-        //public async Task<IActionResult> GetAll()
-        //{
-        //    // Sử dụng includeProperties để load dữ liệu từ các bảng liên quan
-        //    var schedules = await _unitOfWork.showTime.GetAllAsync(includeProperties: "Movie,Cinema");
-
-        //    // Kiểm tra xem dữ liệu đã được load đúng cách chưa
-        //    var schedulesList = schedules.Select(s => new
-        //    {
-        //        MovieName = s.Movie?.Title ?? "Unknown", // Kiểm tra null
-        //        CinemaName = s.Cinema?.Name ?? "Unknown", // Kiểm tra null
-        //        s.RoomID,
-        //        s.ShowDates,
-        //        s.ShowTimes,
-        //        s.AvailableTicketQuantity
-        //    }).ToList();
-
-        //    return Json(new { data = schedulesList });
-        //}
-
-        //[HttpGet]
-        //public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
-        //{
-        //    //var rooms = await _unitOfWork.Room.GetRoomsByCinemaIdAsync(cinemaId); old
-        //    var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId); // quan fix ,xem lai 
-        //    // anh muon lay cai gi lay Room dua tren CinemaID hay 
-        //    // --- lay Room dua tren roomid include Theater.CinemaID
-        //var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId, includeProperties: "Theater");
-        //    return Json(rooms);
-        //}
         [HttpGet]
         public async Task<IActionResult> GetRoomsByCinema(int cinemaId)
         {
-            var rooms = await _unitOfWork.Room.GetAllAsync(r => r.Theater.CinemaID == cinemaId);
-
-            var roomList = rooms.Select(r => new
+            if (cinemaId == 0)
             {
-                RoomID = r.RoomID,
-                RoomNumber = r.RoomNumber
-            }).ToList();
-
+                return Json(new { success = false, message = "Invalid Cinema ID." });
+            }
+            var rooms = await _unitOfWork.Room.GetAllAsync(r => r.CinemaID == cinemaId);
+            var roomList = rooms.Select(r => new { r.RoomID, r.RoomNumber }).ToList();
             return Json(new { success = true, rooms = roomList });
         }
 
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ShowTime model)
         {
-            Console.WriteLine("Create action hit!"); // Debugging
-            Console.WriteLine($"Received Model: RoomID={model.RoomID}, ShowDate={model.ShowDate}, ShowTimes={model.ShowTimes}");
             if (!ModelState.IsValid)
             {
-                return Json(new { success = false, message = "Invalid showtime data." });
+                return Json(new { success = false, message = "Invalid data provided." });
             }
 
-            // Check if room exists
-            var room = await _unitOfWork.Room.GetAllAsync(r => r.RoomID == model.RoomID, includeProperties: "Seats");
-
-            var roomEntity = room.FirstOrDefault();
-            if (roomEntity == null)
+            var validationError = await ValidateShowTime(model);
+            if (validationError != null)
             {
-                return Json(new { success = false, message = "Invalid room." });
+                return Json(new { success = false, message = validationError });
             }
 
-            _unitOfWork.showTime.Add(model);
-            await _unitOfWork.SaveAsync();
+            try
+            {
+                _unitOfWork.showTime.Add(model);
+                await _unitOfWork.SaveAsync();
 
-            await _unitOfWork.ShowTimeSeat.AddRangeAsync(AutoGenerateTickets(roomEntity, model));
-            await _unitOfWork.SaveAsync();
+                var roomEntity = await _unitOfWork.Room.GetAsync(r => r.RoomID == model.RoomID, includeProperties: "Seats");
 
-            return Json(new { success = true, message = "Showtime and tickets created successfully!" });
+                if (roomEntity == null)
+                {
+                    return Json(new { success = false, message = "Invalid room." });
+                }
+                await _unitOfWork.ShowTimeSeat.AddRangeAsync(AutoGenerateTickets(roomEntity, model));
+
+                await _unitOfWork.SaveAsync();
+
+
+                return Json(new { success = true, message = "Showtime created successfully!" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception ex
+                return Json(new { success = false, message = "An unexpected error occurred." });
+            }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateShowtime(ShowTime updatedShowtime)
+        {
+            if (updatedShowtime == null || updatedShowtime.ShowTimeID == 0)
+            {
+                return Json(new { success = false, message = "Invalid data provided." });
+            }
+
+            var showtimeFromDb = await _unitOfWork.showTime.GetAsync(s => s.ShowTimeID == updatedShowtime.ShowTimeID);
+            if (showtimeFromDb == null)
+            {
+                return Json(new { success = false, message = "Showtime not found." });
+            }
+
+            // Không có gì thay đổi
+            if (showtimeFromDb.ShowDate == updatedShowtime.ShowDate &&
+                showtimeFromDb.ShowTimes == updatedShowtime.ShowTimes &&
+                showtimeFromDb.MovieID == updatedShowtime.MovieID &&
+                showtimeFromDb.RoomID == updatedShowtime.RoomID)
+                return Json(new { message = "No changes were detected." });
+
+            var validationError = await ValidateShowTime(updatedShowtime, updatedShowtime.ShowTimeID);
+            if (validationError != null)
+            {
+                return Json(new { success = false, message = validationError });
+            }
+
+            // Update properties
+            showtimeFromDb.MovieID = updatedShowtime.MovieID;
+            showtimeFromDb.RoomID = updatedShowtime.RoomID;
+            showtimeFromDb.ShowDate = updatedShowtime.ShowDate;
+            showtimeFromDb.ShowTimes = updatedShowtime.ShowTimes;
+
+            try
+            {
+                _unitOfWork.showTime.Update(showtimeFromDb);
+                await _unitOfWork.SaveAsync();
+                return Json(new { success = true, message = "Showtime updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception ex
+                return Json(new { success = false, message = "An error occurred while updating." });
+            }
+        }
+
+        // ========== THIS IS THE CORRECTED METHOD ==========
+        private async Task<string?> ValidateShowTime(ShowTime model, int? ignoreShowtimeId = null)
+        {
+            if (model.MovieID == 0) return "Movie is required.";
+            if (model.RoomID == 0) return "Room is required.";
+            if (model.ShowDate < DateOnly.FromDateTime(DateTime.Now)) return "Show date cannot be in the past.";
+            if (model.ShowTimes == default) return "Invalid show time.";
+
+            // Use AnyAsync for an efficient existence check that doesn't cause a concurrency conflict.
+            bool isConflict = await _unitOfWork.showTime.AnyAsync(s =>
+                s.RoomID == model.RoomID &&
+                s.ShowDate == model.ShowDate &&
+                s.ShowTimes == model.ShowTimes &&
+                s.ShowTimeID != ignoreShowtimeId); // This check correctly ignores the current entity being edited
+
+            if (isConflict)
+            {
+                return "A showtime already exists for this room at the selected date and time.";
+            }
+
+            return null;
+        }
 
         private List<ShowtimeSeat> AutoGenerateTickets(Room room, ShowTime showTime)
         {
@@ -143,6 +166,5 @@ namespace Cinema_System.Areas.Admin.Controllers
             }
             return seats;
         }
-
     }
 }

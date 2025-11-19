@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Cinema.DataAccess.Data;
 using Cinema.DataAccess.Repository.IRepository;
@@ -9,9 +7,6 @@ using Cinema.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Cinema.DataAccess.Repository.IRepository;
-using Cinema.Models;
-using Microsoft.AspNetCore.Mvc;
 
 
 [Area("Admin")]
@@ -128,6 +123,20 @@ public class CouponsController : Controller
                         return Json(new { success = false, message = "Used count cannot be negative." });
                     }
                     coupon.UsedCount = usedCount;
+                    break;
+                case "ExpireDate":
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        coupon.ExpireDate = null; // Cho phép bỏ trống (no expiry)
+                    }
+                    else if (DateTime.TryParseExact(value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime parsedDate))
+                    {
+                        coupon.ExpireDate = parsedDate;
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Invalid date format. Please use dd/MM/yyyy." });
+                    }
                     break;
                 default:
                     return Json(new { success = false, message = "Invalid field." });
