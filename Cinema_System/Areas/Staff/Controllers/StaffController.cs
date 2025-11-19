@@ -56,11 +56,7 @@ namespace Cinema_System.Areas.Staff.Controllers
                     if (currentTimestamp - Timestamp > 604.800) // 7 days in seconds
                         return Unauthorized("QR Code Expired");
 
-                    // Nếu OrderID là số trong DB, convert ở đây:
-                    // long parsedOrderId = long.Parse(OrderID);
-                    // var order = await _unitOfWork.OrderDetail.GetAllAsync(u => u.OrderID == parsedOrderId, ...);
-
-                    // Nếu OrderID trên DB là string, dùng trực tiếp:
+                   
                     IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(
                         u => u.OrderID.ToString() == OrderID,
                         includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
