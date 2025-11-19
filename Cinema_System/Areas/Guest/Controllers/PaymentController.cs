@@ -40,13 +40,13 @@ namespace Cinema_System.Areas
         private readonly IEmailSender _emailSender;
         //private readonly UserManager<IdentityUser> _userManager;
         public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context,
-            IEmailSender emailSender)
+            IEmailSender emailSender, IUnitOfWork unitOfWork)
         {
             _payOSService = payOSService;
             _payOS = payOS;
             _context = context;
             _emailSender = emailSender;
-            //_userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost]
@@ -287,12 +287,86 @@ namespace Cinema_System.Areas
                     bitMap.Save(qrFilePath, ImageFormat.Png);
                 }
             }
+            //------------------------------------------------------------------Ticket content-------------------------------------------------------------
+            var text = await _unitOfWork.OrderDetail.GetAllAsync();
+            Console.WriteLine("Debug Info: Fetched OrderDetails Count = " + text.Count());
 
+            IEnumerable<OrderDetail> orderDetails = await _unitOfWork.OrderDetail.GetAllAsync(
+                       u => u.OrderID == order.OrderID,
+                       includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
+                   );
+            // Pull base data
+            var first = orderDetails.First();
+            string cinemaName = first.ShowtimeSeat.Showtime.Room.Theater.Name;
+            string roomName = first.ShowtimeSeat.Showtime.Room.RoomNumber;
+            string movieName = first.ShowtimeSeat.Showtime.Movie.Title;
+            int movieDuration = first.ShowtimeSeat.Showtime.Movie.Duration;
+            DateOnly showDate = first.ShowtimeSeat.Showtime.ShowDate;
+            TimeSpan showTime = first.ShowtimeSeat.Showtime.ShowTimes;
+
+            // Convert TimeSpan → TimeOnly
+            TimeOnly timeOnly = TimeOnly.FromTimeSpan(showTime);
+
+            // Combine DateOnly + TimeOnly → DateTime
+            DateTime showDateTime = showDate.ToDateTime(timeOnly);
+
+            // Format
+            string showtimeStr = showDateTime.ToString("HH:mm");
+
+
+
+
+            // Seats
+            var seatList = orderDetails
+                .Where(o => o.ShowtimeSeat != null)
+                .Select(o => o.ShowtimeSeat.Seat.SeatName)
+                .Distinct()
+                .ToList();
+
+            // Products (popcorn, drinks, addons, etc.)
+            var productList = orderDetails
+                .Where(o => o.Product != null)
+                .Select(o => $"{o.Product.Name} x{o.Quantity}")
+                .ToList();
+
+            // Build HTML parts
+            string seatsHtml = string.Join(", ", seatList);
+            string productsHtml = productList.Count > 0
+                ? string.Join("<br>", productList)
+                : "No additional products";
+
+
+            //--------------------------------------------------------------------------------------------------------------------------------
             // Email Content
             string emailBody = $@"
-        <p>Your ticket has been generated. Please find your QR code attached.</p>
-        <p>Scan the QR code to validate your ticket at the venue.</p>
-    ";
+                <h2>Your Ticket Details</h2>
+
+                <p>Hey! Your ticket is ready. Please Check all your info below.</p>
+
+                <h3>🎬 Movie Info</h3>
+                <p><strong>Movie:</strong> {movieName}</p>
+                <p><strong>Duration:</strong> {movieDuration} minutes</p>
+
+                <h3>🏢 Cinema</h3>
+                <p><strong>Theater:</strong> {cinemaName}</p>
+                <p><strong>Room:</strong> {roomName}</p>
+
+                <h3>📅 Show Date</h3>
+                <p>{showDate}</p>
+
+                <h3>🕒 Showtime</h3>
+                <p>{showtimeStr}</p>
+
+                <h3>💺 Seat(s)</h3>
+                <p>{seatsHtml}</p>
+
+                <h3>🍿 Products</h3>
+                <p>{productsHtml}</p>
+
+                <br>
+
+                <p>Your QR code is attached. Scan it at the entrance to validate your ticket.</p>
+            ";
 
             // Send Email with Attachment
             using (var client = new SmtpClient("smtp.gmail.com", 587))
@@ -331,30 +405,7 @@ namespace Cinema_System.Areas
 
 
 
-        //https://localhost:7115/Guest/Payment/TestSendQR?orderId=3 -> test url
-        // Test API to send QR code email   
-        //[HttpGet]
-        //public async Task<IActionResult> TestSendQR(int orderId)
-        //{
-        //    var order = await _context.OrderTables
-        //        .Include(o => o.User) // Ensure User is loaded
-        //        .FirstOrDefaultAsync(o => o.OrderID == orderId);
-
-        //    if (order == null)
-        //    {
-        //        return NotFound(new { message = "Order không tồn tại" });
-        //    }
-
-        //    if (order.User == null)
-        //    {
-        //        return NotFound(new { message = "User không tồn tại trong đơn hàng" });
-        //    }
-
-        //    await GenerateTicket(order);
-
-        //    return Ok("QR Code email sent successfully!");
-        //}
-
+      
 
 
         #endregion

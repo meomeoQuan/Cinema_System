@@ -59,13 +59,7 @@ namespace Cinema.Models
             set { }
         }
 
-        // remove this if error occured
-        //[ForeignKey("UserID")]
-        //[ValidateNever]
-        //public virtual ApplicationUser User { get; set; }
-
-        //
-
+       
         [ForeignKey("OrderID")]
         [ValidateNever]
         [InverseProperty("OrderDetails")]
