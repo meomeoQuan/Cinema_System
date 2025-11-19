@@ -15,48 +15,54 @@ namespace Cinema_System.Areas.Identity.Pages.Account
 {
     public class LogoutModel : PageModel
     {
-        
-        private readonly ILogger<LogoutModel> _logger;
 
-        public LogoutModel( ILogger<LogoutModel> logger)
+        private readonly ILogger<LogoutModel> _logger;
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public LogoutModel(SignInManager<IdentityUser> signInManager,
+                           ILogger<LogoutModel> logger)
         {
-         
+            _signInManager = signInManager;
             _logger = logger;
         }
         //original code // remmove both authenticate and persistent cookies
-        //public async Task<IActionResult> OnPost(string returnUrl = null)
-        //{
-        //    await _signInManager.SignOutAsync();
-        //    _logger.LogInformation("User logged out.");
-        //    if (returnUrl != null)
-        //    {
-        //        return LocalRedirect(returnUrl);
-        //    }
-        //    else
-        //    {
-        //        // This needs to be a redirect so that the browser performs a new
-        //        // request and the identity for the user gets updated.
-        //        return RedirectToPage();
-        //    }
-        //}
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                // Remove only session authentication but keep persistent cookies
-                await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme,
-                    new AuthenticationProperties { IsPersistent = true });
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("User logged out.");
 
-                _logger.LogInformation("User logged out but persistent cookie remains.");
-            }
+            // Kill the custom cookie
+            Response.Cookies.Delete("user");
 
-            if (!string.IsNullOrEmpty(returnUrl))
+            if (returnUrl != null)
             {
                 return LocalRedirect(returnUrl);
             }
-
-            return RedirectToPage();
+            else
+            {
+                // This needs to be a redirect so that the browser performs a new
+                // request and the identity for the user gets updated.
+                return RedirectToPage();
+            }
         }
+        //public async Task<IActionResult> OnPost(string returnUrl = null)
+        //{
+        //    if (User.Identity.IsAuthenticated)
+        //    {
+        //        // Remove only session authentication but keep persistent cookies
+        //        await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme,
+        //            new AuthenticationProperties { IsPersistent = false });
+
+        //        _logger.LogInformation("User logged out but persistent cookie remains.");
+        //    }
+
+        //    if (!string.IsNullOrEmpty(returnUrl))
+        //    {
+        //        return LocalRedirect(returnUrl);
+        //    }
+
+        //    return RedirectToPage();
+        //}
 
     }
 }
