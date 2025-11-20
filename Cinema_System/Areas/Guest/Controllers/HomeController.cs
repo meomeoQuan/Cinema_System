@@ -113,6 +113,15 @@ namespace Cinema_System.Areas.Guest.Controllers
 
         #endregion
 
+        public async Task<IActionResult> About()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Policy()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Product()
         {

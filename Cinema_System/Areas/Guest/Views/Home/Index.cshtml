@@ -3,27 +3,44 @@
 
 <body>
 	<div class="container mt-4">
+		<section>
 		<!-- Advertisement Banner -->
 		<div class="row mb-4">
 			<div class="col-12">
-				<img src="~/css/images/banner2.jpg " class="img-fluid w-100" alt="Advertisement Banner">
+				<img src="~/css/images/banner2.jpg" class="img-fluid w-100" alt="Advertisement Banner">
 			</div>
 		</div>
 
-		<section class="booking-nav" style="width: 1275px;">
-			<div class="booking-container">
+			<!-- Full-width Universe Black Search Bar -->
+			<div class="my-5">
+				<div class="container-fluid px-4 px-md-5">
+					<div class="search-wrapper">
+						<form asp-action="Index" asp-controller="Home" asp-area="Guest" method="get"
+							  class="d-flex gap-3 align-items-center flex-column flex-sm-row">
 
-				<form asp-action="Index" asp-controller="Home" asp-area="Guest" method="get">
-					<div class="search-container">
-						<input type="text" class="booking-search" name="term"
-							   placeholder="Search movie" value="@ViewBag.SearchTerm">
-						<button type="submit" class="search-button">Search</button>
-						@if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
-						{
-							<a asp-action="Index" class="btn btn-secondary ml-2">Clear</a>
-						}
+							<input type="text"
+								   class="form-control search-input-modern"
+								   name="term"
+								   placeholder="Search movie"
+								   value="@ViewBag.SearchTerm"
+								   autocomplete="off">
+
+							<div class="d-flex gap-3 mt-3 mt-sm-0">
+								<button type="submit" class="btn search-btn-modern px-5">
+									Search
+								</button>
+
+								@if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+								{
+									<a asp-action="Index"
+									   class="btn btn-outline-danger btn-modern d-flex align-items-center justify-content-center text-center">
+										Clear
+									</a>
+								}
+							</div>
+						</form>
 					</div>
-				</form>
+				</div>
 			</div>
 		</section>
 
@@ -134,7 +151,64 @@
 </body>
 
 @section Scripts {
-	<!-- Make sure jQuery is loaded before your HomePage.js -->
 	<script src="~/js/HomePage.js"></script>
-}
 
+	<style>
+		.search-wrapper {
+			background: #0f0f1a; /* Deep dark blue-black */
+			border-radius: 16px;
+			padding: 14px 20px; /* Thinner padding – matches your screenshot */
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+			border: 1px solid #1e1e2e;
+			max-width: 100%;
+		}
+
+		/* Brighter, cleaner input */
+		.search-input-modern {
+			background: #1a1a2e !important;
+			border: 1px solid #33334e;
+			color: #e0e0ff !important;
+			border-radius: 12px;
+			font-size: 1.1rem;
+			height: 56px;
+			padding: 0 20px;
+		}
+
+			.search-input-modern::placeholder {
+				color: #8888aa;
+			}
+
+			.search-input-modern:focus {
+				background: #1e1e38 !important;
+				border-color: #6e56cf;
+				box-shadow: 0 0 0 3px rgba(110, 86, 207, 0.3);
+				outline: none;
+				color: #ffffff;
+			}
+
+		/* Brighter modern button */
+		.search-btn-modern {
+			background: linear-gradient(135deg, #6e56cf, #8b5cf6);
+			border: none;
+			color: white;
+			font-weight: 600;
+			border-radius: 12px;
+			height: 56px;
+			min-width: 120px;
+			transition: all 0.3s ease;
+		}
+
+			.search-btn-modern:hover {
+				background: linear-gradient(135deg, #7e6de0, #9d75ff);
+				transform: translateY(-2px);
+				box-shadow: 0 8px 25px rgba(110, 86, 207, 0.4);
+			}
+
+		.btn-modern {
+			height: 56px;
+			border-radius: 12px;
+			min-width: 100px;
+		}
+		
+	</style>
+}
