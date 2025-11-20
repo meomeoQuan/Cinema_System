@@ -14,5 +14,8 @@ namespace Cinema_System.Areas.Request
 
         public GuestRequest Guest { get; set; } = new GuestRequest();
         public string Coupon { get; set; } = string.Empty;
+
+        // ⭐⭐⭐ ADD THIS ⭐⭐⭐
+        public FriendEmailRequest FriendEmails { get; set; } = new();
     }
 }

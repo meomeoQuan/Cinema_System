@@ -103,7 +103,7 @@ namespace Cinema_System.Areas
             };
 
             _context.OrderTables.Add(order);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
 
             long orderId = order.OrderID;
 
@@ -123,7 +123,7 @@ namespace Cinema_System.Areas
                     Price = showtimeSeat.Price,
 
                 });
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
             }
 
             // Thêm thức ăn vào danh sách
@@ -137,7 +137,7 @@ namespace Cinema_System.Areas
                     Quantity = food.quantity,
                     Price = food.price,
                 });
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
 
             }
 
@@ -148,6 +148,26 @@ namespace Cinema_System.Areas
                 couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
                 items.Add(new ItemData(coupon.Code, 1, couponPrice));
             }
+
+            // === TẠO DANH SÁCH EMAIL THEO THỨ TỰ ===
+            var emailList = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(request.Guest?.email))
+                emailList.Add(request.Guest.email.Trim());
+
+            if (request.FriendEmails?.Emails != null)
+            {
+                foreach (var e in request.FriendEmails.Emails)
+                {
+                    if (!string.IsNullOrWhiteSpace(e) && !emailList.Contains(e.Trim(), StringComparer.OrdinalIgnoreCase))
+                        emailList.Add(e.Trim());
+                }
+            }
+
+            order.RecipientEmails = string.Join(",", emailList); // ← QUAN TRỌNG
+            _context.OrderTables.Add(order);
+            await _context.SaveChangesAsync();
+            // ========================================
 
             // Gọi dịch vụ PayOS để tạo thanh toán
             var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
@@ -222,35 +242,41 @@ namespace Cinema_System.Areas
         [HttpGet]
         public async Task<IActionResult> ReturnUrl(long orderCode)
         {
-            // Tìm đơn hàng trong database với User
             var order = await _context.OrderTables
-                .Include(o => o.User) // Ensure User is loaded
+                .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.OrderID == orderCode);
 
             if (order == null)
-            {
                 return NotFound(new { message = "Order không tồn tại" });
-            }
 
-            if (order.User == null)
-            {
-                return NotFound(new { message = "User không tồn tại trong đơn hàng" });
-            }
+            // === LẤY DANH SÁCH EMAIL ĐÃ LƯU ===
+            var emailList = string.IsNullOrWhiteSpace(order.RecipientEmails)
+                ? new List<string>()
+                : order.RecipientEmails.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                     .Select(e => e.Trim())
+                     .ToList();
 
+            // Nếu không có email nào (trường hợp lỗi), ít nhất gửi cho User chính
+            if (!emailList.Any() && order.User?.Email != null)
+                emailList.Add(order.User.Email);
 
-
-            // Cập nhật trạng thái đơn hàng thành "Completed"
+            // Cập nhật trạng thái
             order.Status = OrderStatus.Completed;
             order.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync(); // Ensure async save
+            // === GỬI EMAIL CHO TẤT CẢ NGƯỜI TRONG DANH SÁCH ===
+            if (emailList.Any())
+            {
+             
+                        foreach (var email in emailList)
+                        {
+                            await GenerateTicket(order, email); // hàm cũ của bạn vẫn dùng được
+                        }
+                 
+            }
 
-
-
-            // Gửi QR code qua email
-            await GenerateTicket(order, order.User.Email);
-
-            return View();
+                return View(); // hoặc RedirectToAction("Success")
         }
 
         public async Task GenerateTicket(OrderTable order, string emailUser)

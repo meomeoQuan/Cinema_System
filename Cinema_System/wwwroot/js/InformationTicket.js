@@ -9,7 +9,7 @@
 
     let movieTitle = document.getElementById("movie-title");
     let cinemaName = document.getElementById("cinema-name");
-    let showTime = document.getElementById("show-time");   
+    let showTime = document.getElementById("show-time");
     let selectedSeats = document.getElementById("selected-seats");
     let ticketPrice = document.getElementById("ticket-price");
     let foodList = document.getElementById("food-list");
@@ -82,20 +82,20 @@ document.getElementById("bookingForm").addEventListener('submit', function (e) {
         },
     }
 
-        fetch(`/Guest/Payment/CreatePayment`, {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(bookingData),
-        }).then(response => response.json())
-            .then(data => {
-                if (data.paymentUrl) {
-                    window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
-                } else {
-                    alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
-                    bookBtn.disabled = false;
-                }
-            })
-            .catch(error => bookBtn.disabled = false);
+    fetch(`/Guest/Payment/CreatePayment`, {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bookingData),
+    }).then(response => response.json())
+        .then(data => {
+            if (data.paymentUrl) {
+                window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
+            } else {
+                alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
+                bookBtn.disabled = false;
+            }
+        })
+        .catch(error => bookBtn.disabled = false);
 })

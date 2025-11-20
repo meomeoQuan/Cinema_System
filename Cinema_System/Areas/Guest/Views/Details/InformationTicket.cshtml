@@ -69,52 +69,142 @@
     </div>
 </div>
 @section Scripts {
-    <script src="~/js/InformationTicket.js"></script>
+    @* <script src="~/js/InformationTicket.js"></script> *@
     <script>
-                const selectedSeatsEl = document.getElementById("selected-seats");
-        const attendeesContainer = document.getElementById("attendees-container");
-        const addBtn = document.getElementById("add-attendee");
+                // wwwroot/js/InformationTicket.js
+        console.log("InformationTicket.js đã load – bắt đầu");
 
-        // Count number of selected seats dynamically
-        function getMaxSeats() {
-            if (!selectedSeatsEl) return 0;
-            const seatsText = selectedSeatsEl.textContent || "";
-            const seats = seatsText.split(",").map(s => s.trim()).filter(s => s !== "");
-            return seats.length - 1;
+        function formatDateTime(isoString) {
+            if (!isoString) return "N/A";
+            const d = new Date(isoString);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
-        let attendeeCount = 0;
+        // TẤT CẢ MỌI THỨ LIÊN QUAN ĐẾN DOM ĐỀU PHẢI Ở ĐÂY!!!
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DOM ready – bắt đầu xử lý toàn bộ logic");
 
-        function createAttendeeField(index) {
-            const maxSeats = getMaxSeats(); // always get latest count
-            if (attendeeCount >= maxSeats) {
-                alert(`Chỉ được thêm tối đa ${maxSeats} người.`);
+            // ===== 1. LẤY bookingData =====
+            const bookingData = JSON.parse(localStorage.getItem("bookingData"));
+            if (!bookingData || !bookingData.Seats || bookingData.Seats.length === 0) {
+                alert("Không có dữ liệu ghế! Vui lòng chọn lại.");
                 return;
             }
 
-            attendeeCount++;
+            // ===== 2. GÁN THÔNG TIN VÉ =====
+            document.getElementById("movie-title").textContent = bookingData.TitleMovie || "N/A";
+            document.getElementById("cinema-name").textContent = bookingData.Cinema?.name || "N/A";
+            document.getElementById("show-time").textContent = formatDateTime(bookingData.Showtime?.showDate);
 
-            const div = document.createElement("div");
-            div.className = "mb-3 attendee-row";
-            div.innerHTML = `
-                <label class="form-label">
-                    Email người thứ ${index + 1}
-                </label>
-                <input name="email" type="email" class="form-control attendee-email" required>
-                <button type="button" class="btn btn-sm btn-danger mt-2 remove-attendee">Xóa</button>
-            `;
-            attendeesContainer.appendChild(div);
-        }
+            const seatNames = bookingData.Seats.map(s => s.nameSeat).join(", ");
+            document.getElementById("selected-seats").textContent = seatNames;
 
-        addBtn.addEventListener("click", () => {
-            createAttendeeField(attendeeCount);
-        });
+            const pricePerTicket = Number(bookingData.ShowTimeSeat?.price) || 0;
+            document.getElementById("ticket-price").textContent = pricePerTicket.toLocaleString('vi-VN') + " VNĐ/vé";
 
-        attendeesContainer.addEventListener("click", e => {
-            if (e.target.classList.contains("remove-attendee")) {
-                e.target.closest(".attendee-row").remove();
-                attendeeCount--;
+            // Tính tổng + thức ăn
+            let total = bookingData.Seats.length * pricePerTicket;
+            const foodList = document.getElementById("food-list");
+            foodList.innerHTML = "";
+
+            if (bookingData.Items && bookingData.Items.length > 0) {
+                bookingData.Items.forEach(food => {
+                    const price = Number(food.price) || 0;
+                    const lineTotal = food.quantity * price;
+                    total += lineTotal;
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.textContent = `${food.name} x${food.quantity} - ${lineTotal.toLocaleString('vi-VN')} VNĐ`;
+                    foodList.appendChild(li);
+                });
+            } else {
+                foodList.innerHTML = "<li class='list-group-item text-muted'>Chưa chọn thức ăn</li>";
             }
+
+            document.getElementById("total-price").textContent = total.toLocaleString('vi-VN') + " VNĐ";
+
+            // ===== 3. LOGIC THÊM EMAIL NGƯỜI ĐI KÈM (BÂY GIỜ CHẠY ĐÚNG) =====
+            const selectedSeatsEl = document.getElementById("selected-seats");        // ← giờ mới lấy, đã có DOM
+            const attendeesContainer = document.getElementById("attendees-container");
+            const addBtn = document.getElementById("add-attendee");
+            let attendeeCount = 0;
+
+            function getSeatCount() {
+                const text = selectedSeatsEl?.textContent || "";
+                return text.split(",").map(s => s.trim()).filter(Boolean).length - 1;
+            }
+
+            function createAttendeeField() {
+                if (attendeeCount >= getSeatCount()) {
+                    alert(`Chỉ được thêm tối đa ${getSeatCount()} người (số ghế đã chọn)`);
+                    return;
+                }
+                attendeeCount++;
+                const div = document.createElement("div");
+                div.className = "mb-3 attendee-row";
+                div.innerHTML = `
+                    <label class="form-label">Email người thứ ${attendeeCount}</label>
+                    <input name="attendeeEmails[]" type="email" class="form-control" required>
+                    <button type="button" class="btn btn-sm btn-danger mt-2 remove-attendee">Xóa</button>
+                `;
+                attendeesContainer.appendChild(div);
+            }
+
+            addBtn.addEventListener("click", createAttendeeField);
+
+            attendeesContainer.addEventListener("click", e => {
+                if (e.target.classList.contains("remove-attendee")) {
+                    e.target.closest(".attendee-row").remove();
+                    attendeeCount--;
+                }
+            });
+
+            // ===== 4. SUBMIT FORM + GỬI PAYMENT =====
+            document.getElementById("bookingForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                console.log("Đang submit form thanh toán...");
+
+                const data = JSON.parse(localStorage.getItem("bookingData"));
+                if (!data) return alert("Dữ liệu bị mất!");
+
+                const fullname = document.querySelector("[name='fullname']").value.trim();
+                const email = document.querySelector("[name='email']").value.trim();
+                const phone = document.querySelector("[name='phone']").value.trim();
+
+                const friendEmails = Array.from(document.querySelectorAll("input[name='attendeeEmails[]']"))
+                    .map(i => i.value.trim())
+                    .filter(Boolean);
+
+                data.Guest = { fullname, email, phone };
+                data.FriendEmails = { Emails: friendEmails };
+
+                console.log("Payload gửi server:", JSON.stringify(data, null, 2));
+
+                fetch("/Guest/Payment/CreatePayment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                })
+                    .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t || "Lỗi server") }))
+                    .then(res => {
+                        if (res.paymentUrl) {
+                            location.href = res.paymentUrl;
+                        } else {
+                            alert("Thanh toán thất bại: " + JSON.stringify(res));
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Lỗi: " + err.message);
+                    });
+            });
+
+            console.log("TOÀN BỘ TRANG ĐÃ SẴN SÀNG – BẠN CÓ THỂ BẤM + THÊM NGƯỜI VÀ ĐẶT VÉ NGAY!");
         });
     </script>
 }

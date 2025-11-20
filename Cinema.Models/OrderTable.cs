@@ -34,6 +34,8 @@ namespace Cinema.Models
 
         public DateTime UpdatedAt { get; set; }
 
+        // Trong model OrderTable
+        public string RecipientEmails { get; set; } = string.Empty; // lưu dạng: "a@gmail.com,b@gmail.com,c@gmail.com"
 
         [ForeignKey("UserID")]
         [ValidateNever]
