@@ -75,5 +75,6 @@ namespace Cinema.Models
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
 
         public bool IsScanned { get; set; } = false; // Mặc định chưa quét
+        public DateTime ScannedAt { get; set; }
     }
 }

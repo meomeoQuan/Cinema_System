@@ -141,7 +141,7 @@ namespace Cinema_System.Areas.Identity.Pages.Account
 
             // snippet code above will go to the dbinitializer class
 
-          
+
 
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -152,97 +152,127 @@ namespace Cinema_System.Areas.Identity.Pages.Account
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            var currentlyUser = _userManager.GetUserId(User);
+            var currentUserId = _userManager.GetUserId(User);
 
+            // phone duplication check
+            var existingPhone = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.PhoneNumber == Input.PhoneNumber && u.Id != currentUserId);
 
-            var existingUser = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == Input.PhoneNumber && u.Id != currentlyUser);
-            if (existingUser != null)
+            if (existingPhone != null)
             {
-                ModelState.AddModelError("Input.phoneNumber", "Phone Number is already in use");
+                ModelState.AddModelError("Input.PhoneNumber", "Phone Number is already in use");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Page();
+
+            IdentityResult result;
+            ApplicationUser user;
+
+            // 1) Try to find anonymous user by email
+            var existingUser = await _unitOfWork.ApplicationUser
+                .GetFirstOrDefaultAsync(u => u.Email == Input.Email && u.IsAnonymous == true);
+
+            if (existingUser != null)
             {
-                var user = CreateUser();
+                // ⭐ UPGRADE ANONYMOUS USER
+                user = existingUser;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-
-                // if not left empty
-
 
                 user.FullName = Input.FullName;
                 user.PhoneNumber = Input.PhoneNumber;
                 user.Points = Input.Points;
                 user.UserImage = Input.UserImage;
+                user.IsAnonymous = false;
 
+                result = await _userManager.UpdateAsync(user);
 
-
-
-                var result = await _userManager.CreateAsync(user, Input.Password);
-
-
-                if (result.Succeeded)
+                // set password if needed
+                if (result.Succeeded && string.IsNullOrEmpty(user.PasswordHash))
                 {
-                    _logger.LogInformation("User created a new account with password.");
-
-                    //-------------------------------------------------------
-                    if (!string.IsNullOrEmpty(Input.Role))
-                    {
-
-                        await _userManager.AddToRoleAsync(user, Input.Role);
-                    }
-                    else
-                    {
-                        await _userManager.AddToRoleAsync(user, SD.Role_Guest);
-                    }
-
-                    //--------------------------------------------------------
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
-
-                    string encodedUrl = Uri.EscapeUriString(callbackUrl);
-                    string emailBody = $"Please confirm your account by <a href='{encodedUrl}'>clicking here</a>.";
-                    await _emailSender.SendEmailAsync(user.Email, "Confirm your email", emailBody);
-
-
-
-
-
-
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        if (User.IsInRole(SD.Role_Admin))
-                        {
-                            TempData["Success"] = "New User Created";
-                        }
-                        else
-                        {
-                            await _signInManager.SignInAsync(user, isPersistent: false);
-                            return LocalRedirect(returnUrl);
-                        }
-
-                    }
+                    var passResult = await _userManager.AddPasswordAsync(user, Input.Password);
+                    if (!passResult.Succeeded)
+                        return AddErrorsAndReturn(passResult);
                 }
-                foreach (var error in result.Errors)
+            }
+            else
+            {
+                // ⭐ NORMAL NEW USER PATH
+                user = CreateUser();
+
+                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                user.FullName = Input.FullName;
+                user.PhoneNumber = Input.PhoneNumber;
+                user.Points = Input.Points;
+                user.UserImage = Input.UserImage;
+                user.IsAnonymous = false;
+
+                result = await _userManager.CreateAsync(user, Input.Password);
+            }
+
+            if (!result.Succeeded)
+                return AddErrorsAndReturn(result);
+
+            // role setup
+            if (!string.IsNullOrEmpty(Input.Role))
+                await _userManager.AddToRoleAsync(user, Input.Role);
+            else
+                await _userManager.AddToRoleAsync(user, SD.Role_Guest);
+
+            // email confirmation
+            var userId = await _userManager.GetUserIdAsync(user);
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            var callbackUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                null,
+                new { area = "Identity", userId, code, returnUrl },
+                Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                user.Email,
+                "Confirm your email",
+                $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
+            );
+
+            // sign in or admin redirect
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
+            {
+                return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
+            }
+            else
+            {
+                if (User.IsInRole(SD.Role_Admin))
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    TempData["Success"] = "New User Created";
+                }
+                else
+                {
+                    await _signInManager.SignInAsync(user, false);
+                    return LocalRedirect(returnUrl);
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
+
+        private IActionResult AddErrorsAndReturn(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return Page();
+        }
+
+        // If we got this far, something failed, redisplay form
+
+
 
         private ApplicationUser CreateUser()
         {

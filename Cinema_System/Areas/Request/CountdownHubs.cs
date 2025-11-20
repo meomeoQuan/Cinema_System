@@ -16,7 +16,7 @@ namespace Cinema_System.Areas.Request
     {
         private class ConnectionState
         {
-            public int CountdownTime { get; set; } = 300; // 30 giây
+            public int CountdownTime { get; set; } = 30; // 30 giây
             public HashSet<int> SelectedSeats { get; } = new HashSet<int>();
             public CancellationTokenSource TimerTokenSource { get; set; }
         }

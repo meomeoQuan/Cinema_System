@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251119081920_a")]
-    partial class a
+    [Migration("20251119175901_AddIsAnonymous_InUser")]
+    partial class AddIsAnonymous_InUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1911,6 +1911,9 @@ namespace Cinema.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Points")
                         .HasColumnType("int");
 
@@ -1937,6 +1940,7 @@ namespace Cinema.DataAccess.Migrations
                             TwoFactorEnabled = false,
                             UserName = "Đào Duy Quý",
                             FullName = "Đào Duy Quý",
+                            IsAnonymous = false,
                             Points = 0,
                             UserImage = "/css/images/user.png"
                         });

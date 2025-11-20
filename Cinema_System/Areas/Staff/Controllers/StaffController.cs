@@ -46,6 +46,7 @@ namespace Cinema_System.Areas.Staff.Controllers
                 {
                     
                     orderDetails.IsScanned = true;
+                    orderDetails.ScannedAt = DateTime.UtcNow;
                     _unitOfWork.OrderDetail.Update(orderDetails);
                     await _unitOfWork.SaveAsync();
 

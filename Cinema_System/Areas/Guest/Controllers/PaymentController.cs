@@ -71,7 +71,8 @@ namespace Cinema_System.Areas
                     NormalizedEmail = null,
                     PhoneNumber = request.Guest.phone,
                     FullName = request.Guest.fullname,
-                    EmailConfirmed = false
+                    EmailConfirmed = false,
+                    IsAnonymous = true,
                 };
 
                 _context.Users.Add(newGuestUser);
