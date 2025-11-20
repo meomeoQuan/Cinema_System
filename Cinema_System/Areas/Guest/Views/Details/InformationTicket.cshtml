@@ -7,14 +7,14 @@
     <div class="row">
         <!-- Cột trái: Thông tin người đặt -->
         <div class="col-md-6">
-            <h3>Thông Tin Người Đặt</h3>
+            <h3>Thông Tin Người Đặt Vé (Người Thanh Toán)</h3>
             <form id="bookingForm">
                 <div class="mb-3">
-                    <label class="form-label">Họ và Tên</label>
+                    <label class="form-label">Họ và Tên (Chủ thanh toán)</label>
                     <input name="fullname" type="text" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">Email (Chủ thanh toán)</label>
                     <input name="email" type="email" class="form-control" required>
                 </div>
                 <div class="mb-3">
@@ -22,17 +22,24 @@
                     <input name="phone" type="tel" class="form-control" required>
                 </div>
 
+                <hr>
+                <h5>Thông Tin Người Xem Phim (Mỗi người 1 QR riêng)</h5>
+
+                <div id="attendees-container"></div>
+                <button type="button" id="add-attendee" class="btn btn-outline-primary btn-sm mb-3">
+                    + Thêm người 
+                </button>
+
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="ageCheck" required>
                     <label class="form-check-label" for="ageCheck">
                         Đảm bảo mua vé đúng số tuổi quy định.
                     </label>
                 </div>
-
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" id="termsCheck" required>
                     <label class="form-check-label" for="termsCheck">
-                        Đồng ý với <a href="#">điều khoản của Cinema</a>.
+                        Đồng ý với <a asp-controller="Home" asp-action="Policy">điều khoản của Cinema</a>.
                     </label>
                 </div>
 
@@ -63,5 +70,52 @@
 </div>
 @section Scripts {
     <script src="~/js/InformationTicket.js"></script>
+    <script>
+                const selectedSeatsEl = document.getElementById("selected-seats");
+        const attendeesContainer = document.getElementById("attendees-container");
+        const addBtn = document.getElementById("add-attendee");
+
+        // Count number of selected seats dynamically
+        function getMaxSeats() {
+            if (!selectedSeatsEl) return 0;
+            const seatsText = selectedSeatsEl.textContent || "";
+            const seats = seatsText.split(",").map(s => s.trim()).filter(s => s !== "");
+            return seats.length - 1;
+        }
+
+        let attendeeCount = 0;
+
+        function createAttendeeField(index) {
+            const maxSeats = getMaxSeats(); // always get latest count
+            if (attendeeCount >= maxSeats) {
+                alert(`Chỉ được thêm tối đa ${maxSeats} người.`);
+                return;
+            }
+
+            attendeeCount++;
+
+            const div = document.createElement("div");
+            div.className = "mb-3 attendee-row";
+            div.innerHTML = `
+                <label class="form-label">
+                    Email người thứ ${index + 1}
+                </label>
+                <input name="email" type="email" class="form-control attendee-email" required>
+                <button type="button" class="btn btn-sm btn-danger mt-2 remove-attendee">Xóa</button>
+            `;
+            attendeesContainer.appendChild(div);
+        }
+
+        addBtn.addEventListener("click", () => {
+            createAttendeeField(attendeeCount);
+        });
+
+        attendeesContainer.addEventListener("click", e => {
+            if (e.target.classList.contains("remove-attendee")) {
+                e.target.closest(".attendee-row").remove();
+                attendeeCount--;
+            }
+        });
+    </script>
 }
 
