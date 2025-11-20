@@ -168,39 +168,33 @@
                             </p>
                             
                         </div>
-
-
-                        
-
-                     
-                            <div class="text-center mt-3">
-                                <div class="login-divider">
-                                    <span>Or log in with</span>
-                                </div>
-
-                            <div class="d-flex flex-column gap-3 mt-2">
-                                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
-                                {
-                                    @foreach (var provider in Model.ExternalLogins!)
-                                    {
-                                        var providerClass = provider.Name.ToLower() == "google" ? "btn-google" :
-                                        provider.Name.ToLower() == "facebook" ? "btn-facebook" : "btn-outline-primary";
-
-                                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                                            <button type="submit" class="btn @providerClass w-100" name="provider" value="@provider.Name">
-                                                <i class="bi bi-@(provider.Name.ToLower())"></i> Log in with @provider.DisplayName
-                                            </button>
-                                        </form>
-                                    }
-                                }
-                                else
-                                {
-                                    <p class="text-muted">No external login providers available</p>
-                                }
-                            </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <div class="login-divider">
+                            <span>Or log in with</span>
                         </div>
 
-                    </form>
+                        <div class="d-flex flex-column gap-3 mt-2">
+                            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                            {
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    var providerClass = provider.Name.ToLower() == "google" ? "btn-google" :
+                                    provider.Name.ToLower() == "facebook" ? "btn-facebook" : "btn-outline-primary";
+
+                                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                        <button type="submit" class="btn @providerClass w-100" name="provider" value="@provider.Name">
+                                            <i class="bi bi-@(provider.Name.ToLower())"></i> Log in with @provider.DisplayName
+                                        </button>
+                                    </form>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted">No external login providers available</p>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
