@@ -265,13 +265,15 @@ namespace Cinema_System.Areas
             order.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
+            int count = emailList.Count;
+
             // === GỬI EMAIL CHO TẤT CẢ NGƯỜI TRONG DANH SÁCH ===
             if (emailList.Any())
             {
              
                         foreach (var email in emailList)
                         {
-                            await GenerateTicket(order, email); // hàm cũ của bạn vẫn dùng được
+                            await GenerateTicket(order, email, count); // hàm cũ của bạn vẫn dùng được
                         }
                  
             }
@@ -279,7 +281,7 @@ namespace Cinema_System.Areas
                 return View(); // hoặc RedirectToAction("Success")
         }
 
-        public async Task GenerateTicket(OrderTable order, string emailUser)
+        public async Task GenerateTicket(OrderTable order, string emailUser, int count)
         {
 
 
@@ -287,17 +289,31 @@ namespace Cinema_System.Areas
             string orderId = order.OrderID.ToString();
             bool IsScanned = false;
             string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+
+            var orderDetail = await _unitOfWork.OrderDetail.GetAsync(
+                      u => u.OrderID == order.OrderID
+                  );
+
+            if(orderDetail!= null)
+            {
+                orderDetail.NumberOfScan = count;
+                orderDetail.IsScanned = false;
+                _unitOfWork.OrderDetail.Update(orderDetail);
+                await _unitOfWork.SaveAsync();
+            }
+               
+
             string? validationUrl = "";
             // 🔐 Generate HMAC-SHA256 token
             using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
             {
-                string dataToSign = $"{orderId}:{timestamp}:{IsScanned}"; // OrderID + Timestamp
+                string dataToSign = $"{orderId}:{timestamp}:{IsScanned}:{count}"; // OrderID + Timestamp
                 byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));
                 string token = Convert.ToBase64String(hash);// Encode as Base64
 
                 // 🏷️ Generate the Secure Validation URL
                 validationUrl = Url.Action("ValidAuthentication", "Staff",
-                   new { area = "Staff", OrderID = orderId, Key = token, Timestamp = timestamp, IsScanned = IsScanned }, Request.Scheme);
+                   new { area = "Staff", OrderID = orderId, Key = token, Timestamp = timestamp, IsScanned = IsScanned , count = count}, Request.Scheme);
             }
 
             // Define QR Code file path (Temporary location)
@@ -322,6 +338,8 @@ namespace Cinema_System.Areas
                        u => u.OrderID == order.OrderID,
                        includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
                    );
+
+     
             // Pull base data
             var first = orderDetails.First();
             string cinemaName = first.ShowtimeSeat.Showtime.Room.Theater.Name;
