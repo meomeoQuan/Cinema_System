@@ -6,12 +6,12 @@ let connection = new signalR.HubConnectionBuilder()
 
 // --- 2. Định nghĩa các Hàm Xử lý Sự kiện từ Server ---
 connection.on("ReceiveCountdown", function (timeLeft) {
-    console.log(`⏳ Nhận thời gian từ server: ${timeLeft}s`);
+    console.log(⏳ Nhận thời gian từ server: ${ timeLeft }s);
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     const countdownElement = document.getElementById("countdown");
     if (countdownElement) {
-        countdownElement.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        countdownElement.textContent = ${ minutes }:${ seconds < 10 ? "0" : "" }${ seconds };
     }
 });
 
@@ -56,7 +56,7 @@ document.getElementById("time").addEventListener("change", function () {
             let showtimeSeatList = [];
 
             // Bước 1 & 2: Fetch API và lấy chi tiết ghế
-            fetch(`/api/showtime-seat/${showtimeId}`)
+            fetch(/api/showtime - seat / ${ showtimeId })
                 .then(response => response.json())
                 .then(data => {
                     showtimeSeatList = data;
@@ -72,7 +72,7 @@ document.getElementById("time").addEventListener("change", function () {
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`Lỗi: ${response.status} - ${response.statusText}`);
+                        throw new Error(Lỗi: ${ response.status } - ${ response.statusText });
                     }
                     return response.json();
                 })
@@ -152,7 +152,7 @@ document.getElementById("seats").addEventListener("click", async function (event
     // 1. Kiểm tra trạng thái ghế (VẪN CẦN THIẾT)
     let available;
     try {
-        const response = await fetch(`/api/showtime-seat/ss/${showSeatId}`); // GET
+        const response = await fetch(/api/showtime - seat / ss / ${ showSeatId }); // GET
         if (!response.ok) throw new Error("Server không phản hồi");
         let data = await response.json();
         available = data.status === 0; // true nếu status là 0 (trống)
@@ -171,10 +171,10 @@ document.getElementById("seats").addEventListener("click", async function (event
 
             // Cập nhật UI ngay lập- tức
             seat.classList.remove("selected");
-            console.log(`Đã bỏ chọn ghế ${showSeatId}`);
+            console.log(Đã bỏ chọn ghế ${ showSeatId });
 
             // XÓA BỎ FETCH PUT
-            // fetch(`/api/showtime-seat/${showSeatId}/0`, ... ) // << ĐÃ XÓA
+            // fetch(/api/showtime-seat/${showSeatId}/0, ... ) // << ĐÃ XÓA
 
         } catch (err) {
             console.error("Lỗi khi bỏ chọn ghế (SignalR):", err.message);
@@ -195,10 +195,10 @@ document.getElementById("seats").addEventListener("click", async function (event
 
             // Cập nhật UI ngay lập tức
             seat.classList.add("selected");
-            console.log(`Đã chọn ghế ${showSeatId}`);
+            console.log(Đã chọn ghế ${ showSeatId });
 
             // XÓA BỎ FETCH PUT
-            // fetch(`/api/showtime-seat/${showSeatId}/2`, ... ) // << ĐÃ XÓA
+            // fetch(/api/showtime-seat/${showSeatId}/2, ... ) // << ĐÃ XÓA
 
         } catch (err) {
             console.error("Lỗi khi chọn ghế (SignalR):", err.message);
@@ -245,7 +245,7 @@ async function updateTotal() {
 
         let totalElement = document.getElementById("total");
         if (totalElement) {
-            totalElement.innerText = `Total: ${total}`;
+            totalElement.innerText = Total: ${ total };
         }
     } catch (error) {
         console.error("Lỗi khi gọi API:", error);
@@ -258,7 +258,7 @@ async function updateTotal() {
         let price = parseInt($(this).find('.price').text().replace(/\D/g, ''));
 
         if (count > 0) {
-            selectedFoods.push(`${count} x ${foodName}`);
+            selectedFoods.push(${ count } x ${ foodName });
             total += count * price;
         }
     });
@@ -357,7 +357,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
     let coupon = document.querySelector(".coupon").value;
     let cinemaId = document.querySelector("#cinema").value;
     let showtimeSeat;
-    const apiUrl = `/api/showtime-seat/ss/${selectedSeats[0].showTimeSeatId}`;
+    const apiUrl = /api/showtime - seat / ss / ${ selectedSeats[0].showTimeSeatId };
 
     try {
         let response = await fetch(apiUrl);
@@ -371,7 +371,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
 
     let showtime;
     try {
-        let response = await fetch(`/api/showtime/getById/${showtimeSeat.showtimeID}`)
+        let response = await fetch(/api/showtime / getById / ${ showtimeSeat.showtimeID })
         showtime = await response.json();
     } catch (e) {
         console.error(e);
@@ -381,7 +381,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
 
     let cinema;
     try {
-        let response = await fetch(`/api/cinemas/id/${cinemaId}`);
+        let response = await fetch(/api/cinemas / id / ${ cinemaId });
         cinema = await response.json();
     } catch (e) {
         console.error(e);
@@ -414,7 +414,7 @@ document.getElementById('book-btn').addEventListener('click', async function () 
     }
 
     if (user != null) {
-        fetch(`/Guest/Payment/CreatePayment`, {
+        fetch(/Guest/Payment / CreatePayment, {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bookingData),
@@ -547,7 +547,7 @@ document.getElementById("cinemaCity").addEventListener("change", function () {
     timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (cinemaCityName) {
-        fetch(`/api/cinemas/${cinemaCityName}`)
+        fetch(/api/cinemas / ${ cinemaCityName })
             .then(response => response.json())
             .then(data => {
                 data.forEach(cinema => {
@@ -577,7 +577,7 @@ document.getElementById("cinema").addEventListener("change", function () {
     timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (cinemaId) {
-        fetch(`/api/showtime/${cinemaId}/${movieId}`)
+        fetch(/api/showtime / ${ cinemaId } / ${ movieId })
             .then(response => response.json())
             .then(data => {
                 let uniqueDates = new Set();
@@ -613,7 +613,7 @@ document.getElementById("date").addEventListener("change", function () {
     timeDropdown.innerHTML = '<option value="">-- Select a Time --</option>';
 
     if (dateChoose) {
-        fetch(`/api/showtime/${cinemaId}/${movieId}`)
+        fetch(/api/showtime / ${ cinemaId } / ${ movieId })
             .then(response => response.json())
             .then(data => {
                 data.forEach(showtime => {
