@@ -373,6 +373,8 @@ namespace Cinema_System.Areas
                 <h2>Your Ticket Details</h2>
 
                 <p>Hey! Your ticket is ready. Please Check all your info below.</p>
+                 
+                <h4>Order ID: {order.OrderID}</h4>                    
 
                 <h3>🎬 Movie Info</h3>
                 <p><strong>Movie:</strong> {movieName}</p>

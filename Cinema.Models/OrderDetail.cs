@@ -76,5 +76,7 @@ namespace Cinema.Models
 
         public bool IsScanned { get; set; } = false; // Mặc định chưa quét
         public DateTime ScannedAt { get; set; }
+
+        public int NumberOfScan { get; set; } = 0;
     }
 }
