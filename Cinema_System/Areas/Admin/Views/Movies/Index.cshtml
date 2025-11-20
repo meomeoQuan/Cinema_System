@@ -9,7 +9,10 @@
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title mb-0 text-center fw-bold">Movie Management</h3>
-            <button id="addBtn" class="btn btn-primary">Add</button>
+            <!-- Add button triggers modal -->
+            <button id="addBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMovieModal">
+                Add
+            </button>
         </div>
 
         <div class="card-body">
@@ -17,8 +20,9 @@
                 <table id="tblData" class="table table-bordered table-hover table-striped">
                     <thead class="thead-light">
                         <tr>
-                            <th style="width: 20%;">Title</th>
-                            <th style="width: 45%;">Synopsis</th>
+                            <th style="width: 10%;">Image</th>
+                            <th style="width: 15%;">Title</th>
+                            <th style="width: 40%;">Synopsis</th>
                             <th style="width: 10%;">Genre</th>
                             <th style="width: 5%;">Duration</th>
                             <th style="width: 11%;">Release Date</th>
@@ -30,32 +34,28 @@
                         @foreach (var movie in Model)
                         {
                             <tr>
-                                <td data-id="@movie.MovieID" data-field="Title">
-                                    <div class="d-flex align-items-center">
-                                        <img src="@movie.MovieImage" alt="Movie Image" class="img-fluid" width="50">
-                                        <div class="ms-2">@movie.Title</div>
-                                    </div>
+                                <td data-id="@movie.MovieID" data-field="MovieImage" class="text-center">
+                                    <img src="@movie.MovieImage" class="img-fluid rounded" style="height:60px" />
                                 </td>
+                                <td data-id="@movie.MovieID" data-field="Title">@movie.Title</td>
                                 <td data-id="@movie.MovieID" data-field="Synopsis" class="text-center">
                                     <div class="d-flex align-items-center justify-content-center">@movie.Synopsis</div>
                                 </td>
                                 <td data-id="@movie.MovieID" data-field="Genre" class="text-center">@movie.Genre</td>
                                 <td data-id="@movie.MovieID" data-field="Duration" class="text-center">@movie.Duration</td>
-                                <td data-id="@movie.MovieID" data-field="ReleaseDate" class="text-center">@movie.ReleaseDate.ToString("dd-MM-yyyy")</td>
+                                <td data-id="@movie.MovieID" data-field="ReleaseDate" class="text-center">
+                                    @movie.ReleaseDate.ToString("dd-MM-yyyy")
+                                </td>
                                 <td data-id="@movie.MovieID" data-field="Trailer" class="text-center">
                                     @if (!string.IsNullOrEmpty(movie.TrailerLink))
                                     {
-                                        <a href="@movie.TrailerLink" target="_blank" class="d-flex align-items-center justify-content-center">
-                                            Watch
-                                        </a>
+                                        <a href="@movie.TrailerLink" target="_blank">Watch</a>
                                     }
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-flex gap-2 justify-content-center">
-                                        <button onclick="enableEdit(this)" class="btn btn-primary rounded-3 text-uppercase fw-semibold btn-sm edit-btn">
-                                            <i class="bi bi-pencil-square me-1"></i> Edit
-                                        </button>
-                                    </div>
+                                    <button onclick="enableEdit(this)" class="btn btn-primary btn-sm">
+                                        Edit
+                                    </button>
                                 </td>
                             </tr>
                         }
@@ -65,53 +65,64 @@
         </div>
     </div>
 
-    <div class="card shadow-sm mt-3 d-none" id="add-form">
-        <div class="card-header bg-primary text-white text-center">
-            <h4 class="mb-0">Add New Movie</h4>
-        </div>
-        <div class="card-body">
-            <form id="createForm">
-                <div class="mb-3">
-                    <label class="form-label">Title</label>
-                    <input type="text" class="form-control" id="movieTitle" name="Title" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Synopsis</label>
-                    <textarea class="form-control" id="movieSynopsis" name="Synopsis"></textarea>
-                </div>
-                <div>
-                    <div class="mb-3">
-                        <label class="form-label">Genre</label>
-                        <input type="text" class="form-control" id="movieGenre" name="Genre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Duration (minutes)</label>
-                        <input type="number" class="form-control" id="movieDuration" name="Duration" required min="1">
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Release Date</label>
-                    <div class="d-flex gap-2">
-                        <select id="releaseDay" class="form-select" required></select>
-                        <select id="releaseMonth" class="form-select" required></select>
-                        <select id="releaseYear" class="form-select" required></select>
-                    </div>
+    <!-- ========== ADD MOVIE MODAL ========== -->
+    <div class="modal fade" id="addMovieModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Add New Movie</h5>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
-   
-                <div class="mb-3">
-                    <label class="form-label">Trailer</label>
-                    <input type="url" class="form-control" id="movieTrailerLink" name="TrailerLink">
+                <div class="modal-body">
+                    <form id="createForm">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" id="movieTitle" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Synopsis</label>
+                            <textarea class="form-control" id="movieSynopsis"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Genre</label>
+                            <input type="text" class="form-control" id="movieGenre" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="movieDuration" required min="1">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Release Date</label>
+                            <div class="d-flex gap-2">
+                                <select id="releaseDay" class="form-select"></select>
+                                <select id="releaseMonth" class="form-select"></select>
+                                <select id="releaseYear" class="form-select"></select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Trailer</label>
+                            <input type="url" class="form-control" id="movieTrailerLink">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Movie Image URL</label>
+                            <input type="url" class="form-control" id="movieImage">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Submit</button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Movie Image URL</label>
-                    <input type="url" class="form-control" id="movieImage" name="MovieImage">
-                </div>
-                <button type="submit" class="btn btn-secondary w-100 mt-3"> Submit </button>
-            </form>
+
+            </div>
         </div>
     </div>
+
 </div>
 
 @section Scripts {
@@ -123,7 +134,6 @@
 
     <script>
         $(document).ready(function () {
-            // === Init DataTable ===
             $('#tblData').DataTable({
                 pageLength: 10,
                 lengthMenu: [5, 10, 25, 50],
@@ -132,11 +142,9 @@
                 columnDefs: [{ type: 'natural', targets: 0 }]
             });
 
-            $('#addBtn').click(() => $('#add-form').toggleClass('d-none'));
-
             initDateDropdowns('#releaseDay', '#releaseMonth', '#releaseYear');
 
-            // === Add form submit ===
+            // Add form submit
             $('#createForm').submit(function (e) {
                 e.preventDefault();
                 const releaseDate = buildDateFromDropdown('#releaseDay', '#releaseMonth', '#releaseYear');
@@ -172,178 +180,143 @@
             });
         });
 
-        // === Inline Edit ===
+        // ================= EDIT FUNCTIONS =================
         function enableEdit(button) {
-            const row = $(button).closest('tr');
-            row.find('td[data-field]').each(function () {
-                const field = $(this).data('field');
+            const row = $(button).closest("tr");
+            row.find("td[data-field]").each(function () {
+                const field = $(this).data("field");
                 const val = $(this).text().trim();
-                $(this).data('original', val);
+                $(this).data("original", val);
 
-                if (field === 'ReleaseDate') {
-                    const [day, month, year] = val.split('-');
+                if (field === "MovieImage") {
+                    $(this).html(`<input type="text" class="form-control form-control-sm" value="${val}">`);
+                } else if (field === "ReleaseDate") {
+                    const [day, month, year] = val.split("-");
                     $(this).html(`
-                        <div class="d-flex justify-content-center align-items-center gap-1">
-                            <select class="form-select form-select-sm day" style="width:65px;"></select>
-                            <select class="form-select form-select-sm month" style="width:90px;"></select>
-                            <select class="form-select form-select-sm year" style="width:85px;"></select>
+                        <div class="d-flex gap-1 justify-content-center">
+                            <select class="form-select form-select-sm day"></select>
+                            <select class="form-select form-select-sm month"></select>
+                            <select class="form-select form-select-sm year"></select>
                         </div>
                     `);
-
-                    const daySel = $(this).find('.day');
-                    const monthSel = $(this).find('.month');
-                    const yearSel = $(this).find('.year');
-                    initDateDropdowns(daySel, monthSel, yearSel);
-
-                    daySel.val(parseInt(day));
-                    monthSel.val(parseInt(month));
-                    yearSel.val(parseInt(year));
-
-                    // Khi chọn năm/tháng => cập nhật lại số ngày (hợp lệ)
-                    monthSel.add(yearSel).on('change', () => updateDaysDropdown(daySel, monthSel, yearSel));
+                    const d = $(this).find(".day");
+                    const m = $(this).find(".month");
+                    const y = $(this).find(".year");
+                    initDateDropdowns(d, m, y);
+                    d.val(parseInt(day));
+                    m.val(parseInt(month));
+                    y.val(parseInt(year));
+                    m.add(y).on("change", () => updateDaysDropdown(d, m, y));
                 } else {
-                    $(this).attr('contenteditable', 'true').addClass('editable');
+                    $(this).attr("contenteditable", "true").addClass("editable");
                 }
             });
 
             $(button)
-                .removeClass('btn-primary')
-                .addClass('btn-success')
-                .html('<i class="bi bi-check-circle-fill me-1"></i>Save')
-                .attr('onclick', 'saveEdit(this)');
+                .removeClass("btn-primary")
+                .addClass("btn-success")
+                .text("Save")
+                .attr("onclick", "saveEdit(this)");
         }
 
         function saveEdit(button) {
-    const row = $(button).closest('tr');
-    const updates = [];
+            const row = $(button).closest("tr");
+            const updates = [];
 
-    row.find('td[data-field]').each(function () {
-        const field = $(this).data('field');
-        const id = $(this).data('id');
-        const original = $(this).data('original') || '';
-        let current = original;
+            row.find("td[data-field]").each(function () {
+                const id = $(this).data("id");
+                const field = $(this).data("field");
+                const original = $(this).data("original");
 
-        if (field === 'ReleaseDate') {
-            const day = $(this).find('.day').val();
-            const month = $(this).find('.month').val();
-            const year = $(this).find('.year').val();
+                if (field === "MovieImage") {
+                    const inputVal = $(this).find("input").val()?.trim() || original;
 
-            if (day && month && year) {
-                const display = `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
-                const newDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                current = display;
+                    // luôn restore hình
+                    $(this).html(`<img src="${inputVal}" class="img-fluid rounded" style="height:60px">`);
 
-                if (display !== original) {
-                    updates.push({ id, field, value: newDate, display });
+                    // nếu thực sự thay đổi mới push vào updates
+                    if (inputVal !== original) updates.push({ id, field, value: inputVal });
+                    return;
                 }
-                $(this).text(display);
-            } else {
-                $(this).text(original);
-            }
-        } else {
-            const val = $(this).text().trim();
-            if (val !== original) {
-                updates.push({ id, field, value: val });
-            }
-            $(this).removeAttr('contenteditable').removeClass('editable');
+
+                if (field === "ReleaseDate") {
+                    const day = $(this).find(".day").val();
+                    const month = $(this).find(".month").val();
+                    const year = $(this).find(".year").val();
+                    if (!day || !month || !year) return;
+
+                    const display = `${day}-${month}-${year}`;
+                    const value = `${year}-${month}-${day}`;
+
+                    $(this).text(display); // restore hiển thị ngay
+                    if (display !== original) updates.push({ id, field, value, display });
+                    return;
+                }
+
+                const val = $(this).text().trim();
+                if (val !== original) updates.push({ id, field, value: val });
+
+                $(this).removeAttr("contenteditable").removeClass("editable");
+            });
+
+            // restore nút Edit
+            $(button)
+                .removeClass("btn-success")
+                .addClass("btn-primary")
+                .text("Edit")
+                .attr("onclick", "enableEdit(this)");
+
+            if (updates.length === 0) return;
+
+            // gửi AJAX cho những thay đổi
+            updates.forEach(u => {
+                $.post("/Admin/Movies/UpdateField", {
+                    id: u.id,
+                    field: u.field,
+                    value: u.value,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                })
+                .done(res => {
+                    if (res.success && u.field !== "MovieImage") {
+                        const cell = row.find(`td[data-field="${u.field}"]`);
+                        if (u.display) cell.text(u.display);
+                        else cell.text(u.value);
+                    }
+                });
+            });
         }
-    });
-
-    $(button)
-        .removeClass('btn-success')
-        .addClass('btn-primary')
-        .html('<i class="bi bi-pencil-square me-1"></i>Edit')
-        .attr('onclick', 'enableEdit(this)');
-
-    if (updates.length === 0) {
-        toastr.info('No changes to save.');
-        return;
-    }
-
-    // Gửi từng field update qua AJAX, không reload lại trang
-    updates.forEach(u => {
-        $.ajax({
-            url: '/Admin/Movies/UpdateField',
-            type: 'POST',
-            data: {
-                id: u.id,
-                field: u.field,
-                value: u.value,
-                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-            },
-            success: res => {
-                if (res.success) {
-                    toastr.success(res.message);
-                    // Cập nhật hiển thị ngay
-                    const cell = row.find(`td[data-field="${u.field}"]`);
-                    if (u.display) cell.text(u.display);
-                    else cell.text(u.value);
-                } else {
-                    toastr.error(res.message);
-                }
-            },
-            error: xhr => toastr.error(xhr.responseJSON?.message || 'Error processing request.')
-        });
-    });
-}
 
 
-        // === Helpers ===
+
+        // ================= DATE HELPERS =================
+        function initDateDropdowns(daySel, monthSel, yearSel) {
+            const d = $(daySel), m = $(monthSel), y = $(yearSel);
+
+            d.empty().append("<option>Day</option>");
+            m.empty().append("<option>Month</option>");
+            y.empty().append("<option>Year</option>");
+
+            for (let i = 1; i <= 31; i++) d.append(`<option>${i}</option>`);
+            for (let i = 1; i <= 12; i++) m.append(`<option>${i}</option>`);
+
+            const yearNow = new Date().getFullYear();
+            for (let yy = yearNow; yy <= yearNow + 10; yy++) y.append(`<option>${yy}</option>`);
+        }
+
+        function updateDaysDropdown(d, m, y) {
+            const month = parseInt(m.val());
+            const year = parseInt(y.val());
+            const days = new Date(year, month, 0).getDate();
+            d.empty().append("<option>Day</option>");
+            for (let i = 1; i <= days; i++) d.append(`<option>${i}</option>`);
+        }
+
         function buildDateFromDropdown(daySel, monthSel, yearSel) {
             const day = $(daySel).val();
             const month = $(monthSel).val();
             const year = $(yearSel).val();
             if (!day || !month || !year) return null;
-            if (!isValidDate(day, month, year)) return null;
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-        }
-
-                function initDateDropdowns(daySel, monthSel, yearSel) {
-            const days = $(daySel), months = $(monthSel), years = $(yearSel);
-
-            // Ngày
-            days.empty().append(`<option value="">Day</option>`);
-            for (let i = 1; i <= 31; i++) {
-                days.append(`<option value="${i}">${i}</option>`);
-            }
-
-            // Tháng
-            months.empty().append(`<option value="">Month</option>`);
-            for (let i = 1; i <= 12; i++) {
-                months.append(`<option value="${i}">${i}</option>`);
-            }
-
-            // Năm: hiện tại → +10 năm sau
-            years.empty().append(`<option value="">Year</option>`);
-            const currentYear = new Date().getFullYear();
-            const maxYear = currentYear + 10;
-            for (let y = currentYear; y <= maxYear; y++) {
-                years.append(`<option value="${y}">${y}</option>`);
-            }
-        }
-
-
-        // Cập nhật dropdown ngày khi đổi tháng hoặc năm
-        function updateDaysDropdown(daySel, monthSel, yearSel) {
-            const month = parseInt($(monthSel).val());
-            const year = parseInt($(yearSel).val());
-            const daysInMonth = getDaysInMonth(month, year);
-            const selectedDay = $(daySel).val();
-            $(daySel).empty().append('<option value="">Day</option>');
-            for (let i = 1; i <= daysInMonth; i++) $(daySel).append(`<option value="${i}">${i}</option>`);
-            if (selectedDay && selectedDay <= daysInMonth) $(daySel).val(selectedDay);
-        }
-
-        // Kiểm tra số ngày trong tháng
-        function getDaysInMonth(month, year) {
-            return new Date(year, month, 0).getDate();
-        }
-
-        // Kiểm tra ngày hợp lệ (ví dụ không cho 31/02)
-        function isValidDate(day, month, year) {
-            const d = new Date(`${year}-${month}-${day}`);
-            return d.getFullYear() == year && d.getMonth() + 1 == month && d.getDate() == day;
         }
     </script>
 }
-
