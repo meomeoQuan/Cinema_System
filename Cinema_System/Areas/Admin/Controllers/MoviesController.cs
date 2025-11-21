@@ -196,14 +196,14 @@ namespace Cinema_System.Areas.Admin.Controllers
                 return "Invalid Trailer Link";
             }
 
-            if(!await CheckLinkAsync(movie.MovieImage, "image/"))
+            if (!await CheckLinkAsync(movie.MovieImage, "image/"))
             {
                 return "Invalid Image Link";
             }
 
             Movie isDuplicate = await _unitOfWork.Movie.GetAsync(r =>
                                                                 r.Title == movie.Title &&
-                                                                r.Synopsis == movie.Synopsis );
+                                                                r.Synopsis == movie.Synopsis);
 
 
             return null;
@@ -213,7 +213,7 @@ namespace Cinema_System.Areas.Admin.Controllers
 
         public static async Task<bool> CheckLinkAsync(string url, string startsWith)
         {
-            try 
+            try
             {
                 var response = await httpClient.GetAsync(url);
                 if (response.IsSuccessStatusCode)
