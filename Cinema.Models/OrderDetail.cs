@@ -21,6 +21,7 @@ namespace Cinema.Models
 
         //public string UserId { get; set; } // Nullable cho khách
 
+
         [NotMapped]
         public DateTime AddedTime { get; set; } = DateTime.Now; // Dùng cho timeout session
 
@@ -58,13 +59,7 @@ namespace Cinema.Models
             set { }
         }
 
-        // remove this if error occured
-        //[ForeignKey("UserID")]
-        //[ValidateNever]
-        //public virtual ApplicationUser User { get; set; }
 
-        //
-       
         [ForeignKey("OrderID")]
         [ValidateNever]
         [InverseProperty("OrderDetails")]
@@ -80,5 +75,8 @@ namespace Cinema.Models
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
 
         public bool IsScanned { get; set; } = false; // Mặc định chưa quét
+        public DateTime ScannedAt { get; set; }
+
+        public int NumberOfScan { get; set; } = 0;
     }
 }

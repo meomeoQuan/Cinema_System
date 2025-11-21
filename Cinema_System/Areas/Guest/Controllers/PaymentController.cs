@@ -71,7 +71,8 @@ namespace Cinema_System.Areas
                     NormalizedEmail = null,
                     PhoneNumber = request.Guest.phone,
                     FullName = request.Guest.fullname,
-                    EmailConfirmed = false
+                    EmailConfirmed = false,
+                    IsAnonymous = true,
                 };
 
                 _context.Users.Add(newGuestUser);
@@ -102,7 +103,7 @@ namespace Cinema_System.Areas
             };
 
             _context.OrderTables.Add(order);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
 
             long orderId = order.OrderID;
 
@@ -122,7 +123,7 @@ namespace Cinema_System.Areas
                     Price = showtimeSeat.Price,
 
                 });
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
             }
 
             // Thêm thức ăn vào danh sách
@@ -136,7 +137,7 @@ namespace Cinema_System.Areas
                     Quantity = food.quantity,
                     Price = food.price,
                 });
-                await _context.SaveChangesAsync();
+                //await _context.SaveChangesAsync();
 
             }
 
@@ -147,6 +148,26 @@ namespace Cinema_System.Areas
                 couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
                 items.Add(new ItemData(coupon.Code, 1, couponPrice));
             }
+
+            // === TẠO DANH SÁCH EMAIL THEO THỨ TỰ ===
+            var emailList = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(request.Guest?.email))
+                emailList.Add(request.Guest.email.Trim());
+
+            if (request.FriendEmails?.Emails != null)
+            {
+                foreach (var e in request.FriendEmails.Emails)
+                {
+                    if (!string.IsNullOrWhiteSpace(e) && !emailList.Contains(e.Trim(), StringComparer.OrdinalIgnoreCase))
+                        emailList.Add(e.Trim());
+                }
+            }
+
+            order.RecipientEmails = string.Join(",", emailList); // ← QUAN TRỌNG
+            _context.OrderTables.Add(order);
+            await _context.SaveChangesAsync();
+            // ========================================
 
             // Gọi dịch vụ PayOS để tạo thanh toán
             var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
@@ -201,6 +222,7 @@ namespace Cinema_System.Areas
 
         // Trang hủy
         [HttpGet]
+        public IActionResult CancelUrl(long orderCode)
         {
             var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
 
@@ -218,47 +240,95 @@ namespace Cinema_System.Areas
         }
 
         [HttpGet]
+        public async Task<IActionResult> ReturnUrl(long orderCode)
         {
-            // Tìm đơn hàng trong database với User
             var order = await _context.OrderTables
-                .Include(o => o.User) // Ensure User is loaded
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.OrderID == orderCode);
 
             if (order == null)
-            {
                 return NotFound(new { message = "Order không tồn tại" });
-            }
 
-            if (order.User == null)
-            {
-                return NotFound(new { message = "User không tồn tại trong đơn hàng" });
-            }
+            // === LẤY DANH SÁCH EMAIL ĐÃ LƯU ===
+            var emailList = string.IsNullOrWhiteSpace(order.RecipientEmails)
+                ? new List<string>()
+                : order.RecipientEmails.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                     .Select(e => e.Trim())
+                     .ToList();
 
+            // Nếu không có email nào (trường hợp lỗi), ít nhất gửi cho User chính
+            if (!emailList.Any() && order.User?.Email != null)
+                emailList.Add(order.User.Email);
 
-
-            // Cập nhật trạng thái đơn hàng thành "Completed"
+            // Cập nhật trạng thái
             order.Status = OrderStatus.Completed;
             order.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync(); // Ensure async save
+            int count = emailList.Count;
 
+            // === GỬI EMAIL CHO TẤT CẢ NGƯỜI TRONG DANH SÁCH ===
+            if (emailList.Any())
+            {
 
+                foreach (var email in emailList)
+                {
+                    await GenerateTicket(order, email, count); // hàm cũ của bạn vẫn dùng được
+                }
 
-            // Gửi QR code qua email
+            }
 
-            return View();
+            return View(); // hoặc RedirectToAction("Success")
         }
 
+        public async Task GenerateTicket(OrderTable order, string emailUser, int count)
         {
-            // Generate Ticket Validation URL
-            string validationUrl = Url.Action("ValidAuthentication", "Staff",
-                new { area = "Staff", OrderID = order.OrderID }, Request.Scheme);
 
+
+            string secretKey = "h23hriu2ibfas92"; // Store securely in app settings or environment variables optional
+            string orderId = order.OrderID.ToString();
+            bool IsScanned = false;
+            string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+
+            var orderDetail = await _unitOfWork.OrderDetail.GetAsync(
+                      u => u.OrderID == order.OrderID
+                  );
+
+            if (orderDetail != null)
+            {
+                orderDetail.NumberOfScan = count;
+                orderDetail.IsScanned = false;
+                _unitOfWork.OrderDetail.Update(orderDetail);
+                await _unitOfWork.SaveAsync();
+            }
+
+
+            string? validationUrl = "";
+            // 🔐 Generate HMAC-SHA256 token
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                string dataToSign = $"{orderId}:{timestamp}:{IsScanned}:{count}"; // OrderID + Timestamp
+                byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));
+                string token = Convert.ToBase64String(hash);// Encode as Base64
+
+                // 🏷️ Generate the Secure Validation URL
+                validationUrl = Url.Action("ValidAuthentication", "Staff",
+                   new { area = "Staff", OrderID = orderId, Key = token, Timestamp = timestamp, IsScanned = IsScanned, count = count }, Request.Scheme);
+            }
+
+            // Define QR Code file path (Temporary location)
+            string qrFileName = $"QR_Ticket_{order.OrderID}.png";
+            string qrFilePath = Path.Combine(Path.GetTempPath(), qrFileName);
+
+            // Generate QR Code and save to file
             using (QRCodeGenerator codeGenerator = new QRCodeGenerator())
             {
                 QRCodeData qrCodeData = codeGenerator.CreateQrCode(validationUrl, QRCodeGenerator.ECCLevel.Q);
                 using (QRCode qrCoder = new QRCode(qrCodeData))
                 using (Bitmap bitMap = qrCoder.GetGraphic(20))
                 {
+                    bitMap.Save(qrFilePath, ImageFormat.Png);
+                }
             }
             //------------------------------------------------------------------Ticket content-------------------------------------------------------------
             var text = await _unitOfWork.OrderDetail.GetAllAsync();
@@ -268,6 +338,8 @@ namespace Cinema_System.Areas
                        u => u.OrderID == order.OrderID,
                        includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
                    );
+
+
             // Pull base data
             var first = orderDetails.First();
             string cinemaName = first.ShowtimeSeat.Showtime.Room.Theater.Name;
@@ -275,6 +347,10 @@ namespace Cinema_System.Areas
             string movieName = first.ShowtimeSeat.Showtime.Movie.Title;
             int movieDuration = first.ShowtimeSeat.Showtime.Movie.Duration;
             DateOnly showDate = first.ShowtimeSeat.Showtime.ShowDate;
+
+            // Format as dd:MM:yyyy
+            string formattedDate = showDate.ToString("dd/MM/yyyy");
+
             TimeSpan showTime = first.ShowtimeSeat.Showtime.ShowTimes;
 
             // Convert TimeSpan → TimeOnly
@@ -308,14 +384,64 @@ namespace Cinema_System.Areas
                 ? string.Join("<br>", productList)
                 : "No additional products";
 
-                // Convert QR Code to Base64
-                string qrCodeBase64 = Convert.ToBase64String(ms.ToArray());
 
             //--------------------------------------------------------------------------------------------------------------------------------
             // Email Content
             string emailBody = $@"
+                <h2>Your Ticket Details</h2>
+
+                <p>Hey! Your ticket is ready. Please Check all your info below.</p>
+                 
+                <h4>Order ID: {order.OrderID}</h4>                    
+
+                <h3>🎬 Movie Info</h3>
+                <p><strong>Movie:</strong> {movieName}</p>
+                <p><strong>Duration:</strong> {movieDuration} minutes</p>
+
+                <h3>🏢 Cinema</h3>
+                <p><strong>Cinema:</strong> {cinemaName}</p>
+                <p><strong>Room:</strong> {roomName}</p>
+
+                <h3>📅 Show Date</h3>
+                <p>{formattedDate}</p>
+
+                <h3>🕒 Showtime</h3>
+                <p>{showtimeStr}</p>
+
+                <h3>💺 Seat(s)</h3>
+                <p>{seatsHtml}</p>
+
+                <h3>🍿 Products</h3>
+                <p>{productsHtml}</p>
+
+                <br>
+
+                <p>Your QR code is attached. Scan it at the entrance to validate your ticket.</p>
             ";
 
+            // Send Email with Attachment
+            using (var client = new SmtpClient("smtp.gmail.com", 587))
+            {
+                client.Credentials = new NetworkCredential("DE180924ngoanhquan@gmail.com", "uvjs reiv emzl dlsk"); // Replace with your credentials
+                client.EnableSsl = true;
+
+                using (var message = new MailMessage())
+                {
+                    message.From = new MailAddress("DE180924ngoanhquan@gmail.com"); // Sender
+                    message.To.Add(emailUser); // Recipient
+                    message.Subject = "Your Ticket QR Code";
+                    message.Body = emailBody;
+                    message.IsBodyHtml = true;
+
+                    // Attach QR Code
+                    if (System.IO.File.Exists(qrFilePath))
+                    {
+                        message.Attachments.Add(new Attachment(qrFilePath));
+                    }
+
+                    await client.SendMailAsync(message);
+
+                }
             }
 
             //// Clean up: Delete QR file after sending
@@ -330,7 +456,7 @@ namespace Cinema_System.Areas
 
 
 
-      
+
 
 
         #endregion
