@@ -19,6 +19,7 @@ using System.Security.Claims;
 using Newtonsoft.Json.Linq;
 using static QRCoder.PayloadGenerator.WiFi;
 using Cinema.Utility;
+using Newtonsoft.Json;
 
 namespace Cinema_System.Areas.Identity.Pages.Account
 {
@@ -131,6 +132,16 @@ namespace Cinema_System.Areas.Identity.Pages.Account
 
                         // Cập nhật claims cho user
                         var appUser = user as ApplicationUser;
+                        CookieOptions option = new CookieOptions
+                        {
+                            Expires = DateTime.Now.AddMinutes(30),  // Thời gian sống của cookie
+                            HttpOnly = false, // Đảm bảo cookie không thể truy cập qua JavaScript
+                            Secure = true,  // Chỉ gửi cookie qua kết nối HTTPS
+                            SameSite = SameSiteMode.Strict  // Chỉ gửi cookie nếu trang đang yêu cầu là cùng nguồn
+                        };
+
+                        // Lưu cookie vào response
+                        Response.Cookies.Append("user", JsonConvert.SerializeObject(appUser.ToString()) , option);
                         var claims = new List<Claim>
                         {
                             new Claim("FullName", appUser?.FullName ?? "User"),

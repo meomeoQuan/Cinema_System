@@ -1,7 +1,7 @@
 ﻿@model MovieDetailVM
 
 	<body>
-		<input asp-for="Movie.MovieID" hidden/>
+	<input asp-for="Movie.MovieID" hidden />
 		<div class="container">
 			<!-- Section 1: Movie Information -->
 			<section id="movie-info" class="row mb-5">
@@ -10,7 +10,7 @@
 					<img src="@Model.Movie.MovieImage" alt="Movie Poster" class="img-fluid" />
 				</div> 
 				<div class="col-md-8">
-					<h1>@Model.Movie.Title</h1>
+					<h1 id="title-movie">@Model.Movie.Title</h1>
 					<!--<p><strong>Director:</strong> Director Name</p> -->
 					<!--<p><strong>Cast:</strong> Actor 1, Actor 2, Actor 3</p> -->
 					<p><strong>Genre:</strong>  @Model.Movie.Genre</p>
@@ -63,44 +63,65 @@
 			@* 		</div> *@
 			@* 	</div> *@
 			@* </section> *@
-		@* <section id="booking-options" class="mb-5"> *@
-		@* 	<h2 class="text-center">SHOWTIMES</h2> *@
+		<section id="booking-options" class="py-5 mb-5 bg-light rounded-4 shadow-sm">
+			<div class="container">
+				<h2 class="text-center mb-4 fw-bold text-uppercase text-primary">Showtimes</h2>
 
-		 	<div class="row g-3"> 
-		 		<!-- Chọn thành phố --> 
-		 		<div class="col-md-6 d-flex align-items-center gap-2"> 
-		 			<label for="cinemaCity" class="fw-bold">Choose city</label> 
-		 			<select id="cinemaCity" class="form-control"> 
-		 				<option value="">-- Select a City --</option> 
-		 			</select> 
-		 		</div> 
+				<div class="row g-4 justify-content-center">
 
-		 		<!-- Chọn rạp --> 
-		 		<div class="col-md-6 d-flex align-items-center gap-2"> 
-		 			<label for="cinema" class="fw-bold">Choose cinema</label> 
-		 			<select id="cinema" class="form-control"> 
-		 				<option value="">-- Select a Theater --</option> 
-		 			</select> 
-		 		</div> 
+					<!-- Chọn thành phố -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="cinemaCity" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-geo-alt-fill me-2 text-danger"></i>Choose City
+							</label>
+							<select id="cinemaCity" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a City --</option>
+							</select>
+						</div>
+					</div>
 
-		 		<!-- Chọn ngày --> 
-		 		<div class="col-md-6 d-flex align-items-center gap-2"> 
-		 			<label for="date" class="fw-bold">Choose date</label> 
-		 			<input asp-for="Movie.MovieID" hidden /> 
-		 			<select id="date" class="form-control"> 
-		 				<option value="">-- Select a Date --</option> 
-		 			</select> 
-		 		</div> 
+					<!-- Chọn rạp -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="cinema" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-building-fill me-2 text-warning"></i>Choose Cinema
+							</label>
+							<select id="cinema" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a Theater --</option>
+							</select>
+						</div>
+					</div>
 
-		 		<!-- Chọn giờ --> 
-		 		<div class="col-md-6 d-flex align-items-center gap-2"> 
-		 			<label for="time" class="fw-bold">Choose time</label> 
-		 			<select id="time" class="form-control"> 
-		 				<option>-- Select a Time --</option> 
-		 			</select> 
-		 		</div> 
-		 	</div> 
-		 </section> 
+					<!-- Chọn ngày -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="date" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-calendar-event-fill me-2 text-success"></i>Choose Date
+							</label>
+							<input asp-for="Movie.MovieID" hidden />
+							<select id="date" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a Date --</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Chọn giờ -->
+					<div class="col-md-6 col-lg-5">
+						<div class="form-group">
+							<label for="time" class="form-label fw-semibold text-secondary">
+								<i class="bi bi-clock-fill me-2 text-info"></i>Choose Time
+							</label>
+							<select id="time" class="form-select border-primary-subtle shadow-sm">
+								<option value="">-- Select a Time --</option>
+							</select>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</section>
+
 
 
 
@@ -148,8 +169,13 @@
 				</div>
 				
 				<!-- Gift -->
-				<h3 class="category-title text-center">COMBO</h3>
+				<h3 class="category-title text-center">GIFT</h3>
 				<div class="row justify-content-center gift">
+				</div>
+				
+				<!-- Gift -->
+				<h3 class="category-title text-center">COMBOO</h3>
+				<div class="row justify-content-center comboo">
 				</div>
 			</section>
 
@@ -177,9 +203,6 @@
 					</div>
 				</div>
 			</section>
-
-			
-			
 			</div>
 	</body>
 
@@ -187,4 +210,5 @@
 	@section Scripts{
 	<script src="~/js/detail.js"></script>
 	<link rel="stylesheet" href="~/css/detail.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 	}

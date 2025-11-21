@@ -109,24 +109,29 @@ namespace Cinema_System.Areas.Admin.Controllers
             // --- SERVER-SIDE VALIDATION ---
             if (string.IsNullOrWhiteSpace(updatedTheater.Name))
             {
-                return Json(new { success = false, message = "Theater name cannot be empty." });
-            }
+                switch (field)
+                {
+                    case "Name":
+                        if (string.IsNullOrWhiteSpace(value))
+                        {
+                            return Json(new { success = false, message = "Theater name cannot be empty." });
+                        }
             if (await _unitOfWork.Cinema.AnyAsync(c => c.Name == updatedTheater.Name && c.CinemaID != updatedTheater.CinemaID))
-            {
-                return Json(new { success = false, message = "Theater name already exists." });
-            }
+                        {
+                            return Json(new { success = false, message = "Theater name already exists." });
+                        }
             if (string.IsNullOrWhiteSpace(updatedTheater.Address))
-            {
-                return Json(new { success = false, message = "Address cannot be empty." });
-            }
+                        {
+                            return Json(new { success = false, message = "Address cannot be empty." });
+                        }
             if (await _unitOfWork.Cinema.AnyAsync(c => c.Address == updatedTheater.Address && c.CinemaID != updatedTheater.CinemaID))
-            {
-                return Json(new { success = false, message = "Theater address already exists." });
-            }
+                        {
+                            return Json(new { success = false, message = "Theater address already exists." });
+                        }
             if (updatedTheater.NumberOfRooms < 1)
-            {
-                return Json(new { success = false, message = "Number of rooms must be at least 1." });
-            }
+                        {
+                            return Json(new { success = false, message = "Number of rooms must be at least 1." });
+                        }
             //if (updatedTheater.OpeningTime >= updatedTheater.ClosingTime)
             //{
             //    return Json(new { success = false, message = "Closing Time must be later than Opening Time." });
@@ -143,7 +148,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             theaterFromDb.UpdatedAt = DateTime.Now;
 
             try
-            {
+                        {
                 _unitOfWork.Cinema.Update(theaterFromDb);
                 await _unitOfWork.SaveAsync();
                 return Json(new { success = true, message = "Theater updated successfully." });

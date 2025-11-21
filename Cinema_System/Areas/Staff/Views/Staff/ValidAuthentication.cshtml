@@ -4,6 +4,20 @@
     ViewData["Title"] = "Ticket Validation";
 }
 
+@foreach (var orderGroup in Model)
+{
+
+    <h3>OrderId: @orderGroup.OrderID </h3>
+}
+
+@foreach (var orderGroup in Model.GroupBy(c => c.Order.User))
+{
+    var user = orderGroup.Key; // the User object
+
+    <h3>Customer: @(user?.Email ?? user?.FullName)</h3>
+}
+
+
 <h2>Your Ticket Includes:</h2>
 
 @foreach (var cinemaGroup in Model.GroupBy(o => o.ShowtimeSeat?.Showtime?.Room?.Theater?.Name))
@@ -14,6 +28,16 @@
     <h3>@cinemaName</h3>
     <p>@cinemaAddress</p>
    
+    @foreach(var showtimeGroup in Model.GroupBy(o => o.ShowtimeSeat?.Showtime))
+    {
+        var firstShowTime = showtimeGroup.FirstOrDefault();
+        var showTimeTitle = showtimeGroup.Key;
+        var showDate = firstShowTime?.ShowtimeSeat?.Showtime?.ShowDate;
+        var showHour = firstShowTime?.ShowtimeSeat?.Showtime?.ShowTimes;
+        <p>Date: @showDate</p>
+        <p>Time: @showHour</p>
+
+    }
 
     @foreach (var movieGroup in cinemaGroup.GroupBy(o => o.ShowtimeSeat?.Showtime?.Movie?.Title))
     {

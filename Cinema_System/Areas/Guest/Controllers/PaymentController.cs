@@ -16,8 +16,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using System.Security.Cryptography;
+
 using Cinema.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using System.Net.Mail;
+using System.Net;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace Cinema_System.Areas
 {
@@ -32,13 +40,13 @@ namespace Cinema_System.Areas
         private readonly IEmailSender _emailSender;
         //private readonly UserManager<IdentityUser> _userManager;
         public PaymentController(PayOSService payOSService, PayOS payOS, ApplicationDbContext context,
-            IEmailSender emailSender)
+            IEmailSender emailSender, IUnitOfWork unitOfWork)
         {
             _payOSService = payOSService;
             _payOS = payOS;
             _context = context;
             _emailSender = emailSender;
-            //_userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost]
@@ -49,13 +57,45 @@ namespace Cinema_System.Areas
                 return BadRequest("Invalid payment request.");
             }
 
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            string userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null && request.Guest != null)
+            {
+                var newGuestUser = new ApplicationUser // Ensure this matches your user model
+                {
+                    Id = Guid.NewGuid().ToString(), // Generate a unique ID
+                    UserName = "Guest_" + Guid.NewGuid().ToString().Substring(0, 8), // Random username
+                    Email = request.Guest.email, // Guest users may not have an email
+                    NormalizedUserName = null,
+                    NormalizedEmail = null,
+                    PhoneNumber = request.Guest.phone,
+                    FullName = request.Guest.fullname,
+                    EmailConfirmed = false
+                };
+
+                _context.Users.Add(newGuestUser);
+                await _context.SaveChangesAsync(); // Ensure the user is saved before assigning the ID
+
+                userId = newGuestUser.Id; // Use the new guest user's ID
+
+                // Store in Claims (Optional, so the user is recognized in future orders)
+                var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+                var identity = new ClaimsIdentity(claims, "Anonymous");
+                var principal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync(principal);
+            }
+            //=========> tạo id cho người dùng anonymous 
+
             Coupon coupon = _context.Coupons.FirstOrDefault(c => c.Code == request.Coupon);
+            long orderCode = long.Parse(DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             OrderTable order = new OrderTable
             {
+                OrderID = orderCode,
                 Status = OrderStatus.Pending,
                 TotalAmount = request.TotalAmount,
-                UserID = "a1234567-b89c-40d4-a123-456789abcdef",
+                UserID = userId, // Now userId will never be null
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 CouponID = coupon != null ? coupon.CouponID : null
@@ -64,7 +104,7 @@ namespace Cinema_System.Areas
             _context.OrderTables.Add(order);
             await _context.SaveChangesAsync();
 
-            int orderId = order.OrderID;
+            long orderId = order.OrderID;
 
             // Chuẩn bị danh sách sản phẩm từ Seats & Foods
             var items = new List<ItemData>();
@@ -107,11 +147,51 @@ namespace Cinema_System.Areas
                 couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
                 items.Add(new ItemData(coupon.Code, 1, couponPrice));
             }
+
             // Gọi dịch vụ PayOS để tạo thanh toán
             var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderId, items, _payOS);
 
             if (response.error == 0)
             {
+                // test returnUrl
+
+                return Json(new { paymentUrl = ((CreatePaymentResult)response.data).checkoutUrl });
+            }
+
+            return BadRequest("Payment failed.");
+        }
+
+        [HttpPost("/products")]
+        public async Task<IActionResult> CreatePaymentProduct([FromBody] PaymentRequest request)
+        {
+            var items = new List<ItemData>();
+            var couponPrice = 0;
+            Coupon coupon = _context.Coupons.FirstOrDefault(c => c.Code == request.Coupon);
+            OrderTable orderTable = _context.OrderTables.FirstOrDefault(o => o.OrderID == request.OrderCode);
+
+            foreach (var food in request.Items)
+            {
+                items.Add(new ItemData(food.name, food.quantity, food.price));
+
+            }
+
+            if (orderTable == null)
+            {
+                return BadRequest("Payment failed.");
+            }
+
+            if (coupon != null)
+            {
+                couponPrice -= (int)(request.TotalAmount * coupon.DiscountPercentage);
+                items.Add(new ItemData(coupon.Code, 1, couponPrice));
+            }
+
+            var response = await _payOSService.CreatePaymentAsync(request.TotalAmount + couponPrice, orderTable.OrderID, items, _payOS);
+
+            if (response.error == 0)
+            {
+                // test returnUrl
+
                 return Json(new { paymentUrl = ((CreatePaymentResult)response.data).checkoutUrl });
             }
 
@@ -121,7 +201,6 @@ namespace Cinema_System.Areas
 
         // Trang hủy
         [HttpGet]
-        public IActionResult CancelUrl(int orderCode)
         {
             var order = _context.OrderTables.FirstOrDefault(o => o.OrderID == orderCode);
 
@@ -139,12 +218,10 @@ namespace Cinema_System.Areas
         }
 
         [HttpGet]
-        public async Task<IActionResult> ReturnUrl(int orderCode)
         {
             // Tìm đơn hàng trong database với User
             var order = await _context.OrderTables
                 .Include(o => o.User) // Ensure User is loaded
-                .FirstOrDefaultAsync(o => o.OrderID == 2);
 
             if (order == null)
             {
@@ -167,46 +244,96 @@ namespace Cinema_System.Areas
 
 
             // Gửi QR code qua email
-            await GenerateTicket(order);
 
             return View();
         }
 
-        public async Task GenerateTicket(OrderTable order)
         {
             // Generate Ticket Validation URL
             string validationUrl = Url.Action("ValidAuthentication", "Staff",
                 new { area = "Staff", OrderID = order.OrderID }, Request.Scheme);
 
-        https://localhost:7251/Staff/Staff/ValidAuthentication?ticketId=ds#Staff
-            // Generate QR Code
-            using (MemoryStream ms = new MemoryStream())
             using (QRCodeGenerator codeGenerator = new QRCodeGenerator())
             {
                 QRCodeData qrCodeData = codeGenerator.CreateQrCode(validationUrl, QRCodeGenerator.ECCLevel.Q);
                 using (QRCode qrCoder = new QRCode(qrCodeData))
                 using (Bitmap bitMap = qrCoder.GetGraphic(20))
                 {
-                    bitMap.Save(ms, ImageFormat.Png);
-                }
+            }
+            //------------------------------------------------------------------Ticket content-------------------------------------------------------------
+            var text = await _unitOfWork.OrderDetail.GetAllAsync();
+            Console.WriteLine("Debug Info: Fetched OrderDetails Count = " + text.Count());
+
+            IEnumerable<OrderDetail> orderDetails = await _unitOfWork.OrderDetail.GetAllAsync(
+                       u => u.OrderID == order.OrderID,
+                       includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
+                   );
+            // Pull base data
+            var first = orderDetails.First();
+            string cinemaName = first.ShowtimeSeat.Showtime.Room.Theater.Name;
+            string roomName = first.ShowtimeSeat.Showtime.Room.RoomNumber;
+            string movieName = first.ShowtimeSeat.Showtime.Movie.Title;
+            int movieDuration = first.ShowtimeSeat.Showtime.Movie.Duration;
+            DateOnly showDate = first.ShowtimeSeat.Showtime.ShowDate;
+            TimeSpan showTime = first.ShowtimeSeat.Showtime.ShowTimes;
+
+            // Convert TimeSpan → TimeOnly
+            TimeOnly timeOnly = TimeOnly.FromTimeSpan(showTime);
+
+            // Combine DateOnly + TimeOnly → DateTime
+            DateTime showDateTime = showDate.ToDateTime(timeOnly);
+
+            // Format
+            string showtimeStr = showDateTime.ToString("HH:mm");
+
+
+
+
+            // Seats
+            var seatList = orderDetails
+                .Where(o => o.ShowtimeSeat != null)
+                .Select(o => o.ShowtimeSeat.Seat.SeatName)
+                .Distinct()
+                .ToList();
+
+            // Products (popcorn, drinks, addons, etc.)
+            var productList = orderDetails
+                .Where(o => o.Product != null)
+                .Select(o => $"{o.Product.Name} x{o.Quantity}")
+                .ToList();
+
+            // Build HTML parts
+            string seatsHtml = string.Join(", ", seatList);
+            string productsHtml = productList.Count > 0
+                ? string.Join("<br>", productList)
+                : "No additional products";
 
                 // Convert QR Code to Base64
                 string qrCodeBase64 = Convert.ToBase64String(ms.ToArray());
 
-                // Email Content
-                string emailBody = $@"
-                    <p>Your ticket has been generated. Please show the QR code below when entering the venue.</p>
-                    <p>Scan this QR code to validate your ticket:</p>
-                    <img src='data:image/png;base64,{qrCodeBase64}' alt='QR Code' />
-                ";
+            //--------------------------------------------------------------------------------------------------------------------------------
+            // Email Content
+            string emailBody = $@"
+            ";
 
-                // Send Email
-                //order.User.Email
-                await _emailSender.SendEmailAsync("ngoanhquan0806@gmail.com", "Your Ticket QR Code", emailBody);
             }
+
+            //// Clean up: Delete QR file after sending
+            //if (System.IO.File.Exists(qrFilePath))
+            //{
+            //    System.IO.File.Delete(qrFilePath);
+            //}
         }
+        //sample url : https://localhost:7115/Staff/Staff/ValidAuthentication?OrderID=3&Key=hcOct9fXJQekxBIFe6Z1awlfk91oRVhS%2Bics1XO8JC8%3D&Timestamp=1742815101
+
+        #region API
 
 
+
+      
+
+
+        #endregion
 
 
     }

@@ -28,6 +28,11 @@ namespace Cinema_System.Areas.Guest.Controllers
             return View(detailVM);
         }
 
+
+        public async Task<IActionResult> InformationTicket()
+        {
+            return View();
+        }
     }
 }
 

@@ -11,8 +11,8 @@ namespace Cinema.Models
     public class OrderTable
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int OrderID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public long OrderID { get; set; }
 
 
 

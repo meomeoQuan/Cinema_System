@@ -40,5 +40,19 @@ namespace Cinema_System.Areas.Guest.Controllers
             return Ok(showtimes);
         }
 
+        [HttpGet("getById/{showTimeId}")]
+        public async Task<IActionResult> GetShowTimeById(int showTimeId)
+        {
+            var showtime = await _context.showTimes
+                .FirstOrDefaultAsync(s => s.ShowTimeID == showTimeId);
+
+            if (showtime == null)
+            {
+                return NotFound(new { message = "Không tìm thấy suất chiếu." });
+            }
+
+            return Ok(showtime);
+        }
+
     }
 }

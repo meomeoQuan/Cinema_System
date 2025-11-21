@@ -22,7 +22,7 @@ namespace Cinema_System.Areas.Service
         {
             var paymentRequest = new PaymentRequest
             {
-                OrderCode = (int)orderId,
+                OrderCode = orderId,
                 TotalAmount = amount, // Sử dụng TotalAmount thay vì Amount
                 Description = "Thanh toán " + RandomStringGenerator.GenerateRandomString(10),
                 CancelUrl = "https://localhost:7115/Guest/Payment/CancelUrl",

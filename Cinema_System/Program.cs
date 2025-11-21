@@ -3,12 +3,15 @@ using Cinema.DataAccess.Repository.IRepository;
 using Cinema.DataAccess.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Cinema.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Cinema.Utility;
 using Cinema.DbInitializer;
 using Cinema.DataAccess.DbInitializer;
 using Net.payOS;
 using Cinema_System.Areas.Service;
+using Cinema_System.Areas.Request;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +29,7 @@ builder.Services.AddScoped<PayOSService>();  // Hoặc AddSingleton nếu bạn 
 
 // Đăng ký các dịch vụ khác
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 
 // Add services to the container.
@@ -49,10 +53,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 //-------------------------------------- SIGNAL IR   -------------------------------------------------
 builder.Services.AddSignalR();
-
-
-//đăng kí repository của product
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
 //------------------------------ Configure Identity ---------------------------
@@ -107,11 +107,14 @@ builder.Services.AddAuthentication();
 //        policy.RequireRole(SD.Role_Admin));
 //});
 // Add Google authentication
-builder.Services.AddAuthentication().AddGoogle(options =>
-{
-    options.ClientId = "1090292520927-n8hcmp4v0f4u1peg91j9mdadadjdl72u.apps.googleusercontent.com";
-    options.ClientSecret = "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";
-});
+var googleAuth = builder.Configuration.GetSection("GoogleAuth");
+
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = googleAuth["ClientId"];
+        options.ClientSecret = googleAuth["ClientSecret"];
+    });
 
 //------------------------------ Configure Session --------------------------------
 builder.Services.AddDistributedMemoryCache();
@@ -131,6 +134,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 // Add scoped services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 //builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 //builder.Services.AddScoped<RoleManager<IdentityRole>>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
@@ -157,6 +161,7 @@ SeedDatabase();
 
 app.MapRazorPages();
 app.MapStaticAssets();
+app.MapHub<CountdownHub>("/countdownHub");
 //----------------------------------------- Class using SIGNAL IR( IN Utility) ---------------------------------------------
 
 // Map SignalR hubs

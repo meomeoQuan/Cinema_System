@@ -13,7 +13,7 @@ namespace Cinema.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailID { get; set; }
 
-        public int? OrderID { get; set; } // ✔️ Cách chuẩn nhất
+        public long? OrderID { get; set; }
 
 
         [NotMapped] // Không lưu vào database
@@ -64,7 +64,7 @@ namespace Cinema.Models
         //public virtual ApplicationUser User { get; set; }
 
         //
-
+       
         [ForeignKey("OrderID")]
         [ValidateNever]
         [InverseProperty("OrderDetails")]
@@ -78,5 +78,7 @@ namespace Cinema.Models
         [ForeignKey("ShowtimeSeatID")]
         [ValidateNever]
         public virtual ShowtimeSeat? ShowtimeSeat { get; set; }
+
+        public bool IsScanned { get; set; } = false; // Mặc định chưa quét
     }
 }

@@ -59,6 +59,88 @@ document.getElementById("time").addEventListener("change", function () {
                             }
                             seatsContainer.insertAdjacentHTML("beforeend", "<br>");
                         });
+                        const targetNode = document.getElementById("booking-summary");
+                        if (!targetNode) return;
+
+                        let connection = new signalR.HubConnectionBuilder()
+                            .withUrl("/countdownHub")
+                            .configureLogging(signalR.LogLevel.Information)
+                            .build();
+
+                        if (connection.state === signalR.HubConnectionState.Disconnected) {
+                            connection.start().then(() => {
+                                console.log("✅ Kết nối SignalR thành công!");
+                            }).catch(err => console.error("❌ Lỗi kết nối SignalR:", err));
+                        } else {
+                            console.log("Connection is already started or connecting:", connection.state);
+                        }
+
+                        const observer = new MutationObserver((mutationsList) => {
+                            mutationsList.forEach(mutation => {
+                                if (mutation.attributeName === "class") {
+                                    if (!targetNode.classList.contains("d-none")) {
+                                        console.log("Phần tử #booking-summary đã hiển thị! Bắt đầu đếm ngược...");
+                                        observer.disconnect();
+                                        connection.invoke("StartCountdown").then(() => {
+                                            console.log("📡 Gửi lệnh StartCountdown thành công!");
+                                        }).catch(err => console.error("❌ Lỗi khi gửi lệnh StartCountdown:", err));
+                                    }
+                                }
+                            });
+                        });
+
+                        observer.observe(targetNode, { attributes: true });
+
+                        connection.on("ReceiveCountdown", function (timeLeft) {
+                            console.log(`⏳ Nhận thời gian từ server: ${timeLeft}s`);
+                            const minutes = Math.floor(timeLeft / 60);
+                            const seconds = timeLeft % 60;
+                            document.getElementById("countdown").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                        });
+
+                        connection.on("CountdownFinished", function (selectedSeats) {
+                            let promises = [];
+
+                            selectedSeats.forEach(seatId => {
+                                const request = fetch(`/api/showtime-seat/${seatId}/0`, {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                }).then(response => response.json())
+                                    .then(data => console.log(`Ghế ${seatId} cập nhật:`, data))
+                                    .catch(error => console.error(`Lỗi cập nhật ghế ${seatId}:`, error));
+
+                                promises.push(request);
+                            });
+
+                            Promise.all(promises).then(() => {
+                                alert("Hết thời gian giữ vé!");
+                                location.reload();
+                            });
+                        });
+
+                        connection.onclose(() => {
+                            console.warn("⚠️ Mất kết nối SignalR. Thử kết nối lại sau 5 giây...");
+                            setTimeout(() => connection.start(), 5000);
+                        });
+
+                        // Event listener for seat selection
+                        const seats = document.querySelectorAll(".seat");
+                        seats.forEach(seat => {
+                            seat.addEventListener("click", async function () {
+                                const seatId = Number(seat.getAttribute("data-show-seat-id"));
+                                if (seat.classList.contains("selected")) {
+                                    
+                                    await connection.invoke("DeselectSeat", seatId).catch(err => console.error(err));
+                                } else {
+                                    
+                                    await connection.invoke("SelectSeat", seatId)
+                                        .catch(err => {
+                                            console.error("❌ Lỗi SelectSeat:", err.message);
+                                            alert("Có lỗi xảy ra khi chọn ghế, vui lòng thử lại!");
+                                        });
+                                }
+                            });
+                        });
                     });
                 })
                 .catch(error => console.error("Lỗi:", error));
@@ -68,18 +150,28 @@ document.getElementById("time").addEventListener("change", function () {
     }
 });
 
+/**
+ * 
+ */
 
 // chọn ghế
-document.getElementById("seats").addEventListener("click", function (event) {
     let seat = event.target;
     if (seat.classList.contains("seat") && !seat.classList.contains("booked") && !seat.classList.contains("maintenance")) {
         let status;
+        let available;
+        try {
+            const response = await fetch(`/api/showtime-seat/ss/${seat.getAttribute("data-show-seat-id")}`)
+            let data = await response.json();
+            available = data.status === 0 ? 1 : 0;
+        } catch (e) {
+            console.log(e);
+            return;
+        }
         if (seat.classList.contains("selected")) {
             seat.classList.remove("selected");
             status = 0;
-        } else {
-            seat.classList.add("selected");
             status = 2;
+            seat.classList.add("selected");
         }
 
         fetch(`/api/showtime-seat/${seat.getAttribute("data-show-seat-id")}/${status}`, {
@@ -99,6 +191,10 @@ document.getElementById("seats").addEventListener("click", function (event) {
         updateTotal();
     }
 });
+/**
+ * 
+ */
+
 
 async function updateTotal() {
     let total = 0;
@@ -191,6 +287,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 } else if (product.productType === 2) {
                     productHtml = document.querySelector("#food-selection .gift");
+                } else if (product.productType === 3) {
+                    productHtml = document.querySelector("#food-selection .comboo");
                 }
                 productHtml.innerHTML += content;
             })
@@ -220,7 +318,15 @@ function addEventListenersForButtons() {
     })
 }
 
-document.getElementById('book-btn').addEventListener('click', function () {
+function getCookie(name) {
+    let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    localStorage.setItem("match", match);
+    if (match) {
+        return match[2];  // Return the cookie value
+    }
+    return null;  // Return null if the cookie is not found
+}
+
     let seatSelecteds = document.querySelectorAll(".seat.selected");
     let selectedSeats = [];
     seatSelecteds.forEach(seat => {
@@ -240,36 +346,62 @@ document.getElementById('book-btn').addEventListener('click', function () {
         }
     })
 
+    let nameMovie = document.querySelector("#title-movie").innerHTML;
     let coupon = document.querySelector(".coupon").value;
+    let cinemaId = document.querySelector("#cinema").value;
+    let showtimeSeat;
+    const apiUrl = `/api/showtime-seat/ss/${selectedSeats[0].showTimeSeatId}`;
+    console.log("Fetching from:", apiUrl);
+    try {
+        let response = await fetch(apiUrl);
+        showtimeSeat = await response.json();
+        console.log("Fetched data:", showtimeSeat);
+    } catch (error) {
+        console.log("Fetch error:", error);
+        return;  // Dừng hàm nếu fetch bị lỗi
+    }
+
+    let showtime;
+    try {
+        let response = await fetch(`/api/showtime/getById/${showtimeSeat.showtimeID}`)
+        showtime = await response.json();
+    } catch (e) {
+        console.error(e);
+        return;
+    }
+
+    let cinema;
+
+    try {
+        let response = await fetch(`/api/cinemas/id/${cinemaId}`);
+        cinema = await response.json();
+    } catch (e) {
+        console.error(e);
+        return;
+    }
 
     let bookingData = {
         Coupon: coupon,
                 Seats: selectedSeats,
         Items: selectedFoods,
-        TotalAmount: document.querySelector("#total-price").innerText.replace(/\D/g, "") // Chuyển đổi số tiền
     };
-
-    fetch(`/Guest/Payment/CreatePayment`, {
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(bookingData),
-    }).then(response => response.json())
-        .then(data => {
-            if (data.paymentUrl) {
-                window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
-            } else {
-                alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
-            }
-        })
-        .catch(error => console.error("Lỗi khi gọi API:", error));
+        fetch(`/Guest/Payment/CreatePayment`, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(bookingData),
+        }).then(response => response.json())
+            .then(data => {
+                if (data.paymentUrl) {
+                    window.location.href = data.paymentUrl; // ✅ Redirect người dùng tới PayOS
+                } else {
+                    alert("Lỗi khi tạo thanh toán, vui lòng thử lại.");
+                    bookBtn.disabled = false;
+                }
+            })
 })
 
-$(document).ready(function () {
-    // Submit the form
-    $("#booking-summary").submit();
-});
 
 
 document.addEventListener("DOMContentLoaded", function () {
