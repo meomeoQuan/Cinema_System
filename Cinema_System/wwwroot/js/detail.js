@@ -528,12 +528,12 @@ document.getElementById('book-btn').addEventListener('click', async function () 
     // --- 4. NGẮT KẾT NỐI THỦ CÔNG (AN TOÀN) ---
     // Lúc này Server đã xác nhận (bước 2), nên ngắt kết nối ở đây là an toàn.
     // OnDisconnectedAsync sẽ chạy nhưng không tìm thấy state -> không hủy ghế.
-    try {
-        await connection.stop();
-        console.log("🛑 Đã ngắt kết nối SignalR để chuyển trang.");
-    } catch (e) {
-        console.warn("Lỗi khi ngắt kết nối:", e);
-    }
+    //try {
+    //    await connection.stop();
+    //    console.log("🛑 Đã ngắt kết nối SignalR để chuyển trang.");
+    //} catch (e) {
+    //    console.warn("Lỗi khi ngắt kết nối:", e);
+    //}
 
     if (user != null) {
         fetch(`/Guest/Payment/CreatePayment`, {
