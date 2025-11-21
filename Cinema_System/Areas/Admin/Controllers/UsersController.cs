@@ -42,6 +42,8 @@ namespace Cinema_System.Areas.Admin.Controllers
             foreach (var user in users)
             {
                 user.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Guest";
+                // dung lo em default neu ma luc 
+                // create user ko set role thi no se la guest -- quan 
             }
 
             ViewBag.RolesList = _roleManager.Roles
@@ -143,9 +145,9 @@ namespace Cinema_System.Areas.Admin.Controllers
                         return Json(new { success = false, message = "Invalid email format." });
                 }
                 catch
-                        {
+                {
                     return Json(new { success = false, message = "Invalid email format." });
-                        }
+                }
 
                 if (await _unitOfWork.ApplicationUser.AnyAsync(u => u.Email == updatedUser.Email && u.Id != updatedUser.Id))
                     return Json(new { success = false, message = "This email already exists." });
@@ -171,25 +173,25 @@ namespace Cinema_System.Areas.Admin.Controllers
                 var result = await _userManager.UpdateAsync(user);
 
                 if (result.Succeeded)
-                        {
+                {
                     return Json(new { success = true, message = "User updated successfully." });
                 }
 
                 return Json(new { success = false, message = "Error when updating user: " + string.Join(", ", result.Errors.Select(e => e.Description)) });
-                        }
+            }
             catch (Exception ex)
-                        {
+            {
                 return Json(new { success = false, message = $"Error: {ex.Message}" });
-                        }
-                        }
+            }
+        }
 
         internal static async Task<IEnumerable<ApplicationUser>> GetUsersByRole(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, string role_Admin)
-                        {
+        {
             var role = await roleManager.FindByNameAsync(role_Admin);
             if (role == null)
-                        {
+            {
                 throw new ArgumentException("Role not found.");
-                }
+            }
 
             var usersInRole = await userManager.GetUsersInRoleAsync(role_Admin);
             var applicationUsers = usersInRole.Select(user => new ApplicationUser
@@ -224,8 +226,8 @@ namespace Cinema_System.Areas.Admin.Controllers
             // Dùng SetLockoutEndDateAsync là cách làm đúng chuẩn của Identity
             var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
 
-                if (result.Succeeded)
-                {
+            if (result.Succeeded)
+            {
                 return Json(new { success = true, message = "User locked successfully." });
             }
 

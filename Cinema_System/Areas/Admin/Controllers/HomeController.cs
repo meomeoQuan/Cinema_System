@@ -45,7 +45,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             var groupedRevenue = orders
                 .GroupBy(o => new { o.CreatedAt.Year, o.CreatedAt.Month })
                 .Select(g => new
-        {
+                {
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     Amount = g.Sum(o => o.TotalAmount)
