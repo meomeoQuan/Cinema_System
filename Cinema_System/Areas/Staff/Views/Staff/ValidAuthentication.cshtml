@@ -15,7 +15,20 @@
     var firstUser = userGroup.FirstOrDefault();
     var UserName = firstUser.Order.User.UserName;
     var UserEmail = firstUser.Order.User.Email;
+    var UserGroup = firstUser.Order.RecipientEmails;
+    var countRecipients = UserGroup?.Split(',').Length ?? 0;
     <h3>Customer: @(UserEmail ?? UserName)</h3>
+    <h6>
+        @if(countRecipients > 1)
+        {
+            @($"GroupFriend: ( {UserGroup} ")
+        }
+        else
+        {
+            
+        }
+    )
+    </h6>
 }
   <h3>Your Ticket Include: </h3>
 

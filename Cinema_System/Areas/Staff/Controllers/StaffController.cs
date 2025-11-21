@@ -75,7 +75,7 @@ namespace Cinema_System.Areas.Staff.Controllers
                 // 7. Load order details for view
                 IEnumerable<OrderDetail> order = await _unitOfWork.OrderDetail.GetAllAsync(
                     u => u.OrderID.ToString() == OrderID,
-                    includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User"
+                    includeProperties: "Product,ShowtimeSeat.Showtime,ShowtimeSeat.Showtime.Room,ShowtimeSeat.Showtime.Room.Theater,ShowtimeSeat.Showtime.Movie,ShowtimeSeat.Seat,Order.Coupon,Order.User,Order"
                 );
 
                 return View(order);
