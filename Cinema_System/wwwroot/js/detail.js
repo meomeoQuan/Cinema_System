@@ -279,7 +279,7 @@ async function updateTotal() {
 }
 
 
-document.getElementById('book-btn').addEventListener('click', async function () {
+document.getElementById('book-btn').addEventListener('click', async function (event) {
 
     event.preventDefault();
 
