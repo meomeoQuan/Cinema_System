@@ -1,4 +1,4 @@
-﻿@using Cinema.Utility
+﻿﻿@using Cinema.Utility
 @using Cinema_System.Areas.Admin.Controllers
 @model IEnumerable<ApplicationUser>
 
@@ -242,7 +242,7 @@
                     var field = cell.data('field');
                     // var value = field === 'Role' ? cell.find('select').val() : cell.text().trim();
                     var value = field === 'Role' ? cell.find('select').val() : cell.find('input').val().trim();
-                    
+
                     currentValues[field] = value;
                     if (originalValues[field] != value) hasChanged = true;
                 });
@@ -253,7 +253,7 @@
                     revertRowToDisplayMode(row, originalValues);
                     return;
                 }
-  
+
                 // if (!currentValues.FullName) { toastr.error("Full name cannot be empty."); validationPassed = false; }
                 // if (!currentValues.Email) { toastr.error("Email cannot be empty."); validationPassed = false; }
                 // if (!/^\d{10}$/.test(currentValues.PhoneNumber)) { toastr.error("Phone number must be a 10-digit number."); validationPassed = false; }
