@@ -23,12 +23,12 @@ namespace Cinema_System.Areas.Request
 
         private static readonly ConcurrentDictionary<string, ConnectionState> _connectionStates = new ConcurrentDictionary<string, ConnectionState>();
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<CountdownHub> _hubContext;
 
-        public CountdownHub(IServiceProvider serviceProvider, IHubContext<CountdownHub> hubContext)
+        public CountdownHub(IServiceScopeFactory scopeFactory, IHubContext<CountdownHub> hubContext)
         {
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _hubContext = hubContext;
         }
 
@@ -49,7 +49,7 @@ namespace Cinema_System.Areas.Request
                     state.CountdownTime--;
                 }
 
-                if (!token.IsCancellationRequested)
+                if (state.CountdownTime <= 0)
                 {
                     // Timer kết thúc bình thường
                     await _hubContext.Clients.Client(connectionId).SendAsync("CountdownFinished", state.SelectedSeats);
@@ -62,6 +62,8 @@ namespace Cinema_System.Areas.Request
                         state.SelectedSeats.Clear(); // Xóa ngay lập tức
                     }
                     await ReleaseSeats(seatsToRelease); // Giải phóng bản copy
+
+                    
                 }
             }
             catch (TaskCanceledException) { /* Bị hủy, không làm gì */ }
@@ -175,38 +177,91 @@ namespace Cinema_System.Areas.Request
         }
 
         // Hàm này giải phóng NHIỀU ghế
+        // Trong CountdownHub.cs
+
+        // 1. Hàm giải phóng nhiều ghế (Dùng cho Timer và Disconnect)
         private async Task ReleaseSeats(HashSet<int> seatsToRelease)
         {
-            if (seatsToRelease.Count == 0) return; // Dòng này là lý do code bạn không chạy
-
-            using (var scope = _serviceProvider.CreateScope())
+            if (seatsToRelease == null || seatsToRelease.Count == 0)
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var showtimeApi = new ShowtimeSeatApiController(dbContext);
+                Console.WriteLine("⚠️ [ReleaseSeats] Không có ghế nào để giải phóng.");
+                return;
+            }
 
-                foreach (int seat in seatsToRelease)
+            Console.WriteLine($"👉 [ReleaseSeats] Bắt đầu giải phóng {seatsToRelease.Count} ghế...");
+            
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                // 1. Lấy DbContext
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                int successCount = 0;
+
+                foreach (int seatId in seatsToRelease)
                 {
                     try
                     {
-                        await showtimeApi.PutSTSeatStatus(seat, 0);
+                        // 2. Tìm ghế trực tiếp trong DB
+                        // LƯU Ý: Kiểm tra kỹ tên bảng là 'showTimeSeats' hay 'ShowtimeSeats' trong DbContext của bạn
+                        var seatEntity = await dbContext.showTimeSeats.FindAsync(seatId);
+
+                        if (seatEntity != null)
+                        {
+                            // 3. Cập nhật trạng thái
+                            seatEntity.Status = 0;
+                            successCount++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"❌ [ReleaseSeats] Không tìm thấy ghế ID: {seatId} trong DB.");
+                        }
                     }
-                    catch (Exception ex) { /* PHẢI GHI LOG LỖI Ở ĐÂY */ }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ [ReleaseSeats] Lỗi khi tìm ghế {seatId}: {ex.Message}");
+                    }
+                }
+
+                // 4. Lưu thay đổi xuống Database
+                if (successCount > 0)
+                {
+                    try
+                    {
+                        await dbContext.SaveChangesAsync();
+                        Console.WriteLine($"✅ [ReleaseSeats] ĐÃ LƯU THÀNH CÔNG {successCount} ghế xuống Database.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"🔥 [ReleaseSeats] Lỗi nghiêm trọng khi SaveChanges: {ex.Message}");
+                        if (ex.InnerException != null)
+                        {
+                            Console.WriteLine($"   Chi tiết: {ex.InnerException.Message}");
+                        }
+                    }
                 }
             }
         }
 
-        // Hàm này cập nhật MỘT ghế
+        // 2. Hàm cập nhật 1 ghế (Dùng cho Select/Deselect)
         private async Task UpdateSeatStatus(int seatId, int status)
         {
-            using (var scope = _serviceProvider.CreateScope())
+            using (var scope = _scopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var showtimeApi = new ShowtimeSeatApiController(dbContext);
                 try
                 {
-                    await showtimeApi.PutSTSeatStatus(seatId, status);
+                    var seat = await dbContext.showTimeSeats.FindAsync(seatId);
+                    if (seat != null)
+                    {
+                        seat.Status = (ShowtimeSeatStatus)status; // Ép kiểu về Enum nếu cần
+                        await dbContext.SaveChangesAsync();
+                        // Console.WriteLine($"✅ Đã update ghế {seatId} -> {status}");
+                    }
                 }
-                catch (Exception ex) { Console.WriteLine("Lỗi không thể thay đổi ở database"); }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Lỗi UpdateSeatStatus: {ex.Message}");
+                }
             }
         }
     }

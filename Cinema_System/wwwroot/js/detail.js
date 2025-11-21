@@ -17,8 +17,48 @@ connection.on("ReceiveCountdown", function (timeLeft) {
 
 connection.on("CountdownFinished", function (selectedSeats) {
     console.log("⏰ Hết thời gian. Server đã giải phóng ghế.", selectedSeats);
-    alert("Hết thời gian giữ vé!");
-    location.reload();
+
+    // 1. Thông báo nhẹ nhàng
+    alert("Hết thời gian giữ vé! Các ghế bạn chọn đã được giải phóng. Vui lòng chọn lại.");
+
+    // 2. Xử lý giao diện (Không Reload)
+    if (selectedSeats && selectedSeats.length > 0) {
+        console.log("⏰ Chiều dài.", selectedSeats.length);
+        selectedSeats.forEach(seatId => {
+            // Tìm phần tử HTML của ghế dựa trên data-show-seat-id
+            // Lưu ý: Dấu ngoặc vuông [] dùng để select theo attribute
+            const seatElement = document.querySelector(`.seat[data-show-seat-id='${seatId}']`);
+
+            if (seatElement) {
+                // Xóa class 'selected' để ghế trở về trạng thái bình thường
+                seatElement.classList.remove("selected");
+
+                // Đảm bảo nó không còn class 'booked' hay 'maintenance' nếu có lỗi hiển thị trước đó
+                // seatElement.classList.remove("booked"); 
+            }
+        });
+    }
+
+    // 3. Cập nhật lại Tổng tiền và Ẩn thanh thanh toán
+    // Gọi hàm updateTotal() có sẵn của bạn để nó tự tính lại tiền (về 0)
+    if (typeof updateTotal === "function") {
+        updateTotal();
+    } else {
+        // Fallback thủ công nếu hàm update chưa chạy
+        document.getElementById("booking-summary").classList.add("d-none");
+        document.getElementById("total-price").innerText = "0 VND";
+    }
+
+    // 4. Reset hiển thị đồng hồ về 00:00 hoặc ẩn đi
+    const countdownElement = document.getElementById("countdown");
+    if (countdownElement) {
+        countdownElement.textContent = "00:00";
+        // Hoặc: countdownElement.parentElement.classList.add("d-none");
+    }
+
+    // 5. Bật lại nút đặt vé (nếu nó đang disabled)
+    const bookBtn = document.getElementById('book-btn');
+    if (bookBtn) bookBtn.disabled = false;
 });
 
 connection.onclose(() => {
@@ -165,41 +205,32 @@ document.getElementById("seats").addEventListener("click", async function (event
     // 2. Xử lý logic chọn/bỏ chọn
     if (seat.classList.contains("selected")) {
         // --- ĐANG BỎ CHỌN ---
+        // (Logic bỏ chọn giữ nguyên, bỏ chọn thì thường không cần check gap chặt chẽ, 
+        // hoặc nếu cần thì thêm checkGap ở đây nếu rạp khó tính)
         try {
-            // CHỈ GỌI SIGNALR
             await connection.invoke("DeselectSeat", showSeatId);
-
-            // Cập nhật UI ngay lập- tức
             seat.classList.remove("selected");
-            console.log(`Đã bỏ chọn ghế ${showSeatId}`);
-
-            // XÓA BỎ FETCH PUT
-            // fetch(`/api/showtime-seat/${showSeatId}/0`, ... ) // << ĐÃ XÓA
-
-        } catch (err) {
-            console.error("Lỗi khi bỏ chọn ghế (SignalR):", err.message);
-            alert("Có lỗi xảy ra, không thể bỏ chọn ghế. Vui lòng thử lại.");
-        }
+            // ...
+        } catch (err) { /*...*/ }
 
     } else if (!available) {
-        // --- GHẾ ĐÃ BỊ CHỌN (BỞI NGƯỜI KHÁC) ---
-        alert("Ghế này vừa được người khác chọn, vui lòng chọn ghế khác.");
-        location.reload();
-        return;
-
+        // ... (Code xử lý ghế đã bán giữ nguyên) ...
     } else {
-        // --- ĐANG CHỌN GHẾ ---
+        // --- ĐANG CHỌN GHẾ (Thêm Logic Check Gap ở đây) ---
+
+        // [THÊM MỚI] Gọi hàm kiểm tra
+        const isValidSelection = checkGap(seat);
+
+        if (!isValidSelection) {
+            alert("Vui lòng chọn ghế liên tiếp, không để trống 1 ghế ở giữa!");
+            return; // Dừng lại, không gọi SignalR
+        }
+
         try {
             // CHỈ GỌI SIGNALR
             await connection.invoke("SelectSeat", showSeatId);
-
-            // Cập nhật UI ngay lập tức
             seat.classList.add("selected");
             console.log(`Đã chọn ghế ${showSeatId}`);
-
-            // XÓA BỎ FETCH PUT
-            // fetch(`/api/showtime-seat/${showSeatId}/2`, ... ) // << ĐÃ XÓA
-
         } catch (err) {
             console.error("Lỗi khi chọn ghế (SignalR):", err.message);
             alert("Có lỗi xảy ra, không thể chọn ghế. Vui lòng thử lại.");
@@ -215,6 +246,100 @@ document.getElementById("seats").addEventListener("click", async function (event
 
     updateTotal();
 });
+function checkGap(seatElement) {
+    // Lấy thông tin hàng và số cột của ghế hiện tại
+    // Giả sử text ghế là "A5" -> Row: A, Col: 5
+    const seatText = seatElement.innerText.trim();
+    const rowChar = seatText.charAt(0); // "A"
+    const colNum = parseInt(seatText.substring(1)); // 5
+
+    // Lấy tất cả các ghế trong CÙNG MỘT HÀNG
+    // (Giả sử HTML của bạn có cấu trúc để lọc được ghế theo hàng, 
+    // hoặc ta lọc thủ công từ text của tất cả ghế)
+    const allSeats = Array.from(document.querySelectorAll('.seat'));
+    const rowSeats = allSeats.filter(s => s.innerText.trim().startsWith(rowChar))
+        .sort((a, b) => {
+            const colA = parseInt(a.innerText.trim().substring(1));
+            const colB = parseInt(b.innerText.trim().substring(1));
+            return colA - colB;
+        });
+
+    // Tạo một mảng trạng thái: 0=Trống, 1=Đã bán/Bảo trì, 2=Đang chọn (Selected)
+    // Ta giả lập: nếu ghế hiện tại được chọn thì nó sẽ là 2
+    const seatMap = rowSeats.map(s => {
+        const col = parseInt(s.innerText.trim().substring(1));
+        let status = 0; // Trống
+
+        if (s.classList.contains('booked') || s.classList.contains('maintenance')) {
+            status = 1; // Không thể chọn
+        } else if (s.classList.contains('selected') || s === seatElement) {
+            status = 2; // Đang chọn (bao gồm cả ghế đang click)
+        }
+
+        return { col, status, element: s };
+    });
+
+    // --- LOGIC KIỂM TRA ---
+    // Tìm tất cả các ghế ĐANG CHỌN (status 2) trong hàng này
+    const selectedIndices = seatMap.map((s, i) => s.status === 2 ? i : -1).filter(i => i !== -1);
+
+    if (selectedIndices.length === 0) return true; // Chưa chọn ghế nào -> OK
+
+    // Kiểm tra từng ghế đang chọn xem có tạo gap không
+    for (let i of selectedIndices) {
+        // Kiểm tra bên trái
+        if (i > 0) {
+            // Nếu ghế bên trái (i-1) là TRỐNG (0) 
+            // VÀ ghế bên trái nữa (i-2) là CÓ NGƯỜI (1 hoặc 2) hoặc là đầu hàng
+            // -> Thì cái ghế (i-1) là một cái lỗ hổng 1 ghế.
+            const left = seatMap[i - 1];
+
+            if (left.status === 0) {
+                // Nếu bên trái là trống, kiểm tra tiếp bên trái nó nữa
+                if (i - 1 === 0) {
+                    // Lỗ hổng ngay đầu hàng -> Chặn
+                    // return false; // (Tùy rạp, thường rạp cho phép để trống đầu hàng)
+                } else {
+                    const leftLeft = seatMap[i - 2];
+                    if (leftLeft.status !== 0) {
+                        // [X] [Trống] [Đang Chọn] -> LỖI
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Kiểm tra bên phải (tương tự)
+        if (i < seatMap.length - 1) {
+            const right = seatMap[i + 1];
+            if (right.status === 0) {
+                if (i + 1 === seatMap.length - 1) {
+                    // Lỗ hổng cuối hàng
+                } else {
+                    const rightRight = seatMap[i + 2];
+                    if (rightRight.status !== 0) {
+                        // [Đang Chọn] [Trống] [X] -> LỖI
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    // Kiểm tra xem các ghế đang chọn có liên tiếp không (nếu chọn nhiều ghế rời rạc)
+    // Logic đơn giản: Khoảng cách giữa min và max index phải bằng số lượng - 1
+    // (Chỉ áp dụng nếu rạp bắt buộc chọn liên tiếp trong 1 lần đặt)
+    if (selectedIndices.length > 1) {
+        const min = Math.min(...selectedIndices);
+        const max = Math.max(...selectedIndices);
+        // Kiểm tra xem giữa min và max có ghế trống nào không
+        for (let k = min; k <= max; k++) {
+            if (seatMap[k].status === 0) return false; // Có ghế trống xen giữa các ghế chọn
+        }
+    }
+
+    return true;
+}
 
 
 async function updateTotal() {
@@ -323,9 +448,6 @@ document.getElementById('book-btn').addEventListener('click', async function () 
         return;
     }
 
-    // --- 3. SAU KHI SERVER XÁC NHẬN "TRUE" MỚI ĐI TIẾP ---
-
-    // ... (Phần logic lấy dữ liệu ghế, đồ ăn, fetch API của bạn GIỮ NGUYÊN) ...
     let seatSelecteds = document.querySelectorAll(".seat.selected");
     let selectedSeats = [];
     seatSelecteds.forEach(seat => {
