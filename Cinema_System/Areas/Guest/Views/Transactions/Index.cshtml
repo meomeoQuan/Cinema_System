@@ -1,0 +1,83 @@
+﻿@using Cinema.Utility
+@model IEnumerable<Cinema.Models.OrderTable>
+
+<body style="background-color: #0b0b0f; color: white;">
+
+    <section class="container my-5 p-4 rounded shadow" style="background-color: #141218;">
+        <h3 class="mb-4 text-center" style="color: #c9a3ff;">🧾 Your Orders</h3>
+
+        <div class="table-responsive rounded">
+            <table class="table table-bordered table-hover align-middle text-white" style="background-color: #1a171f;">
+                <thead style="background-color: #2c2340;">
+                    <tr>
+                        <th scope="col">Order ID</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var orderTable in Model)
+                    {
+                        <tr data-order-id="@orderTable.OrderID">
+                            <td>@orderTable.OrderID</td>
+                            <td>@orderTable.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td>@orderTable.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                            <td>@orderTable.Status</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm" style="background-color: #6f42c1; color: white;" data-order-id="@orderTable.OrderID">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Modal for Order Details -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background-color: #1f1b26; color: white; border: 1px solid #6f42c1;">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title" id="orderDetailsModalLabel" style="color: #c9a3ff;">Order Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderDetailsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.view-btn').click(function () {
+                var orderId = $(this).data('order-id');
+
+                $.get('/Admin/Transactions/GetOrderDetails', { orderId: orderId }, function (data) {
+                    if (data.success) {
+                        var details = data.data;
+                        var detailsHtml = '<ul class="list-unstyled">';
+                        details.forEach(function (item) {
+                            var formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.Price);
+                            detailsHtml += '<li>' + item.ProductName + ' - <strong>Quantity:</strong> ' + item.Quantity + ' - <strong>Price:</strong> ' + formattedPrice + '</li>';
+                        });
+                        detailsHtml += '</ul>';
+                        $('#orderDetailsContainer').html(detailsHtml);
+                        var orderDetailsModal = new bootstrap.Modal($('#orderDetailsModal'));
+                        orderDetailsModal.show();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>

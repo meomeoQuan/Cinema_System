@@ -59,7 +59,7 @@ namespace Cinema.Models
             set { }
         }
 
-       
+
         [ForeignKey("OrderID")]
         [ValidateNever]
         [InverseProperty("OrderDetails")]

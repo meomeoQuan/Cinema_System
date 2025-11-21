@@ -456,7 +456,7 @@ namespace Cinema_System.Areas
 
 
 
-      
+
 
 
         #endregion

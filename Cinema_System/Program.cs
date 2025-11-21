@@ -175,6 +175,12 @@ app.MapControllerRoute(
     pattern: "{area=Guest}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+//route mapping cho area Staff
+//app.MapControllerRoute(
+//    name: "areas",
+//    pattern: "staff/products/{action=Index}/{id?}",
+//    defaults: new { area = "Staff", controller = "ProductStaff" });
+
 // Add middleware to handle role-based redirects
 app.Use(async (context, next) =>
 {
@@ -183,7 +189,7 @@ app.Use(async (context, next) =>
     {
         var isAdmin = context.User.IsInRole(SD.Role_Admin);
         var path = context.Request.Path.ToString().ToLower();
-
+        //var isStaff = context.User.IsInRole(SD.Role_Staff);
         // 2. Skip redirect for static files, API calls, and Identity pages
         if (!path.StartsWith("/lib/") &&
             !path.StartsWith("/api/") &&
@@ -192,7 +198,7 @@ app.Use(async (context, next) =>
             // 3. Redirect Admin users to admin area if not already in admin path
             if (isAdmin && !path.StartsWith("/admin"))
             {
-                context.Response.Redirect("/Admin/Users/Index");
+                context.Response.Redirect("/Admin/Home/Revenue");
                 return;
             }
             // 4. Redirect non-Admin users out of admin path
@@ -201,6 +207,10 @@ app.Use(async (context, next) =>
                 context.Response.Redirect("/Guest/Home/Index");
                 return;
             }
+            //else if (isStaff && !path.StartsWith("/staff"))
+            //{
+            //    context.Response.Redirect("/Staff")
+            //}
         }
     }
 

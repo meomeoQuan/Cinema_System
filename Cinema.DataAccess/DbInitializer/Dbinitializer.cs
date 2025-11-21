@@ -117,9 +117,6 @@ namespace Cinema.DataAccess.DbInitializer
                     _userManager.AddToRoleAsync(user2, SD.Role_Staff).GetAwaiter().GetResult();
                 }
             }
-
-
-
         }
     }
 }

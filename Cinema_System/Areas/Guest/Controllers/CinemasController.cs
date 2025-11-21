@@ -32,20 +32,5 @@ namespace Cinema_System.Areas.Guest.Controllers
 
             return Ok(cinemas);
         }
-        
-        [HttpGet("id/{cinemaId}")]
-        public async Task<IActionResult> GetCinemasById(int cinemaId)
-        {
-            var cinemas = await _context.Theaters
-                .Where(t => t.CinemaID == cinemaId && t.Status == CinemaStatus.Open)
-                .FirstOrDefaultAsync();
-
-            if (cinemas == null)
-            {
-                return NotFound(new { message = "Không tìm thấy rạp nào trong thành phố này." });
-            }
-
-            return Ok(cinemas);
-        }
     }
 }

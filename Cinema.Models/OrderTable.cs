@@ -63,5 +63,3 @@ namespace Cinema.Models
         Cancelled
     }
 }
-
-

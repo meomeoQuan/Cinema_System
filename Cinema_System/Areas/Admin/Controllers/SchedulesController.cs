@@ -63,13 +63,13 @@ namespace Cinema_System.Areas.Admin.Controllers
 
                 var roomEntity = await _unitOfWork.Room.GetAsync(r => r.RoomID == model.RoomID, includeProperties: "Seats");
 
-                if (roomEntity == null)
-                {
-                    return Json(new { success = false, message = "Invalid room." });
-                }
+            if (roomEntity == null)
+            {
+                return Json(new { success = false, message = "Invalid room." });
+            }
                 await _unitOfWork.ShowTimeSeat.AddRangeAsync(AutoGenerateTickets(roomEntity, model));
 
-                await _unitOfWork.SaveAsync();
+            await _unitOfWork.SaveAsync();
 
 
                 return Json(new { success = true, message = "Showtime created successfully!" });
@@ -118,7 +118,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             try
             {
                 _unitOfWork.showTime.Update(showtimeFromDb);
-                await _unitOfWork.SaveAsync();
+            await _unitOfWork.SaveAsync();
                 return Json(new { success = true, message = "Showtime updated successfully." });
             }
             catch (Exception ex)
@@ -146,7 +146,7 @@ namespace Cinema_System.Areas.Admin.Controllers
             if (isConflict)
             {
                 return "A showtime already exists for this room at the selected date and time.";
-            }
+        }
 
             return null;
         }

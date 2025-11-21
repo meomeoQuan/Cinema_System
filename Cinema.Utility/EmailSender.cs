@@ -35,8 +35,5 @@ namespace Cinema.Utility
             message.To.Add(email); // recipient
             return client.SendMailAsync(message);
         }
-
-     
-
     }
 }
