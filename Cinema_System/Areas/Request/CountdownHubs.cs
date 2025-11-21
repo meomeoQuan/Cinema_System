@@ -16,7 +16,7 @@ namespace Cinema_System.Areas.Request
     {
         private class ConnectionState
         {
-            public int CountdownTime { get; set; } = 30; // 30 giây
+            public int CountdownTime { get; set; } = 300; // 30 giây
             public HashSet<int> SelectedSeats { get; } = new HashSet<int>();
             public CancellationTokenSource TimerTokenSource { get; set; }
         }
@@ -51,7 +51,8 @@ namespace Cinema_System.Areas.Request
 
                 if (state.CountdownTime <= 0)
                 {
-
+                    // Timer kết thúc bình thường
+                    await _hubContext.Clients.Client(connectionId).SendAsync("CountdownFinished", state.SelectedSeats);
 
                     // Lấy danh sách ghế để giải phóng
                     HashSet<int> seatsToRelease;
@@ -62,8 +63,7 @@ namespace Cinema_System.Areas.Request
                     }
                     await ReleaseSeats(seatsToRelease); // Giải phóng bản copy
 
-                    // Timer kết thúc bình thường
-                    await _hubContext.Clients.Client(connectionId).SendAsync("CountdownFinished", state.SelectedSeats);
+
                 }
             }
             catch (TaskCanceledException) { /* Bị hủy, không làm gì */ }
@@ -266,4 +266,3 @@ namespace Cinema_System.Areas.Request
         }
     }
 }
-
